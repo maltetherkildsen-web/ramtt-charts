@@ -4,6 +4,7 @@
  * Chart test page — visual smoke test for the chart primitives.
  *
  * Route: /chart-test
+ * Shows: Power, HR, Cadence, Speed, and a bar chart demo.
  */
 
 import { useMemo, useState, useCallback } from 'react'
@@ -18,11 +19,12 @@ import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/Chart
 import { ChartBar } from '@/components/charts/primitives/ChartBar'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
-// ─── Zone definitions ───
+// ─── Constants ───
 
 const FTP = 240
+const MAX_HR = 185
 
-/** HR zones (% of max HR, using 185 as example max). */
+/** HR zones (% of max HR). */
 const HR_ZONES: ZoneDefinition[] = [
   { min: 0,    max: 0.60, color: '#94a3b8', label: 'Z1' },
   { min: 0.60, max: 0.70, color: '#22c55e', label: 'Z2' },
@@ -32,44 +34,22 @@ const HR_ZONES: ZoneDefinition[] = [
   { min: 1.00, max: Infinity, color: '#dc2626', label: 'Z5+' },
 ]
 
-const MAX_HR = 185
+// ─── Mock data generators ───
 
-/**
- * CHO Zones — carbohydrate oxidation rate zones.
- *
- * RAMTT's own concept — no established standard exists.
- * Blue/cyan spectrum to stay visually distinct from the
- * classic grey→green→yellow→orange→red power zones.
- *
- * Semantics: low oxidation = cool/calm, high = hot/alarm.
- * Threshold = estimated max CHO oxidation rate (g/hr).
- * Placeholder values — fintune with Daniel later.
- */
-const CHO_ZONES: ZoneDefinition[] = [
-  { min: 0,    max: 0.30, color: '#94a3b8', label: 'C1' },  // Minimal — slate grey
-  { min: 0.30, max: 0.50, color: '#38bdf8', label: 'C2' },  // Low — sky blue
-  { min: 0.50, max: 0.70, color: '#2dd4bf', label: 'C3' },  // Moderate — teal
-  { min: 0.70, max: 0.85, color: '#a78bfa', label: 'C4' },  // High — violet
-  { min: 0.85, max: 1.00, color: '#e879f9', label: 'C5' },  // Very high — fuchsia
-  { min: 1.00, max: Infinity, color: '#f43f5e', label: 'C6' }, // Critical — rose
-]
-
-/** Simulated max CHO oxidation rate (g/hr) for demo. */
-const MAX_CHO = 90
-
-// ─── Mock data ───
-
-function generatePowerData(points = 200): number[] {
-  const data: number[] = new Array(points)
-
-  let seed = 42
-  const rand = () => {
-    seed |= 0
-    seed = (seed + 0x6d2b79f5) | 0
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
+function makePRNG(seed: number) {
+  let s = seed
+  return () => {
+    s |= 0
+    s = (s + 0x6d2b79f5) | 0
+    let t = Math.imul(s ^ (s >>> 15), 1 | s)
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
+}
+
+function generatePowerData(points = 200): number[] {
+  const data: number[] = new Array(points)
+  const rand = makePRNG(42)
 
   for (let i = 0; i < points; i++) {
     const t = i / points
@@ -98,66 +78,56 @@ function generatePowerData(points = 200): number[] {
       base = 160 - cd * 100
     }
 
-    const noise = (rand() - 0.5) * 18
-    data[i] = Math.max(0, Math.round(base + noise))
+    data[i] = Math.max(0, Math.round(base + (rand() - 0.5) * 18))
   }
-
   return data
 }
 
-function generateHRData(powerData: number[], points = 200): number[] {
-  const hr: number[] = new Array(points)
+function generateHRData(powerData: number[]): number[] {
+  const rand = makePRNG(99)
+  const hr: number[] = new Array(powerData.length)
+  let smooth = 110
 
-  let seed = 99
-  const rand = () => {
-    seed |= 0
-    seed = (seed + 0x6d2b79f5) | 0
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  for (let i = 0; i < powerData.length; i++) {
+    const target = 100 + (powerData[i] / 300) * 85
+    const alpha = target > smooth ? 0.08 : 0.04
+    smooth += alpha * (target - smooth)
+    hr[i] = Math.round(Math.max(90, Math.min(195, smooth + (rand() - 0.5) * 4)))
   }
-
-  let smoothHR = 110
-  for (let i = 0; i < points; i++) {
-    const targetHR = 100 + (powerData[i] / 300) * 85
-    const alpha = targetHR > smoothHR ? 0.08 : 0.04
-    smoothHR = smoothHR + alpha * (targetHR - smoothHR)
-    const noise = (rand() - 0.5) * 4
-    hr[i] = Math.round(Math.max(90, Math.min(195, smoothHR + noise)))
-  }
-
   return hr
 }
 
-/**
- * Generate CHO oxidation rate data (g/hr) correlated with power.
- * Higher power → higher CHO oxidation. Non-linear relationship
- * (exponential-ish — fat oxidation dominates at low intensity,
- * CHO takes over sharply above threshold).
- */
-function generateCHOData(powerData: number[], points = 200): number[] {
-  const cho: number[] = new Array(points)
+/** Cadence (RPM) — correlates with power, higher during intervals. */
+function generateCadenceData(powerData: number[]): number[] {
+  const rand = makePRNG(55)
+  const cad: number[] = new Array(powerData.length)
+  let smooth = 80
 
-  let seed = 77
-  const rand = () => {
-    seed |= 0
-    seed = (seed + 0x6d2b79f5) | 0
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  for (let i = 0; i < powerData.length; i++) {
+    // Higher power → higher cadence (roughly 75–105 RPM range)
+    const target = 72 + (powerData[i] / 300) * 33
+    const alpha = 0.12
+    smooth += alpha * (target - smooth)
+    cad[i] = Math.round(Math.max(60, Math.min(115, smooth + (rand() - 0.5) * 6)))
   }
+  return cad
+}
 
-  for (let i = 0; i < points; i++) {
-    const pctFTP = powerData[i] / FTP
-    // Non-linear: CHO oxidation ramps up sharply above ~0.7 FTP
-    const base = pctFTP < 0.5
-      ? pctFTP * 30              // Low intensity: mostly fat
-      : 15 + Math.pow(pctFTP - 0.5, 1.6) * 180  // Above 50%: CHO ramps hard
-    const noise = (rand() - 0.5) * 6
-    cho[i] = Math.round(Math.max(5, Math.min(120, base + noise)))
+/** Speed (km/h) — correlates with power, with more inertia/smoothing. */
+function generateSpeedData(powerData: number[]): number[] {
+  const rand = makePRNG(33)
+  const spd: number[] = new Array(powerData.length)
+  let smooth = 20
+
+  for (let i = 0; i < powerData.length; i++) {
+    // Cube root relationship: speed ∝ power^(1/3) roughly
+    const target = 12 + Math.pow(powerData[i] / 50, 0.55) * 8
+    // Speed has high inertia — slow to change
+    const alpha = 0.06
+    smooth += alpha * (target - smooth)
+    spd[i] = Math.round((smooth + (rand() - 0.5) * 1.5) * 10) / 10
   }
-
-  return cho
+  return spd
 }
 
 /** Format data index as mm:ss (15 s intervals). */
@@ -170,27 +140,27 @@ function formatTime(index: number): string {
 
 // ─── Toggle types ───
 
-type ZoneMode = 'off' | 'power' | 'hr' | 'cho'
+type ZoneMode = 'off' | 'power' | 'hr'
 
 const ZONE_MODE_LABELS: Record<ZoneMode, string> = {
   off: 'Off',
   power: 'Power',
   hr: 'HR',
-  cho: 'CHO',
 }
 
-const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr', 'cho']
+const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 
 // ─── Page ───
 
 export default function ChartTestPage() {
   const data = useMemo(() => generatePowerData(200), [])
-  const hrData = useMemo(() => generateHRData(data, 200), [data])
-  const choData = useMemo(() => generateCHOData(data, 200), [data])
+  const hrData = useMemo(() => generateHRData(data), [data])
+  const cadData = useMemo(() => generateCadenceData(data), [data])
+  const spdData = useMemo(() => generateSpeedData(data), [data])
 
-  // Interval avg power for bar chart
   const intervalAvg = useMemo(() => [145, 182, 248, 125, 262, 118, 271, 110, 280, 95], [])
   const intervalLabels = ['WU', 'Z2', 'I-1', 'Rec', 'I-2', 'Rec', 'I-3', 'Rec', 'I-4', 'CD']
+
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
   const [hrHoverIdx, setHrHoverIdx] = useState<number | null>(null)
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
@@ -200,9 +170,11 @@ export default function ChartTestPage() {
   }, [])
 
   const avg = Math.round(data.reduce((s, v) => s + v, 0) / data.length)
-  const max = Math.max(...data)
+  const peak = Math.max(...data)
   const avgHR = Math.round(hrData.reduce((s, v) => s + v, 0) / hrData.length)
   const maxHR = Math.max(...hrData)
+  const avgCad = Math.round(cadData.reduce((s, v) => s + v, 0) / cadData.length)
+  const avgSpd = (spdData.reduce((s, v) => s + v, 0) / spdData.length).toFixed(1)
 
   const formatX = useCallback((i: number) => formatTime(i), [])
 
@@ -243,31 +215,22 @@ export default function ChartTestPage() {
         </div>
 
         {/* Stats bar */}
-        <div className="flex gap-8 border-b border-[#E5E3DE] pb-3">
+        <div className="flex flex-wrap gap-x-8 gap-y-2 border-b border-[#E5E3DE] pb-3">
           <Stat label="Avg" value={`${avg}`} unit="W" />
-          <Stat label="Peak" value={`${max}`} unit="W" />
+          <Stat label="Peak" value={`${peak}`} unit="W" />
           <Stat label="Avg HR" value={`${avgHR}`} unit="bpm" />
-          <Stat label="Max HR" value={`${maxHR}`} unit="bpm" />
+          <Stat label="Avg Cad" value={`${avgCad}`} unit="rpm" />
+          <Stat label="Avg Speed" value={avgSpd} unit="km/h" />
           <Stat label="Duration" value="50:00" />
           {hoverIdx !== null && (
-            <Stat
-              label="Power"
-              value={`${data[hoverIdx]}`}
-              unit="W"
-              highlight
-            />
+            <Stat label="Power" value={`${data[hoverIdx]}`} unit="W" highlight />
           )}
           {hrHoverIdx !== null && (
-            <Stat
-              label="HR"
-              value={`${hrData[hrHoverIdx]}`}
-              unit="bpm"
-              highlight
-            />
+            <Stat label="HR" value={`${hrData[hrHoverIdx]}`} unit="bpm" highlight />
           )}
         </div>
 
-        {/* ─── Main chart (power) ─── */}
+        {/* ─── Power ─── */}
         <ChartRoot
           data={data}
           height={300}
@@ -286,14 +249,14 @@ export default function ChartTestPage() {
           <ChartCrosshair onHover={onHover} />
         </ChartRoot>
 
-        {/* ─── Heart rate chart ─── */}
+        {/* ─── Heart rate ─── */}
         <ChartRoot
           data={hrData}
-          height={180}
+          height={160}
           padding={{ right: 64 }}
           className="rounded-lg border border-[#E5E3DE] bg-white"
         >
-          <ChartAxisY format={(v) => `${v}`} />
+          <ChartAxisY />
           <ChartAxisX format={formatX} />
           <ChartRefLine y={160} label="LT2 160" />
           <ChartArea gradientColor="#ef4444" />
@@ -305,32 +268,42 @@ export default function ChartTestPage() {
           <ChartCrosshair dotColor="#ef4444" onHover={setHrHoverIdx} />
         </ChartRoot>
 
-        {/* ─── CHO oxidation chart ─── */}
+        {/* ─── Cadence ─── */}
         <ChartRoot
-          data={choData}
-          height={180}
+          data={cadData}
+          height={140}
           padding={{ right: 64 }}
           className="rounded-lg border border-[#E5E3DE] bg-white"
         >
           <ChartAxisY format={(v) => `${v}`} />
           <ChartAxisX format={formatX} />
-          <ChartRefLine y={MAX_CHO} label={`Max ${MAX_CHO} g/hr`} />
-          <ChartArea gradientColor="#a78bfa" />
-          {zoneMode === 'cho' ? (
-            <ChartZoneLine threshold={MAX_CHO} zones={CHO_ZONES} />
-          ) : (
-            <ChartLine className="fill-none stroke-violet-500 stroke-[1.5]" />
-          )}
-          <ChartCrosshair dotColor="#a78bfa" />
+          <ChartRefLine y={90} label="90 rpm" />
+          <ChartArea gradientColor="#f59e0b" />
+          <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
+          <ChartCrosshair dotColor="#f59e0b" />
         </ChartRoot>
 
-        {/* Zone legend — only show when a zone mode is active */}
+        {/* ─── Speed ─── */}
+        <ChartRoot
+          data={spdData}
+          height={140}
+          padding={{ right: 64 }}
+          className="rounded-lg border border-[#E5E3DE] bg-white"
+        >
+          <ChartAxisY format={(v) => `${v.toFixed(0)}`} />
+          <ChartAxisX format={formatX} />
+          <ChartArea gradientColor="#3b82f6" />
+          <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+          <ChartCrosshair dotColor="#3b82f6" />
+        </ChartRoot>
+
+        {/* Zone legend */}
         {zoneMode !== 'off' && (
           <div className="flex items-center gap-4">
             <span className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
-              {zoneMode === 'power' ? 'Power zones' : zoneMode === 'hr' ? 'HR zones' : 'CHO zones'}
+              {zoneMode === 'power' ? 'Power zones' : 'HR zones'}
             </span>
-            {(zoneMode === 'power' ? POWER_ZONES : zoneMode === 'hr' ? HR_ZONES : CHO_ZONES).map((z) => (
+            {(zoneMode === 'power' ? POWER_ZONES : HR_ZONES).map((z) => (
               <div key={z.label} className="flex items-center gap-1">
                 <div
                   className="h-2 w-2 rounded-full"
@@ -360,7 +333,7 @@ export default function ChartTestPage() {
             <ChartAxisX
               format={(i) => i < intervalLabels.length ? intervalLabels[i] : ''}
             />
-            <ChartRefLine y={FTP} label={`FTP`} />
+            <ChartRefLine y={FTP} label="FTP" />
             <ChartBar
               gap={4}
               radius={3}
