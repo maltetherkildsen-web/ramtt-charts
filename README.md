@@ -5,15 +5,17 @@
 ![Early Development](https://img.shields.io/badge/status-early%20development-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Custom SVG chart system built from scratch — zero Recharts, zero D3. Pure math layer + React primitives + Tailwind className styling.
+Custom SVG chart system built from scratch — zero Recharts, zero D3. Pure math layer + React primitives + Tailwind className styling. Designed for stacked sport/training charts with synced interactions.
 
 ## Features
 
 - **Zero third-party chart deps** — pure SVG + React + TypeScript
+- **Synced crosshair** — hover on one chart, crosshair moves on all charts simultaneously
+- **Scroll zoom + pan** — mouse wheel zoom centered on cursor, shift+scroll or drag to pan
 - **60fps hover** — mousemove → rAF → `setAttribute()`, zero React re-renders
 - **Tailwind-native** — style everything with `className`, no inline styles
 - **Zone-colored lines** — dynamic SVG gradient that shifts color by training zone
-- **< 12 KB** — math layer + 8 primitives, tree-shakeable
+- **< 12 KB** — math layer + primitives, tree-shakeable
 - **Responsive** — ResizeObserver-based, no fixed widths
 
 ## Primitives
@@ -23,14 +25,18 @@ Custom SVG chart system built from scratch — zero Recharts, zero D3. Pure math
 | `ChartRoot` | SVG container, scales, context provider |
 | `ChartLine` | Polyline path from data |
 | `ChartArea` | Gradient-filled area |
-| `ChartCrosshair` | Zero-rerender hover tracking |
+| `ChartBar` | Vertical bar chart with per-bar colors |
+| `ChartCrosshair` | Zero-rerender hover tracking, sync-aware |
 | `ChartAxisY` | Left Y-axis with nice ticks |
 | `ChartAxisX` | Bottom X-axis with formatted labels |
 | `ChartRefLine` | Horizontal dashed reference line |
 | `ChartZoneLine` | Line colored by training zones |
-| `ChartBar` | Vertical bar chart with per-bar colors |
+| `ChartSyncProvider` | Syncs crosshair + zoom across stacked charts |
+| `ChartZoomHandler` | Attaches scroll-zoom + drag-pan to a chart |
 
 ## Quick start
+
+### Single chart
 
 ```tsx
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
@@ -53,6 +59,28 @@ export function PowerChart() {
 }
 ```
 
+### Synced stacked charts
+
+```tsx
+import { ChartSyncProvider } from '@/components/charts/primitives/ChartSyncProvider'
+import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
+
+// Wrap multiple charts — crosshair + zoom sync automatically
+<ChartSyncProvider dataLength={power.length}>
+  <ChartRoot data={power} height={240}>
+    <ChartLine />
+    <ChartCrosshair />
+    <ChartZoomHandler />
+  </ChartRoot>
+
+  <ChartRoot data={heartRate} height={140}>
+    <ChartLine className="fill-none stroke-red-500 stroke-[1.5]" />
+    <ChartCrosshair dotColor="#ef4444" />
+    <ChartZoomHandler />
+  </ChartRoot>
+</ChartSyncProvider>
+```
+
 ## Math layer
 
 All chart math lives in `lib/charts/` — pure TypeScript, zero dependencies, zero DOM:
@@ -68,12 +96,15 @@ All chart math lives in `lib/charts/` — pure TypeScript, zero dependencies, ze
 ## Architecture
 
 ```
-mousemove → requestAnimationFrame → bisectNearest() → element.setAttribute()
-                                                        ↑
-                                              zero setState, zero re-renders
-```
+Hover (zero re-renders):
+  mousemove → rAF → bisectNearest() → setAttribute()
+    → broadcast index via ChartSyncProvider
+      → all sibling crosshairs update via refs
 
-React renders the SVG once. Hover tracking bypasses React entirely via native event listeners and direct DOM manipulation in a rAF callback.
+Zoom (React state):
+  wheel → compute new range → setZoom() → re-render with sliced data
+    → all charts share zoom range via provider
+```
 
 ## License
 
