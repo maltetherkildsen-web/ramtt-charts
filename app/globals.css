@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Fonts ── */
+  --font-body: "Instrument Sans", system-ui, sans-serif;
+  --font-sans: "Instrument Sans", system-ui, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-space: "JetBrains Mono", ui-monospace, monospace;
+  --font-label: "Space Grotesk", system-ui, sans-serif;
+
+  /* ── Surfaces ── */
+  --color-canvas: #FAF9F5;
+  --color-surface-1: #F3F1EC;
+  --color-surface-2: #ECEAE4;
+  --color-elevated: #FFFFFF;
+
+  /* ── Text ── */
+  --color-text-primary: #0F0F0E;
+  --color-text-secondary: #2A2826;
+  --color-text-tertiary: #5C5A55;
+  --color-text-muted: #8A877F;
+
+  /* ── Border ── */
+  --color-border: #E5E3DE;
+  --color-border-strong: #D5D3CE;
+}
+
+@layer base {
+  :root {
+    --background: var(--color-canvas);
+    --foreground: var(--color-text-primary);
+    --muted-foreground: var(--color-text-muted);
+    --card: var(--color-elevated);
+    --border: var(--color-border);
+  }
+
+  body {
+    font-size: 14px;
+  }
+}
