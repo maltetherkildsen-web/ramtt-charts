@@ -1,10 +1,10 @@
 'use client'
 
 /**
- * Chart test page — visual smoke test for the chart primitives.
+ * Chart test page — 5 stacked sport charts with synced crosshair + zoom.
  *
  * Route: /chart-test
- * Shows: Power, HR, Cadence, Speed, and a bar chart demo.
+ * Charts: Power · HR · Speed · Cadence · Elevation
  */
 
 import { useMemo, useState, useCallback } from 'react'
@@ -17,12 +17,16 @@ import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
 import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/ChartZoneLine'
 import { ChartBar } from '@/components/charts/primitives/ChartBar'
+import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/ChartSyncProvider'
+import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
+import { lttb } from '@/lib/charts/utils/lttb'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
 // ─── Constants ───
 
 const FTP = 240
 const MAX_HR = 185
+const TOTAL_POINTS = 200
 
 /** HR zones (% of max HR). */
 const HR_ZONES: ZoneDefinition[] = [
@@ -34,7 +38,7 @@ const HR_ZONES: ZoneDefinition[] = [
   { min: 1.00, max: Infinity, color: '#dc2626', label: 'Z5+' },
 ]
 
-// ─── Mock data generators ───
+// ─── PRNG ───
 
 function makePRNG(seed: number) {
   let s = seed
@@ -47,7 +51,9 @@ function makePRNG(seed: number) {
   }
 }
 
-function generatePowerData(points = 200): number[] {
+// ─── Data generators ───
+
+function generatePowerData(points = TOTAL_POINTS): number[] {
   const data: number[] = new Array(points)
   const rand = makePRNG(42)
 
@@ -97,41 +103,57 @@ function generateHRData(powerData: number[]): number[] {
   return hr
 }
 
-/** Cadence (RPM) — correlates with power, higher during intervals. */
 function generateCadenceData(powerData: number[]): number[] {
   const rand = makePRNG(55)
   const cad: number[] = new Array(powerData.length)
   let smooth = 80
 
   for (let i = 0; i < powerData.length; i++) {
-    // Higher power → higher cadence (roughly 75–105 RPM range)
     const target = 72 + (powerData[i] / 300) * 33
-    const alpha = 0.12
-    smooth += alpha * (target - smooth)
+    smooth += 0.12 * (target - smooth)
     cad[i] = Math.round(Math.max(60, Math.min(115, smooth + (rand() - 0.5) * 6)))
   }
   return cad
 }
 
-/** Speed (km/h) — correlates with power, with more inertia/smoothing. */
 function generateSpeedData(powerData: number[]): number[] {
   const rand = makePRNG(33)
   const spd: number[] = new Array(powerData.length)
   let smooth = 20
 
   for (let i = 0; i < powerData.length; i++) {
-    // Cube root relationship: speed ∝ power^(1/3) roughly
     const target = 12 + Math.pow(powerData[i] / 50, 0.55) * 8
-    // Speed has high inertia — slow to change
-    const alpha = 0.06
-    smooth += alpha * (target - smooth)
+    smooth += 0.06 * (target - smooth)
     spd[i] = Math.round((smooth + (rand() - 0.5) * 1.5) * 10) / 10
   }
   return spd
 }
 
-/** Format data index as mm:ss (15 s intervals). */
-function formatTime(index: number): string {
+/** Elevation (m) — gentle rolling terrain with a climb in the middle. */
+function generateElevationData(points = TOTAL_POINTS): number[] {
+  const elev: number[] = new Array(points)
+  const rand = makePRNG(17)
+
+  for (let i = 0; i < points; i++) {
+    const t = i / points
+    // Gentle undulation + a main climb from 30-60% of the ride
+    const base =
+      120 +
+      Math.sin(t * Math.PI * 2) * 15 +
+      Math.sin(t * Math.PI * 6) * 5 +
+      (t > 0.3 && t < 0.6 ? Math.sin(((t - 0.3) / 0.3) * Math.PI) * 80 : 0)
+    elev[i] = Math.round(base + (rand() - 0.5) * 3)
+  }
+  return elev
+}
+
+// ─── Smart time formatting ───
+
+/**
+ * Format time based on zoom level.
+ * Full zoom: "8:15", zoomed in: "24:45", deep zoom: "24:32".
+ */
+function formatTimeForZoom(index: number, visibleRange: number): string {
   const totalSeconds = index * 15
   const m = Math.floor(totalSeconds / 60)
   const s = totalSeconds % 60
@@ -153,200 +175,268 @@ const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 // ─── Page ───
 
 export default function ChartTestPage() {
-  const data = useMemo(() => generatePowerData(200), [])
-  const hrData = useMemo(() => generateHRData(data), [data])
-  const cadData = useMemo(() => generateCadenceData(data), [data])
-  const spdData = useMemo(() => generateSpeedData(data), [data])
-
-  const intervalAvg = useMemo(() => [145, 182, 248, 125, 262, 118, 271, 110, 280, 95], [])
-  const intervalLabels = ['WU', 'Z2', 'I-1', 'Rec', 'I-2', 'Rec', 'I-3', 'Rec', 'I-4', 'CD']
+  // Generate full datasets once
+  const fullPower = useMemo(() => generatePowerData(TOTAL_POINTS), [])
+  const fullHR = useMemo(() => generateHRData(fullPower), [fullPower])
+  const fullCadence = useMemo(() => generateCadenceData(fullPower), [fullPower])
+  const fullSpeed = useMemo(() => generateSpeedData(fullPower), [fullPower])
+  const fullElevation = useMemo(() => generateElevationData(TOTAL_POINTS), [])
 
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
-  const [hrHoverIdx, setHrHoverIdx] = useState<number | null>(null)
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
 
-  const onHover = useCallback((idx: number | null) => {
-    setHoverIdx(idx)
-  }, [])
-
-  const avg = Math.round(data.reduce((s, v) => s + v, 0) / data.length)
-  const peak = Math.max(...data)
-  const avgHR = Math.round(hrData.reduce((s, v) => s + v, 0) / hrData.length)
-  const maxHR = Math.max(...hrData)
-  const avgCad = Math.round(cadData.reduce((s, v) => s + v, 0) / cadData.length)
-  const avgSpd = (spdData.reduce((s, v) => s + v, 0) / spdData.length).toFixed(1)
-
-  const formatX = useCallback((i: number) => formatTime(i), [])
+  // Stats from full data
+  const avg = Math.round(fullPower.reduce((s, v) => s + v, 0) / fullPower.length)
+  const peak = Math.max(...fullPower)
+  const avgHR = Math.round(fullHR.reduce((s, v) => s + v, 0) / fullHR.length)
+  const avgCad = Math.round(fullCadence.reduce((s, v) => s + v, 0) / fullCadence.length)
+  const avgSpd = (fullSpeed.reduce((s, v) => s + v, 0) / fullSpeed.length).toFixed(1)
 
   return (
-    <div className="min-h-screen bg-[#FAF9F5] p-8">
-      <div className="mx-auto max-w-[860px] space-y-6">
+    <ChartSyncProvider dataLength={TOTAL_POINTS}>
+      <div className="min-h-screen bg-[#FAF9F5] p-8">
+        <div className="mx-auto max-w-[860px] space-y-4">
 
-        {/* Header */}
-        <div className="flex items-start justify-between">
-          <div>
-            <h1 className="font-serif text-[28px] tracking-tight text-[#0F0F0E]">
-              Interval Session
-            </h1>
-            <p className="mt-1 font-label text-[11px] uppercase tracking-[.09em] text-[#8A877F]">
-              4 &times; 4 min @ FTP &nbsp;&middot;&nbsp; 200 points &nbsp;&middot;&nbsp; custom SVG chart system
-            </p>
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div>
+              <h1 className="font-serif text-[28px] tracking-tight text-[#0F0F0E]">
+                Interval Session
+              </h1>
+              <p className="mt-1 font-label text-[11px] uppercase tracking-[.09em] text-[#8A877F]">
+                4 &times; 4 min @ FTP &nbsp;&middot;&nbsp; {TOTAL_POINTS} points &nbsp;&middot;&nbsp; synced crosshair + zoom
+              </p>
+            </div>
+
+            {/* Zone toggle */}
+            <div className="flex items-center gap-1 rounded-md border border-[#E5E3DE] bg-[#F3F1EC] p-0.5">
+              <span className="px-2 font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
+                Zones
+              </span>
+              {ZONE_MODES.map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setZoneMode(mode)}
+                  className={`rounded px-2.5 py-1 font-label text-[10px] uppercase tracking-[.06em] transition-colors ${
+                    zoneMode === mode
+                      ? 'bg-[#0F0F0E] text-white'
+                      : 'text-[#5C5A55] hover:text-[#0F0F0E]'
+                  }`}
+                >
+                  {ZONE_MODE_LABELS[mode]}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Zone toggle */}
-          <div className="flex items-center gap-1 rounded-md border border-[#E5E3DE] bg-[#F3F1EC] p-0.5">
-            <span className="px-2 font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
-              Zones
-            </span>
-            {ZONE_MODES.map((mode) => (
-              <button
-                key={mode}
-                onClick={() => setZoneMode(mode)}
-                className={`rounded px-2.5 py-1 font-label text-[10px] uppercase tracking-[.06em] transition-colors ${
-                  zoneMode === mode
-                    ? 'bg-[#0F0F0E] text-white'
-                    : 'text-[#5C5A55] hover:text-[#0F0F0E]'
-                }`}
-              >
-                {ZONE_MODE_LABELS[mode]}
-              </button>
-            ))}
+          {/* Stats bar */}
+          <div className="flex flex-wrap gap-x-8 gap-y-2 border-b border-[#E5E3DE] pb-3">
+            <Stat label="Avg" value={`${avg}`} unit="W" />
+            <Stat label="Peak" value={`${peak}`} unit="W" />
+            <Stat label="Avg HR" value={`${avgHR}`} unit="bpm" />
+            <Stat label="Avg Cad" value={`${avgCad}`} unit="rpm" />
+            <Stat label="Avg Speed" value={avgSpd} unit="km/h" />
+            <Stat label="Duration" value="50:00" />
+            {hoverIdx !== null && (
+              <>
+                <Stat label="Power" value={`${fullPower[hoverIdx]}`} unit="W" highlight />
+                <Stat label="HR" value={`${fullHR[hoverIdx]}`} unit="bpm" highlight />
+              </>
+            )}
           </div>
-        </div>
 
-        {/* Stats bar */}
-        <div className="flex flex-wrap gap-x-8 gap-y-2 border-b border-[#E5E3DE] pb-3">
-          <Stat label="Avg" value={`${avg}`} unit="W" />
-          <Stat label="Peak" value={`${peak}`} unit="W" />
-          <Stat label="Avg HR" value={`${avgHR}`} unit="bpm" />
-          <Stat label="Avg Cad" value={`${avgCad}`} unit="rpm" />
-          <Stat label="Avg Speed" value={avgSpd} unit="km/h" />
-          <Stat label="Duration" value="50:00" />
-          {hoverIdx !== null && (
-            <Stat label="Power" value={`${data[hoverIdx]}`} unit="W" highlight />
+          {/* ─── 5 Stacked Charts ─── */}
+          <SyncedCharts
+            fullPower={fullPower}
+            fullHR={fullHR}
+            fullCadence={fullCadence}
+            fullSpeed={fullSpeed}
+            fullElevation={fullElevation}
+            zoneMode={zoneMode}
+            onHover={setHoverIdx}
+          />
+
+          {/* Zone legend */}
+          {zoneMode !== 'off' && (
+            <div className="flex items-center gap-4">
+              <span className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
+                {zoneMode === 'power' ? 'Power zones' : 'HR zones'}
+              </span>
+              {(zoneMode === 'power' ? POWER_ZONES : HR_ZONES).map((z) => (
+                <div key={z.label} className="flex items-center gap-1">
+                  <div
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: z.color }}
+                  />
+                  <span className="font-space text-[10px] text-[#5C5A55]">
+                    {z.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           )}
-          {hrHoverIdx !== null && (
-            <Stat label="HR" value={`${hrData[hrHoverIdx]}`} unit="bpm" highlight />
-          )}
-        </div>
 
-        {/* ─── Power ─── */}
-        <ChartRoot
-          data={data}
-          height={300}
-          padding={{ right: 64 }}
-          className="rounded-lg border border-[#E5E3DE] bg-white"
-        >
-          <ChartAxisY />
-          <ChartAxisX format={formatX} />
-          <ChartRefLine y={FTP} label={`FTP ${FTP}W`} />
-          <ChartArea />
-          {zoneMode === 'power' ? (
-            <ChartZoneLine threshold={FTP} zones={POWER_ZONES} />
-          ) : (
-            <ChartLine />
-          )}
-          <ChartCrosshair onHover={onHover} />
-        </ChartRoot>
-
-        {/* ─── Heart rate ─── */}
-        <ChartRoot
-          data={hrData}
-          height={160}
-          padding={{ right: 64 }}
-          className="rounded-lg border border-[#E5E3DE] bg-white"
-        >
-          <ChartAxisY />
-          <ChartAxisX format={formatX} />
-          <ChartRefLine y={160} label="LT2 160" />
-          <ChartArea gradientColor="#ef4444" />
-          {zoneMode === 'hr' ? (
-            <ChartZoneLine threshold={MAX_HR} zones={HR_ZONES} />
-          ) : (
-            <ChartLine className="fill-none stroke-red-500 stroke-[1.5]" />
-          )}
-          <ChartCrosshair dotColor="#ef4444" onHover={setHrHoverIdx} />
-        </ChartRoot>
-
-        {/* ─── Cadence ─── */}
-        <ChartRoot
-          data={cadData}
-          height={140}
-          padding={{ right: 64 }}
-          className="rounded-lg border border-[#E5E3DE] bg-white"
-        >
-          <ChartAxisY format={(v) => `${v}`} />
-          <ChartAxisX format={formatX} />
-          <ChartRefLine y={90} label="90 rpm" />
-          <ChartArea gradientColor="#f59e0b" />
-          <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
-          <ChartCrosshair dotColor="#f59e0b" />
-        </ChartRoot>
-
-        {/* ─── Speed ─── */}
-        <ChartRoot
-          data={spdData}
-          height={140}
-          padding={{ right: 64 }}
-          className="rounded-lg border border-[#E5E3DE] bg-white"
-        >
-          <ChartAxisY format={(v) => `${v.toFixed(0)}`} />
-          <ChartAxisX format={formatX} />
-          <ChartArea gradientColor="#3b82f6" />
-          <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
-          <ChartCrosshair dotColor="#3b82f6" />
-        </ChartRoot>
-
-        {/* Zone legend */}
-        {zoneMode !== 'off' && (
-          <div className="flex items-center gap-4">
-            <span className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
-              {zoneMode === 'power' ? 'Power zones' : 'HR zones'}
-            </span>
-            {(zoneMode === 'power' ? POWER_ZONES : HR_ZONES).map((z) => (
-              <div key={z.label} className="flex items-center gap-1">
-                <div
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: z.color }}
-                />
-                <span className="font-space text-[10px] text-[#5C5A55]">
-                  {z.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* ─── Bar chart: interval avg power ─── */}
-        <div>
-          <p className="mb-2 font-label text-[11px] uppercase tracking-[.09em] text-[#8A877F]">
-            Interval Avg Power &nbsp;&middot;&nbsp; ChartBar
+          {/* Info */}
+          <p className="font-label text-[9px] uppercase tracking-[.09em] text-[#8A877F]">
+            Synced crosshair &middot; Scroll to zoom &middot; Shift+scroll or drag to pan &middot; Zero re-renders on hover
           </p>
-          <ChartRoot
-            data={intervalAvg}
-            height={180}
-            padding={{ left: 48, right: 12, top: 12, bottom: 28 }}
-            yDomain={[0, 320]}
-            className="rounded-lg border border-[#E5E3DE] bg-white"
-          >
-            <ChartAxisY />
-            <ChartAxisX
-              format={(i) => i < intervalLabels.length ? intervalLabels[i] : ''}
-            />
-            <ChartRefLine y={FTP} label="FTP" />
-            <ChartBar
-              gap={4}
-              radius={3}
-              colorFn={(v) => v >= FTP ? '#f97316' : '#22c55e'}
-            />
-          </ChartRoot>
         </div>
-
-        {/* Info */}
-        <p className="font-label text-[9px] uppercase tracking-[.09em] text-[#8A877F]">
-          Zero Recharts &middot; Zero D3 &middot; Pure SVG + React context + math layer &middot; Hover = rAF + setAttribute, zero re-renders
-        </p>
       </div>
+    </ChartSyncProvider>
+  )
+}
+
+// ─── Synced charts wrapper (reads zoom from provider) ───
+
+function SyncedCharts({
+  fullPower,
+  fullHR,
+  fullCadence,
+  fullSpeed,
+  fullElevation,
+  zoneMode,
+  onHover,
+}: {
+  fullPower: number[]
+  fullHR: number[]
+  fullCadence: number[]
+  fullSpeed: number[]
+  fullElevation: number[]
+  zoneMode: ZoneMode
+  onHover: (idx: number | null) => void
+}) {
+  const sync = useChartSync()!
+  const { zoom } = sync
+  const { start, end } = zoom
+
+  // Slice visible data from zoom range
+  const visPower = useMemo(() => fullPower.slice(start, end + 1), [fullPower, start, end])
+  const visHR = useMemo(() => fullHR.slice(start, end + 1), [fullHR, start, end])
+  const visCadence = useMemo(() => fullCadence.slice(start, end + 1), [fullCadence, start, end])
+  const visSpeed = useMemo(() => fullSpeed.slice(start, end + 1), [fullSpeed, start, end])
+  const visElevation = useMemo(() => fullElevation.slice(start, end + 1), [fullElevation, start, end])
+
+  const visibleRange = end - start + 1
+
+  // Smart time format: adapts to zoom level
+  const formatX = useCallback(
+    (i: number) => formatTimeForZoom(start + i, visibleRange),
+    [start, visibleRange],
+  )
+
+  // Hover callback: translate visible index → full data index
+  const handleHover = useCallback(
+    (visIdx: number | null) => {
+      onHover(visIdx !== null ? start + visIdx : null)
+    },
+    [start, onHover],
+  )
+
+  // Shared padding for aligned Y-axes
+  const chartPad = { right: 64 }
+
+  return (
+    <div className="space-y-1">
+      {/* Power */}
+      <ChartRoot
+        data={visPower}
+        height={240}
+        padding={chartPad}
+        className="rounded-t-lg border border-[#E5E3DE] bg-white"
+      >
+        <ChartAxisY />
+        <ChartAxisX format={formatX} />
+        <ChartRefLine y={FTP} label={`FTP ${FTP}W`} />
+        <ChartArea />
+        {zoneMode === 'power' ? (
+          <ChartZoneLine threshold={FTP} zones={POWER_ZONES} />
+        ) : (
+          <ChartLine />
+        )}
+        <ChartCrosshair onHover={handleHover} />
+        <ChartZoomHandler />
+      </ChartRoot>
+
+      {/* Heart Rate */}
+      <ChartRoot
+        data={visHR}
+        height={140}
+        padding={chartPad}
+        className="border-x border-b border-[#E5E3DE] bg-white"
+      >
+        <ChartAxisY />
+        <ChartAxisX format={formatX} />
+        <ChartRefLine y={160} label="LT2" />
+        <ChartArea gradientColor="#ef4444" />
+        {zoneMode === 'hr' ? (
+          <ChartZoneLine threshold={MAX_HR} zones={HR_ZONES} />
+        ) : (
+          <ChartLine className="fill-none stroke-red-500 stroke-[1.5]" />
+        )}
+        <ChartCrosshair dotColor="#ef4444" />
+        <ChartZoomHandler />
+      </ChartRoot>
+
+      {/* Speed */}
+      <ChartRoot
+        data={visSpeed}
+        height={120}
+        padding={chartPad}
+        className="border-x border-b border-[#E5E3DE] bg-white"
+      >
+        <ChartAxisY format={(v) => `${v.toFixed(0)}`} />
+        <ChartAxisX format={formatX} />
+        <ChartArea gradientColor="#3b82f6" />
+        <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+        <ChartCrosshair dotColor="#3b82f6" />
+        <ChartZoomHandler />
+      </ChartRoot>
+
+      {/* Cadence */}
+      <ChartRoot
+        data={visCadence}
+        height={120}
+        padding={chartPad}
+        className="border-x border-b border-[#E5E3DE] bg-white"
+      >
+        <ChartAxisY format={(v) => `${v}`} />
+        <ChartAxisX format={formatX} />
+        <ChartRefLine y={90} label="90" />
+        <ChartArea gradientColor="#a855f7" />
+        <ChartLine className="fill-none stroke-purple-500 stroke-[1.5]" />
+        <ChartCrosshair dotColor="#a855f7" />
+        <ChartZoomHandler />
+      </ChartRoot>
+
+      {/* Elevation — area fill, shorter, grey */}
+      <ChartRoot
+        data={visElevation}
+        height={80}
+        padding={chartPad}
+        className="rounded-b-lg border-x border-b border-[#E5E3DE] bg-white"
+      >
+        <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}m`} />
+        <ChartAxisX format={formatX} />
+        <ChartArea gradientColor="#78716c" opacityFrom={0.15} opacityTo={0.03} />
+        <ChartLine className="fill-none stroke-stone-400 stroke-[1]" />
+        <ChartCrosshair dotColor="#78716c" dotRadius={2} />
+        <ChartZoomHandler />
+      </ChartRoot>
+
+      {/* Zoom indicator */}
+      {(start > 0 || end < fullPower.length - 1) && (
+        <div className="flex items-center justify-between">
+          <span className="font-space text-[10px] text-[#8A877F]">
+            {formatTimeForZoom(start, visibleRange)} – {formatTimeForZoom(end, visibleRange)}
+          </span>
+          <button
+            onClick={() => sync.setZoom({ start: 0, end: fullPower.length - 1 })}
+            className="rounded px-2 py-0.5 font-label text-[9px] uppercase tracking-[.06em] text-[#5C5A55] transition-colors hover:bg-[#E5E3DE] hover:text-[#0F0F0E]"
+          >
+            Reset zoom
+          </button>
+        </div>
+      )}
     </div>
   )
 }
