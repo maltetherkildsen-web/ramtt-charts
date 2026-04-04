@@ -15,6 +15,7 @@ import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
 import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/ChartZoneLine'
+import { ChartBar } from '@/components/charts/primitives/ChartBar'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
 // ─── Zone definitions ───
@@ -186,6 +187,10 @@ export default function ChartTestPage() {
   const data = useMemo(() => generatePowerData(200), [])
   const hrData = useMemo(() => generateHRData(data, 200), [data])
   const choData = useMemo(() => generateCHOData(data, 200), [data])
+
+  // Interval avg power for bar chart
+  const intervalAvg = useMemo(() => [145, 182, 248, 125, 262, 118, 271, 110, 280, 95], [])
+  const intervalLabels = ['WU', 'Z2', 'I-1', 'Rec', 'I-2', 'Rec', 'I-3', 'Rec', 'I-4', 'CD']
   const [hoverIdx, setHoverIdx] = useState<number | null>(null)
   const [hrHoverIdx, setHrHoverIdx] = useState<number | null>(null)
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
@@ -338,6 +343,31 @@ export default function ChartTestPage() {
             ))}
           </div>
         )}
+
+        {/* ─── Bar chart: interval avg power ─── */}
+        <div>
+          <p className="mb-2 font-label text-[11px] uppercase tracking-[.09em] text-[#8A877F]">
+            Interval Avg Power &nbsp;&middot;&nbsp; ChartBar
+          </p>
+          <ChartRoot
+            data={intervalAvg}
+            height={180}
+            padding={{ left: 48, right: 12, top: 12, bottom: 28 }}
+            yDomain={[0, 320]}
+            className="rounded-lg border border-[#E5E3DE] bg-white"
+          >
+            <ChartAxisY />
+            <ChartAxisX
+              format={(i) => i < intervalLabels.length ? intervalLabels[i] : ''}
+            />
+            <ChartRefLine y={FTP} label={`FTP`} />
+            <ChartBar
+              gap={4}
+              radius={3}
+              colorFn={(v) => v >= FTP ? '#f97316' : '#22c55e'}
+            />
+          </ChartRoot>
+        </div>
 
         {/* Info */}
         <p className="font-label text-[9px] uppercase tracking-[.09em] text-[#8A877F]">

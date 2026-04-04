@@ -28,6 +28,7 @@ Custom SVG chart system built from scratch — zero Recharts, zero D3. Pure math
 | `ChartAxisX` | Bottom X-axis with formatted labels |
 | `ChartRefLine` | Horizontal dashed reference line |
 | `ChartZoneLine` | Line colored by training zones |
+| `ChartBar` | Vertical bar chart with per-bar colors |
 
 ## Quick start
 
