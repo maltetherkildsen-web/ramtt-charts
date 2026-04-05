@@ -5,7 +5,7 @@
 ![Early Development](https://img.shields.io/badge/status-early%20development-orange)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
-Custom SVG chart system built from scratch for the RAMTT sports platform. Zero Recharts, zero D3 — pure math layer + React primitives + Tailwind className styling. Designed for stacked training session charts with synced interactions, ref-based 60fps hover, and fullscreen analysis mode.
+Custom SVG chart system built from scratch for the RAMTT sports platform. Zero Recharts, zero D3 — pure math layer + React primitives + Tailwind className styling + Framer Motion animations. Designed for stacked training session charts with synced interactions, ref-based 60fps hover, CRISP rendering optimizations, and fullscreen analysis mode.
 
 **Copyright (c) 2026 RAMTT**
 
@@ -81,7 +81,29 @@ Five synced cycling charts (Power, HR, Speed, Cadence, Elevation) + optional Fue
 - **HR smoothing** — zoom-adaptive rolling average removes integer-step staircase artifacts
 - **Hybrid downsampling** — smoothDecimate combines even spacing with peak preservation
 - **O(log n) hover** — bisectNearest for instant point lookup
-- **rAF-batched pan** — accumulates wheel deltas, flushes once per frame
+- **rAF-batched pan** — fractional accumulator for sub-pixel trackpad precision
+- **Keyboard momentum** — arrow keys accelerate/decelerate with friction decay (0.85/frame)
+
+### CRISP Rendering
+- **Antialiased SVG text** — `-webkit-font-smoothing: antialiased` + `font-kerning: normal` on all SVG text
+- **geometricPrecision** — smooth anti-aliased curves on data paths
+- **crispEdges** — pixel-aligned crosshair lines and reference lines
+- **tabular-nums** — Y-axis labels align perfectly vertically
+- **contain: paint** — chart stack repaints isolated from rest of page
+- **contentVisibility: auto** — below-fold sections skip rendering until scrolled to
+
+### Framer Motion Animations
+- **Fullscreen enter/exit** — scale 0.98 fade with `ease-out-expo` (300ms enter, 200ms exit)
+- **Chart toggle show/hide** — height + opacity animation (200ms) via `AnimatePresence`
+- **Reduced motion** — `MotionConfig reducedMotion="user"` respects OS preferences
+- **NOT animated** — crosshair (instant rAF), hover values (instant refs), path data (too many points). Motion is only for discrete state transitions.
+
+### Easing Curves (CSS custom properties)
+```css
+--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);   /* entrance */
+--ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0);     /* exit */
+--ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);  /* tactile */
+```
 
 ---
 

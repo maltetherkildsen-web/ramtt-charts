@@ -4,9 +4,9 @@
  * useChartZoom — zoom, pan, brush, and keyboard navigation for synced charts.
  *
  * Zoom:     vertical scroll → zoom in/out centered on cursor X
- * Pan:      horizontal scroll (trackpad) or shift+scroll → pan (rAF-batched)
+ * Pan:      horizontal scroll (trackpad) or shift+scroll → smooth fractional pan
  * Brush:    click + drag → select range → zoom to selection on release
- * Keyboard: arrows/+/-/Home/End/Esc when chart container is focused
+ * Keyboard: arrows → smooth animated pan, +/-/Home/End/Esc
  */
 
 import { useEffect, useRef } from 'react'
@@ -16,13 +16,22 @@ import { useChartSync } from './ChartSyncProvider'
 const MIN_VISIBLE_POINTS = 2
 const ZOOM_SPEED = 0.15
 const MIN_BRUSH_POINTS = 2
+const PAN_FRICTION = 0.85       // keyboard momentum decay per frame
+const KEY_PAN_SPEED = 0.03      // 3% of range per frame while key held
 
 export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
   const { padding, svgRef, data } = useChart()
   const sync = useChartSync()
   const dragState = useRef<{ active: boolean; startX: number } | null>(null)
-  const panDelta = useRef(0)
+
+  // Fractional pan accumulator — tracks sub-pixel remainder
+  const panAccum = useRef(0)
   const panRaf = useRef(0)
+
+  // Keyboard momentum state
+  const keyVelocity = useRef(0)
+  const keysHeld = useRef(new Set<string>())
+  const momentumRaf = useRef(0)
 
   useEffect(() => {
     const svg = svgRef.current
@@ -43,23 +52,29 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       return Math.max(0, Math.min(1, getChartX(e) / cw))
     }
 
-    // ─── Pan (rAF-batched for smooth trackpad/mouse scrolling) ───
+    // ─── Pan with fractional accumulator ───
     const flushPan = () => {
-      const delta = panDelta.current
-      panDelta.current = 0
       panRaf.current = 0
-      if (delta === 0) return
-
       const cw = getChartWidth()
       if (cw <= 0) return
-      const { zoom, setZoom, dataLength } = sync
+      const { zoom, dataLength } = sync
       const range = zoom.end - zoom.start
-      const dataDelta = Math.round((delta / cw) * range)
-      if (dataDelta === 0) return
 
-      setZoom((prev) => {
-        let s = prev.start + dataDelta
-        let e = prev.end + dataDelta
+      // Convert pixel accumulator to fractional data units
+      const dataFrac = (panAccum.current / cw) * range
+      const intDelta = Math.trunc(dataFrac)
+
+      if (intDelta === 0) {
+        // Keep accumulating sub-pixel remainder
+        return
+      }
+
+      // Consume the integer part, keep the fractional remainder
+      panAccum.current -= (intDelta / range) * cw
+
+      sync.setZoom((prev) => {
+        let s = prev.start + intDelta
+        let e = prev.end + intDelta
         if (s < 0) { s = 0; e = range }
         if (e > dataLength - 1) { e = dataLength - 1; s = e - range }
         return { start: Math.max(0, s), end: Math.min(dataLength - 1, e) }
@@ -67,8 +82,45 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
     }
 
     const pan = (deltaPixels: number) => {
-      panDelta.current += deltaPixels
+      panAccum.current += deltaPixels
       if (!panRaf.current) panRaf.current = requestAnimationFrame(flushPan)
+    }
+
+    // ─── Keyboard momentum loop ───
+    const tickMomentum = () => {
+      const { zoom, setZoom, dataLength } = sync
+      const range = zoom.end - zoom.start
+
+      // Apply held keys as acceleration
+      if (keysHeld.current.has('ArrowLeft')) keyVelocity.current -= range * KEY_PAN_SPEED
+      if (keysHeld.current.has('ArrowRight')) keyVelocity.current += range * KEY_PAN_SPEED
+
+      // Apply friction
+      keyVelocity.current *= PAN_FRICTION
+
+      // Stop when velocity is negligible
+      if (Math.abs(keyVelocity.current) < 0.5 && keysHeld.current.size === 0) {
+        keyVelocity.current = 0
+        momentumRaf.current = 0
+        return
+      }
+
+      const delta = Math.round(keyVelocity.current)
+      if (delta !== 0) {
+        setZoom((prev) => {
+          let s = prev.start + delta
+          let e = prev.end + delta
+          if (s < 0) { s = 0; e = range }
+          if (e > dataLength - 1) { e = dataLength - 1; s = e - range }
+          return { start: Math.max(0, s), end: Math.min(dataLength - 1, e) }
+        })
+      }
+
+      momentumRaf.current = requestAnimationFrame(tickMomentum)
+    }
+
+    const startMomentum = () => {
+      if (!momentumRaf.current) momentumRaf.current = requestAnimationFrame(tickMomentum)
     }
 
     // ─── Wheel: zoom or pan ───
@@ -115,7 +167,6 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       dragState.current = { active: true, startX: cx }
       svg.setPointerCapture(e.pointerId)
 
-      // Focus chart container for keyboard events
       const parent = svg.closest('[tabindex]') as HTMLElement | null
       parent?.focus({ preventScroll: true })
 
@@ -175,16 +226,13 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
 
       const { zoom, setZoom, dataLength } = sync
       const range = zoom.end - zoom.start
-      const step = Math.max(1, Math.round(range * 0.1))
 
       switch (e.key) {
         case 'ArrowLeft':
-          e.preventDefault()
-          setZoom((p) => { const s = Math.max(0, p.start - step); return { start: s, end: s + range } })
-          break
         case 'ArrowRight':
           e.preventDefault()
-          setZoom((p) => { const end = Math.min(dataLength - 1, p.end + step); return { start: end - range, end } })
+          keysHeld.current.add(e.key)
+          startMomentum()
           break
         case '+': case '=':
           e.preventDefault()
@@ -219,6 +267,10 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       }
     }
 
+    const handleKeyUp = (e: KeyboardEvent) => {
+      keysHeld.current.delete(e.key)
+    }
+
     const container = svg.closest('[tabindex]') as HTMLElement | null
 
     svg.addEventListener('wheel', handleWheel, { passive: false })
@@ -227,15 +279,18 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
     svg.addEventListener('pointerup', handlePointerUp)
     svg.addEventListener('dblclick', handleDblClick)
     container?.addEventListener('keydown', handleKeyDown)
+    container?.addEventListener('keyup', handleKeyUp)
 
     return () => {
       cancelAnimationFrame(panRaf.current)
+      cancelAnimationFrame(momentumRaf.current)
       svg.removeEventListener('wheel', handleWheel)
       svg.removeEventListener('pointerdown', handlePointerDown)
       svg.removeEventListener('pointermove', handlePointerMove)
       svg.removeEventListener('pointerup', handlePointerUp)
       svg.removeEventListener('dblclick', handleDblClick)
       container?.removeEventListener('keydown', handleKeyDown)
+      container?.removeEventListener('keyup', handleKeyUp)
     }
   }, [svgRef, sync, padding, data.length, brushRef])
 }

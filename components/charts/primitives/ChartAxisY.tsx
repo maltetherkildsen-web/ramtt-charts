@@ -41,6 +41,7 @@ export function ChartAxisY({
             dy="0.32em"
             textAnchor="end"
             className="fill-[#8A877F] font-space text-[9px]"
+            style={{ fontVariantNumeric: 'tabular-nums' }}
           >
             {format(t)}
           </text>

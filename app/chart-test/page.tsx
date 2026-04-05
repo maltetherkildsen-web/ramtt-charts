@@ -1224,11 +1224,11 @@ function HoverDataTable({
     if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = '#3D3C39' }
     if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = '#3D3C39' }
     if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = '#3D3C39' }
-    if (powerDeltaRef.current) { powerDeltaRef.current.textContent = 'avg'; powerDeltaRef.current.style.color = '#A8A49A' }
-    if (hrDeltaRef.current) { hrDeltaRef.current.textContent = 'avg'; hrDeltaRef.current.style.color = '#A8A49A' }
-    if (cadDeltaRef.current) { cadDeltaRef.current.textContent = 'avg'; cadDeltaRef.current.style.color = '#A8A49A' }
-    if (speedDeltaRef.current) { speedDeltaRef.current.textContent = 'avg'; speedDeltaRef.current.style.color = '#A8A49A' }
-    if (elevDeltaRef.current) { elevDeltaRef.current.textContent = 'avg'; elevDeltaRef.current.style.color = '#A8A49A' }
+    if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
+    if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
+    if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
+    if (speedDeltaRef.current) speedDeltaRef.current.textContent = ''
+    if (elevDeltaRef.current) elevDeltaRef.current.textContent = ''
     if (powerZoneRef.current) { powerZoneRef.current.textContent = ''; powerZoneRef.current.style.backgroundColor = '' }
     if (hrZoneRef.current) { hrZoneRef.current.textContent = ''; hrZoneRef.current.style.backgroundColor = '' }
   }, [meta, rangeStats, isZoomed, rangeDur, power.length])
@@ -1257,17 +1257,11 @@ function HoverDataTable({
       if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = '#0F0F0E' }
       if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = '#0F0F0E' }
       if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = '#0F0F0E' }
-      // Deltas vs range average
-      const fmtD = (v: number, avg: number, dec = 0) => {
-        const d = v - avg
-        if (Math.abs(d) < (dec > 0 ? 0.05 : 0.5)) return '—'
-        return (d >= 0 ? '+' : '') + d.toFixed(dec)
-      }
-      if (powerDeltaRef.current) { powerDeltaRef.current.textContent = fmtD(pw, rangeStats.power); powerDeltaRef.current.style.color = '#6B6760' }
-      if (hrDeltaRef.current) { hrDeltaRef.current.textContent = fmtD(hr, rangeStats.hr); hrDeltaRef.current.style.color = '#6B6760' }
-      if (cadDeltaRef.current) { cadDeltaRef.current.textContent = fmtD(cad, rangeStats.cad); cadDeltaRef.current.style.color = '#6B6760' }
-      if (speedDeltaRef.current) { speedDeltaRef.current.textContent = fmtD(spd, rangeStats.speed, 1); speedDeltaRef.current.style.color = '#6B6760' }
-      if (elevDeltaRef.current) { elevDeltaRef.current.textContent = fmtD(elev, rangeStats.elev); elevDeltaRef.current.style.color = '#6B6760' }
+      if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
+      if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
+      if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
+      if (speedDeltaRef.current) speedDeltaRef.current.textContent = ''
+      if (elevDeltaRef.current) elevDeltaRef.current.textContent = ''
       if (powerZoneRef.current) {
         const z = getPowerZone(pw, meta.ftp)
         powerZoneRef.current.textContent = z.label; powerZoneRef.current.style.color = z.color; powerZoneRef.current.style.backgroundColor = `${z.color}1F`
