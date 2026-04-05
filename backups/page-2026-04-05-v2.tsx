@@ -21,7 +21,6 @@
  */
 
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
-import { motion, AnimatePresence, MotionConfig } from 'motion/react'
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
 import { ChartArea } from '@/components/charts/primitives/ChartArea'
@@ -293,11 +292,7 @@ export default function ChartTestPage() {
     </div>
   )
 
-  return (
-    <MotionConfig reducedMotion="user">
-      <SessionAnalysis data={fitData} />
-    </MotionConfig>
-  )
+  return <SessionAnalysis data={fitData} />
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -439,39 +434,27 @@ function SessionAnalysis({ data }: { data: FitData }) {
           />
 
           {/* ━━━━━━━ BELOW FOLD ━━━━━━━ */}
-          <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 300px' }}>
-            {/* Fuel Log */}
-            <FuelLog intakes={fuelIntakes} totalSeconds={totalPoints} onAdd={addIntake} onRemove={removeIntake} />
 
-            {/* Tab Bar (shell) */}
-            <TabBar />
-          </div>
+          {/* Fuel Log */}
+          <FuelLog intakes={fuelIntakes} totalSeconds={totalPoints} onAdd={addIntake} onRemove={removeIntake} />
+
+          {/* Tab Bar (shell) */}
+          <TabBar />
 
         </div>
       </div>
       {/* ━━━ Fullscreen overlay ━━━ */}
-      <AnimatePresence>
-        {isFullscreen && (
-          <motion.div
-            key="fullscreen"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[9999]"
-          >
-            <FullscreenOverlay
-              meta={meta}
-              power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
-              cumulativeCHO={cumulativeCHO} fuelTarget={fuel.targetCHO} fuelIntakes={fuelIntakes}
-              intervals={workIntervals} ftp={meta.ftp} maxHR={meta.maxHR}
-              zoneMode={zoneMode} setZoneMode={setZoneMode}
-              visibleCharts={visibleCharts} onToggle={toggleChart}
-              onClose={() => setIsFullscreen(false)}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isFullscreen && (
+        <FullscreenOverlay
+          meta={meta}
+          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
+          cumulativeCHO={cumulativeCHO} fuelTarget={fuel.targetCHO} fuelIntakes={fuelIntakes}
+          intervals={workIntervals} ftp={meta.ftp} maxHR={meta.maxHR}
+          zoneMode={zoneMode} setZoneMode={setZoneMode}
+          visibleCharts={visibleCharts} onToggle={toggleChart}
+          onClose={() => setIsFullscreen(false)}
+        />
+      )}
     </ChartSyncProvider>
   )
 }
@@ -519,7 +502,7 @@ function FullscreenOverlay({
   }, [ordered, totalWeight, available])
 
   return (
-    <div className="flex h-full flex-col bg-[#FAF9F5]">
+    <div className="fixed inset-0 z-[9999] flex flex-col bg-[#FAF9F5]">
       {/* Top bar */}
       <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#E8E5DC] px-4">
         <span className="text-sm text-[#383633]">{meta.name}</span>
@@ -968,11 +951,9 @@ function SyncedCharts({
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
   return (
-    <div className="relative select-none outline-none" tabIndex={0} style={{ contain: 'paint' }}>
+    <div className="relative select-none outline-none" tabIndex={0}>
       {/* Power — 110px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('power') && (
-        <motion.div key="power" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visPower}
           height={h('power', 110)}
@@ -992,14 +973,10 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">Power</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
 
       {/* HR — 75px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('hr') && (
-        <motion.div key="hr" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visHR}
           height={h('hr', 75)}
@@ -1019,14 +996,10 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">HR</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
 
       {/* Speed — 55px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('speed') && (
-        <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visSpeed}
           height={h('speed', 55)}
@@ -1040,14 +1013,10 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">Speed</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
 
       {/* Cadence — 55px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('cadence') && (
-        <motion.div key="cadence" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visCadence}
           height={h('cadence', 55)}
@@ -1062,14 +1031,10 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">Cadence</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
 
-      {/* Elevation — 40px */}
-      <AnimatePresence initial={false}>
+      {/* Elevation — 40px, X-axis only on last visible chart */}
       {visibleCharts.has('elevation') && (
-        <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visAltitude}
           height={h('elevation', 40)}
@@ -1084,14 +1049,10 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">Elevation</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
 
-      {/* Fuel / CHO — 75px, lollipop */}
-      <AnimatePresence initial={false}>
+      {/* Fuel / CHO — 55px, lollipop + cumulative area */}
       {visibleCharts.has('fuel') && (
-        <motion.div key="fuel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visCHO}
           height={h('fuel', 75)}
@@ -1110,9 +1071,7 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">CHO</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
 
       {/* Crosshair time label */}
       <CrosshairTimeLabel format={formatTimeLabel} />

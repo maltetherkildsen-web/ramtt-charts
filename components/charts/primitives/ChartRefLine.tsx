@@ -31,6 +31,7 @@ export function ChartRefLine({ y, label, className }: ChartRefLineProps) {
         y2={py}
         strokeDasharray="4 4"
         strokeWidth={0.5}
+        shapeRendering="crispEdges"
         className={cn('stroke-[#A8A49A]', className)}
       />
       {label && (

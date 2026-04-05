@@ -159,6 +159,7 @@ export function ChartCrosshair({
         y2={chartHeight}
         stroke={lineColor}
         strokeWidth={lineWidth}
+        shapeRendering="crispEdges"
         display="none"
       />
       <circle
