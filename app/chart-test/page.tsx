@@ -34,7 +34,7 @@ import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandle
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import { ChartIntervalMarkers, type Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
-import { ChartStepLine } from '@/components/charts/primitives/ChartStepLine'
+import { ChartFuelLollipop } from '@/components/charts/primitives/ChartFuelLollipop'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
@@ -169,7 +169,12 @@ const MOCK_FUEL: FuelData = {
   targetCHO: 200,
   targetRate: 82,
   riderWeight: 78,
-  intakes: [],
+  intakes: [
+    { timestamp: 900,  product: 'SUHN IO Gel — Citrus', choGrams: 48, type: 'gel' },
+    { timestamp: 1800, product: 'SUHN IO Gel — Berry',  choGrams: 48, type: 'gel' },
+    { timestamp: 2700, product: 'SUHN IO Gel — Citrus', choGrams: 48, type: 'gel' },
+    { timestamp: 3900, product: 'SUHN IO Gel — Berry',  choGrams: 48, type: 'gel' },
+  ],
 }
 
 function getCHOZone(rate: number): { label: string; color: string } {
@@ -300,6 +305,19 @@ function SessionAnalysis({ data }: { data: FitData }) {
 
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
   const [visibleCharts, setVisibleCharts] = useState<Set<ChartKey>>(new Set(DEFAULT_VISIBLE))
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  // Fullscreen keyboard shortcut: F to toggle, Escape to exit
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
+      if (e.key === 'f' && !e.metaKey && !e.ctrlKey) setIsFullscreen((p) => !p)
+      if (e.key === 'Escape' && isFullscreen) setIsFullscreen(false)
+    }
+    document.addEventListener('keydown', handleKey)
+    return () => document.removeEventListener('keydown', handleKey)
+  }, [isFullscreen])
 
   const toggleChart = useCallback((key: ChartKey) => {
     setVisibleCharts((prev) => {
@@ -316,16 +334,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
       .filter((iv) => (iv.avgPower ?? 0) >= 350)
       .map((iv, i) => ({ ...iv, name: `Sprint ${i + 1}`, type: 'work' as const }))
   }, [intervals])
-
-  // Peak powers
-  const peaks = useMemo(() => {
-    const durations = [5, 30, 60, 300, 600, 1200, 3600]
-    return durations.map((d) => ({
-      duration: d,
-      label: d < 60 ? `${d}S` : d < 3600 ? `${d / 60}M` : `${d / 3600}H`,
-      watts: computePeakPower(power, d),
-    }))
-  }, [power])
 
   const np = useMemo(() => computeNP(power), [power])
 
@@ -390,8 +398,13 @@ function SessionAnalysis({ data }: { data: FitData }) {
           {/* ── 1. Header ── */}
           <SessionHeader meta={meta} />
 
-          {/* ── 2. Key Stats Strip ── */}
-          <KeyStatsStrip meta={meta} durationStr={durationStr} np={np} distanceKm={distanceKm} elevGain={elevGain} />
+          {/* ── 2. Three-tier metrics ── */}
+          <MetricsTiers
+            meta={meta} durationStr={durationStr} np={np} distanceKm={distanceKm} elevGain={elevGain}
+            energyKJ={energyKJ} decoupling={decoupling}
+            totalCHO={totalCHO} choRate={choRate} fuel={fuel} fuelScore={fuelScore}
+            fuelCompliance={fuelCompliance} choZone={choZone}
+          />
 
           {/* ── 3. Chart Toggles ── */}
           <ChartToggles
@@ -399,6 +412,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
             onToggle={toggleChart}
             zoneMode={zoneMode}
             setZoneMode={setZoneMode}
+            onFullscreen={() => setIsFullscreen(true)}
           />
 
           {/* ── 4–7. Chart Stack + Table + Scrubber ── */}
@@ -421,24 +435,257 @@ function SessionAnalysis({ data }: { data: FitData }) {
 
           {/* ━━━━━━━ BELOW FOLD ━━━━━━━ */}
 
-          {/* ── 8. Peak Powers ── */}
-          <PeakPowersStrip peaks={peaks} weight={fuel.riderWeight} />
-
-          {/* ── 9. Advanced Metrics ── */}
-          <AdvancedMetricsCards
-            meta={meta} np={np} energyKJ={energyKJ} decoupling={decoupling}
-            totalCHO={totalCHO} choRate={choRate} fuel={fuel} fuelScore={fuelScore} fuelCompliance={fuelCompliance} choZone={choZone}
-          />
-
-          {/* ── 10. Fuel Log ── */}
+          {/* Fuel Log */}
           <FuelLog intakes={fuelIntakes} totalSeconds={totalPoints} onAdd={addIntake} onRemove={removeIntake} />
 
-          {/* ── 11. Tab Bar (shell) ── */}
+          {/* Tab Bar (shell) */}
           <TabBar />
 
         </div>
       </div>
+      {/* ━━━ Fullscreen overlay ━━━ */}
+      {isFullscreen && (
+        <FullscreenOverlay
+          meta={meta}
+          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
+          cumulativeCHO={cumulativeCHO} fuelTarget={fuel.targetCHO} fuelIntakes={fuelIntakes}
+          intervals={workIntervals} ftp={meta.ftp} maxHR={meta.maxHR}
+          zoneMode={zoneMode} setZoneMode={setZoneMode}
+          visibleCharts={visibleCharts} onToggle={toggleChart}
+          onClose={() => setIsFullscreen(false)}
+        />
+      )}
     </ChartSyncProvider>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Fullscreen Overlay
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const CHART_WEIGHTS: Record<ChartKey, number> = {
+  power: 3.5, hr: 2, speed: 1.5, cadence: 1.5, elevation: 1, fuel: 1,
+}
+
+function FullscreenOverlay({
+  meta, power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes,
+  intervals, ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, onClose,
+}: {
+  meta: FitData['meta']
+  power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
+  cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
+  intervals: Interval[]; ftp: number; maxHR: number
+  zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
+  visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
+  onClose: () => void
+}) {
+  const [winH, setWinH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900)
+
+  useEffect(() => {
+    const onResize = () => setWinH(window.innerHeight)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // Calculate chart heights proportionally
+  const topBar = 40
+  const dataBar = 32
+  const scrubberH = 24
+  const available = winH - topBar - dataBar - scrubberH
+  const ordered = ALL_CHARTS.filter((k) => visibleCharts.has(k))
+  const totalWeight = ordered.reduce((s, k) => s + CHART_WEIGHTS[k], 0)
+
+  const heights = useMemo(() => {
+    const h: Partial<Record<ChartKey, number>> = {}
+    for (const k of ordered) h[k] = Math.round((CHART_WEIGHTS[k] / totalWeight) * available)
+    return h
+  }, [ordered, totalWeight, available])
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex flex-col bg-[#FAF9F5]">
+      {/* Top bar */}
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#E8E5DC] px-4">
+        <span className="text-sm text-[#383633]">{meta.name}</span>
+        <div className="flex items-center gap-2">
+          {/* Zone toggle */}
+          <div className="flex -space-x-px">
+            {ZONE_MODES.map((mode, i) => (
+              <button
+                key={mode}
+                onClick={() => setZoneMode(mode)}
+                className={`border border-[#E8E5DC] px-2.5 py-0.5 font-label text-[10px] tracking-[.02em] transition-colors ${
+                  i === 0 ? 'rounded-l' : ''} ${i === ZONE_MODES.length - 1 ? 'rounded-r' : ''} ${
+                  zoneMode === mode ? 'z-10 border-[#383633] bg-[#383633] text-white' : 'text-[#A8A49A]'
+                }`}
+              >
+                {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={onClose}
+            className="ml-2 rounded p-1 text-[#A8A49A] transition-colors hover:bg-[#E8E5DC] hover:text-[#383633]"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M4 4l8 8M12 4l-8 8" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Charts + data sidebar */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Charts fill main area */}
+        <div className="flex-1 overflow-hidden px-2">
+          <SyncedCharts
+            power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
+            cumulativeCHO={cumulativeCHO} fuelTarget={fuelTarget} fuelIntakes={fuelIntakes}
+            intervals={intervals} ftp={ftp} maxHR={maxHR} meta={meta}
+            zoneMode={zoneMode} visibleCharts={visibleCharts}
+            heightOverrides={heights}
+            hideExtras
+          />
+        </div>
+
+        {/* Data sidebar — live hover values */}
+        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} meta={meta} visibleCharts={visibleCharts} />
+      </div>
+    </div>
+  )
+}
+
+function FullscreenDataSidebar({
+  power, heartRate, cadence, speed, altitude, meta, visibleCharts,
+}: {
+  power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
+  meta: FitData['meta']; visibleCharts: Set<ChartKey>
+}) {
+  const sync = useChartSync()
+  const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
+  const isZoomed = start > 0 || end < power.length - 1
+
+  const rangeAvg = useMemo(() => {
+    const len = end - start + 1
+    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0 }
+    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0
+    for (let i = start; i <= end; i++) { pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i] }
+    return { pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len), spd: +(sp / len).toFixed(1), elv: Math.round(el / len) }
+  }, [power, heartRate, cadence, speed, altitude, start, end])
+
+  const timeRef = useRef<HTMLSpanElement>(null)
+  const pwRef = useRef<HTMLSpanElement>(null)
+  const hrRef = useRef<HTMLSpanElement>(null)
+  const cadRef = useRef<HTMLSpanElement>(null)
+  const spdRef = useRef<HTMLSpanElement>(null)
+  const elvRef = useRef<HTMLSpanElement>(null)
+  const modeRef = useRef<HTMLSpanElement>(null)
+
+  const showAvg = useCallback(() => {
+    const a = rangeAvg
+    if (timeRef.current) timeRef.current.textContent = isZoomed
+      ? formatTime(end - start)
+      : formatDuration(meta.totalTime)
+    if (pwRef.current) pwRef.current.textContent = `${a.pw}`
+    if (hrRef.current) hrRef.current.textContent = `${a.hr}`
+    if (cadRef.current) cadRef.current.textContent = `${a.cad}`
+    if (spdRef.current) spdRef.current.textContent = `${a.spd}`
+    if (elvRef.current) elvRef.current.textContent = `${a.elv}`
+    if (modeRef.current) modeRef.current.textContent = isZoomed ? 'selection' : 'session avg'
+  }, [rangeAvg, isZoomed, start, end, meta.totalTime])
+
+  useEffect(() => { showAvg() }, [showAvg])
+
+  useEffect(() => {
+    if (!sync) return
+    return sync.subscribeHover((visIdx) => {
+      if (visIdx === null) { showAvg(); return }
+      const idx = sync.zoom.start + visIdx
+      if (idx < 0 || idx >= power.length) return
+      const pw = power[idx]
+      if (timeRef.current) timeRef.current.textContent = formatTime(idx)
+      if (pwRef.current) pwRef.current.textContent = `${pw}`
+      if (hrRef.current) hrRef.current.textContent = `${heartRate[idx]}`
+      if (cadRef.current) cadRef.current.textContent = `${cadence[idx]}`
+      if (spdRef.current) spdRef.current.textContent = speed[idx].toFixed(1)
+      if (elvRef.current) elvRef.current.textContent = `${Math.round(altitude[idx])}`
+      if (modeRef.current) modeRef.current.textContent = ''
+    })
+  }, [sync, power, heartRate, cadence, speed, altitude, meta, showAvg])
+
+  const row = 'flex items-baseline justify-between border-b border-[#E8E5DC]/40 py-1.5'
+
+  return (
+    <div className="flex w-44 shrink-0 flex-col border-l border-[#E8E5DC] bg-[#FDFCFA] px-3 py-2 font-space tabular-nums">
+      {/* Time / mode */}
+      <div className="mb-2 border-b border-[#E8E5DC] pb-2">
+        <span ref={timeRef} className="block text-[20px] font-medium text-[#383633]">0:00</span>
+        <span ref={modeRef} className="text-[10px] uppercase text-[#A8A49A]">session avg</span>
+      </div>
+
+      {/* Metrics — only show those with active charts */}
+      {visibleCharts.has('power') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
+            <span className="text-[11px] text-[#A8A49A]">Power</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={pwRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">W</span>
+          </div>
+        </div>
+      )}
+      {visibleCharts.has('hr') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
+            <span className="text-[11px] text-[#A8A49A]">HR</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={hrRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">bpm</span>
+          </div>
+        </div>
+      )}
+      {visibleCharts.has('cadence') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#8b5cf6]" />
+            <span className="text-[11px] text-[#A8A49A]">Cad</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={cadRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">rpm</span>
+          </div>
+        </div>
+      )}
+      {visibleCharts.has('speed') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#3b82f6]" />
+            <span className="text-[11px] text-[#A8A49A]">Speed</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={spdRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">km/h</span>
+          </div>
+        </div>
+      )}
+      {visibleCharts.has('elevation') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#a8a49a]" />
+            <span className="text-[11px] text-[#A8A49A]">Elev</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={elvRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">m</span>
+          </div>
+        </div>
+      )}
+
+      <div className="mt-auto pt-2 text-center text-[9px] text-[#A8A49A]">F / Esc to exit</div>
+    </div>
   )
 }
 
@@ -476,38 +723,101 @@ function ScoreBadge({ label, value }: { label: string; value: number }) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 2. Key Stats Strip
+// 2. Three-Tier Metrics
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function KeyStatsStrip({
-  meta, durationStr, np, distanceKm, elevGain,
+function MetricsTiers({
+  meta, durationStr, np, distanceKm, elevGain, energyKJ, decoupling,
+  totalCHO, choRate, fuel, fuelScore, fuelCompliance, choZone,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
+  energyKJ: number; decoupling: number | null
+  totalCHO: number; choRate: number; fuel: FuelData; fuelScore: number
+  fuelCompliance: number; choZone: { label: string; color: string }
 }) {
+  const [contextOpen, setContextOpen] = useState(false)
+  const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
+  const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
+
   return (
-    <div className="flex items-baseline gap-6 border-y border-[#E8E5DC] py-2.5">
-      <KS label="Duration" value={durationStr} />
-      <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-      <KS label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
-      <KS label="Distance" value={`${distanceKm}`} unit="km" />
-      <KS label="Elevation" value={`${elevGain}`} unit="m" />
-      <KS label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
-      <div className="ml-auto flex items-baseline gap-6">
-        <KS label="NP" value={`${np}`} unit="W" />
-        <KS label="Peak" value={`${meta.maxPower}`} unit="W" />
+    <div>
+      {/* Tier 1 — Key Stats */}
+      <div className="flex gap-6 border-y border-[#E8E5DC] py-2">
+        <KS label="Duration" value={durationStr} />
+        <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />
+        <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />
+        <KS label="Avg HR" value={`${meta.avgHR}`} unit="bpm" sub={`Max ${meta.maxHR}`} />
+        <KS label="Distance" value={`${distanceKm}`} unit="km" />
+        <KS label="Elevation" value={`${elevGain}`} unit="m" />
+        <KS label="Energy" value={`${energyKJ}`} unit="kJ" />
+        <KS label="R-Score" value="—" unit="rS" sub="PL —" />
+      </div>
+
+      {/* Tier 2 — RAMTT Metrics */}
+      <div className="flex gap-6 border-b border-[#E8E5DC] bg-[#FDFCFA] py-2">
+        <KS label="Energy Zone" badge={choZone} />
+        <KS label="CHO Intake" value={`${totalCHO}`} unit="g" sub={`of ${fuel.targetCHO}g`} />
+        <KS label="CHO Rate" value={`${choRate}`} unit="g/h" sub={`Target ${fuel.targetRate}`} />
+        <KS label="Fuel Score" value={`${fuelScore}`} unit="/100" sub={`${fuelCompliance}% compliance`} progress={fuelScore} />
+        <KS label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Eff ${ef}`} />
+        <KS label="Durability" value="—" unit="% decay" sub="—" />
+      </div>
+
+      {/* Tier 3 — Session Context (collapsible) */}
+      <div className="border-b border-[#E8E5DC]">
+        <button
+          onClick={() => setContextOpen(!contextOpen)}
+          className="flex w-full items-center gap-1.5 py-1.5 font-label text-[11px] text-[#A8A49A] transition-colors hover:text-[#6B6760]"
+        >
+          <span className={`text-[9px] transition-transform duration-150 ${contextOpen ? 'rotate-90' : ''}`}>
+            ▶
+          </span>
+          Session context
+        </button>
+        {contextOpen && (
+          <div className="flex gap-6 bg-[#FDFCFA] pb-2">
+            <KS label="Capacity" value="—" sub="—" />
+            <KS label="Form" value="—" sub="—" />
+            <KS label="Surge" value="—" sub="—" />
+            <KS label="ACWR" value="—" sub="—" />
+            <KS label="Phase" value="—" sub="—" />
+            <KS label="Regulators" value="—" sub="—" />
+            <KS label="Glycogen" value="—" sub="—" />
+            <KS label="Injury Risk" value="—" sub="—" />
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-function KS({ label, value, unit }: { label: string; value: string; unit?: string }) {
+/** Compact stat cell with optional sub-value, badge, and progress bar. */
+function KS({ label, value, unit, sub, badge, progress }: {
+  label: string; value?: string; unit?: string; sub?: string
+  badge?: { label: string; color: string }; progress?: number
+}) {
   return (
     <div>
       <div className="font-label text-[10px] uppercase tracking-[.04em] text-[#A8A49A]">{label}</div>
-      <div className="font-space text-[17px] font-medium tabular-nums slashed-zero text-[#383633]">
-        {value}
-        {unit && <span className="ml-0.5 text-xs text-[#A8A49A]">{unit}</span>}
-      </div>
+      {badge && !value ? (
+        <span
+          className="mt-0.5 inline-block rounded px-2 py-0.5 font-space text-[11px] font-medium"
+          style={{ color: badge.color, backgroundColor: `${badge.color}1F` }}
+        >
+          {badge.label}
+        </span>
+      ) : (
+        <div className="font-space text-[17px] font-medium tabular-nums slashed-zero text-[#383633]">
+          {value ?? '—'}
+          {unit && <span className="ml-0.5 text-xs text-[#A8A49A]">{unit}</span>}
+        </div>
+      )}
+      {sub && <div className="font-space text-[11px] text-[#A8A49A]">{sub}</div>}
+      {progress !== undefined && (
+        <div className="mt-0.5 h-1 w-12 overflow-hidden rounded-full bg-[#E8E5DC]">
+          <div className="h-full rounded-full bg-[#22c55e]" style={{ width: `${Math.min(100, progress)}%` }} />
+        </div>
+      )}
     </div>
   )
 }
@@ -517,12 +827,13 @@ function KS({ label, value, unit }: { label: string; value: string; unit?: strin
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ChartToggles({
-  visibleCharts, onToggle, zoneMode, setZoneMode,
+  visibleCharts, onToggle, zoneMode, setZoneMode, onFullscreen,
 }: {
   visibleCharts: Set<ChartKey>
   onToggle: (key: ChartKey) => void
   zoneMode: ZoneMode
   setZoneMode: (mode: ZoneMode) => void
+  onFullscreen?: () => void
 }) {
   return (
     <div className="flex items-center gap-2 py-2">
@@ -540,6 +851,19 @@ function ChartToggles({
           {CHART_LABELS[key]}
         </button>
       ))}
+
+      {/* Fullscreen toggle */}
+      {onFullscreen && (
+        <button
+          onClick={onFullscreen}
+          className="rounded border border-[#E8E5DC] p-1.5 text-[#A8A49A] transition-colors hover:border-[#D5D3CE] hover:text-[#6B6760]"
+          title="Fullscreen (F)"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1 5V1h4M9 1h4v4M13 9v4H9M5 13H1V9" />
+          </svg>
+        </button>
+      )}
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -572,12 +896,14 @@ function ChartToggles({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, intervals, ftp, maxHR, meta, zoneMode, visibleCharts,
+  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, intervals, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
   intervals: Interval[]; ftp: number; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
+  heightOverrides?: Partial<Record<ChartKey, number>>
+  hideExtras?: boolean
 }) {
   const sync = useChartSync()!
   const { zoom } = sync
@@ -600,13 +926,6 @@ function SyncedCharts({
 
   const visCHO = useMemo(() => cumulativeCHO.slice(start, end + 1), [cumulativeCHO, start, end])
 
-  const choDomainMax = useMemo(() => {
-    let maxCHO = fuelTarget
-    for (let i = 0; i < visCHO.length; i++) {
-      if (visCHO[i] > maxCHO) maxCHO = visCHO[i]
-    }
-    return Math.max(10, maxCHO)
-  }, [fuelTarget, visCHO])
 
   const formatX = useCallback(
     (i: number) => formatTimeForZoom(start + i, visibleRange),
@@ -627,16 +946,17 @@ function SyncedCharts({
       .filter((iv) => iv.endIndex > 0 && iv.startIndex < visibleRange)
   }, [intervals, start, visibleRange])
 
+  const h = (key: ChartKey, fallback: number) => heightOverrides?.[key] ?? fallback
   const orderedVisible = ALL_CHARTS.filter((k) => visibleCharts.has(k))
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
   return (
-    <div className="relative select-none">
+    <div className="relative select-none outline-none" tabIndex={0}>
       {/* Power — 110px */}
       {visibleCharts.has('power') && (
         <ChartRoot
           data={visPower}
-          height={110}
+          height={h('power', 110)}
           padding={{ ...chartPad, bottom: 4 }}
           className="rounded-t-lg border border-[#E8E5DC] bg-[#FDFCFA]"
         >
@@ -659,7 +979,7 @@ function SyncedCharts({
       {visibleCharts.has('hr') && (
         <ChartRoot
           data={visHR}
-          height={75}
+          height={h('hr', 75)}
           padding={{ ...chartPad, bottom: 4 }}
           className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
@@ -682,7 +1002,7 @@ function SyncedCharts({
       {visibleCharts.has('speed') && (
         <ChartRoot
           data={visSpeed}
-          height={55}
+          height={h('speed', 55)}
           padding={{ ...chartPad, bottom: 4 }}
           className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
@@ -699,7 +1019,7 @@ function SyncedCharts({
       {visibleCharts.has('cadence') && (
         <ChartRoot
           data={visCadence}
-          height={55}
+          height={h('cadence', 55)}
           padding={{ ...chartPad, bottom: 4 }}
           className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
@@ -717,7 +1037,7 @@ function SyncedCharts({
       {visibleCharts.has('elevation') && (
         <ChartRoot
           data={visAltitude}
-          height={40}
+          height={h('elevation', 40)}
           padding={chartPad}
           className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
@@ -731,20 +1051,23 @@ function SyncedCharts({
         </ChartRoot>
       )}
 
-      {/* Fuel / CHO — 60px, stepped cumulative line. */}
+      {/* Fuel / CHO — 55px, lollipop + cumulative area */}
       {visibleCharts.has('fuel') && (
         <ChartRoot
           data={visCHO}
-          height={60}
-          yDomain={[0, choDomainMax]}
+          height={h('fuel', 75)}
+          yDomain={[0, Math.max(fuelTarget, fuelIntakes.reduce((s, i) => s + i.choGrams, 0), 10) * 1.1]}
           padding={lastChartKey === 'fuel' ? chartPad : { ...chartPad, bottom: 4 }}
           className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
-          <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}g`} />
           {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
-          <ChartRefLine y={fuelTarget} label={`TARGET ${fuelTarget}g`} />
-          <ChartStepLine className="fill-none stroke-[#f472b6] stroke-2" />
-          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f472b6" dotRadius={2} />
+          <ChartFuelLollipop
+            intakes={fuelIntakes
+              .filter((i) => i.timestamp >= start && i.timestamp <= end)
+              .map((i) => ({ timestamp: i.timestamp - start, choGrams: i.choGrams }))}
+            target={fuelTarget}
+          />
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f97316" dotRadius={2} />
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">CHO</text>
         </ChartRoot>
@@ -753,13 +1076,17 @@ function SyncedCharts({
       {/* Crosshair time label */}
       <CrosshairTimeLabel format={formatTimeLabel} />
 
-      {/* Hover data table */}
-      <HoverDataTable
-        power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} meta={meta}
-      />
+      {/* Hover data table — hidden in fullscreen (sidebar shows data instead) */}
+      {!hideExtras && (
+        <HoverDataTable
+          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} meta={meta}
+          visibleCharts={visibleCharts}
+          totalCHO={fuelIntakes.reduce((s, i) => s + i.choGrams, 0)}
+        />
+      )}
 
-      {/* Zoom indicator */}
-      {(start > 0 || end < power.length - 1) && (
+      {/* Zoom indicator — hidden in fullscreen */}
+      {!hideExtras && (start > 0 || end < power.length - 1) && (
         <div className="mt-1 flex items-center justify-between">
           <span className="font-space text-[10px] text-[#A8A49A]">
             {formatTimeForZoom(start, visibleRange)} – {formatTimeForZoom(end, visibleRange)}
@@ -781,10 +1108,10 @@ function SyncedCharts({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function HoverDataTable({
-  power, heartRate, cadence, speed, altitude, meta,
+  power, heartRate, cadence, speed, altitude, meta, visibleCharts, totalCHO: totalCHOProp,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  meta: FitData['meta']
+  meta: FitData['meta']; visibleCharts: Set<ChartKey>; totalCHO: number
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -811,38 +1138,40 @@ function HoverDataTable({
     }
   }, [power, heartRate, cadence, speed, altitude, start, end])
 
-  const rangeDuration = useMemo(() => {
+  const rangeDur = useMemo(() => {
     const secs = end - start
     const m = Math.floor(secs / 60)
     const s = secs % 60
-    return `${formatTime(start)} – ${formatTime(end)}  (${m}:${s.toString().padStart(2, '0')})`
+    return { dur: `${m}:${s.toString().padStart(2, '0')}`, span: `${formatTime(start)} – ${formatTime(end)}` }
   }, [start, end])
 
   // Refs
   const timeLabelRef = useRef<HTMLSpanElement>(null)
   const timeValRef = useRef<HTMLSpanElement>(null)
+  const timeSpanRef = useRef<HTMLSpanElement>(null)
   const powerLabelRef = useRef<HTMLSpanElement>(null)
   const powerValRef = useRef<HTMLSpanElement>(null)
-  const powerMaxRef = useRef<HTMLSpanElement>(null)
+  const powerDeltaRef = useRef<HTMLSpanElement>(null)
   const powerZoneRef = useRef<HTMLSpanElement>(null)
   const hrLabelRef = useRef<HTMLSpanElement>(null)
   const hrValRef = useRef<HTMLSpanElement>(null)
-  const hrMaxRef = useRef<HTMLSpanElement>(null)
+  const hrDeltaRef = useRef<HTMLSpanElement>(null)
   const hrZoneRef = useRef<HTMLSpanElement>(null)
   const cadLabelRef = useRef<HTMLSpanElement>(null)
   const cadValRef = useRef<HTMLSpanElement>(null)
-  const cadMaxRef = useRef<HTMLSpanElement>(null)
+  const cadDeltaRef = useRef<HTMLSpanElement>(null)
   const speedLabelRef = useRef<HTMLSpanElement>(null)
   const speedValRef = useRef<HTMLSpanElement>(null)
-  const speedMaxRef = useRef<HTMLSpanElement>(null)
+  const speedDeltaRef = useRef<HTMLSpanElement>(null)
   const elevLabelRef = useRef<HTMLSpanElement>(null)
   const elevValRef = useRef<HTMLSpanElement>(null)
-  const elevMaxRef = useRef<HTMLSpanElement>(null)
+  const elevDeltaRef = useRef<HTMLSpanElement>(null)
 
   const showAverages = useCallback(() => {
     const s = rangeStats
     if (timeLabelRef.current) timeLabelRef.current.textContent = isZoomed ? 'Selection' : 'Duration'
-    if (timeValRef.current) timeValRef.current.textContent = isZoomed ? rangeDuration : formatTime(power.length)
+    if (timeValRef.current) timeValRef.current.textContent = isZoomed ? rangeDur.dur : formatTime(power.length)
+    if (timeSpanRef.current) timeSpanRef.current.textContent = isZoomed ? rangeDur.span : ''
     const prefix = isZoomed ? 'Sel' : 'Avg'
     if (powerLabelRef.current) powerLabelRef.current.textContent = `${prefix} Power`
     if (hrLabelRef.current) hrLabelRef.current.textContent = `${prefix} Heart Rate`
@@ -854,14 +1183,14 @@ function HoverDataTable({
     if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = '#3D3C39' }
     if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = '#3D3C39' }
     if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = '#3D3C39' }
-    if (powerMaxRef.current) powerMaxRef.current.textContent = `max ${s.maxPower}`
-    if (hrMaxRef.current) hrMaxRef.current.textContent = `max ${s.maxHR}`
-    if (cadMaxRef.current) cadMaxRef.current.textContent = `max ${s.maxCad}`
-    if (speedMaxRef.current) speedMaxRef.current.textContent = `max ${s.maxSpeed}`
-    if (elevMaxRef.current) elevMaxRef.current.textContent = `max ${s.maxElev}`
+    if (powerDeltaRef.current) { powerDeltaRef.current.textContent = 'avg'; powerDeltaRef.current.style.color = '#A8A49A' }
+    if (hrDeltaRef.current) { hrDeltaRef.current.textContent = 'avg'; hrDeltaRef.current.style.color = '#A8A49A' }
+    if (cadDeltaRef.current) { cadDeltaRef.current.textContent = 'avg'; cadDeltaRef.current.style.color = '#A8A49A' }
+    if (speedDeltaRef.current) { speedDeltaRef.current.textContent = 'avg'; speedDeltaRef.current.style.color = '#A8A49A' }
+    if (elevDeltaRef.current) { elevDeltaRef.current.textContent = 'avg'; elevDeltaRef.current.style.color = '#A8A49A' }
     if (powerZoneRef.current) { powerZoneRef.current.textContent = ''; powerZoneRef.current.style.backgroundColor = '' }
     if (hrZoneRef.current) { hrZoneRef.current.textContent = ''; hrZoneRef.current.style.backgroundColor = '' }
-  }, [meta, rangeStats, isZoomed, rangeDuration, power.length])
+  }, [meta, rangeStats, isZoomed, rangeDur, power.length])
 
   useEffect(() => { showAverages() }, [showAverages])
 
@@ -874,6 +1203,7 @@ function HoverDataTable({
 
       if (timeLabelRef.current) timeLabelRef.current.textContent = 'Time'
       if (timeValRef.current) timeValRef.current.textContent = formatTime(fullIdx)
+      if (timeSpanRef.current) timeSpanRef.current.textContent = ''
       if (powerLabelRef.current) powerLabelRef.current.textContent = 'Power'
       if (hrLabelRef.current) hrLabelRef.current.textContent = 'Heart Rate'
       if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cadence'
@@ -886,11 +1216,17 @@ function HoverDataTable({
       if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = '#0F0F0E' }
       if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = '#0F0F0E' }
       if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = '#0F0F0E' }
-      if (powerMaxRef.current) powerMaxRef.current.textContent = ''
-      if (hrMaxRef.current) hrMaxRef.current.textContent = ''
-      if (cadMaxRef.current) cadMaxRef.current.textContent = ''
-      if (speedMaxRef.current) speedMaxRef.current.textContent = ''
-      if (elevMaxRef.current) elevMaxRef.current.textContent = ''
+      // Deltas vs range average
+      const fmtD = (v: number, avg: number, dec = 0) => {
+        const d = v - avg
+        if (Math.abs(d) < (dec > 0 ? 0.05 : 0.5)) return '—'
+        return (d >= 0 ? '+' : '') + d.toFixed(dec)
+      }
+      if (powerDeltaRef.current) { powerDeltaRef.current.textContent = fmtD(pw, rangeStats.power); powerDeltaRef.current.style.color = '#6B6760' }
+      if (hrDeltaRef.current) { hrDeltaRef.current.textContent = fmtD(hr, rangeStats.hr); hrDeltaRef.current.style.color = '#6B6760' }
+      if (cadDeltaRef.current) { cadDeltaRef.current.textContent = fmtD(cad, rangeStats.cad); cadDeltaRef.current.style.color = '#6B6760' }
+      if (speedDeltaRef.current) { speedDeltaRef.current.textContent = fmtD(spd, rangeStats.speed, 1); speedDeltaRef.current.style.color = '#6B6760' }
+      if (elevDeltaRef.current) { elevDeltaRef.current.textContent = fmtD(elev, rangeStats.elev); elevDeltaRef.current.style.color = '#6B6760' }
       if (powerZoneRef.current) {
         const z = getPowerZone(pw, meta.ftp)
         powerZoneRef.current.textContent = z.label; powerZoneRef.current.style.color = z.color; powerZoneRef.current.style.backgroundColor = `${z.color}1F`
@@ -907,159 +1243,85 @@ function HoverDataTable({
   const labelCls = 'w-24 text-[13px] text-[#6B6760]'
   const valCls = 'font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]'
   const unitCls = 'font-space text-xs text-[#A8A49A]'
-  const maxCls = 'font-space text-[11px] tabular-nums text-[#A8A49A]'
+  const deltaCls = 'font-space text-[11px] tabular-nums text-[#A8A49A]'
   const zoneCls = 'ml-auto rounded px-2.5 py-0.5 font-space text-[11px] font-medium tabular-nums'
+
+  const vc = visibleCharts
 
   return (
     <div className="mt-2 mb-1" style={{ paddingLeft: 48, paddingRight: 64 }}>
+      {/* Duration — always visible */}
       <div className={rowCls}>
         <span className={`${dotCls} bg-[#383633]`} />
         <span ref={timeLabelRef} className={labelCls}>Duration</span>
         <span ref={timeValRef} className={valCls} />
+        <span ref={timeSpanRef} className="font-space text-[11px] tabular-nums text-[#A8A49A]" />
       </div>
-      <div className={rowCls}>
-        <span className={`${dotCls} bg-[#22c55e]`} />
-        <span ref={powerLabelRef} className={labelCls}>Avg Power</span>
-        <span className="flex items-baseline gap-1">
-          <span ref={powerValRef} className={valCls}>0</span>
-          <span className={unitCls}>W</span>
-        </span>
-        <span ref={powerMaxRef} className={maxCls} />
-        <span ref={powerZoneRef} className={zoneCls} />
-      </div>
-      <div className={rowCls}>
-        <span className={`${dotCls} bg-[#ef4444]`} />
-        <span ref={hrLabelRef} className={labelCls}>Avg Heart Rate</span>
-        <span className="flex items-baseline gap-1">
-          <span ref={hrValRef} className={valCls}>0</span>
-          <span className={unitCls}>bpm</span>
-        </span>
-        <span ref={hrMaxRef} className={maxCls} />
-        <span ref={hrZoneRef} className={zoneCls} />
-      </div>
-      <div className={rowCls}>
-        <span className={`${dotCls} bg-[#8b5cf6]`} />
-        <span ref={cadLabelRef} className={labelCls}>Avg Cadence</span>
-        <span className="flex items-baseline gap-1">
-          <span ref={cadValRef} className={valCls}>0</span>
-          <span className={unitCls}>rpm</span>
-        </span>
-        <span ref={cadMaxRef} className={maxCls} />
-      </div>
-      <div className={rowCls}>
-        <span className={`${dotCls} bg-[#3b82f6]`} />
-        <span ref={speedLabelRef} className={labelCls}>Avg Speed</span>
-        <span className="flex items-baseline gap-1">
-          <span ref={speedValRef} className={valCls}>0</span>
-          <span className={unitCls}>km/h</span>
-        </span>
-        <span ref={speedMaxRef} className={maxCls} />
-      </div>
-      <div className="flex items-center gap-3 py-2">
-        <span className={`${dotCls} bg-[#a8a49a]`} />
-        <span ref={elevLabelRef} className={labelCls}>Avg Elevation</span>
-        <span className="flex items-baseline gap-1">
-          <span ref={elevValRef} className={valCls}>0</span>
-          <span className={unitCls}>m</span>
-        </span>
-        <span ref={elevMaxRef} className={maxCls} />
-      </div>
-    </div>
-  )
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 8. Peak Powers Strip
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function PeakPowersStrip({
-  peaks, weight,
-}: {
-  peaks: { duration: number; label: string; watts: number }[]
-  weight: number
-}) {
-  return (
-    <div className="mt-8">
-      <h2 className="mb-2 font-label text-xs uppercase tracking-[.06em] text-[#A8A49A]">Peak Powers</h2>
-      <div className="grid grid-cols-7 divide-x divide-[#E8E5DC] rounded-lg border border-[#E8E5DC]">
-        {peaks.map((p) => (
-          <div key={p.label} className="px-3 py-3 text-center">
-            <div className="font-label text-[10px] uppercase tracking-[.04em] text-[#A8A49A]">{p.label}</div>
-            <div className="font-space text-[18px] font-medium tabular-nums text-[#383633]">
-              {p.watts}
-              <span className="text-xs text-[#A8A49A]">W</span>
-            </div>
-            <div className="font-space text-[11px] tabular-nums text-[#A8A49A]">
-              {weight > 0 ? (p.watts / weight).toFixed(1) : '—'}
-              <span className="ml-0.5 text-[9px]">W/kg</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 9. Advanced Metrics Cards
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function AdvancedMetricsCards({
-  meta, np, energyKJ, decoupling, totalCHO, choRate, fuel, fuelScore, fuelCompliance, choZone,
-}: {
-  meta: FitData['meta']; np: number; energyKJ: number; decoupling: number | null
-  totalCHO: number; choRate: number; fuel: FuelData; fuelScore: number; fuelCompliance: number
-  choZone: { label: string; color: string }
-}) {
-  const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
-  const kcal = Math.round(energyKJ * 0.239)
-  const kjMin = meta.totalTime > 0 ? (energyKJ / (meta.totalTime / 60)).toFixed(1) : '—'
-  const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
-
-  return (
-    <div className="mt-6">
-      <h2 className="mb-2 font-label text-xs uppercase tracking-[.06em] text-[#A8A49A]">Advanced Metrics</h2>
-      <div className="grid grid-cols-4 divide-x divide-[#E8E5DC] rounded-lg border border-[#E8E5DC]">
-        {/* Row 1 */}
-        <MetricCell label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />
-        <MetricCell label="R-Score" value="—" unit="rS" sub="Coming soon" />
-        <MetricCell label="Energy" value={`${energyKJ}`} unit="kJ" sub={`${kcal} kcal · ${kjMin} kJ/min`} />
-        <MetricCell label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Efficiency ${ef}`} />
-        {/* Row 2 */}
-        <MetricCell label="CHO Intake" value={`${totalCHO}`} unit="g" sub={`of ${fuel.targetCHO}g target`} badge={choZone} />
-        <MetricCell label="CHO Rate" value={`${choRate}`} unit="g/h" sub={`Target ${fuel.targetRate} g/h`} />
-        <MetricCell label="Fuel Score" value={`${fuelScore}`} unit="/100" sub={`${fuelCompliance}% compliance`} progress={fuelScore} />
-        <MetricCell label="Avg Cadence" value={`${meta.avgCadence}`} unit="rpm" />
-      </div>
-    </div>
-  )
-}
-
-function MetricCell({ label, value, unit, sub, badge, progress }: {
-  label: string; value: string; unit?: string; sub?: string
-  badge?: { label: string; color: string }; progress?: number
-}) {
-  return (
-    <div className="px-4 py-3">
-      <div className="font-label text-[10px] uppercase tracking-[.04em] text-[#A8A49A]">{label}</div>
-      <div className="flex items-baseline gap-2">
-        <div className="font-space text-[18px] font-medium tabular-nums text-[#383633]">
-          {value}
-          {unit && <span className="ml-0.5 text-xs text-[#A8A49A]">{unit}</span>}
-        </div>
-        {badge && (
-          <span
-            className="rounded px-2 py-0.5 font-space text-[10px] font-medium"
-            style={{ color: badge.color, backgroundColor: `${badge.color}1F` }}
-          >
-            {badge.label}
+      {vc.has('power') && (
+        <div className={rowCls}>
+          <span className={`${dotCls} bg-[#22c55e]`} />
+          <span ref={powerLabelRef} className={labelCls}>Avg Power</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={powerValRef} className={valCls}>0</span>
+            <span className={unitCls}>W</span>
           </span>
-        )}
-      </div>
-      {sub && <div className="mt-0.5 font-space text-[11px] text-[#A8A49A]">{sub}</div>}
-      {progress !== undefined && (
-        <div className="mt-1 h-1 w-16 overflow-hidden rounded-full bg-[#E8E5DC]">
-          <div className="h-full rounded-full bg-[#22c55e]" style={{ width: `${Math.min(100, progress)}%` }} />
+          <span ref={powerDeltaRef} className={deltaCls} />
+          <span ref={powerZoneRef} className={zoneCls} />
+        </div>
+      )}
+      {vc.has('hr') && (
+        <div className={rowCls}>
+          <span className={`${dotCls} bg-[#ef4444]`} />
+          <span ref={hrLabelRef} className={labelCls}>Avg Heart Rate</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={hrValRef} className={valCls}>0</span>
+            <span className={unitCls}>bpm</span>
+          </span>
+          <span ref={hrDeltaRef} className={deltaCls} />
+          <span ref={hrZoneRef} className={zoneCls} />
+        </div>
+      )}
+      {vc.has('cadence') && (
+        <div className={rowCls}>
+          <span className={`${dotCls} bg-[#8b5cf6]`} />
+          <span ref={cadLabelRef} className={labelCls}>Avg Cadence</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={cadValRef} className={valCls}>0</span>
+            <span className={unitCls}>rpm</span>
+          </span>
+          <span ref={cadDeltaRef} className={deltaCls} />
+        </div>
+      )}
+      {vc.has('speed') && (
+        <div className={rowCls}>
+          <span className={`${dotCls} bg-[#3b82f6]`} />
+          <span ref={speedLabelRef} className={labelCls}>Avg Speed</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={speedValRef} className={valCls}>0</span>
+            <span className={unitCls}>km/h</span>
+          </span>
+          <span ref={speedDeltaRef} className={deltaCls} />
+        </div>
+      )}
+      {vc.has('elevation') && (
+        <div className={vc.has('fuel') ? rowCls : 'flex items-center gap-3 py-2'}>
+          <span className={`${dotCls} bg-[#a8a49a]`} />
+          <span ref={elevLabelRef} className={labelCls}>Avg Elevation</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={elevValRef} className={valCls}>0</span>
+            <span className={unitCls}>m</span>
+          </span>
+          <span ref={elevDeltaRef} className={deltaCls} />
+        </div>
+      )}
+      {vc.has('fuel') && (
+        <div className="flex items-center gap-3 py-2">
+          <span className={`${dotCls} bg-[#f97316]`} />
+          <span className={labelCls}>CHO</span>
+          <span className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">
+            {totalCHOProp}
+          </span>
+          <span className={unitCls}>g</span>
         </div>
       )}
     </div>
@@ -1067,7 +1329,7 @@ function MetricCell({ label, value, unit, sub, badge, progress }: {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 10. Fuel Log
+// Fuel Log
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
@@ -1143,22 +1405,37 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
 
       {/* Intake cards */}
       {intakes.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-3">
-          {intakes.map((intake, i) => (
-            <div key={i} className="group relative min-w-[160px] flex-1 rounded-lg border border-[#E8E5DC] px-3 py-2.5">
-              <button
-                onClick={() => onRemove(i)}
-                className="absolute top-1.5 right-2 hidden rounded-full px-1 text-[11px] text-[#A8A49A] transition-colors hover:text-[#ef4444] group-hover:block"
+        <div className="mt-2 flex flex-wrap gap-2.5">
+          {intakes.map((intake, i) => {
+            // Split product into name + variant (after " — ")
+            const dash = intake.product.indexOf(' — ')
+            const name = dash >= 0 ? intake.product.slice(0, dash) : intake.product
+            const variant = dash >= 0 ? intake.product.slice(dash + 3) : ''
+            return (
+              <div
+                key={i}
+                className="group relative min-w-[150px] flex-1 rounded-md border border-[#E8E5DC] py-2 pr-3 pl-3.5"
+                style={{ borderLeft: '2.5px solid #f97316' }}
               >
-                ✕
-              </button>
-              <div className="font-space text-[13px] font-medium tabular-nums text-[#f97316]">
-                {formatTime(intake.timestamp)}
+                <button
+                  onClick={() => onRemove(i)}
+                  className="absolute top-1 right-1.5 hidden rounded-full px-1 text-[10px] text-[#A8A49A] transition-colors hover:text-[#ef4444] group-hover:block"
+                >
+                  ✕
+                </button>
+                <div className="flex items-baseline justify-between">
+                  <span className="font-space text-[13px] font-medium tabular-nums text-[#f97316]">
+                    {formatTime(intake.timestamp)}
+                  </span>
+                  <span className="font-space text-xs tabular-nums text-[#A8A49A]">
+                    {intake.choGrams}g
+                  </span>
+                </div>
+                <div className="mt-0.5 text-xs text-[#383633]">{name}</div>
+                {variant && <div className="text-[11px] text-[#A8A49A]">{variant}</div>}
               </div>
-              <div className="mt-0.5 text-[13px] text-[#383633]">{intake.product}</div>
-              <div className="mt-0.5 font-space text-xs text-[#A8A49A]">{intake.choGrams}g CHO</div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
