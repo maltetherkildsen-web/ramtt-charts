@@ -7,9 +7,13 @@
  * Charts: Power · HR · Speed · Cadence · Elevation
  *
  * Loads real FIT data from /fit-data/mit-with-spikes.json
+ *
+ * The live metrics strip and crosshair time label are fully ref-based —
+ * zero React re-renders on mousemove. Hover state flows through
+ * ChartSyncProvider's pub/sub, never through React state.
  */
 
-import { useMemo, useState, useCallback, useEffect } from 'react'
+import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
 import { ChartArea } from '@/components/charts/primitives/ChartArea'
@@ -22,6 +26,7 @@ import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import { ChartIntervalMarkers, type Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
+import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
@@ -69,6 +74,13 @@ function formatTimeForZoom(index: number, _visibleRange: number): string {
   const totalSeconds = index
   const m = Math.floor(totalSeconds / 60)
   const s = totalSeconds % 60
+  return `${m}:${s.toString().padStart(2, '0')}`
+}
+
+/** Simple m:ss format for a full data index (1 index = 1 second). */
+function formatTime(index: number): string {
+  const m = Math.floor(index / 60)
+  const s = index % 60
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
@@ -149,7 +161,7 @@ function ChartTestContent({ data }: { data: FitData }) {
   const { meta, power, heartRate, cadence, speed, altitude, intervals } = data
   const totalPoints = power.length
 
-  const [hoverIdx, setHoverIdx] = useState<number | null>(null)
+  // Only UI state that triggers re-render: zone mode toggle (user click, rare)
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
 
   // Duration formatted
@@ -159,8 +171,6 @@ function ChartTestContent({ data }: { data: FitData }) {
 
   // Mark high-power laps as "work" intervals for the markers
   const workIntervals = useMemo(() => {
-    // Group laps into meaningful blocks — only show work intervals (>= 400W avg)
-    // to avoid clutter from 56 laps
     return intervals
       .filter((iv) => (iv.avgPower ?? 0) >= 350)
       .map((iv, i) => ({
@@ -213,32 +223,16 @@ function ChartTestContent({ data }: { data: FitData }) {
             </div>
           </div>
 
-          {/* Stats bar — summary + live hover values */}
-          <div className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 sm:grid-cols-8">
-            {hoverIdx !== null ? (
-              <>
-                <Stat label="Time" value={`${Math.floor(hoverIdx / 60)}:${(hoverIdx % 60).toString().padStart(2, '0')}`} highlight />
-                <Stat label="Power" value={`${power[hoverIdx]}`} unit="W" highlight zone={getPowerZone(power[hoverIdx], meta.ftp)} />
-                <Stat label="HR" value={`${heartRate[hoverIdx]}`} unit="bpm" highlight zone={getHRZone(heartRate[hoverIdx], meta.maxHR)} />
-                <Stat label="Cadence" value={`${cadence[hoverIdx]}`} unit="rpm" highlight />
-                <Stat label="Speed" value={`${speed[hoverIdx]}`} unit="km/h" highlight />
-                <Stat label="Altitude" value={`${altitude[hoverIdx]}`} unit="m" highlight />
-                <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-                <Stat label="Duration" value={durationStr} />
-              </>
-            ) : (
-              <>
-                <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-                <Stat label="Peak Power" value={`${meta.maxPower}`} unit="W" />
-                <Stat label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
-                <Stat label="Avg Cad" value={`${meta.avgCadence}`} unit="rpm" />
-                <Stat label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
-                <Stat label="Duration" value={durationStr} />
-                <Stat label="Power" value="—" />
-                <Stat label="HR" value="—" />
-              </>
-            )}
-          </div>
+          {/* Live metrics strip — fully ref-based, zero re-renders on hover */}
+          <LiveMetricsStrip
+            power={power}
+            heartRate={heartRate}
+            cadence={cadence}
+            speed={speed}
+            altitude={altitude}
+            meta={meta}
+            durationStr={durationStr}
+          />
 
           {/* ─── 5 Stacked Charts ─── */}
           <SyncedCharts
@@ -251,7 +245,6 @@ function ChartTestContent({ data }: { data: FitData }) {
             ftp={meta.ftp}
             maxHR={meta.maxHR}
             zoneMode={zoneMode}
-            onHover={setHoverIdx}
           />
 
           {/* Zone legend */}
@@ -276,11 +269,193 @@ function ChartTestContent({ data }: { data: FitData }) {
 
           {/* Info */}
           <p className="font-label text-[9px] uppercase tracking-[.09em] text-[#8A877F]">
-            Real FIT data &middot; {totalPoints} records &middot; Synced crosshair &middot; Floating tooltip &middot; Scroll to zoom &middot; Drag to brush-select &middot; Scrubber mini-map
+            Real FIT data &middot; {totalPoints} records &middot; Synced crosshair &middot; Ref-based metrics &middot; Scroll to zoom &middot; Drag to brush-select &middot; Scrubber mini-map
           </p>
         </div>
       </div>
     </ChartSyncProvider>
+  )
+}
+
+// ─── Live Metrics Strip (ref-based, zero re-renders) ───
+
+function LiveMetricsStrip({
+  power,
+  heartRate,
+  cadence,
+  speed,
+  altitude,
+  meta,
+  durationStr,
+}: {
+  power: number[]
+  heartRate: number[]
+  cadence: number[]
+  speed: number[]
+  altitude: number[]
+  meta: FitData['meta']
+  durationStr: string
+}) {
+  const sync = useChartSync()
+
+  const defaultRef = useRef<HTMLDivElement>(null)
+  const hoverRef = useRef<HTMLDivElement>(null)
+  const indicatorRef = useRef<HTMLDivElement>(null)
+
+  // Refs for each hover value
+  const timeVal = useRef<HTMLSpanElement>(null)
+  const powerVal = useRef<HTMLSpanElement>(null)
+  const powerZoneBadge = useRef<HTMLSpanElement>(null)
+  const hrVal = useRef<HTMLSpanElement>(null)
+  const hrZoneBadge = useRef<HTMLSpanElement>(null)
+  const cadVal = useRef<HTMLSpanElement>(null)
+  const speedVal = useRef<HTMLSpanElement>(null)
+  const altVal = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    if (!sync) return
+
+    return sync.subscribeHover((visIdx) => {
+      const def = defaultRef.current
+      const hov = hoverRef.current
+      const ind = indicatorRef.current
+      if (!def || !hov || !ind) return
+
+      if (visIdx === null) {
+        def.style.display = ''
+        hov.style.display = 'none'
+        ind.style.opacity = '0'
+        return
+      }
+
+      const fullIdx = sync.zoom.start + visIdx
+      if (fullIdx < 0 || fullIdx >= power.length) return
+
+      // Switch rows
+      def.style.display = 'none'
+      hov.style.display = ''
+      ind.style.opacity = '1'
+
+      // Update values via direct DOM mutation — no setState
+      if (timeVal.current) timeVal.current.textContent = formatTime(fullIdx)
+
+      const pw = power[fullIdx]
+      if (powerVal.current) powerVal.current.textContent = `${pw}`
+      if (powerZoneBadge.current) {
+        const zone = getPowerZone(pw, meta.ftp)
+        powerZoneBadge.current.textContent = zone.label
+        powerZoneBadge.current.style.color = zone.color
+        powerZoneBadge.current.style.backgroundColor = `${zone.color}15`
+      }
+
+      const hr = heartRate[fullIdx]
+      if (hrVal.current) hrVal.current.textContent = `${hr}`
+      if (hrZoneBadge.current) {
+        const zone = getHRZone(hr, meta.maxHR)
+        hrZoneBadge.current.textContent = zone.label
+        hrZoneBadge.current.style.color = zone.color
+        hrZoneBadge.current.style.backgroundColor = `${zone.color}15`
+      }
+
+      if (cadVal.current) cadVal.current.textContent = `${cadence[fullIdx]}`
+      if (speedVal.current) speedVal.current.textContent = `${speed[fullIdx].toFixed(1)}`
+      if (altVal.current) altVal.current.textContent = `${altitude[fullIdx].toFixed(0)}`
+    })
+  }, [sync, power, heartRate, cadence, speed, altitude, meta.ftp, meta.maxHR])
+
+  return (
+    <div className="relative">
+      {/* Left border hover indicator */}
+      <div
+        ref={indicatorRef}
+        className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-[#0F0F0E]"
+        style={{ opacity: 0, transition: 'opacity 150ms' }}
+      />
+
+      {/* Default: session averages */}
+      <div ref={defaultRef} className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 pl-2 sm:grid-cols-8">
+        <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
+        <Stat label="Peak Power" value={`${meta.maxPower}`} unit="W" />
+        <Stat label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
+        <Stat label="Avg Cad" value={`${meta.avgCadence}`} unit="rpm" />
+        <Stat label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
+        <Stat label="Duration" value={durationStr} />
+        <Stat label="Power" value="—" />
+        <Stat label="HR" value="—" />
+      </div>
+
+      {/* Hover: live values — toggled via display, values via refs */}
+      <div ref={hoverRef} className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 pl-2 sm:grid-cols-8" style={{ display: 'none' }}>
+        {/* Time */}
+        <div>
+          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Time</div>
+          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+            <span ref={timeVal}>0:00</span>
+          </div>
+        </div>
+
+        {/* Power + zone */}
+        <div>
+          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Power</div>
+          <div className="flex items-baseline gap-1">
+            <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+              <span ref={powerVal}>0</span>
+              <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">W</span>
+            </div>
+            <span
+              ref={powerZoneBadge}
+              className="rounded px-1 py-px font-label text-[8px] font-bold uppercase tracking-[.04em]"
+            />
+          </div>
+        </div>
+
+        {/* HR + zone */}
+        <div>
+          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">HR</div>
+          <div className="flex items-baseline gap-1">
+            <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+              <span ref={hrVal}>0</span>
+              <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">bpm</span>
+            </div>
+            <span
+              ref={hrZoneBadge}
+              className="rounded px-1 py-px font-label text-[8px] font-bold uppercase tracking-[.04em]"
+            />
+          </div>
+        </div>
+
+        {/* Cadence */}
+        <div>
+          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Cadence</div>
+          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+            <span ref={cadVal}>0</span>
+            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">rpm</span>
+          </div>
+        </div>
+
+        {/* Speed */}
+        <div>
+          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Speed</div>
+          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+            <span ref={speedVal}>0</span>
+            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">km/h</span>
+          </div>
+        </div>
+
+        {/* Altitude */}
+        <div>
+          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Altitude</div>
+          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+            <span ref={altVal}>0</span>
+            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">m</span>
+          </div>
+        </div>
+
+        {/* Static context columns (always visible in hover mode too) */}
+        <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
+        <Stat label="Duration" value={durationStr} />
+      </div>
+    </div>
   )
 }
 
@@ -296,7 +471,6 @@ function SyncedCharts({
   ftp,
   maxHR,
   zoneMode,
-  onHover,
 }: {
   power: number[]
   heartRate: number[]
@@ -307,7 +481,6 @@ function SyncedCharts({
   ftp: number
   maxHR: number
   zoneMode: ZoneMode
-  onHover: (idx: number | null) => void
 }) {
   const sync = useChartSync()!
   const { zoom } = sync
@@ -326,6 +499,9 @@ function SyncedCharts({
     [start, visibleRange],
   )
 
+  /** Stable format function for CrosshairTimeLabel (full index → m:ss). */
+  const formatTimeLabel = useCallback((idx: number) => formatTime(idx), [])
+
   const timeTicks = useMemo(() => {
     const ticks = niceTicks(start, end, 6)
     const indices = ticks
@@ -333,13 +509,6 @@ function SyncedCharts({
       .filter((i) => i >= 0 && i < visibleRange)
     return [...new Set(indices)]
   }, [start, end, visibleRange])
-
-  const handleHover = useCallback(
-    (visIdx: number | null) => {
-      onHover(visIdx !== null ? start + visIdx : null)
-    },
-    [start, onHover],
-  )
 
   const chartPad = { right: 64 }
 
@@ -371,7 +540,7 @@ function SyncedCharts({
         ) : (
           <ChartLine />
         )}
-        <ChartCrosshair lineColor="#52525b" lineWidth={0.75} onHover={handleHover} />
+        <ChartCrosshair lineColor="#52525b" lineWidth={0.75} />
         <ChartZoomHandler />
       </ChartRoot>
 
@@ -439,6 +608,9 @@ function SyncedCharts({
         <ChartZoomHandler />
       </ChartRoot>
 
+      {/* Crosshair time label — pill floating on X-axis */}
+      <CrosshairTimeLabel format={formatTimeLabel} />
+
       {/* Scrubber / mini-map */}
       <ChartScrubber
         data={power}
@@ -470,42 +642,21 @@ function Stat({
   label,
   value,
   unit,
-  highlight = false,
-  zone,
 }: {
   label: string
   value: string
   unit?: string
-  highlight?: boolean
-  zone?: { label: string; color: string }
 }) {
   return (
     <div>
       <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
         {label}
       </div>
-      <div className="flex items-baseline gap-1">
-        <div
-          className={`font-space text-sm tabular-nums slashed-zero ${
-            highlight ? 'text-[#0F0F0E]' : 'text-[#0F0F0E]'
-          }`}
-        >
-          {value}
-          {unit && (
-            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">
-              {unit}
-            </span>
-          )}
-        </div>
-        {zone && (
-          <span
-            className="font-label text-[8px] font-bold uppercase tracking-[.04em] rounded px-1 py-px"
-            style={{
-              color: zone.color,
-              backgroundColor: `${zone.color}15`,
-            }}
-          >
-            {zone.label}
+      <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
+        {value}
+        {unit && (
+          <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">
+            {unit}
           </span>
         )}
       </div>
