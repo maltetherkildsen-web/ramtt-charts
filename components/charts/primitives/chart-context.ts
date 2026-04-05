@@ -41,8 +41,10 @@ export interface ChartContextValue {
   scaleX: LinearScale
   /** Y scale: data value → pixel y (relative to drawing area). */
   scaleY: LinearScale
-  /** The raw data array passed to ChartRoot. */
+  /** The (possibly downsampled) data array used for rendering. */
   data: readonly number[]
+  /** Original data length before downsampling. */
+  sourceDataLength: number
   /** Ref to the outer SVG element — for mouse listeners. */
   svgRef: React.RefObject<SVGSVGElement | null>
 }

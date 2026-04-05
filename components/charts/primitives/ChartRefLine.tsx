@@ -29,16 +29,16 @@ export function ChartRefLine({ y, label, className }: ChartRefLineProps) {
         y1={py}
         x2={chartWidth}
         y2={py}
-        strokeDasharray="4 3"
-        strokeWidth={0.75}
-        className={cn('stroke-zinc-400', className)}
+        strokeDasharray="4 4"
+        strokeWidth={0.5}
+        className={cn('stroke-zinc-300', className)}
       />
       {label && (
         <text
           x={chartWidth + 4}
           y={py}
           dy="0.32em"
-          className="fill-zinc-400 font-space text-[9px] font-normal"
+          className="fill-zinc-300 font-space text-[8px] font-normal"
         >
           {label}
         </text>

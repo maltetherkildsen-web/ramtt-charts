@@ -108,6 +108,7 @@ export function ChartCrosshair({
 
     const handleMove = (e: MouseEvent) => {
       cancelAnimationFrame(rafRef.current)
+      const clientY = e.clientY // capture outside rAF
       rafRef.current = requestAnimationFrame(() => {
         const rect = svg.getBoundingClientRect()
         const mx = e.clientX - rect.left - padding.left
@@ -126,8 +127,8 @@ export function ChartCrosshair({
         showAt(idx)
         onHover?.(idx)
 
-        // Broadcast to sibling charts
-        sync?.broadcastHover(idx, instanceId)
+        // Broadcast to sibling charts (include clientY for tooltip positioning)
+        sync?.broadcastHover(idx, instanceId, clientY)
       })
     }
 

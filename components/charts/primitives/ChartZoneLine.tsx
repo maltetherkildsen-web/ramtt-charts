@@ -18,6 +18,7 @@
 
 import { useId, useMemo } from 'react'
 import { linePath } from '@/lib/charts/paths/line'
+import { smoothDecimate } from '@/lib/charts/utils/smooth-decimate'
 import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
 
@@ -79,22 +80,30 @@ export function ChartZoneLine({
   threshold,
   className,
 }: ChartZoneLineProps) {
-  const { data: ctxData, scaleX, scaleY } = useChart()
+  const { data: ctxData, scaleX, scaleY, chartWidth } = useChart()
   const data = dataProp ?? ctxData
   const gradId = useId()
 
-  // Build the SVG path
-  const d = useMemo(
-    () =>
-      linePath(
+  // Build the SVG path with hybrid downsampling
+  const d = useMemo(() => {
+    const target = Math.max(4, Math.floor(chartWidth * 0.3))
+    if (data.length <= target || chartWidth <= 0) {
+      return linePath(
         data,
         (_v, i) => scaleX(i),
         (v) => scaleY(v),
-      ),
-    [data, scaleX, scaleY],
-  )
+      )
+    }
+    const pts = smoothDecimate(data, target)
+    return linePath(
+      pts,
+      (p) => scaleX(p.x),
+      (p) => scaleY(p.y),
+    )
+  }, [data, scaleX, scaleY, chartWidth])
 
   // Build gradient stops — only emit at zone transitions
+  // Uses full data for accurate zone coloring
   const stops = useMemo(() => {
     const len = data.length
     if (len === 0) return []
@@ -110,9 +119,6 @@ export function ChartZoneLine({
     for (let i = 1; i < len; i++) {
       const color = getZoneColor(data[i], threshold, zones)
       if (color !== prevColor) {
-        // Place two stops at the transition point:
-        // one ending the previous colour, one starting the new colour.
-        // Tiny offset between them (0.1%) creates a near-instant transition.
         const pct = ((i - 0.5) / lastIdx) * 100
         const pctStr = pct.toFixed(2)
         result.push({ offset: `${pctStr}%`, color: prevColor })

@@ -1,9 +1,13 @@
 'use client'
 
 /**
- * ChartAxisX — bottom X-axis with evenly spaced labels.
+ * ChartAxisX — bottom X-axis with evenly spaced or explicit tick labels.
  *
  * Uses font-space (→ JetBrains Mono via next/font CSS variable override).
+ *
+ * Two modes:
+ *   1. Default: evenly spaced by `labelCount`.
+ *   2. Explicit: pass `tickValues` (data indices) for custom placement.
  */
 
 import { useMemo } from 'react'
@@ -13,12 +17,15 @@ export interface ChartAxisXProps {
   labelCount?: number
   format?: (index: number, total: number) => string
   dy?: number
+  /** Explicit tick positions (data indices). Overrides labelCount. */
+  tickValues?: number[]
 }
 
 export function ChartAxisX({
   labelCount = 6,
   format = (i) => String(i),
   dy = 16,
+  tickValues,
 }: ChartAxisXProps) {
   const { data, scaleX, chartHeight } = useChart()
 
@@ -26,6 +33,14 @@ export function ChartAxisX({
     const len = data.length
     if (len === 0) return []
 
+    // Explicit tick positions
+    if (tickValues) {
+      return tickValues
+        .filter((i) => i >= 0 && i < len)
+        .map((i) => ({ index: i, label: format(i, len) }))
+    }
+
+    // Default: evenly spaced
     const step = Math.max(1, Math.floor((len - 1) / labelCount))
     const result: { index: number; label: string }[] = []
 
@@ -42,7 +57,7 @@ export function ChartAxisX({
     }
 
     return result
-  }, [data.length, labelCount, format])
+  }, [data.length, labelCount, format, tickValues])
 
   return (
     <g>

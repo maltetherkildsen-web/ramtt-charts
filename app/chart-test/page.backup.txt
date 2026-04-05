@@ -20,6 +20,7 @@ import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
 import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/ChartZoneLine'
 import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/ChartSyncProvider'
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
+import { ChartTooltip, type TooltipData } from '@/components/charts/primitives/ChartTooltip'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import { ChartIntervalMarkers, type Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { niceTicks } from '@/lib/charts/ticks/nice'
@@ -213,27 +214,21 @@ function ChartTestContent({ data }: { data: FitData }) {
             </div>
           </div>
 
-          {/* Stats bar — summary + live hover values */}
+          {/* Stats bar */}
           <div className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 sm:grid-cols-8">
+            <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
+            <Stat label="Peak Power" value={`${meta.maxPower}`} unit="W" />
+            <Stat label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
+            <Stat label="Avg Cad" value={`${meta.avgCadence}`} unit="rpm" />
+            <Stat label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
+            <Stat label="Duration" value={durationStr} />
             {hoverIdx !== null ? (
               <>
-                <Stat label="Time" value={`${Math.floor(hoverIdx / 60)}:${(hoverIdx % 60).toString().padStart(2, '0')}`} highlight />
-                <Stat label="Power" value={`${power[hoverIdx]}`} unit="W" highlight zone={getPowerZone(power[hoverIdx], meta.ftp)} />
-                <Stat label="HR" value={`${heartRate[hoverIdx]}`} unit="bpm" highlight zone={getHRZone(heartRate[hoverIdx], meta.maxHR)} />
-                <Stat label="Cadence" value={`${cadence[hoverIdx]}`} unit="rpm" highlight />
-                <Stat label="Speed" value={`${speed[hoverIdx]}`} unit="km/h" highlight />
-                <Stat label="Altitude" value={`${altitude[hoverIdx]}`} unit="m" highlight />
-                <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-                <Stat label="Duration" value={durationStr} />
+                <Stat label="Power" value={`${power[hoverIdx]}`} unit="W" highlight />
+                <Stat label="HR" value={`${heartRate[hoverIdx]}`} unit="bpm" highlight />
               </>
             ) : (
               <>
-                <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-                <Stat label="Peak Power" value={`${meta.maxPower}`} unit="W" />
-                <Stat label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
-                <Stat label="Avg Cad" value={`${meta.avgCadence}`} unit="rpm" />
-                <Stat label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
-                <Stat label="Duration" value={durationStr} />
                 <Stat label="Power" value="—" />
                 <Stat label="HR" value="—" />
               </>
@@ -353,8 +348,49 @@ function SyncedCharts({
       .filter((iv) => iv.endIndex > 0 && iv.startIndex < visibleRange)
   }, [intervals, start, visibleRange])
 
+  const resolveTooltip = useCallback(
+    (visIdx: number): TooltipData | null => {
+      const fullIdx = start + visIdx
+      if (fullIdx < 0 || fullIdx >= power.length) return null
+
+      const p = power[fullIdx]
+      const hr = heartRate[fullIdx]
+      const cad = cadence[fullIdx]
+      const spd = speed[fullIdx]
+
+      return {
+        time: formatTimeForZoom(fullIdx, visibleRange),
+        rows: [
+          {
+            label: 'Power',
+            value: `${p}W`,
+            color: '#E36B30',
+            zone: getPowerZone(p, ftp),
+          },
+          {
+            label: 'HR',
+            value: `${hr} bpm`,
+            color: '#E83B52',
+            zone: getHRZone(hr, maxHR),
+          },
+          {
+            label: 'Cadence',
+            value: `${cad} rpm`,
+            color: '#7CA3BE',
+          },
+          {
+            label: 'Speed',
+            value: `${spd} km/h`,
+            color: '#3b82f6',
+          },
+        ],
+      }
+    },
+    [start, power, heartRate, cadence, speed, visibleRange, ftp, maxHR],
+  )
+
   return (
-    <div className="relative select-none">
+    <div>
       {/* Power */}
       <ChartRoot
         data={visPower}
@@ -372,6 +408,7 @@ function SyncedCharts({
           <ChartLine />
         )}
         <ChartCrosshair lineColor="#52525b" lineWidth={0.75} onHover={handleHover} />
+        <ChartTooltip resolveData={resolveTooltip} />
         <ChartZoomHandler />
       </ChartRoot>
 
@@ -471,41 +508,26 @@ function Stat({
   value,
   unit,
   highlight = false,
-  zone,
 }: {
   label: string
   value: string
   unit?: string
   highlight?: boolean
-  zone?: { label: string; color: string }
 }) {
   return (
     <div>
       <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">
         {label}
       </div>
-      <div className="flex items-baseline gap-1">
-        <div
-          className={`font-space text-sm tabular-nums slashed-zero ${
-            highlight ? 'text-[#0F0F0E]' : 'text-[#0F0F0E]'
-          }`}
-        >
-          {value}
-          {unit && (
-            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">
-              {unit}
-            </span>
-          )}
-        </div>
-        {zone && (
-          <span
-            className="font-label text-[8px] font-bold uppercase tracking-[.04em] rounded px-1 py-px"
-            style={{
-              color: zone.color,
-              backgroundColor: `${zone.color}15`,
-            }}
-          >
-            {zone.label}
+      <div
+        className={`font-space text-sm tabular-nums slashed-zero ${
+          highlight ? 'text-emerald-600' : 'text-[#0F0F0E]'
+        }`}
+      >
+        {value}
+        {unit && (
+          <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">
+            {unit}
           </span>
         )}
       </div>

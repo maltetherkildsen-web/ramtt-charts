@@ -6,6 +6,10 @@
  *
  * Renders ONCE per data/size change. Hover tracking is intentionally
  * excluded — it lives in ChartCrosshair, outside React's render cycle.
+ *
+ * Downsampling is handled by rendering primitives (ChartLine, ChartArea),
+ * NOT here — the context exposes full data so crosshair/tooltip indices
+ * remain correct without mapping.
  */
 
 import {
@@ -110,6 +114,7 @@ export function ChartRoot({
       scaleX,
       scaleY,
       data,
+      sourceDataLength: data.length,
       svgRef,
     }),
     [width, height, chartWidth, chartHeight, padding, scaleX, scaleY, data],

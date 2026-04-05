@@ -37,7 +37,7 @@ export interface ZoomRange {
 }
 
 /** Callback for hover sync — receives data index or null (mouse left). */
-export type HoverCallback = (index: number | null, sourceId: string) => void
+export type HoverCallback = (index: number | null, sourceId: string, clientY?: number) => void
 
 /** Callback for zoom sync. */
 export type ZoomCallback = (range: ZoomRange) => void
@@ -46,8 +46,8 @@ export interface ChartSyncContextValue {
   // ─── Hover (ref-based, zero re-renders) ───
   /** Subscribe to hover broadcasts. Returns unsubscribe function. */
   subscribeHover: (cb: HoverCallback) => () => void
-  /** Broadcast a hover index to all subscribers. */
-  broadcastHover: (index: number | null, sourceId: string) => void
+  /** Broadcast a hover index to all subscribers. clientY is viewport Y for tooltip positioning. */
+  broadcastHover: (index: number | null, sourceId: string, clientY?: number) => void
 
   // ─── Zoom (state-based, triggers re-render) ───
   /** Current visible range. */
@@ -85,8 +85,8 @@ export function ChartSyncProvider({ dataLength, children }: ChartSyncProviderPro
     return () => { hoverSubs.current.delete(cb) }
   }, [])
 
-  const broadcastHover = useCallback((index: number | null, sourceId: string) => {
-    hoverSubs.current.forEach((cb) => cb(index, sourceId))
+  const broadcastHover = useCallback((index: number | null, sourceId: string, clientY?: number) => {
+    hoverSubs.current.forEach((cb) => cb(index, sourceId, clientY))
   }, [])
 
   // ─── Zoom (state-based) ───
