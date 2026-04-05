@@ -125,7 +125,12 @@ export default function ChartTestPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('/fit-data/mit-with-spikes.json')
+    const url =
+      process.env.NODE_ENV === 'development'
+        ? `/fit-data/mit-with-spikes.json?t=${Date.now()}`
+        : '/fit-data/mit-with-spikes.json'
+
+    fetch(url, { cache: 'no-store' })
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`)
         return r.json()

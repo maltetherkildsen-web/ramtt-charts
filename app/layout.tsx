@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
+import { DevCacheGuard } from '@/components/dev/DevCacheGuard'
 import './globals.css'
 
 /**
@@ -37,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="da" className={`${jetbrainsMono.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-canvas text-text-primary">
+        <DevCacheGuard />
         {children}
       </body>
     </html>
