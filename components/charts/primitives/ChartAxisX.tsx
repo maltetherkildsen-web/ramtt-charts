@@ -67,7 +67,7 @@ export function ChartAxisX({
           x={scaleX(index)}
           y={chartHeight + dy}
           textAnchor="middle"
-          className="fill-zinc-400 font-space text-[10px] font-light"
+          className="fill-[#8A877F] font-space text-[10px]"
         >
           {label}
         </text>

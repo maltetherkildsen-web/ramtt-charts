@@ -96,6 +96,43 @@ const ZONE_MODE_LABELS: Record<ZoneMode, string> = {
 
 const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 
+// ─── Rolling average (pre-smoothing for HR / elevation) ───
+
+/**
+ * Lightweight moving average that removes integer-step staircase artifacts
+ * from HR and GPS-altitude data before downsampling.
+ *
+ * O(n) — single pass with a sliding window sum.
+ */
+function rollingAverage(data: readonly number[], windowSize: number): number[] {
+  if (windowSize <= 1) return data as number[]
+  const len = data.length
+  const out = new Array<number>(len)
+  const half = (windowSize - 1) >> 1
+
+  // Seed the running sum for the first window
+  let sum = 0
+  const firstEnd = Math.min(half, len - 1)
+  for (let j = 0; j <= firstEnd; j++) sum += data[j]
+  let wStart = 0
+  let wEnd = firstEnd
+
+  for (let i = 0; i < len; i++) {
+    // Expand window right
+    while (wEnd < Math.min(i + half, len - 1)) {
+      wEnd++
+      sum += data[wEnd]
+    }
+    // Shrink window left
+    while (wStart < i - half) {
+      sum -= data[wStart]
+      wStart++
+    }
+    out[i] = sum / (wEnd - wStart + 1)
+  }
+  return out
+}
+
 // ─── Zone helpers ───
 
 function getPowerZone(watts: number, ftp: number): { label: string; color: string } {
@@ -230,11 +267,6 @@ function ChartTestContent({ data }: { data: FitData }) {
 
           {/* Live metrics strip — fully ref-based, zero re-renders on hover */}
           <LiveMetricsStrip
-            power={power}
-            heartRate={heartRate}
-            cadence={cadence}
-            speed={speed}
-            altitude={altitude}
             meta={meta}
             durationStr={durationStr}
           />
@@ -249,6 +281,7 @@ function ChartTestContent({ data }: { data: FitData }) {
             intervals={workIntervals}
             ftp={meta.ftp}
             maxHR={meta.maxHR}
+            meta={meta}
             zoneMode={zoneMode}
           />
 
@@ -282,184 +315,25 @@ function ChartTestContent({ data }: { data: FitData }) {
   )
 }
 
-// ─── Live Metrics Strip (ref-based, zero re-renders) ───
+// ─── Live Metrics Strip (static session averages — never updates on hover) ───
 
 function LiveMetricsStrip({
-  power,
-  heartRate,
-  cadence,
-  speed,
-  altitude,
   meta,
   durationStr,
 }: {
-  power: number[]
-  heartRate: number[]
-  cadence: number[]
-  speed: number[]
-  altitude: number[]
   meta: FitData['meta']
   durationStr: string
 }) {
-  const sync = useChartSync()
-
-  const defaultRef = useRef<HTMLDivElement>(null)
-  const hoverRef = useRef<HTMLDivElement>(null)
-  const indicatorRef = useRef<HTMLDivElement>(null)
-
-  // Refs for each hover value
-  const timeVal = useRef<HTMLSpanElement>(null)
-  const powerVal = useRef<HTMLSpanElement>(null)
-  const powerZoneBadge = useRef<HTMLSpanElement>(null)
-  const hrVal = useRef<HTMLSpanElement>(null)
-  const hrZoneBadge = useRef<HTMLSpanElement>(null)
-  const cadVal = useRef<HTMLSpanElement>(null)
-  const speedVal = useRef<HTMLSpanElement>(null)
-  const altVal = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    if (!sync) return
-
-    return sync.subscribeHover((visIdx) => {
-      const def = defaultRef.current
-      const hov = hoverRef.current
-      const ind = indicatorRef.current
-      if (!def || !hov || !ind) return
-
-      if (visIdx === null) {
-        def.style.display = ''
-        hov.style.display = 'none'
-        ind.style.opacity = '0'
-        return
-      }
-
-      const fullIdx = sync.zoom.start + visIdx
-      if (fullIdx < 0 || fullIdx >= power.length) return
-
-      // Switch rows
-      def.style.display = 'none'
-      hov.style.display = ''
-      ind.style.opacity = '1'
-
-      // Update values via direct DOM mutation — no setState
-      if (timeVal.current) timeVal.current.textContent = formatTime(fullIdx)
-
-      const pw = power[fullIdx]
-      if (powerVal.current) powerVal.current.textContent = `${pw}`
-      if (powerZoneBadge.current) {
-        const zone = getPowerZone(pw, meta.ftp)
-        powerZoneBadge.current.textContent = zone.label
-        powerZoneBadge.current.style.color = zone.color
-        powerZoneBadge.current.style.backgroundColor = `${zone.color}15`
-      }
-
-      const hr = heartRate[fullIdx]
-      if (hrVal.current) hrVal.current.textContent = `${hr}`
-      if (hrZoneBadge.current) {
-        const zone = getHRZone(hr, meta.maxHR)
-        hrZoneBadge.current.textContent = zone.label
-        hrZoneBadge.current.style.color = zone.color
-        hrZoneBadge.current.style.backgroundColor = `${zone.color}15`
-      }
-
-      if (cadVal.current) cadVal.current.textContent = `${cadence[fullIdx]}`
-      if (speedVal.current) speedVal.current.textContent = `${speed[fullIdx].toFixed(1)}`
-      if (altVal.current) altVal.current.textContent = `${altitude[fullIdx].toFixed(0)}`
-    })
-  }, [sync, power, heartRate, cadence, speed, altitude, meta.ftp, meta.maxHR])
-
   return (
-    <div className="relative">
-      {/* Left border hover indicator */}
-      <div
-        ref={indicatorRef}
-        className="absolute left-0 top-0 bottom-0 w-[2px] rounded-full bg-[#0F0F0E]"
-        style={{ opacity: 0, transition: 'opacity 150ms' }}
-      />
-
-      {/* Default: session averages */}
-      <div ref={defaultRef} className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 pl-2 sm:grid-cols-8">
-        <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-        <Stat label="Peak Power" value={`${meta.maxPower}`} unit="W" />
-        <Stat label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
-        <Stat label="Avg Cad" value={`${meta.avgCadence}`} unit="rpm" />
-        <Stat label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
-        <Stat label="Duration" value={durationStr} />
-        <Stat label="Power" value="—" />
-        <Stat label="HR" value="—" />
-      </div>
-
-      {/* Hover: live values — toggled via display, values via refs */}
-      <div ref={hoverRef} className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 pl-2 sm:grid-cols-8" style={{ display: 'none' }}>
-        {/* Time */}
-        <div>
-          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Time</div>
-          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
-            <span ref={timeVal}>0:00</span>
-          </div>
-        </div>
-
-        {/* Power + zone */}
-        <div>
-          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Power</div>
-          <div className="flex items-baseline gap-1">
-            <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
-              <span ref={powerVal}>0</span>
-              <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">W</span>
-            </div>
-            <span
-              ref={powerZoneBadge}
-              className="rounded px-1 py-px font-label text-[8px] font-bold uppercase tracking-[.04em]"
-            />
-          </div>
-        </div>
-
-        {/* HR + zone */}
-        <div>
-          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">HR</div>
-          <div className="flex items-baseline gap-1">
-            <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
-              <span ref={hrVal}>0</span>
-              <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">bpm</span>
-            </div>
-            <span
-              ref={hrZoneBadge}
-              className="rounded px-1 py-px font-label text-[8px] font-bold uppercase tracking-[.04em]"
-            />
-          </div>
-        </div>
-
-        {/* Cadence */}
-        <div>
-          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Cadence</div>
-          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
-            <span ref={cadVal}>0</span>
-            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">rpm</span>
-          </div>
-        </div>
-
-        {/* Speed */}
-        <div>
-          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Speed</div>
-          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
-            <span ref={speedVal}>0</span>
-            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">km/h</span>
-          </div>
-        </div>
-
-        {/* Altitude */}
-        <div>
-          <div className="font-label text-[10px] uppercase tracking-[.09em] text-[#8A877F]">Altitude</div>
-          <div className="font-space text-sm tabular-nums slashed-zero text-[#0F0F0E]">
-            <span ref={altVal}>0</span>
-            <span className="ml-0.5 text-[10px] font-light text-[#8A877F]">m</span>
-          </div>
-        </div>
-
-        {/* Static context columns (always visible in hover mode too) */}
-        <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
-        <Stat label="Duration" value={durationStr} />
-      </div>
+    <div className="grid grid-cols-4 gap-px border-b border-[#E5E3DE] pb-3 sm:grid-cols-8">
+      <Stat label="Avg Power" value={`${meta.avgPower}`} unit="W" />
+      <Stat label="Peak Power" value={`${meta.maxPower}`} unit="W" />
+      <Stat label="Avg HR" value={`${meta.avgHR}`} unit="bpm" />
+      <Stat label="Avg Cad" value={`${meta.avgCadence}`} unit="rpm" />
+      <Stat label="Avg Speed" value={`${meta.avgSpeed}`} unit="km/h" />
+      <Stat label="Duration" value={durationStr} />
+      <Stat label="FTP" value={`${meta.ftp}`} unit="W" />
+      <Stat label="Max HR" value={`${meta.maxHR}`} unit="bpm" />
     </div>
   )
 }
@@ -475,6 +349,7 @@ function SyncedCharts({
   intervals,
   ftp,
   maxHR,
+  meta,
   zoneMode,
 }: {
   power: number[]
@@ -485,6 +360,7 @@ function SyncedCharts({
   intervals: Interval[]
   ftp: number
   maxHR: number
+  meta: FitData['meta']
   zoneMode: ZoneMode
 }) {
   const sync = useChartSync()!
@@ -494,10 +370,23 @@ function SyncedCharts({
   const visibleRange = end - start + 1
 
   const visPower = useMemo(() => power.slice(start, end + 1), [power, start, end])
-  const visHR = useMemo(() => heartRate.slice(start, end + 1), [heartRate, start, end])
   const visCadence = useMemo(() => cadence.slice(start, end + 1), [cadence, start, end])
   const visSpeed = useMemo(() => speed.slice(start, end + 1), [speed, start, end])
-  const visAltitude = useMemo(() => altitude.slice(start, end + 1), [altitude, start, end])
+
+  // HR + altitude get a zoom-adaptive rolling average to remove
+  // integer-step staircase artefacts before downsampling.
+  // Window: 1 (none) at full zoom-out, 3 at medium, 5 when deep-zoomed.
+  const smoothWindow = visibleRange < 500 ? 5 : visibleRange < 2000 ? 3 : 1
+
+  const visHR = useMemo(() => {
+    const raw = heartRate.slice(start, end + 1)
+    return smoothWindow > 1 ? rollingAverage(raw, smoothWindow) : raw
+  }, [heartRate, start, end, smoothWindow])
+
+  const visAltitude = useMemo(() => {
+    const raw = altitude.slice(start, end + 1)
+    return smoothWindow > 1 ? rollingAverage(raw, smoothWindow) : raw
+  }, [altitude, start, end, smoothWindow])
 
   const formatX = useCallback(
     (i: number) => formatTimeForZoom(start + i, visibleRange),
@@ -538,7 +427,7 @@ function SyncedCharts({
       >
         <ChartIntervalMarkers intervals={visibleIntervals} showLabels />
         <ChartAxisY tickCount={3} />
-        <ChartRefLine y={ftp} label={`FTP ${ftp}W`} />
+        <ChartRefLine y={ftp} label={`CP ${ftp}W`} />
         <ChartArea gradientColor="#059669" opacityFrom={0.10} opacityTo={0.005} />
         {zoneMode === 'power' ? (
           <ChartZoneLine threshold={ftp} zones={POWER_ZONES} />
@@ -616,6 +505,16 @@ function SyncedCharts({
       {/* Crosshair time label — pill floating on X-axis */}
       <CrosshairTimeLabel format={formatTimeLabel} />
 
+      {/* Hover data table — ref-based, updates on crosshair hover */}
+      <HoverDataTable
+        power={power}
+        heartRate={heartRate}
+        cadence={cadence}
+        speed={speed}
+        altitude={altitude}
+        meta={meta}
+      />
+
       {/* Scrubber / mini-map */}
       <ChartScrubber
         data={power}
@@ -637,6 +536,251 @@ function SyncedCharts({
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── Hover Data Table (ref-based, zero re-renders) ───
+
+function HoverDataTable({
+  power,
+  heartRate,
+  cadence,
+  speed,
+  altitude,
+  meta,
+}: {
+  power: number[]
+  heartRate: number[]
+  cadence: number[]
+  speed: number[]
+  altitude: number[]
+  meta: FitData['meta']
+}) {
+  const sync = useChartSync()
+  const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
+  const isZoomed = start > 0 || end < power.length - 1
+
+  // Compute averages + maxes for the VISIBLE range (updates on zoom via React state)
+  const rangeStats = useMemo(() => {
+    const s = start
+    const e = end
+    const len = e - s + 1
+    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, elev: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
+    let pw = 0, hr = 0, cad = 0, spd = 0, elv = 0
+    let mxPw = -Infinity, mxHr = -Infinity, mxCad = -Infinity, mxSpd = -Infinity, mxElv = -Infinity
+    for (let i = s; i <= e; i++) {
+      pw += power[i]; hr += heartRate[i]; cad += cadence[i]; spd += speed[i]; elv += altitude[i]
+      if (power[i] > mxPw) mxPw = power[i]
+      if (heartRate[i] > mxHr) mxHr = heartRate[i]
+      if (cadence[i] > mxCad) mxCad = cadence[i]
+      if (speed[i] > mxSpd) mxSpd = speed[i]
+      if (altitude[i] > mxElv) mxElv = altitude[i]
+    }
+    return {
+      power: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cad / len),
+      speed: +(spd / len).toFixed(1), elev: Math.round(elv / len),
+      maxPower: Math.round(mxPw), maxHR: Math.round(mxHr), maxCad: Math.round(mxCad),
+      maxSpeed: +mxSpd.toFixed(1), maxElev: Math.round(mxElv),
+    }
+  }, [power, heartRate, cadence, speed, altitude, start, end])
+
+  // Range duration string (for zoomed label)
+  const rangeDuration = useMemo(() => {
+    const secs = end - start
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${formatTime(start)} – ${formatTime(end)}  (${m}:${s.toString().padStart(2, '0')})`
+  }, [start, end])
+
+  // Refs per row: label, value, max, zone badge
+  const timeLabelRef = useRef<HTMLSpanElement>(null)
+  const timeValRef = useRef<HTMLSpanElement>(null)
+
+  const powerLabelRef = useRef<HTMLSpanElement>(null)
+  const powerValRef = useRef<HTMLSpanElement>(null)
+  const powerMaxRef = useRef<HTMLSpanElement>(null)
+  const powerZoneRef = useRef<HTMLSpanElement>(null)
+
+  const hrLabelRef = useRef<HTMLSpanElement>(null)
+  const hrValRef = useRef<HTMLSpanElement>(null)
+  const hrMaxRef = useRef<HTMLSpanElement>(null)
+  const hrZoneRef = useRef<HTMLSpanElement>(null)
+
+  const cadLabelRef = useRef<HTMLSpanElement>(null)
+  const cadValRef = useRef<HTMLSpanElement>(null)
+  const cadMaxRef = useRef<HTMLSpanElement>(null)
+
+  const speedLabelRef = useRef<HTMLSpanElement>(null)
+  const speedValRef = useRef<HTMLSpanElement>(null)
+  const speedMaxRef = useRef<HTMLSpanElement>(null)
+
+  const elevLabelRef = useRef<HTMLSpanElement>(null)
+  const elevValRef = useRef<HTMLSpanElement>(null)
+  const elevMaxRef = useRef<HTMLSpanElement>(null)
+
+  // Show averages for the current view (zoomed range or full session)
+  const showAverages = useCallback(() => {
+    const s = rangeStats
+
+    // Duration / time row
+    if (timeLabelRef.current) timeLabelRef.current.textContent = isZoomed ? 'Selection' : 'Duration'
+    if (timeValRef.current) timeValRef.current.textContent = isZoomed ? rangeDuration : formatTime(power.length)
+
+    // Labels
+    const prefix = isZoomed ? 'Sel' : 'Avg'
+    if (powerLabelRef.current) powerLabelRef.current.textContent = `${prefix} Power`
+    if (hrLabelRef.current) hrLabelRef.current.textContent = `${prefix} Heart Rate`
+    if (cadLabelRef.current) cadLabelRef.current.textContent = `${prefix} Cadence`
+    if (speedLabelRef.current) speedLabelRef.current.textContent = `${prefix} Speed`
+    if (elevLabelRef.current) elevLabelRef.current.textContent = `${prefix} Elevation`
+
+    // Values — muted color
+    if (powerValRef.current) { powerValRef.current.textContent = `${s.power}`; powerValRef.current.style.color = '#3D3C39' }
+    if (hrValRef.current) { hrValRef.current.textContent = `${s.hr}`; hrValRef.current.style.color = '#3D3C39' }
+    if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = '#3D3C39' }
+    if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = '#3D3C39' }
+    if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = '#3D3C39' }
+
+    // Max values
+    if (powerMaxRef.current) powerMaxRef.current.textContent = `max ${s.maxPower}`
+    if (hrMaxRef.current) hrMaxRef.current.textContent = `max ${s.maxHR}`
+    if (cadMaxRef.current) cadMaxRef.current.textContent = `max ${s.maxCad}`
+    if (speedMaxRef.current) speedMaxRef.current.textContent = `max ${s.maxSpeed}`
+    if (elevMaxRef.current) elevMaxRef.current.textContent = `max ${s.maxElev}`
+
+    // Hide zone badges in default state (only show during hover)
+    if (powerZoneRef.current) { powerZoneRef.current.textContent = ''; powerZoneRef.current.style.backgroundColor = '' }
+    if (hrZoneRef.current) { hrZoneRef.current.textContent = ''; hrZoneRef.current.style.backgroundColor = '' }
+  }, [meta, rangeStats, isZoomed, rangeDuration, power.length])
+
+  // Show averages on mount
+  useEffect(() => { showAverages() }, [showAverages])
+
+  useEffect(() => {
+    if (!sync) return
+
+    return sync.subscribeHover((visIdx) => {
+      if (visIdx === null) {
+        showAverages()
+        return
+      }
+
+      const fullIdx = sync.zoom.start + visIdx
+      if (fullIdx < 0 || fullIdx >= power.length) return
+
+      // Time row → show current point time
+      if (timeLabelRef.current) timeLabelRef.current.textContent = 'Time'
+      if (timeValRef.current) timeValRef.current.textContent = formatTime(fullIdx)
+
+      // Labels → live (drop prefix)
+      if (powerLabelRef.current) powerLabelRef.current.textContent = 'Power'
+      if (hrLabelRef.current) hrLabelRef.current.textContent = 'Heart Rate'
+      if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cadence'
+      if (speedLabelRef.current) speedLabelRef.current.textContent = 'Speed'
+      if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elevation'
+
+      const pw = power[fullIdx]
+      const hr = heartRate[fullIdx]
+      const cad = cadence[fullIdx]
+      const spd = speed[fullIdx]
+      const elev = altitude[fullIdx]
+
+      // Values — full contrast
+      if (powerValRef.current) { powerValRef.current.textContent = `${pw}`; powerValRef.current.style.color = '#0F0F0E' }
+      if (hrValRef.current) { hrValRef.current.textContent = `${hr}`; hrValRef.current.style.color = '#0F0F0E' }
+      if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = '#0F0F0E' }
+      if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = '#0F0F0E' }
+      if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = '#0F0F0E' }
+
+      // Hide max during hover (live point value is shown instead)
+      if (powerMaxRef.current) powerMaxRef.current.textContent = ''
+      if (hrMaxRef.current) hrMaxRef.current.textContent = ''
+      if (cadMaxRef.current) cadMaxRef.current.textContent = ''
+      if (speedMaxRef.current) speedMaxRef.current.textContent = ''
+      if (elevMaxRef.current) elevMaxRef.current.textContent = ''
+
+      // Zone badges
+      if (powerZoneRef.current) {
+        const z = getPowerZone(pw, meta.ftp)
+        powerZoneRef.current.textContent = z.label
+        powerZoneRef.current.style.color = z.color
+        powerZoneRef.current.style.backgroundColor = `${z.color}1F`
+      }
+      if (hrZoneRef.current) {
+        const z = getHRZone(hr, meta.maxHR)
+        hrZoneRef.current.textContent = z.label
+        hrZoneRef.current.style.color = z.color
+        hrZoneRef.current.style.backgroundColor = `${z.color}1F`
+      }
+    })
+  }, [sync, power, heartRate, cadence, speed, altitude, meta, showAverages])
+
+  return (
+    <div className="mt-2 mb-1" style={{ paddingLeft: 48, paddingRight: 64 }}>
+      {/* Duration / Selection / Time */}
+      <div className="flex items-center gap-3 border-b border-[#E5E3DE]/60 py-2">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#0F0F0E]" />
+        <span ref={timeLabelRef} className="w-24 text-[13px] text-[#5C5A55]">Duration</span>
+        <span ref={timeValRef} className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]" />
+      </div>
+
+      {/* Power */}
+      <div className="flex items-center gap-3 border-b border-[#E5E3DE]/60 py-2">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#22c55e]" />
+        <span ref={powerLabelRef} className="w-24 text-[13px] text-[#5C5A55]">Avg Power</span>
+        <span className="flex items-baseline gap-1">
+          <span ref={powerValRef} className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">0</span>
+          <span className="font-space text-xs text-[#8A877F]">W</span>
+        </span>
+        <span ref={powerMaxRef} className="font-space text-[11px] tabular-nums text-[#A8A49A]" />
+        <span ref={powerZoneRef} className="ml-auto rounded px-2.5 py-0.5 font-space text-[11px] font-medium tabular-nums" />
+      </div>
+
+      {/* Heart Rate */}
+      <div className="flex items-center gap-3 border-b border-[#E5E3DE]/60 py-2">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#ef4444]" />
+        <span ref={hrLabelRef} className="w-24 text-[13px] text-[#5C5A55]">Avg Heart Rate</span>
+        <span className="flex items-baseline gap-1">
+          <span ref={hrValRef} className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">0</span>
+          <span className="font-space text-xs text-[#8A877F]">bpm</span>
+        </span>
+        <span ref={hrMaxRef} className="font-space text-[11px] tabular-nums text-[#A8A49A]" />
+        <span ref={hrZoneRef} className="ml-auto rounded px-2.5 py-0.5 font-space text-[11px] font-medium tabular-nums" />
+      </div>
+
+      {/* Cadence */}
+      <div className="flex items-center gap-3 border-b border-[#E5E3DE]/60 py-2">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#8b5cf6]" />
+        <span ref={cadLabelRef} className="w-24 text-[13px] text-[#5C5A55]">Avg Cadence</span>
+        <span className="flex items-baseline gap-1">
+          <span ref={cadValRef} className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">0</span>
+          <span className="font-space text-xs text-[#8A877F]">rpm</span>
+        </span>
+        <span ref={cadMaxRef} className="font-space text-[11px] tabular-nums text-[#A8A49A]" />
+      </div>
+
+      {/* Speed */}
+      <div className="flex items-center gap-3 border-b border-[#E5E3DE]/60 py-2">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#3b82f6]" />
+        <span ref={speedLabelRef} className="w-24 text-[13px] text-[#5C5A55]">Avg Speed</span>
+        <span className="flex items-baseline gap-1">
+          <span ref={speedValRef} className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">0</span>
+          <span className="font-space text-xs text-[#8A877F]">km/h</span>
+        </span>
+        <span ref={speedMaxRef} className="font-space text-[11px] tabular-nums text-[#A8A49A]" />
+      </div>
+
+      {/* Elevation */}
+      <div className="flex items-center gap-3 py-2">
+        <span className="h-2 w-2 shrink-0 rounded-full bg-[#a8a49a]" />
+        <span ref={elevLabelRef} className="w-24 text-[13px] text-[#5C5A55]">Avg Elevation</span>
+        <span className="flex items-baseline gap-1">
+          <span ref={elevValRef} className="font-space text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">0</span>
+          <span className="font-space text-xs text-[#8A877F]">m</span>
+        </span>
+        <span ref={elevMaxRef} className="font-space text-[11px] tabular-nums text-[#A8A49A]" />
+      </div>
     </div>
   )
 }

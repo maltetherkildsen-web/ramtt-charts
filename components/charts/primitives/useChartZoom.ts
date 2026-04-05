@@ -62,7 +62,10 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
         const frac = getDataFraction(e)
         const zoomIn = e.deltaY < 0
         const factor = zoomIn ? (1 - ZOOM_SPEED) : (1 + ZOOM_SPEED)
-        const newRange = Math.round(range * factor)
+        let newRange = Math.round(range * factor)
+        // Ensure zoom always makes progress (avoid rounding back to same range)
+        if (zoomIn && newRange >= range && range > MIN_VISIBLE_POINTS) newRange = range - 1
+        if (!zoomIn && newRange <= range) newRange = range + 1
 
         if (zoomIn && newRange < MIN_VISIBLE_POINTS) return
         if (!zoomIn && newRange >= dataLength) {

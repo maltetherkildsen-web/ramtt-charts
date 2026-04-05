@@ -37,7 +37,7 @@ export function ChartAxisY({
           y={scaleY(t)}
           dy="0.32em"
           textAnchor="end"
-          className="fill-zinc-300 font-space text-[9px] font-light"
+          className="fill-[#8A877F] font-space text-[9px]"
         >
           {format(t)}
         </text>
