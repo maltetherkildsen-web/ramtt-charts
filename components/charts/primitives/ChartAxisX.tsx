@@ -61,17 +61,22 @@ export function ChartAxisX({
 
   return (
     <g>
-      {labels.map(({ index, label }) => (
-        <text
-          key={index}
-          x={scaleX(index)}
-          y={chartHeight + dy}
-          textAnchor="middle"
-          className="fill-[#8A877F] font-space text-[10px]"
-        >
-          {label}
-        </text>
-      ))}
+      {labels.map(({ index, label }) => {
+        const px = scaleX(index)
+        const py = chartHeight + dy
+        if (!isFinite(px) || !isFinite(py)) return null
+        return (
+          <text
+            key={index}
+            x={px}
+            y={py}
+            textAnchor="middle"
+            className="fill-[#8A877F] font-space text-[10px]"
+          >
+            {label}
+          </text>
+        )
+      })}
     </g>
   )
 }

@@ -410,6 +410,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
             altitude={altitude}
             cumulativeCHO={cumulativeCHO}
             fuelTarget={fuel.targetCHO}
+            fuelIntakes={fuelIntakes}
             intervals={workIntervals}
             ftp={meta.ftp}
             maxHR={meta.maxHR}
@@ -571,10 +572,10 @@ function ChartToggles({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, intervals, ftp, maxHR, meta, zoneMode, visibleCharts,
+  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, intervals, ftp, maxHR, meta, zoneMode, visibleCharts,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  cumulativeCHO: number[]; fuelTarget: number
+  cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
   intervals: Interval[]; ftp: number; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
 }) {
@@ -598,13 +599,6 @@ function SyncedCharts({
   }, [altitude, start, end, smoothWindow])
 
   const visCHO = useMemo(() => cumulativeCHO.slice(start, end + 1), [cumulativeCHO, start, end])
-
-  const hasAnyCHO = useMemo(() => {
-    for (let i = 0; i < cumulativeCHO.length; i++) {
-      if (cumulativeCHO[i] > 0) return true
-    }
-    return false
-  }, [cumulativeCHO])
 
   const choDomainMax = useMemo(() => {
     let maxCHO = fuelTarget
@@ -743,19 +737,13 @@ function SyncedCharts({
           data={visCHO}
           height={60}
           yDomain={[0, choDomainMax]}
-          padding={{ ...chartPad, bottom: lastChartKey === 'fuel' ? undefined : 4 }}
+          padding={lastChartKey === 'fuel' ? chartPad : { ...chartPad, bottom: 4 }}
           className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
           <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}g`} />
           {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartRefLine y={fuelTarget} label={`TARGET ${fuelTarget}g`} />
-          {hasAnyCHO ? (
-            <ChartStepLine className="fill-none stroke-pink-400 stroke-[1.5]" />
-          ) : (
-            <text x={64} y={36} className="fill-[#B7B2A8] font-label text-[9px] uppercase tracking-[.04em]">
-              Add intake to plot CHO steps
-            </text>
-          )}
+          <ChartStepLine className="fill-none stroke-[#f472b6] stroke-2" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f472b6" dotRadius={2} />
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">CHO</text>

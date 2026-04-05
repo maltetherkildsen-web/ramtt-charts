@@ -20,7 +20,7 @@ export function ChartRefLine({ y, label, className }: ChartRefLineProps) {
 
   const py = scaleY(y)
 
-  if (py < -2 || py > scaleY(scaleY.domain[0]) + 2) return null
+  if (!isFinite(py) || py < -2 || py > scaleY(scaleY.domain[0]) + 2) return null
 
   return (
     <g>

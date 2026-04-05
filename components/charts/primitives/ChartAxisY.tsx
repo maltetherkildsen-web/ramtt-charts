@@ -30,18 +30,22 @@ export function ChartAxisY({
 
   return (
     <g>
-      {ticks.map((t) => (
-        <text
-          key={t}
-          x={dx}
-          y={scaleY(t)}
-          dy="0.32em"
-          textAnchor="end"
-          className="fill-[#8A877F] font-space text-[9px]"
-        >
-          {format(t)}
-        </text>
-      ))}
+      {ticks.map((t) => {
+        const py = scaleY(t)
+        if (!isFinite(py)) return null
+        return (
+          <text
+            key={t}
+            x={dx}
+            y={py}
+            dy="0.32em"
+            textAnchor="end"
+            className="fill-[#8A877F] font-space text-[9px]"
+          >
+            {format(t)}
+          </text>
+        )
+      })}
     </g>
   )
 }
