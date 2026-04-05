@@ -738,7 +738,7 @@ function SyncedCharts({
       )}
 
       {/* Fuel / CHO — 60px, stepped cumulative line. */}
-      {visibleCharts.has('fuel') && hasAnyCHO && (
+      {visibleCharts.has('fuel') && (
         <ChartRoot
           data={visCHO}
           height={60}
@@ -749,7 +749,13 @@ function SyncedCharts({
           <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}g`} />
           {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartRefLine y={fuelTarget} label={`TARGET ${fuelTarget}g`} />
-          <ChartStepLine className="fill-none stroke-pink-400 stroke-[1.5]" />
+          {hasAnyCHO ? (
+            <ChartStepLine className="fill-none stroke-pink-400 stroke-[1.5]" />
+          ) : (
+            <text x={64} y={36} className="fill-[#B7B2A8] font-label text-[9px] uppercase tracking-[.04em]">
+              Add intake to plot CHO steps
+            </text>
+          )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f472b6" dotRadius={2} />
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[#A8A49A] font-label text-[9px]">CHO</text>
