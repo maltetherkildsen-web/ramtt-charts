@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Instrument_Sans, JetBrains_Mono, Space_Grotesk } from 'next/font/google'
+import { JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 import { DevCacheGuard } from '@/components/dev/DevCacheGuard'
 import '@/components/ui/tokens.css'
@@ -14,11 +14,13 @@ import './globals.css'
  * That's how font-space utility resolves to the actual loaded woff2.
  */
 
-const instrumentSans = Instrument_Sans({
-  subsets: ['latin'],
+const satoshi = localFont({
+  src: [
+    { path: '../public/fonts/Satoshi-Variable.woff2', style: 'normal' },
+    { path: '../public/fonts/Satoshi-VariableItalic.woff2', style: 'italic' },
+  ],
   variable: '--font-sans',
   display: 'swap',
-  weight: ['400', '500'],
 })
 
 const jetbrainsMono = JetBrains_Mono({
@@ -44,7 +46,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="da" className={`${instrumentSans.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`}>
+    <html lang="da" className={`${satoshi.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`}>
       <body className="font-sans antialiased bg-canvas text-text-primary">
         <DevCacheGuard />
         {children}

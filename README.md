@@ -50,7 +50,7 @@ npm run dev        # http://localhost:5000
 ### Design System
 
 **3-font system:**
-- **Instrument Sans** (`--font-sans`) — body text, UI copy, weight 450
+- **Satoshi** (`--font-sans`) — body text, UI copy, variable weight
 - **Space Grotesk** (`--font-label`) — labels (uppercase, tracked) AND all numbers (tabular-nums)
 - **Cormorant Garamond** (`--font-serif`) — editorial only
 
@@ -78,6 +78,12 @@ npm run dev        # http://localhost:5000
 - ProgressBar: role="progressbar" + aria-valuenow/min/max
 - Global `:focus-visible` ring (2px solid --n600)
 - WCAG AA contrast verified (--n600 #76726A = 4.55:1 on --bg)
+
+**System enforcement:**
+- All 12 components import from `lib/ui.ts` — zero hardcoded values
+- `npm run audit:ui` — consistency audit verifying fonts, borders, transitions, forwardRef, displayName
+- `components/ui/RULES.md` — non-negotiable rules for building/extending components
+- CRISP rendering: antialiased text, `text-wrap: balance/pretty`, reduced-motion respect
 
 ### Usage
 
@@ -202,15 +208,16 @@ Zoom (React state — infrequent re-renders):
 ```
 components/
 ├── charts/primitives/     ← 16 SVG chart components
-├── ui/                    ← 12 UI components + tokens.css + index.ts
+├── ui/                    ← 12 UI components + tokens.css + index.ts + RULES.md
 lib/
+├── ui.ts                  ← Design system foundation (sizes, fonts, borders, transitions)
 ├── charts/                ← Math: scales, paths, ticks, utils
 app/
 ├── chart-test/            ← Full session analysis page
 ├── demo/                  ← Generic chart demo (non-sport)
 ├── ui-demo/               ← UI component showcase
 public/
-├── fonts/                 ← Variable font files (Instrument Sans, Space Grotesk, Cormorant Garamond)
+├── fonts/                 ← Variable font files (Satoshi, Space Grotesk, Cormorant Garamond)
 ```
 
 ---

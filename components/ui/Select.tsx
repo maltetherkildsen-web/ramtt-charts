@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback, useId, forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE } from '@/lib/ui'
 
 export interface SelectOption {
   value: string
@@ -17,7 +17,7 @@ export interface SelectProps {
   className?: string
 }
 
-export const Select = forwardRef<HTMLDivElement, SelectProps>(
+const Select = forwardRef<HTMLDivElement, SelectProps>(
   function Select({ options, value, onChange, placeholder, label, className }, ref) {
     const [open, setOpen] = useState(false)
     const [focusIdx, setFocusIdx] = useState(-1)
@@ -30,7 +30,6 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
 
     const selectedLabel = options.find((o) => o.value === value)?.label
 
-    // Close on click outside
     useEffect(() => {
       if (!open) return
       function handleClick(e: MouseEvent) {
@@ -42,7 +41,6 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       return () => document.removeEventListener('mousedown', handleClick)
     }, [open])
 
-    // Focus selected option when opening
     useEffect(() => {
       if (open && listRef.current) {
         const idx = Math.max(0, options.findIndex((o) => o.value === value))
@@ -58,12 +56,10 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
       triggerRef.current?.focus()
     }, [onChange])
 
-    // Type-ahead: typing letters jumps to matching option
     const handleTypeAhead = useCallback((key: string) => {
       clearTimeout(typeAheadTimer.current)
       typeAheadRef.current += key.toLowerCase()
       typeAheadTimer.current = setTimeout(() => { typeAheadRef.current = '' }, 500)
-
       const match = options.findIndex((o) => o.label.toLowerCase().startsWith(typeAheadRef.current))
       if (match >= 0) {
         setFocusIdx(match)
@@ -127,7 +123,7 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
     return (
       <div ref={ref} className={cn('relative flex flex-col', className)}>
         {label && (
-          <label id={`${uid}-label`} style={{ fontFamily: 'var(--font-label)', fontWeight: 600, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)', marginBottom: 4 }}>
+          <label id={`${uid}-label`} className={cn(LABEL_STYLE, 'font-semibold mb-1')}>
             {label}
           </label>
         )}
@@ -143,16 +139,22 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
           aria-labelledby={label ? `${uid}-label` : undefined}
           onClick={() => setOpen(!open)}
           onKeyDown={handleTriggerKeyDown}
-          className="flex w-full items-center justify-between bg-white outline-none transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-[var(--n600)] focus-visible:outline-offset-2"
-          style={{
-            border: '0.5px solid var(--n400)', borderRadius: 'var(--radius-md)',
-            height: 32, padding: '0 10px',
-            fontFamily: 'var(--font-sans)', fontWeight: 450, fontSize: 12,
-            color: value ? 'var(--n1150)' : 'var(--n600)',
-          }}
+          className={cn(
+            'flex w-full items-center justify-between bg-white outline-none',
+            FONT.body,
+            SIZE_HEIGHTS.md,
+            SIZE_TEXT.sm,
+            SIZE_PADDING_X.sm,
+            RADIUS.md,
+            BORDER.default,
+            TRANSITION.colors,
+            FOCUS_RING,
+            'font-[450]',
+            value ? 'text-[var(--n1150)]' : 'text-[var(--n600)]',
+          )}
         >
           <span className="truncate">{selectedLabel ?? placeholder ?? ''}</span>
-          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="ml-2 shrink-0" style={{ color: 'var(--n600)' }} aria-hidden="true">
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="ml-2 shrink-0 text-[var(--n600)]" aria-hidden="true">
             <path d="M2.5 3.75L5 6.25L7.5 3.75" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
@@ -165,12 +167,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
             role="listbox"
             aria-labelledby={label ? `${uid}-label` : undefined}
             onKeyDown={handleListKeyDown}
-            className="absolute left-0 z-50 mt-1 w-full"
-            style={{
-              top: '100%', background: '#1E1E1E', borderRadius: 'var(--radius-xl)',
-              padding: '6px 0', listStyle: 'none', margin: 0,
-              boxShadow: 'rgba(0,0,0,0.15) 0px 2px 5px 0px, rgba(0,0,0,0.12) 0px 10px 16px 0px, rgba(0,0,0,0.12) 0px 0px 0.5px 0px',
-            }}
+            className={cn('absolute left-0 top-full z-50 mt-1 w-full list-none m-0 py-1.5 bg-[#1E1E1E]', RADIUS.xl)}
+            style={{ boxShadow: 'rgba(0,0,0,0.15) 0px 2px 5px 0px, rgba(0,0,0,0.12) 0px 10px 16px 0px, rgba(0,0,0,0.12) 0px 0px 0.5px 0px' }}
           >
             {options.map((opt, i) => {
               const isSelected = opt.value === value
@@ -184,14 +182,12 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
                   tabIndex={-1}
                   onMouseEnter={() => setFocusIdx(i)}
                   onClick={() => selectAndClose(opt.value)}
-                  style={{
-                    padding: '6px 12px', margin: '0 4px', borderRadius: 'var(--radius-md)',
-                    fontFamily: 'var(--font-sans)', fontSize: 11, fontWeight: 450,
-                    color: 'rgba(255,255,255,0.9)',
-                    background: isFocused || isSelected ? '#2A2A2A' : 'transparent',
-                    transition: 'background 100ms',
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                  }}
+                  className={cn(
+                    FONT.body,
+                    RADIUS.md,
+                    'flex items-center justify-between py-1.5 px-3 mx-1 text-[11px] font-[450] text-white/90 transition-[background-color] duration-100',
+                    (isFocused || isSelected) ? 'bg-[#2A2A2A]' : 'bg-transparent',
+                  )}
                 >
                   <span>{opt.label}</span>
                   {isSelected && (
@@ -206,5 +202,8 @@ export const Select = forwardRef<HTMLDivElement, SelectProps>(
         )}
       </div>
     )
-  },
+  }
 )
+
+Select.displayName = 'Select'
+export { Select }

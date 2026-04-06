@@ -6,16 +6,16 @@
 
 /* ─── Font Loading ─── */
 
-/* Instrument Sans (body text, UI copy) — variable: weight + width axes */
+/* Satoshi (body text, UI copy) — variable: weight axis */
 @font-face {
-  font-family: 'Instrument Sans';
-  src: url('/fonts/InstrumentSans-VariableFont_wdth,wght.ttf') format('truetype');
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-Variable.woff2') format('woff2');
   font-weight: 100 900;
   font-display: swap;
 }
 @font-face {
-  font-family: 'Instrument Sans';
-  src: url('/fonts/InstrumentSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-family: 'Satoshi';
+  src: url('/fonts/Satoshi-VariableItalic.woff2') format('woff2');
   font-style: italic;
   font-weight: 100 900;
   font-display: swap;
@@ -62,7 +62,7 @@
   --n1150: #131211;
 
   /* Typography */
-  --font-sans: 'Instrument Sans', sans-serif;
+  --font-sans: 'Satoshi', sans-serif;
   --font-label: 'Space Grotesk', sans-serif;
   --font-serif: 'Cormorant Garamond', serif;
 
@@ -143,4 +143,53 @@ textarea,
 .resize-handle:active,
 .drag-handle:active {
   cursor: grabbing !important;
+}
+
+/* ─── CRISP Rendering ─── */
+
+/* Antialiasing — sharp text on all displays */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-kerning: normal;
+}
+
+/* OpenType features globally */
+body {
+  font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
+  font-optical-sizing: auto;
+}
+
+/* 0.5px border support with fallback */
+@supports not (border-width: 0.5px) {
+  * {
+    --border-fix: 1px;
+  }
+}
+
+/* Heading text wrap */
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+
+/* Body text wrap */
+p, li, dd {
+  text-wrap: pretty;
+}
+
+/* Premium easing curves — available as CSS custom properties */
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

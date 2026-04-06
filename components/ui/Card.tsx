@@ -1,51 +1,61 @@
 import { forwardRef, type ReactNode } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, RADIUS, BORDER, FONT, TRANSITION, WHITE_LIFT } from '@/lib/ui'
 
-const PADDING: Record<string, string> = { none: '', sm: 'p-2.5', md: '', lg: 'p-5' }
-
-export interface CardProps {
-  children: ReactNode
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   padding?: 'none' | 'sm' | 'md' | 'lg'
-  className?: string
+}
+
+const paddingMap = {
+  none: '',
+  sm: 'p-2.5',
+  md: 'p-3.5',
+  lg: 'p-5',
 }
 
 const CardRoot = forwardRef<HTMLDivElement, CardProps>(
-  function Card({ children, padding = 'md', className }, ref) {
-    return (
-      <div ref={ref} className={cn('bg-[var(--n50)]', PADDING[padding], className)} style={{
-        border: '0.5px solid var(--n400)', borderRadius: 'var(--radius-lg)',
-        ...(padding === 'md' ? { padding: '14px 16px' } : {}),
-      }}>
-        {children}
-      </div>
-    )
-  },
+  ({ padding = 'md', className, children, onClick, ...props }, ref) => (
+    <div
+      ref={ref}
+      className={cn(
+        'bg-[var(--n50)]',
+        BORDER.default,
+        RADIUS.lg,
+        paddingMap[padding],
+        onClick && cn(TRANSITION.background, WHITE_LIFT, 'cursor-default'),
+        className
+      )}
+      onClick={onClick}
+      {...props}
+    >
+      {children}
+    </div>
+  )
 )
+CardRoot.displayName = 'Card'
 
-const CardHeader = forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
-  function CardHeader({ children, className }, ref) {
-    return <div ref={ref} className={cn('flex items-center justify-between', className)} style={{ paddingBottom: 10, borderBottom: '0.5px solid var(--n200)' }}>{children}</div>
-  },
+const CardHeader = ({ children, className }: { children: ReactNode; className?: string }) => (
+  <div className={cn('flex items-center justify-between mb-3', className)}>{children}</div>
 )
+CardHeader.displayName = 'Card.Header'
 
-const CardTitle = forwardRef<HTMLHeadingElement, { children: ReactNode; className?: string }>(
-  function CardTitle({ children, className }, ref) {
-    return <h3 ref={ref} className={cn('', className)} style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 14, color: 'var(--n1150)', margin: 0 }}>{children}</h3>
-  },
+const CardTitle = ({ children, className }: { children: ReactNode; className?: string }) => (
+  <h3 className={cn(FONT.body, 'text-[14px] font-medium text-[var(--n1150)]', className)}>{children}</h3>
 )
+CardTitle.displayName = 'Card.Title'
 
-function CardAction({ children }: { children: ReactNode }) { return <div>{children}</div> }
+const CardBody = ({ children, className }: { children: ReactNode; className?: string }) => (
+  <div className={cn(className)}>{children}</div>
+)
+CardBody.displayName = 'Card.Body'
+
+const CardAction = ({ children, className }: { children: ReactNode; className?: string }) => (
+  <div className={cn(className)}>{children}</div>
+)
 CardAction.displayName = 'Card.Action'
-
-const CardBody = forwardRef<HTMLDivElement, { children: ReactNode; className?: string }>(
-  function CardBody({ children, className }, ref) {
-    return <div ref={ref} className={cn('pt-2.5', className)}>{children}</div>
-  },
-)
 
 export const Card = Object.assign(CardRoot, {
   Header: CardHeader,
   Title: CardTitle,
-  Action: CardAction,
   Body: CardBody,
+  Action: CardAction,
 })

@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, RADIUS, VALUE_STYLE, SIZE_TEXT } from '@/lib/ui'
 
 const FILL_COLORS: Record<string, string> = {
   default: 'var(--n1150)',
@@ -17,8 +17,8 @@ export interface ProgressBarProps {
   className?: string
 }
 
-export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
-  function ProgressBar({ value, max, color = 'default', label, height = 4, className }, ref) {
+const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
+  ({ value, max, color = 'default', label, height = 6, className }, ref) => {
     const pct = Math.min(100, Math.max(0, (value / max) * 100))
     const fillColor = FILL_COLORS[color] ?? color
 
@@ -30,17 +30,23 @@ export const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           aria-valuemin={0}
           aria-valuemax={max}
           aria-label={label || 'Progress'}
-          className="relative flex-1 overflow-hidden"
-          style={{ height, borderRadius: 2, backgroundColor: 'var(--n200)' }}
+          className={cn('relative flex-1 overflow-hidden bg-[var(--n200)]', RADIUS.sm)}
+          style={{ height }}
         >
-          <div className="absolute inset-y-0 left-0 transition-[width] duration-300 ease-out" style={{ width: `${pct}%`, borderRadius: 2, backgroundColor: fillColor }} />
+          <div
+            className={cn('absolute inset-y-0 left-0 transition-[width] duration-300 ease-out', RADIUS.sm)}
+            style={{ width: `${pct}%`, backgroundColor: fillColor }}
+          />
         </div>
         {label && (
-          <span aria-hidden="true" className="shrink-0" style={{ fontFamily: 'var(--font-label)', fontVariantNumeric: 'tabular-nums', fontWeight: 400, fontSize: 11, color: 'var(--n800)' }}>
+          <span aria-hidden="true" className={cn(VALUE_STYLE, SIZE_TEXT.sm, 'shrink-0 text-[var(--n800)]')}>
             {label}
           </span>
         )}
       </div>
     )
-  },
+  }
 )
+
+ProgressBar.displayName = 'ProgressBar'
+export { ProgressBar }

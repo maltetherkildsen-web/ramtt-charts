@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, LABEL_STYLE } from '@/lib/ui'
 
 export interface SectionHeaderProps {
   children: string
@@ -7,15 +7,14 @@ export interface SectionHeaderProps {
   className?: string
 }
 
-export const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(
-  function SectionHeader({ children, action, className }, ref) {
-    return (
-      <div ref={ref} className={cn('flex items-center justify-between', className)} style={{ paddingBottom: 6 }}>
-        <h2 style={{ fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)', margin: 0 }}>
-          {children}
-        </h2>
-        {action && <div>{action}</div>}
-      </div>
-    )
-  },
+const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(
+  ({ children, action, className }, ref) => (
+    <div ref={ref} className={cn('flex items-center justify-between pb-1.5', className)}>
+      <h2 className={cn(LABEL_STYLE, 'font-medium')}>{children}</h2>
+      {action && <div>{action}</div>}
+    </div>
+  )
 )
+
+SectionHeader.displayName = 'SectionHeader'
+export { SectionHeader }

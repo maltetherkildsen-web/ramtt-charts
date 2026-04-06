@@ -1,5 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
@@ -7,32 +7,40 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md' | 'lg' | 'icon'
 }
 
-const SIZE_STYLES: Record<string, React.CSSProperties> = {
-  sm: { padding: '0 10px', fontSize: 12, height: 28 },
-  md: { padding: '0 14px', fontSize: 13, height: 32 },
-  lg: { padding: '0 18px', fontSize: 14, height: 36 },
-  icon: { padding: 0, fontSize: 13, height: 28, width: 28 },
+const variantStyles = {
+  primary: cn(ACTIVE_BLACK, 'hover:opacity-90 active:opacity-80'),
+  outline: cn('bg-transparent text-[var(--n1050)]', BORDER.default, HOVER_SAND, 'active:bg-[var(--n400)]'),
+  ghost: cn('bg-transparent text-[var(--n800)]', HOVER_SAND, 'active:bg-[var(--n400)]'),
 }
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button({ children, variant = 'primary', size = 'md', className, disabled, ...props }, ref) {
-    const variantStyles: React.CSSProperties =
-      variant === 'primary'
-        ? { backgroundColor: 'var(--n1150)', color: 'var(--n50)', fontWeight: 500 }
-        : variant === 'outline'
-          ? { backgroundColor: 'transparent', color: 'var(--n1050)', border: '0.5px solid var(--n400)', fontWeight: 500 }
-          : { backgroundColor: 'transparent', color: 'var(--n800)', fontWeight: 500 }
+const sizeStyles = {
+  sm: cn(SIZE_HEIGHTS.sm, SIZE_TEXT.sm, SIZE_PADDING_X.sm),
+  md: cn(SIZE_HEIGHTS.md, SIZE_TEXT.md, SIZE_PADDING_X.md),
+  lg: cn(SIZE_HEIGHTS.lg, SIZE_TEXT.lg, SIZE_PADDING_X.lg),
+  icon: cn(SIZE_HEIGHTS.sm, 'w-7 p-0'),
+}
 
-    return (
-      <button ref={ref} disabled={disabled} className={cn(
-        'inline-flex items-center justify-center gap-1.5 transition-colors duration-150',
+const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ variant = 'primary', size = 'md', className, children, ...props }, ref) => (
+    <button
+      ref={ref}
+      className={cn(
+        FONT.body,
+        RADIUS.md,
+        TRANSITION.colors,
+        FOCUS_RING,
+        'inline-flex items-center justify-center gap-1.5 font-medium',
         'disabled:pointer-events-none disabled:opacity-40',
-        variant === 'primary' && 'hover:opacity-[0.88] active:opacity-80',
-        variant !== 'primary' && 'hover:bg-[var(--n200)] active:bg-[var(--n400)]',
-        className,
-      )} style={{ fontFamily: 'var(--font-sans)', borderRadius: 'var(--radius-md)', ...SIZE_STYLES[size], ...variantStyles }} {...props}>
-        {children}
-      </button>
-    )
-  },
+        variantStyles[variant],
+        sizeStyles[size],
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </button>
+  )
 )
+
+Button.displayName = 'Button'
+export { Button }

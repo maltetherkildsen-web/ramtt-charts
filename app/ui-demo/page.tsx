@@ -2,6 +2,18 @@
 
 import { useState } from 'react'
 import {
+  cn,
+  FONT,
+  LAYOUT,
+  MUTED_STYLE,
+  LABEL_STYLE,
+  ACTIVE_SAND,
+  ACTIVE_BLACK,
+  ACTIVE_UNDERLINE,
+  BORDER,
+  RADIUS,
+} from '@/lib/ui'
+import {
   MetricCard,
   Badge,
   ToggleGroup,
@@ -17,25 +29,14 @@ import {
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Demo Page
+// Layout
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function DemoSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="flex flex-col gap-2">
-      <h2
-        style={{
-          fontFamily: 'var(--font-label)',
-          fontWeight: 500,
-          fontSize: 11,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          color: 'var(--n600)',
-        }}
-      >
-        {title}
-      </h2>
-      {children}
+    <section>
+      <SectionHeader>{title}</SectionHeader>
+      <div className="mt-1.5">{children}</div>
     </section>
   )
 }
@@ -58,19 +59,27 @@ function MetricsStripDemo() {
           ].map((m, i, arr) => (
             <div
               key={m.label}
-              className="flex-1"
-              style={{ padding: '8px 14px', ...(i < arr.length - 1 ? { borderRight: '0.5px solid var(--n400)' } : {}) }}
+              className={cn(
+                'flex-1 py-2 px-3.5',
+                i < arr.length - 1 && 'border-r-[0.5px] border-r-[var(--n400)]',
+              )}
             >
               <MetricCard {...m} />
             </div>
           ))}
         </div>
       </Card>
+    </DemoSection>
+  )
+}
 
-      {/* Compact variant */}
+// ─── 2. Compact Metrics ───
+
+function CompactMetricsDemo() {
+  return (
+    <DemoSection title="Compact Metrics">
       <Card>
-        <SectionHeader>Compact Metrics</SectionHeader>
-        <div className="mt-3 flex flex-col gap-1">
+        <div className="flex flex-col gap-1">
           <MetricCard compact label="Volume" value="573.43K" />
           <MetricCard compact label="P/E Ratio" value="102.13" />
           <MetricCard compact label="Market Cap" value="$3.49T" />
@@ -81,7 +90,7 @@ function MetricsStripDemo() {
   )
 }
 
-// ─── 2. Toggle Groups ───
+// ─── 3. Toggle Groups ───
 
 function ToggleGroupDemo() {
   const [channel, setChannel] = useState('power')
@@ -91,12 +100,9 @@ function ToggleGroupDemo() {
 
   return (
     <DemoSection title="Toggle Groups">
-      <div className="flex flex-col gap-4">
-        {/* Channel selector */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-            Channel selector (default variant)
-          </span>
+      <div className="space-y-4">
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Channel selector (default variant)</p>
           <ToggleGroup
             value={channel}
             onChange={(v) => setChannel(v as string)}
@@ -110,11 +116,8 @@ function ToggleGroupDemo() {
           />
         </div>
 
-        {/* Time period */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-            Time period (sm size)
-          </span>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Time period (sm size)</p>
           <ToggleGroup
             value={period}
             onChange={(v) => setPeriod(v as string)}
@@ -123,11 +126,8 @@ function ToggleGroupDemo() {
           />
         </div>
 
-        {/* Zone selector */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-            Zone mode (sm, pill variant)
-          </span>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Zone mode (sm, pill variant)</p>
           <ToggleGroup
             value={zone}
             onChange={(v) => setZone(v as string)}
@@ -137,11 +137,8 @@ function ToggleGroupDemo() {
           />
         </div>
 
-        {/* Underline variant */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-            Tab navigation (underline variant)
-          </span>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Tab navigation (underline variant)</p>
           <ToggleGroup
             value={channel}
             onChange={(v) => setChannel(v as string)}
@@ -155,11 +152,8 @@ function ToggleGroupDemo() {
           />
         </div>
 
-        {/* Multi-select filter */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-            Filter pills (multi-select, pill variant)
-          </span>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Filter pills (multi-select, pill variant)</p>
           <ToggleGroup
             value={filters}
             onChange={setFilters}
@@ -173,7 +167,7 @@ function ToggleGroupDemo() {
   )
 }
 
-// ─── 3. Card with DataRows ───
+// ─── 4. Card with DataRows ───
 
 function DataRowDemo() {
   return (
@@ -216,7 +210,7 @@ function DataRowDemo() {
   )
 }
 
-// ─── 4. Settings Cards ───
+// ─── 5. Settings Cards ───
 
 function SettingsDemo() {
   return (
@@ -249,7 +243,7 @@ function SettingsDemo() {
   )
 }
 
-// ─── 4b. White-Lift Cards (on sand background) ───
+// ─── 6. White-Lift Cards ───
 
 function WhiteLiftDemo() {
   return (
@@ -263,13 +257,16 @@ function WhiteLiftDemo() {
         ].map((p) => (
           <div
             key={p.title}
-            className="rounded-[var(--radius-lg)] bg-transparent transition-colors duration-150 hover:bg-white"
-            style={{ border: '0.5px solid var(--n400)', padding: '16px 18px' }}
+            className={cn(
+              'bg-transparent transition-colors duration-150 hover:bg-white py-4 px-[18px]',
+              BORDER.default,
+              RADIUS.lg,
+            )}
           >
-            <div style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 13, color: 'var(--n1150)' }}>
+            <div className={cn(FONT.body, 'font-medium text-[13px] text-[var(--n1150)]')}>
               {p.title}
             </div>
-            <div className="mt-1" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 11, color: 'var(--n800)' }}>
+            <div className={cn(MUTED_STYLE, 'mt-1 text-[11px]')}>
               {p.desc}
             </div>
           </div>
@@ -279,7 +276,7 @@ function WhiteLiftDemo() {
   )
 }
 
-// ─── 5. Data Table ───
+// ─── 7. Data Table ───
 
 const TABLE_DATA = [
   { date: '2024-01-15', open: 182.16, close: 185.92, high: 186.74, low: 181.91, volume: '62.3M' },
@@ -318,31 +315,27 @@ function DataTableDemo() {
   )
 }
 
-// ─── 6. Badges Gallery ───
+// ─── 8. Badges ───
 
 function BadgesDemo() {
   return (
     <DemoSection title="Badges">
       <Card>
         <div className="flex flex-wrap items-center gap-3">
-          {/* Semantic filled */}
           <Badge color="positive">Safe</Badge>
           <Badge color="negative">Critical</Badge>
           <Badge color="warning">Build</Badge>
           <Badge color="info">New</Badge>
           <Badge>Default</Badge>
 
-          {/* Outline */}
           <Badge variant="outline" color="positive">+7.55%</Badge>
           <Badge variant="outline" color="negative">-0.07%</Badge>
           <Badge variant="outline">Effort 7</Badge>
 
-          {/* Custom zone colors */}
           <Badge color="var(--negative)" size="md">Z6</Badge>
           <Badge color="#22c55e" size="md">Z2</Badge>
           <Badge color="#eab308" size="md">Z3</Badge>
 
-          {/* Size md */}
           <Badge size="md" color="info">Medium</Badge>
           <Badge size="md" variant="outline" color="positive">Optimal</Badge>
         </div>
@@ -351,7 +344,7 @@ function BadgesDemo() {
   )
 }
 
-// ─── 7. Buttons ───
+// ─── 9. Buttons ───
 
 function ButtonsDemo() {
   return (
@@ -374,7 +367,7 @@ function ButtonsDemo() {
   )
 }
 
-// ─── 8. Progress Bars ───
+// ─── 10. Progress Bars ───
 
 function ProgressDemo() {
   return (
@@ -382,27 +375,19 @@ function ProgressDemo() {
       <Card>
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-              Default (43%)
-            </span>
+            <p className={cn(MUTED_STYLE, 'text-[12px]')}>Default (43%)</p>
             <ProgressBar value={43} max={100} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-              Fuel progress (positive, with label)
-            </span>
+            <p className={cn(MUTED_STYLE, 'text-[12px]')}>Fuel progress (positive, with label)</p>
             <ProgressBar value={192} max={200} color="positive" label="192g of 200g" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-              Quality Index (warning)
-            </span>
+            <p className={cn(MUTED_STYLE, 'text-[12px]')}>Quality Index (warning)</p>
             <ProgressBar value={58} max={100} color="warning" label="58%" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px]" style={{ fontFamily: 'var(--font-sans)', color: 'var(--n800)' }}>
-              Critical (negative)
-            </span>
+            <p className={cn(MUTED_STYLE, 'text-[12px]')}>Critical (negative)</p>
             <ProgressBar value={12} max={100} color="negative" label="12%" />
           </div>
         </div>
@@ -411,7 +396,62 @@ function ProgressDemo() {
   )
 }
 
-// ─── 9. Form Elements ───
+// ─── 11. Interaction States ───
+
+function InteractionStatesDemo() {
+  return (
+    <DemoSection title="Interaction States">
+      <div className="grid grid-cols-5 gap-6">
+        {/* Sand fill */}
+        <div>
+          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Sand fill</div>
+          <div className={cn(ACTIVE_SAND, 'py-1.5 px-3.5 inline-flex', RADIUS.md)}>
+            <span className={cn(FONT.body, 'font-medium text-[11px] text-[var(--n1150)]')}>Selected</span>
+          </div>
+          <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Toggles, filters</div>
+        </div>
+
+        {/* Underline */}
+        <div>
+          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Underline</div>
+          <div className={cn(ACTIVE_UNDERLINE, 'py-1.5 inline-flex')}>
+            <span className={cn(FONT.body, 'font-medium text-[11px] text-[var(--n1150)]')}>Active</span>
+          </div>
+          <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Tabs, navigation</div>
+        </div>
+
+        {/* White lift */}
+        <div>
+          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>White lift</div>
+          <div className={cn('bg-white py-2.5 px-3.5', BORDER.default, RADIUS.lg)}>
+            <span className={cn(FONT.body, 'font-[450] text-[11px] text-[var(--n1150)]')}>Hovered</span>
+          </div>
+          <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Cards on sand bg</div>
+        </div>
+
+        {/* Black fill */}
+        <div>
+          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Black fill</div>
+          <div className={cn(ACTIVE_BLACK, 'py-1.5 px-3.5 inline-flex', RADIUS.md)}>
+            <span className={cn(FONT.body, 'font-medium text-[11px]')}>Action</span>
+          </div>
+          <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Primary CTA only</div>
+        </div>
+
+        {/* Sand hover */}
+        <div>
+          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Sand hover</div>
+          <div className="bg-[var(--n200)] py-1.5 px-3.5 inline-flex">
+            <span className={cn(FONT.body, 'font-[450] text-[11px] text-[var(--n1050)]')}>Hovered</span>
+          </div>
+          <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Rows, ghost buttons</div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 12. Form Elements ───
 
 function FormsDemo() {
   const [ftp, setFtp] = useState('280')
@@ -483,90 +523,30 @@ function FormsDemo() {
   )
 }
 
-// ─── 10. Interaction States ───
-
-function InteractionStatesDemo() {
-  return (
-    <DemoSection title="Interaction States">
-      <div className="grid grid-cols-5 gap-6">
-        {/* Sand fill */}
-        <div>
-          <div className="mb-2" style={{ fontFamily: 'var(--font-label)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)' }}>Sand fill</div>
-          <div style={{ background: 'var(--n400)', padding: '6px 14px', borderRadius: 'var(--radius-md)', display: 'inline-flex' }}>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 11, color: 'var(--n1150)' }}>Selected</span>
-          </div>
-          <div className="mt-1" style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: 'var(--n800)' }}>Toggles, filters</div>
-        </div>
-
-        {/* Underline */}
-        <div>
-          <div className="mb-2" style={{ fontFamily: 'var(--font-label)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)' }}>Underline</div>
-          <div style={{ borderBottom: '2px solid var(--n1150)', padding: '6px 0', display: 'inline-flex' }}>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 11, color: 'var(--n1150)' }}>Active</span>
-          </div>
-          <div className="mt-1" style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: 'var(--n800)' }}>Tabs, navigation</div>
-        </div>
-
-        {/* White lift */}
-        <div>
-          <div className="mb-2" style={{ fontFamily: 'var(--font-label)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)' }}>White lift</div>
-          <div style={{ background: '#FFFFFF', border: '0.5px solid var(--n400)', padding: '10px 14px', borderRadius: 'var(--radius-lg)' }}>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontSize: 11, color: 'var(--n1150)' }}>Hovered</span>
-          </div>
-          <div className="mt-1" style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: 'var(--n800)' }}>Cards on sand bg</div>
-        </div>
-
-        {/* Black fill */}
-        <div>
-          <div className="mb-2" style={{ fontFamily: 'var(--font-label)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)' }}>Black fill</div>
-          <div style={{ background: 'var(--n1150)', padding: '6px 14px', borderRadius: 'var(--radius-md)', display: 'inline-flex' }}>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontSize: 11, color: 'var(--n50)' }}>Action</span>
-          </div>
-          <div className="mt-1" style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: 'var(--n800)' }}>Primary CTA only</div>
-        </div>
-
-        {/* Sand hover */}
-        <div>
-          <div className="mb-2" style={{ fontFamily: 'var(--font-label)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)' }}>Sand hover</div>
-          <div style={{ background: 'var(--n200)', padding: '6px 14px', display: 'inline-flex' }}>
-            <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontSize: 11, color: 'var(--n1050)' }}>Hovered</span>
-          </div>
-          <div className="mt-1" style={{ fontFamily: 'var(--font-sans)', fontSize: 10, color: 'var(--n800)' }}>Rows, ghost buttons</div>
-        </div>
-      </div>
-    </DemoSection>
-  )
-}
-
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export default function UIDemo() {
   return (
-    <main
-      className="min-h-screen"
-      style={{ backgroundColor: 'var(--bg)', padding: '32px 24px' }}
-    >
-      <div className="mx-auto max-w-[800px]">
+    <main className="min-h-screen bg-[var(--bg)]">
+      <div className={cn(LAYOUT.maxWidth, 'mx-auto', LAYOUT.pagePadding, 'py-12')}>
         {/* Header */}
-        <header className="mb-8">
-          <h1 style={{ fontFamily: 'var(--font-sans)', fontWeight: 600, fontSize: 20, letterSpacing: '-0.01em', color: 'var(--n1150)' }}>
+        <header className="mb-10">
+          <h1 className={cn(FONT.label, 'text-[20px] text-[var(--n1150)] font-medium tracking-normal normal-case')}>
             @ramtt/ui
           </h1>
-          <p
-            className="mt-1.5"
-            style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 13, lineHeight: 1.6, color: 'var(--n800)', maxWidth: 560 }}
-          >
+          <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
             Minimal, opinionated UI components with RAMTT design tokens baked in.
-            Zero dependencies. Space Grotesk for labels and numbers, Instrument Sans
+            Zero dependencies. Space Grotesk for labels and numbers, Satoshi
             for body text, every border at 0.5px.
           </p>
         </header>
 
-        {/* Sections */}
-        <div className="flex flex-col gap-5">
+        {/* All sections in a single consistent column */}
+        <div className={LAYOUT.sectionGap}>
           <MetricsStripDemo />
+          <CompactMetricsDemo />
           <ToggleGroupDemo />
           <DataRowDemo />
           <SettingsDemo />

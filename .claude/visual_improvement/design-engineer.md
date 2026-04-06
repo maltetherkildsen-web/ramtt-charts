@@ -59,7 +59,7 @@ When you produce work, it meets these criteria:
 Unless directed otherwise, you gravitate toward:
 
 - **Color**: Muted, sophisticated palettes. OKLCH for perceptual uniformity. Dark modes that are truly considered (not just inverted). Accent colors used sparingly for maximum impact.
-- **Typography**: Instrument Sans for UI (weight 300–600). Cormorant Garamond for display and editorial (italic for hero moments, oldstyle numerals for display numbers). JetBrains Mono for data and metrics. Strict typographic scales (1.200, 1.250, or 1.333 ratios).
+- **Typography**: Satoshi for UI (weight 300–600). Cormorant Garamond for display and editorial (italic for hero moments, oldstyle numerals for display numbers). JetBrains Mono for data and metrics. Strict typographic scales (1.200, 1.250, or 1.333 ratios).
 - **Spacing**: 4px base unit. Consistent vertical rhythm. Generous whitespace. Content breathes.
 - **Elevation**: Subtle, layered shadows rather than hard drops. Elevation communicates hierarchy.
 - **Borders**: Hairline (1px) dividers with low opacity. Border-radius consistent within a system (typically 10px for cards, 8px for buttons, 6px for badges).

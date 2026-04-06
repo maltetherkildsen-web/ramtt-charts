@@ -1,12 +1,24 @@
-export { MetricCard, type MetricCardProps } from './MetricCard'
-export { Badge, type BadgeProps } from './Badge'
-export { ToggleGroup, type ToggleGroupProps } from './ToggleGroup'
-export { Card, type CardProps } from './Card'
-export { DataRow, type DataRowProps } from './DataRow'
-export { SectionHeader, type SectionHeaderProps } from './SectionHeader'
-export { Button, type ButtonProps } from './Button'
-export { SettingsCard, type SettingsCardProps } from './SettingsCard'
-export { DataTable, type DataTableProps, type DataTableColumn } from './DataTable'
-export { ProgressBar, type ProgressBarProps } from './ProgressBar'
-export { Input, type InputProps } from './Input'
-export { Select, type SelectProps, type SelectOption } from './Select'
+// components/ui/index.ts — PUBLIC API of @ramtt/ui
+
+// ─── Components ───
+export { Button } from './Button';
+export { Badge } from './Badge';
+export { ToggleGroup } from './ToggleGroup';
+export { Card } from './Card';
+export { DataRow } from './DataRow';
+export { DataTable } from './DataTable';
+export { Input } from './Input';
+export { Select } from './Select';
+export { MetricCard } from './MetricCard';
+export { SettingsCard } from './SettingsCard';
+export { ProgressBar } from './ProgressBar';
+export { SectionHeader } from './SectionHeader';
+
+// ─── Utilities (for building custom components with the same system) ───
+export { cn, FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE } from '@/lib/ui';
+export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
+export { HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, TRANSITION } from '@/lib/ui';
+export { LAYOUT } from '@/lib/ui';
+
+// ─── Types ───
+export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';

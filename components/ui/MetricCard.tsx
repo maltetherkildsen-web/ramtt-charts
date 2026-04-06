@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, QUIET_STYLE } from '@/lib/ui'
 import { Badge } from './Badge'
 
 export interface MetricCardProps {
@@ -20,14 +20,14 @@ const SUBTITLE_COLORS: Record<string, string> = {
   warning: 'var(--warning-on-soft)',
 }
 
-export const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
-  function MetricCard({ label, value, unit, subtitle, subtitleColor = 'default', badge, compact, className }, ref) {
+const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
+  ({ label, value, unit, subtitle, subtitleColor = 'default', badge, compact, className }, ref) => {
     if (compact) {
       return (
         <div ref={ref} className={cn('flex items-baseline justify-between gap-2 py-0.5', className)}>
-          <dt style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 11, color: 'var(--n600)' }}>{label}</dt>
-          <dd style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 11, fontVariantNumeric: 'tabular-nums', color: 'var(--n1150)', margin: 0 }}>
-            {value}{unit && <span className="ml-0.5" style={{ color: 'var(--n800)' }}>{unit}</span>}
+          <dt className={cn(QUIET_STYLE, 'text-[11px]')}>{label}</dt>
+          <dd className={cn(VALUE_STYLE, 'text-[11px] text-[var(--n1150)] m-0')}>
+            {value}{unit && <span className={cn(MUTED_STYLE, 'ml-0.5 text-[11px]')}>{unit}</span>}
           </dd>
         </div>
       )
@@ -35,22 +35,28 @@ export const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
 
     return (
       <div ref={ref} className={cn('flex flex-col', className)}>
-        <span style={{ fontFamily: 'var(--font-label)', fontWeight: 600, fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--n600)', marginBottom: 2 }}>
+        <span className={cn(LABEL_STYLE, 'font-semibold text-[10px] tracking-[0.12em] mb-0.5')}>
           {label}
         </span>
         <div className="flex items-baseline gap-0.5">
-          <span style={{ fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: 16, fontVariantNumeric: 'tabular-nums', lineHeight: '1.1', color: 'var(--n1150)' }}>
+          <span className={cn(VALUE_STYLE, 'text-[16px] font-medium leading-tight text-[var(--n1150)]')}>
             {value}
           </span>
-          {unit && <span style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 12, fontVariantNumeric: 'tabular-nums', color: 'var(--n800)' }}>{unit}</span>}
+          {unit && <span className={cn(QUIET_STYLE, 'text-[12px] tabular-nums')}>{unit}</span>}
           {badge && <Badge color={badge.color} size="sm">{badge.label}</Badge>}
         </div>
         {subtitle && (
-          <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 10, color: SUBTITLE_COLORS[subtitleColor] ?? 'var(--n800)', marginTop: 1 }}>
+          <span
+            className={cn(MUTED_STYLE, 'text-[10px] mt-px')}
+            style={subtitleColor !== 'default' ? { color: SUBTITLE_COLORS[subtitleColor] } : undefined}
+          >
             {subtitle}
           </span>
         )}
       </div>
     )
-  },
+  }
 )
+
+MetricCard.displayName = 'MetricCard'
+export { MetricCard }

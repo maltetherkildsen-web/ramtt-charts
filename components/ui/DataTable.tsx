@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, FONT, LABEL_STYLE, VALUE_STYLE, SIZE_TEXT, TRANSITION, HOVER_SAND, FOCUS_RING } from '@/lib/ui'
 
 export interface DataTableColumn {
   key: string
@@ -18,51 +18,61 @@ export interface DataTableProps {
   className?: string
 }
 
-export const DataTable = forwardRef<HTMLDivElement, DataTableProps>(
-  function DataTable({ columns, data, onRowClick, className }, ref) {
-    return (
-      <div ref={ref} className={cn('w-full overflow-x-auto', className)}>
-        <table className="w-full border-collapse" role="table">
-          <thead>
-            <tr style={{ borderBottom: '1px solid var(--n400)' }}>
+const DataTable = forwardRef<HTMLDivElement, DataTableProps>(
+  ({ columns, data, onRowClick, className }, ref) => (
+    <div ref={ref} className={cn('w-full overflow-x-auto', className)}>
+      <table className="w-full border-collapse" role="table">
+        <thead>
+          <tr className="border-b-[0.5px] border-b-[var(--n400)]">
+            {columns.map((col) => (
+              <th
+                key={col.key}
+                scope="col"
+                className={cn(
+                  LABEL_STYLE,
+                  'font-semibold py-1.5 px-3',
+                  col.align === 'right' ? 'text-right' : 'text-left',
+                )}
+                style={{ width: col.width }}
+              >
+                {col.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((row, i) => (
+            <tr
+              key={i}
+              onClick={onRowClick ? () => onRowClick(row) : undefined}
+              tabIndex={onRowClick ? 0 : undefined}
+              onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter') onRowClick(row) } : undefined}
+              className={cn(
+                'border-b-[0.5px] border-b-[var(--n200)]',
+                TRANSITION.background,
+                onRowClick && cn(HOVER_SAND, FOCUS_RING),
+              )}
+            >
               {columns.map((col) => (
-                <th key={col.key} scope="col" style={{
-                  fontFamily: 'var(--font-label)', fontWeight: 600, fontSize: 11,
-                  letterSpacing: '0.08em', textTransform: 'uppercase',
-                  color: 'var(--n600)', textAlign: col.align ?? 'left',
-                  width: col.width, padding: '6px 12px',
-                }}>
-                  {col.label}
-                </th>
+                <td
+                  key={col.key}
+                  className={cn(
+                    col.format === 'number' ? VALUE_STYLE : FONT.body,
+                    SIZE_TEXT.md,
+                    'text-[var(--n1150)] py-1.5 px-3',
+                    col.align === 'right' ? 'text-right' : 'text-left',
+                  )}
+                >
+                  {String(row[col.key] ?? '')}
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {data.map((row, i) => (
-              <tr
-                key={i}
-                onClick={onRowClick ? () => onRowClick(row) : undefined}
-                tabIndex={onRowClick ? 0 : undefined}
-                onKeyDown={onRowClick ? (e) => { if (e.key === 'Enter') onRowClick(row) } : undefined}
-                className={cn('transition-colors duration-150', onRowClick && 'hover:bg-[var(--n200)]')}
-                style={{ borderBottom: '0.5px solid var(--n200)' }}
-              >
-                {columns.map((col) => (
-                  <td key={col.key} style={{
-                    fontFamily: col.format === 'number' ? 'var(--font-label)' : 'var(--font-sans)',
-                    fontWeight: 400, fontSize: 13,
-                    fontVariantNumeric: col.format === 'number' ? 'tabular-nums' : undefined,
-                    color: 'var(--n1150)', textAlign: col.align ?? 'left',
-                    padding: '6px 12px',
-                  }}>
-                    {String(row[col.key] ?? '')}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
-  },
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
 )
+
+DataTable.displayName = 'DataTable'
+export { DataTable }

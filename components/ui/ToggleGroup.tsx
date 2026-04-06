@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef, useRef, useCallback } from 'react'
-import { cn } from '@/lib/utils'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_SAND, ACTIVE_UNDERLINE, FOCUS_RING } from '@/lib/ui'
 
 type OptionItem = string | { value: string; label: string }
 
@@ -20,7 +20,13 @@ export interface ToggleGroupProps {
   className?: string
 }
 
-export const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
+const sizeStyles = {
+  sm: cn(SIZE_HEIGHTS.sm, SIZE_TEXT.sm, SIZE_PADDING_X.sm),
+  md: cn(SIZE_HEIGHTS.md, SIZE_TEXT.md, SIZE_PADDING_X.md),
+  lg: cn(SIZE_HEIGHTS.lg, SIZE_TEXT.lg, SIZE_PADDING_X.lg),
+}
+
+const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
   function ToggleGroup({ options, value, onChange, size = 'md', variant = 'default', multi = false, ariaLabel, className }, ref) {
     const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
     const selected = new Set(Array.isArray(value) ? value : [value])
@@ -62,38 +68,17 @@ export const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
           return
       }
       itemRefs.current[nextIndex]?.focus()
-      // For single-select (radiogroup): also select on arrow
       if (!multi && variant !== 'underline') {
         onChange(normalized[nextIndex].value)
       }
     }, [normalized, multi, variant, onChange])
 
-    // Determine the focused index for roving tabindex
     const activeIndex = normalized.findIndex((o) => selected.has(o.value))
     const focusableIndex = activeIndex >= 0 ? activeIndex : 0
 
-    // ARIA role depends on variant/multi
     const role = variant === 'underline' ? 'tablist' : multi ? 'toolbar' : 'radiogroup'
     const itemRole = variant === 'underline' ? 'tab' : multi ? undefined : 'radio'
     const checkedAttr = variant === 'underline' ? 'aria-selected' : multi ? 'aria-pressed' : 'aria-checked'
-
-    function renderItem(val: string, label: string, index: number, isSelected: boolean, style: React.CSSProperties, cls?: string) {
-      return (
-        <button
-          key={val}
-          ref={(el) => { itemRefs.current[index] = el }}
-          role={itemRole}
-          {...{ [checkedAttr]: isSelected }}
-          tabIndex={index === focusableIndex ? 0 : -1}
-          onClick={() => handleClick(val)}
-          onKeyDown={(e) => handleKeyDown(e, index)}
-          className={cn('inline-flex items-center justify-center transition-colors duration-150', cls)}
-          style={style}
-        >
-          {label}
-        </button>
-      )
-    }
 
     // ─── Underline ───
     if (variant === 'underline') {
@@ -101,12 +86,30 @@ export const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
         <div ref={ref} role={role} aria-label={ariaLabel} className={cn('inline-flex gap-1', className)}>
           {normalized.map(({ value: val, label }, i) => {
             const isSel = selected.has(val)
-            return renderItem(val, label, i, isSel, {
-              height: 32, padding: '0 10px', fontSize: 13,
-              fontFamily: 'var(--font-label)', fontWeight: isSel ? 500 : 400,
-              color: isSel ? 'var(--n1150)' : 'var(--n800)',
-              borderBottom: isSel ? '2px solid var(--n1150)' : '2px solid transparent',
-            })
+            return (
+              <button
+                key={val}
+                ref={(el) => { itemRefs.current[i] = el }}
+                role={itemRole}
+                {...{ [checkedAttr]: isSel }}
+                tabIndex={i === focusableIndex ? 0 : -1}
+                onClick={() => handleClick(val)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+                className={cn(
+                  FONT.label,
+                  SIZE_HEIGHTS.md,
+                  SIZE_TEXT.md,
+                  SIZE_PADDING_X.sm,
+                  TRANSITION.colors,
+                  FOCUS_RING,
+                  'inline-flex items-center justify-center',
+                  isSel ? 'font-medium text-[var(--n1150)]' : 'font-normal text-[var(--n800)]',
+                  isSel ? ACTIVE_UNDERLINE : 'border-b-2 border-transparent',
+                )}
+              >
+                {label}
+              </button>
+            )
           })}
         </div>
       )
@@ -114,43 +117,71 @@ export const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
 
     // ─── Pill ───
     if (variant === 'pill') {
-      const h = size === 'sm' ? 24 : 28
-      const fs = size === 'sm' ? 11 : 12
       return (
         <div ref={ref} role={role} aria-label={ariaLabel} className={cn('inline-flex gap-1', className)}>
           {normalized.map(({ value: val, label }, i) => {
             const isSel = selected.has(val)
-            return renderItem(val, label, i, isSel, {
-              height: h, padding: '0 10px', fontSize: fs, borderRadius: 'var(--radius-md)',
-              fontFamily: 'var(--font-label)', fontWeight: isSel ? 500 : 400,
-              backgroundColor: isSel ? 'var(--n400)' : 'transparent',
-              color: isSel ? 'var(--n1150)' : 'var(--n800)',
-              border: '0.5px solid var(--n400)',
-            }, !isSel ? 'hover:bg-[var(--n200)]' : undefined)
+            return (
+              <button
+                key={val}
+                ref={(el) => { itemRefs.current[i] = el }}
+                role={itemRole}
+                {...{ [checkedAttr]: isSel }}
+                tabIndex={i === focusableIndex ? 0 : -1}
+                onClick={() => handleClick(val)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+                className={cn(
+                  FONT.label,
+                  sizeStyles[size],
+                  RADIUS.md,
+                  BORDER.default,
+                  TRANSITION.background,
+                  FOCUS_RING,
+                  'inline-flex items-center justify-center',
+                  isSel ? cn('font-medium text-[var(--n1150)]', ACTIVE_SAND) : cn('font-normal text-[var(--n800)] bg-transparent', HOVER_SAND),
+                )}
+              >
+                {label}
+              </button>
+            )
           })}
         </div>
       )
     }
 
     // ─── Default connected ───
-    const h = size === 'sm' ? 24 : size === 'lg' ? 32 : 28
-    const fs = size === 'sm' ? 11 : 12
-    const px = size === 'sm' ? 8 : 10
-
     return (
-      <div ref={ref} role={role} aria-label={ariaLabel} className={cn('inline-flex overflow-hidden', className)} style={{ border: '0.5px solid var(--n400)', borderRadius: 'var(--radius-md)' }}>
+      <div ref={ref} role={role} aria-label={ariaLabel} className={cn('inline-flex overflow-hidden', BORDER.default, RADIUS.md, className)}>
         {normalized.map(({ value: val, label }, i) => {
           const isSel = selected.has(val)
           const isLast = i === normalized.length - 1
-          return renderItem(val, label, i, isSel, {
-            height: h, padding: `0 ${px}px`, fontSize: fs,
-            fontFamily: 'var(--font-label)', fontWeight: isSel ? 500 : 400,
-            backgroundColor: isSel ? 'var(--n400)' : 'transparent',
-            color: isSel ? 'var(--n1150)' : 'var(--n800)',
-            borderRight: isLast ? 'none' : '0.5px solid var(--n400)',
-          }, !isSel ? 'hover:bg-[var(--n200)]' : undefined)
+          return (
+            <button
+              key={val}
+              ref={(el) => { itemRefs.current[i] = el }}
+              role={itemRole}
+              {...{ [checkedAttr]: isSel }}
+              tabIndex={i === focusableIndex ? 0 : -1}
+              onClick={() => handleClick(val)}
+              onKeyDown={(e) => handleKeyDown(e, i)}
+              className={cn(
+                FONT.label,
+                sizeStyles[size],
+                TRANSITION.background,
+                FOCUS_RING,
+                'inline-flex items-center justify-center',
+                !isLast && 'border-r-[0.5px] border-r-[var(--n400)]',
+                isSel ? cn('font-medium text-[var(--n1150)]', ACTIVE_SAND) : cn('font-normal text-[var(--n800)]', HOVER_SAND),
+              )}
+            >
+              {label}
+            </button>
+          )
         })}
       </div>
     )
-  },
+  }
 )
+
+ToggleGroup.displayName = 'ToggleGroup'
+export { ToggleGroup }
