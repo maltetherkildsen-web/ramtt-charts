@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Instrument_Sans, JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 import { DevCacheGuard } from '@/components/dev/DevCacheGuard'
+import '@/components/ui/tokens.css'
 import './globals.css'
 
 /**

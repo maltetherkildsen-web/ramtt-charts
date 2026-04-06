@@ -1,0 +1,128 @@
+/* ═══════════════════════════════════════════════════════════════════
+   @ramtt/ui — Design Tokens
+   Single source of truth for colors, typography, spacing, radii.
+   Import once in root layout.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Font Loading ─── */
+
+/* Instrument Sans (body text, UI copy) — variable: weight + width axes */
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-VariableFont_wdth,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* JetBrains Mono (ALL numbers, values, stats) — variable: weight axis */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Space Grotesk (labels, section headers — always uppercase) — variable: weight axis */
+@font-face {
+  font-family: 'Space Grotesk';
+  src: url('/fonts/SpaceGrotesk-Variable.woff2') format('woff2'),
+       url('/fonts/SpaceGrotesk-Variable.woff') format('woff'),
+       url('/fonts/SpaceGrotesk-Variable.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Cormorant Garamond (editorial/marketing ONLY — never in app UI) — variable: weight axis */
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/CormorantGaramond-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Cormorant Garamond';
+  src: url('/fonts/CormorantGaramond-Italic-VariableFont_wght.ttf') format('truetype');
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* ─── Token Definitions ─── */
+
+:root {
+  /* ═══ Tier 1 — Identity (FIXED) ═══ */
+
+  /* Neutral scale — warm, slightly yellow-tinted greys */
+  --bg: #FAF9F5;
+  --n50: #FDFCFA;
+  --n200: #F2F0EA;
+  --n400: #E8E5DC;
+  --n600: #A8A49A;
+  --n800: #6B6760;
+  --n1050: #383633;
+  --n1150: #131211;
+
+  /* Typography */
+  --font-sans: 'Instrument Sans', sans-serif;
+  --font-label: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-serif: 'Cormorant Garamond', serif;
+
+  /* Spacing scale */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+
+  /* ═══ Tier 2 — Semantic (ADJUSTABLE) ═══ */
+
+  --positive: #0ACF83;
+  --positive-soft: #e6faf2;
+  --positive-on-soft: #07905b;
+
+  --negative: #F24E1E;
+  --negative-soft: #fde9e4;
+  --negative-on-soft: #b83a16;
+
+  --warning: #FFE156;
+  --warning-soft: #fff9e0;
+  --warning-on-soft: #9e8a0a;
+
+  --info: #1ABCFE;
+  --info-soft: #e4f6ff;
+  --info-on-soft: #0d8bbf;
+
+  /* Accent colors */
+  --accent-red: #FF7262;
+  --accent-purple: #A259FF;
+  --accent-indigo: #2F004F;
+}
+
+/* ─── Base typography ─── */
+body {
+  font-family: var(--font-sans);
+  font-weight: 450;
+}
