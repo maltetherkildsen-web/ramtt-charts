@@ -56,7 +56,7 @@
   --n50: #FDFCFA;
   --n200: #F2F0EA;
   --n400: #E8E5DC;
-  --n600: #A8A49A;
+  --n600: #76726A; /* WCAG AA 4.55:1 on --bg */
   --n800: #6B6760;
   --n1050: #383633;
   --n1150: #131211;
@@ -109,6 +109,15 @@
 body {
   font-family: var(--font-sans);
   font-weight: 450;
+}
+
+/* ─── Focus ring — keyboard only ─── */
+:focus-visible {
+  outline: 2px solid var(--n600);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 /* ─── Cursor: default everywhere (Figma/Linear pattern) ─── */

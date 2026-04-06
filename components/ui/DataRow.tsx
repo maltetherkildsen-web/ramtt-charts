@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react'
+import { forwardRef, type ReactNode } from 'react'
 import { cn } from '@/lib/utils'
 
 const DELTA_COLORS: Record<string, string> = {
@@ -17,16 +17,18 @@ export interface DataRowProps {
   className?: string
 }
 
-export function DataRow({ label, value, unit, delta, deltaColor = 'default', badge, className }: DataRowProps) {
-  return (
-    <div className={cn('flex items-baseline justify-between', className)} style={{ padding: '4px 0', borderBottom: '0.5px solid var(--n200)' }}>
-      <span style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 13, color: 'var(--n600)' }}>{label}</span>
-      <div className="flex items-baseline gap-1">
-        <span style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 13, fontVariantNumeric: 'tabular-nums', color: 'var(--n1150)' }}>{value}</span>
-        {unit && <span style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 11, fontVariantNumeric: 'tabular-nums', color: 'var(--n800)' }}>{unit}</span>}
-        {delta !== undefined && <span className="ml-1" style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 11, fontVariantNumeric: 'tabular-nums', color: DELTA_COLORS[deltaColor] ?? 'var(--n800)' }}>{delta}</span>}
-        {badge && <span className="ml-1">{badge}</span>}
+export const DataRow = forwardRef<HTMLDivElement, DataRowProps>(
+  function DataRow({ label, value, unit, delta, deltaColor = 'default', badge, className }, ref) {
+    return (
+      <div ref={ref} className={cn('flex items-baseline justify-between', className)} style={{ padding: '4px 0', borderBottom: '0.5px solid var(--n200)' }}>
+        <dt style={{ fontFamily: 'var(--font-sans)', fontWeight: 400, fontSize: 13, color: 'var(--n600)' }}>{label}</dt>
+        <dd className="flex items-baseline gap-1" style={{ margin: 0 }}>
+          <span style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 13, fontVariantNumeric: 'tabular-nums', color: 'var(--n1150)' }}>{value}</span>
+          {unit && <span style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 11, fontVariantNumeric: 'tabular-nums', color: 'var(--n800)' }}>{unit}</span>}
+          {delta !== undefined && <span className="ml-1" style={{ fontFamily: 'var(--font-label)', fontWeight: 400, fontSize: 11, fontVariantNumeric: 'tabular-nums', color: DELTA_COLORS[deltaColor] ?? 'var(--n800)' }}>{delta}</span>}
+          {badge && <span className="ml-1">{badge}</span>}
+        </dd>
       </div>
-    </div>
-  )
-}
+    )
+  },
+)
