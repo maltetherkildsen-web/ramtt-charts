@@ -40,8 +40,8 @@ export function ChartAxisY({
             y={py}
             dy="0.32em"
             textAnchor="end"
-            className="fill-[#8A877F] font-space text-[9px]"
-            style={{ fontVariantNumeric: 'tabular-nums' }}
+            className="fill-[#8A877F] text-[9px]"
+            style={{ fontFamily: "'JetBrains Mono', monospace", fontVariantNumeric: 'tabular-nums' }}
           >
             {format(t)}
           </text>

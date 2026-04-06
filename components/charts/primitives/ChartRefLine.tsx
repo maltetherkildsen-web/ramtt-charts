@@ -39,7 +39,8 @@ export function ChartRefLine({ y, label, className }: ChartRefLineProps) {
           x={chartWidth + 4}
           y={py}
           dy="0.32em"
-          className="fill-[#8A877F] font-space text-[8px]"
+          className="fill-[#8A877F] text-[8px]"
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
         >
           {label}
         </text>

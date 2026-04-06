@@ -19,6 +19,8 @@ export interface ChartAxisXProps {
   dy?: number
   /** Explicit tick positions (data indices). Overrides labelCount. */
   tickValues?: number[]
+  /** Explicit font-family for SVG <text>. Default: JetBrains Mono. */
+  fontFamily?: string
 }
 
 export function ChartAxisX({
@@ -26,6 +28,7 @@ export function ChartAxisX({
   format = (i) => String(i),
   dy = 16,
   tickValues,
+  fontFamily = "'JetBrains Mono', monospace",
 }: ChartAxisXProps) {
   const { data, scaleX, chartHeight } = useChart()
 
@@ -71,7 +74,8 @@ export function ChartAxisX({
             x={px}
             y={py}
             textAnchor="middle"
-            className="fill-[#8A877F] font-space text-[10px]"
+            className="fill-[#8A877F] text-[10px]"
+            style={{ fontFamily }}
           >
             {label}
           </text>
