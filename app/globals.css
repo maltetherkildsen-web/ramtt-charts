@@ -1,6 +1,12 @@
 @import "tailwindcss";
 
 @theme {
+  /* ══════════════════════════════════════════════════════════════
+     RAMTT Color System v2 — 6 April 2026
+     Canvas: #FAF9F5 (sand) — all colors designed for this bg
+     Philosophy: Color is reserved for data. UI is monochrome.
+     ══════════════════════════════════════════════════════════════ */
+
   /* ── Fonts ── */
   --font-body: "Instrument Sans", system-ui, sans-serif;
   --font-sans: "Instrument Sans", system-ui, sans-serif;
@@ -14,17 +20,116 @@
   --color-canvas: #FAF9F5;
   --color-surface-1: #F3F1EC;
   --color-surface-2: #ECEAE4;
+  --color-surface-3: #E5E3DE;
   --color-elevated: #FFFFFF;
 
-  /* ── Text ── */
+  /* ── Text hierarchy ── */
   --color-text-primary: #0F0F0E;
   --color-text-secondary: #2A2826;
   --color-text-tertiary: #5C5A55;
-  --color-text-muted: #8A877F;
+  --color-text-muted: #8A8780;
+  --color-text-subtle: #B5B2AB;
+  --color-text-ghost: #D4D1CA;
 
-  /* ── Border ── */
+  /* ── Borders ── */
   --color-border: #E5E3DE;
   --color-border-strong: #D5D3CE;
+
+  /* ── Accent (Fuchsia 950) ── */
+  --color-accent: #4A044E;
+
+  /* ── Status ── */
+  --color-danger: #CA054D;
+  --color-warning: #D97706;
+  --color-success: #16A34A;
+  --color-info: #0891B2;
+
+  /* ── Power Zones (polychromatic) ── */
+  --color-pz-1: #5C97CB;
+  --color-pz-2: #14B8A2;
+  --color-pz-3: #E8B020;
+  --color-pz-4: #E36B30;
+  --color-pz-5: #D4365C;
+  --color-pz-6: #8B5CF6;
+
+  /* ── Power Zones Vivid (dots, badges ≤12px) ── */
+  --color-pzv-1: #4A8AB8;
+  --color-pzv-2: #0DA68E;
+  --color-pzv-3: #D4A010;
+  --color-pzv-4: #CC5520;
+  --color-pzv-5: #C02848;
+  --color-pzv-6: #7C4AE0;
+
+  /* ── HR Zones (monochrome red) ── */
+  --color-hr-1: #F5C4C4;
+  --color-hr-2: #E8908A;
+  --color-hr-3: #D4606A;
+  --color-hr-4: #B83A4A;
+  --color-hr-5: #942030;
+  --color-hr-6: #6E1020;
+
+  /* ── CHO Zones (monochrome orange/amber) ── */
+  --color-cho-1: #F5DCC0;
+  --color-cho-2: #E8C08A;
+  --color-cho-3: #D4A050;
+  --color-cho-4: #C47830;
+  --color-cho-5: #A85820;
+  --color-cho-6: #8A3810;
+
+  /* ── kJ/Energy Zones (monochrome green) ── */
+  --color-kj-1: #D4E8D0;
+  --color-kj-2: #A8D4A0;
+  --color-kj-3: #70B868;
+  --color-kj-4: #48943C;
+  --color-kj-5: #2A7028;
+  --color-kj-6: #185018;
+
+  /* ── Signal Lines ── */
+  --color-sig-power: #5C97CB;
+  --color-sig-hr: #D4365C;
+  --color-sig-cadence: #A259FF;
+  --color-sig-speed: #0891B2;
+  --color-sig-altitude: #64748B;
+  --color-sig-temperature: #E8834A;
+  --color-sig-cho: #E36B30;
+  --color-sig-fluid: #2AACCC;
+
+  /* ── Nutrients ── */
+  --color-nut-cho: #E36B30;
+  --color-nut-protein: #4A044E;
+  --color-nut-fat: #D4A050;
+  --color-nut-fiber: #70B868;
+  --color-nut-fluid: #2AACCC;
+  --color-nut-sodium: #9B40E8;
+  --color-nut-caffeine: #14B8A2;
+  --color-nut-alcohol: #CA054D;
+
+  /* ── Settings Dots ── */
+  --color-dot-green: #16A34A;
+  --color-dot-lime: #81B806;
+  --color-dot-blue: #86B6EF;
+  --color-dot-cyan: #0891B2;
+  --color-dot-orange: #E8834A;
+  --color-dot-lilac: #7B4FB0;
+  --color-dot-violet: #A259FF;
+  --color-dot-slate: #64748B;
+
+  /* ── Comparison Slots ── */
+  --color-cmp-a: #0F0F0E;
+  --color-cmp-b: #5C97CB;
+  --color-cmp-c: #E8834A;
+  --color-cmp-d: #A259FF;
+  --color-cmp-e: #14B8A2;
+  --color-cmp-f: #CA054D;
+
+  /* ── Atmosphere (Ruth) — landing/editorial only ── */
+  --color-atm-navy: #0230E0;
+  --color-atm-deep-navy: #050A30;
+  --color-atm-aubergine: #470426;
+  --color-atm-magenta: #96004D;
+  --color-atm-cream-yellow: #FFFFD0;
+  --color-atm-blush: #FFC9FE;
+  --color-atm-off-white: #FFFEF7;
 }
 
 @layer base {
@@ -34,6 +139,19 @@
     --muted-foreground: var(--color-text-muted);
     --card: var(--color-elevated);
     --border: var(--color-border);
+
+    /* ── Accent ── */
+    --accent: var(--color-accent);
+    --accent-light: #4A044E12;
+    --accent-soft: #4A044E20;
+
+    /* ── Selection ── */
+    --selection-bg: #0F1B3D;
+    --selection-text: #F5E6C8;
+
+    /* ── Border opacity layers ── */
+    --border-1: rgba(0,0,0,0.06);
+    --border-2: rgba(0,0,0,0.04);
 
     /* ── Easing curves ── */
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

@@ -21,22 +21,7 @@
   font-display: swap;
 }
 
-/* JetBrains Mono (ALL numbers, values, stats) — variable: weight axis */
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-VariableFont_wght.ttf') format('truetype');
-  font-weight: 100 900;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'JetBrains Mono';
-  src: url('/fonts/JetBrainsMono-Italic-VariableFont_wght.ttf') format('truetype');
-  font-style: italic;
-  font-weight: 100 900;
-  font-display: swap;
-}
-
-/* Space Grotesk (labels, section headers — always uppercase) — variable: weight axis */
+/* Space Grotesk (labels, numbers, section headers) — variable: weight axis */
 @font-face {
   font-family: 'Space Grotesk';
   src: url('/fonts/SpaceGrotesk-Variable.woff2') format('woff2'),
@@ -79,7 +64,6 @@
   /* Typography */
   --font-sans: 'Instrument Sans', sans-serif;
   --font-label: 'Space Grotesk', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
   --font-serif: 'Cormorant Garamond', serif;
 
   /* Spacing scale */
@@ -91,38 +75,63 @@
   --space-6: 24px;
   --space-8: 32px;
 
-  /* Border radius */
+  /* Border radius — Figma two-radius system */
   --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
 
-  /* ═══ Tier 2 — Semantic (ADJUSTABLE) ═══ */
+  /* ═══ Tier 2 — Semantic (Tailwind Catalyst) ═══ */
 
-  --positive: #0ACF83;
-  --positive-soft: #e6faf2;
-  --positive-on-soft: #07905b;
+  --positive: #84cc16;
+  --positive-soft: #f7fee7;
+  --positive-on-soft: #4d7c0f;
 
-  --negative: #F24E1E;
-  --negative-soft: #fde9e4;
-  --negative-on-soft: #b83a16;
+  --negative: #f43f5e;
+  --negative-soft: #fff1f2;
+  --negative-on-soft: #be123c;
 
-  --warning: #FFE156;
-  --warning-soft: #fff9e0;
-  --warning-on-soft: #9e8a0a;
+  --warning: #f59e0b;
+  --warning-soft: #fffbeb;
+  --warning-on-soft: #b45309;
 
-  --info: #1ABCFE;
-  --info-soft: #e4f6ff;
-  --info-on-soft: #0d8bbf;
+  --info: #0ea5e9;
+  --info-soft: #f0f9ff;
+  --info-on-soft: #0369a1;
 
-  /* Accent colors */
-  --accent-red: #FF7262;
-  --accent-purple: #A259FF;
-  --accent-indigo: #2F004F;
+  /* Accent */
+  --accent: #4A044E;
+  --accent-light: #4A044E12;
+  --accent-soft: #4A044E20;
 }
 
 /* ─── Base typography ─── */
 body {
   font-family: var(--font-sans);
   font-weight: 450;
+}
+
+/* ─── Cursor: default everywhere (Figma/Linear pattern) ─── */
+*, *::before, *::after {
+  cursor: default !important;
+}
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+textarea,
+[contenteditable="true"] {
+  cursor: text !important;
+}
+[data-resize-handle],
+.resize-handle,
+.drag-handle {
+  cursor: grab !important;
+}
+[data-resize-handle]:active,
+.resize-handle:active,
+.drag-handle:active {
+  cursor: grabbing !important;
 }

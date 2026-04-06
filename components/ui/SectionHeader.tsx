@@ -9,22 +9,8 @@ export interface SectionHeaderProps {
 
 export function SectionHeader({ children, action, className }: SectionHeaderProps) {
   return (
-    <div
-      className={cn(
-        'flex items-center justify-between pb-[12px]',
-        className,
-      )}
-      style={{ borderBottom: '0.5px solid var(--n200)' }}
-    >
-      <span
-        className="text-[11px] uppercase"
-        style={{
-          fontFamily: 'var(--font-label)',
-          fontWeight: 600,
-          letterSpacing: '0.10em',
-          color: 'var(--n600)',
-        }}
-      >
+    <div className={cn('flex items-center justify-between', className)} style={{ paddingBottom: 6 }}>
+      <span style={{ fontFamily: 'var(--font-label)', fontWeight: 500, fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--n600)' }}>
         {children}
       </span>
       {action && <div>{action}</div>}
