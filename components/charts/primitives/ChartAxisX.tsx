@@ -3,7 +3,7 @@
 /**
  * ChartAxisX — bottom X-axis with evenly spaced or explicit tick labels.
  *
- * Uses font-space (→ JetBrains Mono via next/font CSS variable override).
+ * Uses Satoshi via --font-sans CSS variable.
  *
  * Two modes:
  *   1. Default: evenly spaced by `labelCount`.
@@ -19,7 +19,7 @@ export interface ChartAxisXProps {
   dy?: number
   /** Explicit tick positions (data indices). Overrides labelCount. */
   tickValues?: number[]
-  /** Explicit font-family for SVG <text>. Default: JetBrains Mono. */
+  /** Explicit font-family for SVG <text>. Default: Satoshi via --font-sans. */
   fontFamily?: string
 }
 
@@ -28,7 +28,7 @@ export function ChartAxisX({
   format = (i) => String(i),
   dy = 16,
   tickValues,
-  fontFamily = "'JetBrains Mono', monospace",
+  fontFamily = "var(--font-sans)",
 }: ChartAxisXProps) {
   const { data, scaleX, chartHeight } = useChart()
 
@@ -74,7 +74,7 @@ export function ChartAxisX({
             x={px}
             y={py}
             textAnchor="middle"
-            className="fill-[#8A877F] text-[10px]"
+            className="fill-(--n600) text-[10px]"
             style={{ fontFamily }}
           >
             {label}

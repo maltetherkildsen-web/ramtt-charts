@@ -97,7 +97,7 @@ export function ChartIntervalMarkers({
                 y1={0}
                 x2={x1}
                 y2={chartHeight}
-                stroke="#E8E5DC"
+                stroke="var(--n400)"
                 strokeWidth={0.5}
                 strokeDasharray="3 4"
               />
@@ -108,7 +108,8 @@ export function ChartIntervalMarkers({
               <text
                 x={labelX}
                 y={13}
-                className="fill-[#B5B1AA] font-label text-[7px] font-semibold uppercase tracking-[.06em]"
+                className="fill-(--n600) text-[7px] font-[550]"
+                style={{ fontFamily: "var(--font-sans)" }}
               >
                 {iv.name}
               </text>

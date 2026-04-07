@@ -3,10 +3,10 @@
 /**
  * ChartRefLine — horizontal dashed reference line with a label.
  *
- * Uses font-space (→ JetBrains Mono via next/font CSS variable override).
+ * Uses Satoshi via --font-sans CSS variable.
  */
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/ui'
 import { useChart } from './chart-context'
 
 export interface ChartRefLineProps {
@@ -32,15 +32,15 @@ export function ChartRefLine({ y, label, className }: ChartRefLineProps) {
         strokeDasharray="4 4"
         strokeWidth={0.5}
         shapeRendering="crispEdges"
-        className={cn('stroke-[#A8A49A]', className)}
+        className={cn('stroke-(--n600)', className)}
       />
       {label && (
         <text
           x={chartWidth + 4}
           y={py}
           dy="0.32em"
-          className="fill-[#8A877F] text-[8px]"
-          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+          className="fill-(--n600) text-[8px]"
+          style={{ fontFamily: "var(--font-sans)" }}
         >
           {label}
         </text>

@@ -12,6 +12,7 @@ import {
   ACTIVE_UNDERLINE,
   BORDER,
   RADIUS,
+  WEIGHT,
 } from '@/lib/ui'
 import {
   MetricCard,
@@ -263,7 +264,7 @@ function WhiteLiftDemo() {
               RADIUS.lg,
             )}
           >
-            <div className={cn(FONT.body, 'font-medium text-[13px] text-[var(--n1150)]')}>
+            <div className={cn(FONT.body, WEIGHT.medium, 'text-[13px] text-[var(--n1150)]')}>
               {p.title}
             </div>
             <div className={cn(MUTED_STYLE, 'mt-1 text-[11px]')}>
@@ -404,25 +405,25 @@ function InteractionStatesDemo() {
       <div className="grid grid-cols-5 gap-6">
         {/* Sand fill */}
         <div>
-          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Sand fill</div>
+          <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>Sand fill</div>
           <div className={cn(ACTIVE_SAND, 'py-1.5 px-3.5 inline-flex', RADIUS.md)}>
-            <span className={cn(FONT.body, 'font-medium text-[11px] text-[var(--n1150)]')}>Selected</span>
+            <span className={cn(FONT.body, WEIGHT.medium, 'text-[11px] text-[var(--n1150)]')}>Selected</span>
           </div>
           <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Toggles, filters</div>
         </div>
 
         {/* Underline */}
         <div>
-          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Underline</div>
+          <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>Underline</div>
           <div className={cn(ACTIVE_UNDERLINE, 'py-1.5 inline-flex')}>
-            <span className={cn(FONT.body, 'font-medium text-[11px] text-[var(--n1150)]')}>Active</span>
+            <span className={cn(FONT.body, WEIGHT.medium, 'text-[11px] text-[var(--n1150)]')}>Active</span>
           </div>
           <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Tabs, navigation</div>
         </div>
 
         {/* White lift */}
         <div>
-          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>White lift</div>
+          <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>White lift</div>
           <div className={cn('bg-white py-2.5 px-3.5', BORDER.default, RADIUS.lg)}>
             <span className={cn(FONT.body, 'font-[450] text-[11px] text-[var(--n1150)]')}>Hovered</span>
           </div>
@@ -431,16 +432,16 @@ function InteractionStatesDemo() {
 
         {/* Black fill */}
         <div>
-          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Black fill</div>
+          <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>Black fill</div>
           <div className={cn(ACTIVE_BLACK, 'py-1.5 px-3.5 inline-flex', RADIUS.md)}>
-            <span className={cn(FONT.body, 'font-medium text-[11px]')}>Action</span>
+            <span className={cn(FONT.body, WEIGHT.medium, 'text-[11px]')}>Action</span>
           </div>
           <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Primary CTA only</div>
         </div>
 
         {/* Sand hover */}
         <div>
-          <div className={cn(LABEL_STYLE, 'font-medium mb-2')}>Sand hover</div>
+          <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>Sand hover</div>
           <div className="bg-[var(--n200)] py-1.5 px-3.5 inline-flex">
             <span className={cn(FONT.body, 'font-[450] text-[11px] text-[var(--n1050)]')}>Hovered</span>
           </div>
@@ -533,7 +534,7 @@ export default function UIDemo() {
       <div className={cn(LAYOUT.maxWidth, 'mx-auto', LAYOUT.pagePadding, 'py-12')}>
         {/* Header */}
         <header className="mb-10">
-          <h1 className={cn(FONT.label, 'text-[20px] text-[var(--n1150)] font-medium tracking-normal normal-case')}>
+          <h1 className={cn(FONT.label, WEIGHT.medium, 'text-[20px] text-[var(--n1150)] tracking-normal normal-case')}>
             @ramtt/ui
           </h1>
           <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>

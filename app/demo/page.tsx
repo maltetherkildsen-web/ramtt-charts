@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useCallback } from 'react'
+import { WEIGHT, RADIUS } from '@/lib/ui'
 
 // ─── Chart primitives ───
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
@@ -38,8 +39,8 @@ function ChartCard({
   children: React.ReactNode
 }) {
   return (
-    <section className="rounded-2xl border border-border bg-elevated p-5">
-      <h2 className="font-label text-[22px] font-medium tracking-tight text-text-primary">
+    <section className={`${RADIUS.xl} border border-border bg-elevated p-5`}>
+      <h2 className={`font-label text-[22px] ${WEIGHT.medium} tracking-tight text-text-primary`}>
         {title}
       </h2>
       <p className="mt-0.5 font-sans text-[11px] tracking-wide text-text-muted">
@@ -114,8 +115,7 @@ function RevenueChart() {
         <ChartAxisX
           labelCount={12}
           format={formatMonth}
-          fontFamily="'Space Grotesk', sans-serif"
-        />
+                 />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}k`} />
         <ChartCrosshair dotColor="#10b981" />
       </ChartRoot>
@@ -327,7 +327,7 @@ export default function DemoPage() {
       <div className="mx-auto max-w-[920px] px-6">
         {/* ── Header ── */}
         <header className="mb-10">
-          <h1 className="font-label text-[36px] font-medium tracking-tight text-text-primary">
+          <h1 className={`font-label text-[36px] ${WEIGHT.medium} tracking-tight text-text-primary`}>
             @ramtt/charts
           </h1>
           <p className="mt-1 max-w-lg font-sans text-[13px] leading-relaxed tracking-wide text-text-tertiary">

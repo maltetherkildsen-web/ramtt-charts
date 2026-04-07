@@ -77,8 +77,8 @@ export function CrosshairTimeLabel({
     <div ref={wrapperRef} className="pointer-events-none relative h-0 overflow-visible">
       <div
         ref={pillRef}
-        className="absolute left-0 rounded-full bg-[#0F0F0E]/75 px-2 py-[2px] font-mono text-[10px] tabular-nums text-white/90 backdrop-blur-sm"
-        style={{ opacity: 0, top: '-18px', willChange: 'transform, opacity' }}
+        className="absolute left-0 rounded-full bg-(--n1150)/75 px-2 py-[2px] text-[10px] tabular-nums text-white/90 backdrop-blur-sm"
+        style={{ fontFamily: "var(--font-sans)", opacity: 0, top: '-18px', willChange: 'transform, opacity' }}
       />
     </div>
   )

@@ -101,12 +101,12 @@ export function ChartTooltip({
     let html = ''
     for (const row of tooltipData.rows) {
       html += '<div class="flex items-center justify-between gap-3">'
-      html += `<span class="font-label uppercase" style="font-size:7px;font-weight:600;letter-spacing:.10em;color:#A8A49A">${row.label}</span>`
+      html += `<span style="font-family:var(--font-sans);font-size:7px;font-weight:550;color:var(--n600)">${row.label}</span>`
       html += '<div class="flex items-center gap-1">'
-      html += `<span class="font-space tabular-nums" style="font-size:11px;font-weight:500;color:${row.color || '#131211'}">${row.value}</span>`
+      html += `<span style="font-family:var(--font-sans);font-size:11px;font-weight:550;font-variant-numeric:tabular-nums;color:${row.color || 'var(--n1150)'}">${row.value}</span>`
       if (row.zone) {
         const bg = hexToRgba(row.zone.color, 0.1)
-        html += `<span class="font-label uppercase" style="font-size:6px;font-weight:700;letter-spacing:.06em;padding:1px 4px;border-radius:3px;color:${row.zone.color};background:${bg}">${row.zone.label}</span>`
+        html += `<span style="font-family:var(--font-sans);font-size:6px;font-weight:550;padding:1px 4px;border-radius:3px;color:${row.zone.color};background:${bg}">${row.zone.label}</span>`
       }
       html += '</div></div>'
     }
@@ -221,7 +221,7 @@ export function ChartTooltip({
   return createPortal(
     <div
       ref={tooltipRef}
-      className="pointer-events-none absolute z-50 w-[170px] rounded-[12px] border border-[#E8E5DC]/50"
+      className="pointer-events-none absolute z-50 w-[170px] rounded-[12px] border border-(--n400)/50"
       style={{
         top: powerChartHeight - BOTTOM_INSET,
         left: 0,
@@ -237,7 +237,8 @@ export function ChartTooltip({
     >
       <div
         ref={timeRef}
-        className="font-space tabular-nums slashed-zero border-b border-[#E8E5DC]/50 pb-1.5 text-[12px] font-semibold text-[#131211]"
+        className="tabular-nums slashed-zero border-b border-(--n400)/50 pb-1.5 text-[12px] font-[550] text-(--n1150)"
+        style={{ fontFamily: "var(--font-sans)" }}
       />
       <div
         ref={rowsRef}

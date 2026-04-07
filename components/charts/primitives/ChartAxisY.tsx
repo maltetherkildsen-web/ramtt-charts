@@ -3,7 +3,7 @@
 /**
  * ChartAxisY — left Y-axis with nice tick labels.
  *
- * Uses font-space (→ JetBrains Mono via next/font CSS variable override).
+ * Uses Satoshi via --font-sans CSS variable.
  */
 
 import { useMemo } from 'react'
@@ -40,8 +40,8 @@ export function ChartAxisY({
             y={py}
             dy="0.32em"
             textAnchor="end"
-            className="fill-[#8A877F] text-[9px]"
-            style={{ fontFamily: "'JetBrains Mono', monospace", fontVariantNumeric: 'tabular-nums' }}
+            className="fill-(--n600) text-[9px]"
+            style={{ fontFamily: "var(--font-sans)", fontVariantNumeric: 'tabular-nums' }}
           >
             {format(t)}
           </text>

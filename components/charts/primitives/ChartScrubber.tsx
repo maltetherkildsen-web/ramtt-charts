@@ -196,13 +196,13 @@ export function ChartScrubber({
       ref={containerRef}
       onClick={handleContainerClick}
       className={cn(
-        'relative cursor-pointer select-none border-t border-[#E8E5DC] px-12 py-1',
+        'relative cursor-pointer select-none border-t border-(--n400) px-12 py-1',
         className,
       )}
       style={{ height: SCRUBBER_HEIGHT }}
     >
       {/* Mini area background */}
-      <div className="relative h-full w-full overflow-hidden rounded-[4px] bg-[#F2F0EA]">
+      <div className="relative h-full w-full overflow-hidden rounded-[4px] bg-(--n200)">
         {/* SVG mini area */}
         <svg
           viewBox={`0 0 1000 ${MINI_SVG_HEIGHT}`}
@@ -217,7 +217,7 @@ export function ChartScrubber({
           onPointerDown={handleWindowPointerDown}
           onPointerMove={handleWindowPointerMove}
           onPointerUp={handleWindowPointerUp}
-          className="absolute inset-y-0 cursor-grab rounded-[3px] border border-[#A8A49A] active:cursor-grabbing"
+          className="absolute inset-y-0 cursor-grab rounded-[3px] border border-(--n600) active:cursor-grabbing"
           style={{
             left: `${windowLeftPct}%`,
             width: `${windowWidthPct}%`,

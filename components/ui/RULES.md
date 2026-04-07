@@ -3,6 +3,10 @@
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
 
+## Rule Zero
+**NEVER build with hardcoded values and "convert to @ramtt/ui later."**
+Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui components from the FIRST LINE. If the system exists, use it. That's why it exists.
+
 ## Imports
 - ALL components import from `lib/ui.ts`
 - No hardcoded font-family, border-width, border-radius, or transition values

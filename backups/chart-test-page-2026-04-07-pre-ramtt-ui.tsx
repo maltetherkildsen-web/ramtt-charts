@@ -21,7 +21,6 @@
  */
 
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
-import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, MUTED_STYLE, QUIET_STYLE, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
 import { motion, AnimatePresence, MotionConfig } from 'motion/react'
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
@@ -283,14 +282,14 @@ export default function ChartTestPage() {
   }, [])
 
   if (error) return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]">
+    <div className="flex min-h-screen items-center justify-center bg-[#FAF9F5]">
       <p className="text-red-500">Failed to load FIT data: {error}</p>
     </div>
   )
 
   if (!fitData) return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]">
-      <p className={cn("text-[11px]", WEIGHT.strong, "text-[var(--n600)]")}>Loading activity data…</p>
+    <div className="flex min-h-screen items-center justify-center bg-[#FAF9F5]">
+      <p className="text-[11px] font-[550] text-[#8A877F]">Loading activity data…</p>
     </div>
   )
 
@@ -398,7 +397,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
 
   return (
     <ChartSyncProvider dataLength={totalPoints}>
-      <div className="min-h-screen bg-[var(--bg)] py-5">
+      <div className="min-h-screen bg-[#FAF9F5] py-5">
         <div className="mx-auto max-w-[1140px] px-6">
 
           {/* ── 1. Header ── */}
@@ -520,10 +519,10 @@ function FullscreenOverlay({
   }, [ordered, totalWeight, available])
 
   return (
-    <div className="flex h-full flex-col bg-[var(--bg)]">
+    <div className="flex h-full flex-col bg-[#FAF9F5]">
       {/* Top bar */}
-      <div className="flex h-10 shrink-0 items-center justify-between border-b-[0.5px] border-b-[var(--n400)] px-4">
-        <span className={cn("text-sm", "text-[var(--n1050)]")}>{meta.name}</span>
+      <div className="flex h-10 shrink-0 items-center justify-between border-b border-[#E8E5DC] px-4">
+        <span className="text-sm text-[#383633]">{meta.name}</span>
         <div className="flex items-center gap-2">
           {/* Zone toggle */}
           <div className="flex -space-x-px">
@@ -531,11 +530,10 @@ function FullscreenOverlay({
               <button
                 key={mode}
                 onClick={() => setZoneMode(mode)}
-                className={cn(
-                  "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
-                  i === 0 && 'rounded-l', i === ZONE_MODES.length - 1 && 'rounded-r',
-                  zoneMode === mode ? cn("z-10", ACTIVE_BLACK) : "text-[var(--n600)]"
-                )}
+                className={`border border-[#E8E5DC] px-2.5 py-0.5 text-[10px] font-medium transition-colors ${
+                  i === 0 ? 'rounded-l' : ''} ${i === ZONE_MODES.length - 1 ? 'rounded-r' : ''} ${
+                  zoneMode === mode ? 'z-10 border-[#383633] bg-[#383633] text-white' : 'text-[#A8A49A]'
+                }`}
               >
                 {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
               </button>
@@ -543,7 +541,7 @@ function FullscreenOverlay({
           </div>
           <button
             onClick={onClose}
-            className={cn("ml-2 rounded p-1 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND, "hover:text-[var(--n1050)]")}
+            className="ml-2 rounded p-1 text-[#A8A49A] transition-colors hover:bg-[#E8E5DC] hover:text-[#383633]"
           >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
               <path d="M4 4l8 8M12 4l-8 8" />
@@ -631,14 +629,14 @@ function FullscreenDataSidebar({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, meta, showAvg])
 
-  const row = 'flex items-baseline justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5'
+  const row = 'flex items-baseline justify-between border-b border-[#E8E5DC]/40 py-1.5'
 
   return (
-    <div className="flex w-44 shrink-0 flex-col border-l-[0.5px] border-l-[var(--n400)] bg-[var(--n50)] px-3 py-2 tabular-nums">
+    <div className="flex w-44 shrink-0 flex-col border-l border-[#E8E5DC] bg-[#FDFCFA] px-3 py-2 tabular-nums">
       {/* Time / mode */}
-      <div className="mb-2 border-b-[0.5px] border-b-[var(--n400)] pb-2">
-        <span ref={timeRef} className={cn("block text-[20px]", WEIGHT.medium, "text-[var(--n1050)]")}>0:00</span>
-        <span ref={modeRef} className={cn("text-[10px]", WEIGHT.book, "text-[var(--n600)]")}>Session avg</span>
+      <div className="mb-2 border-b border-[#E8E5DC] pb-2">
+        <span ref={timeRef} className="block text-[20px] font-medium text-[#383633]">0:00</span>
+        <span ref={modeRef} className="text-[10px] font-[450] text-[#A8A49A]">Session avg</span>
       </div>
 
       {/* Metrics — only show those with active charts */}
@@ -646,11 +644,11 @@ function FullscreenDataSidebar({
         <div className={row}>
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
-            <span className="text-[11px] text-[var(--n600)]">Power</span>
+            <span className="text-[11px] text-[#A8A49A]">Power</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span ref={pwRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">W</span>
+            <span ref={pwRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">W</span>
           </div>
         </div>
       )}
@@ -658,11 +656,11 @@ function FullscreenDataSidebar({
         <div className={row}>
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
-            <span className="text-[11px] text-[var(--n600)]">HR</span>
+            <span className="text-[11px] text-[#A8A49A]">HR</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span ref={hrRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">bpm</span>
+            <span ref={hrRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">bpm</span>
           </div>
         </div>
       )}
@@ -670,11 +668,11 @@ function FullscreenDataSidebar({
         <div className={row}>
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-[#8b5cf6]" />
-            <span className="text-[11px] text-[var(--n600)]">Cad</span>
+            <span className="text-[11px] text-[#A8A49A]">Cad</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span ref={cadRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">rpm</span>
+            <span ref={cadRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">rpm</span>
           </div>
         </div>
       )}
@@ -682,28 +680,28 @@ function FullscreenDataSidebar({
         <div className={row}>
           <div className="flex items-center gap-1.5">
             <span className="h-2 w-2 rounded-full bg-[#3b82f6]" />
-            <span className="text-[11px] text-[var(--n600)]">Speed</span>
+            <span className="text-[11px] text-[#A8A49A]">Speed</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span ref={spdRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">km/h</span>
+            <span ref={spdRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">km/h</span>
           </div>
         </div>
       )}
       {visibleCharts.has('elevation') && (
         <div className={row}>
           <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[var(--n600)]" />
-            <span className="text-[11px] text-[var(--n600)]">Elev</span>
+            <span className="h-2 w-2 rounded-full bg-[#a8a49a]" />
+            <span className="text-[11px] text-[#A8A49A]">Elev</span>
           </div>
           <div className="flex items-baseline gap-1">
-            <span ref={elvRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">m</span>
+            <span ref={elvRef} className="text-[16px] font-medium text-[#383633]">0</span>
+            <span className="text-[10px] text-[#A8A49A]">m</span>
           </div>
         </div>
       )}
 
-      <div className="mt-auto pt-2 text-center text-[9px] text-[var(--n600)]">F / Esc to exit</div>
+      <div className="mt-auto pt-2 text-center text-[9px] text-[#A8A49A]">F / Esc to exit</div>
     </div>
   )
 }
@@ -716,10 +714,10 @@ function SessionHeader({ meta }: { meta: FitData['meta'] }) {
   return (
     <div className="flex items-start justify-between pb-2">
       <div>
-        <h1 className={cn("font-display text-[26px] tracking-tight text-[var(--n1150)]", WEIGHT.medium)}>
+        <h1 className="font-display text-[26px] font-medium tracking-tight text-[#131211]">
           {meta.name}
         </h1>
-        <p className={cn("mt-0.5 text-xs", QUIET_STYLE)}>
+        <p className="mt-0.5 text-xs text-[#A8A49A]">
           {meta.date} &middot; {meta.sport} &middot; Garmin Edge 850
         </p>
       </div>
@@ -734,9 +732,9 @@ function SessionHeader({ meta }: { meta: FitData['meta'] }) {
 
 function ScoreBadge({ label, value }: { label: string; value: number }) {
   return (
-    <div className={cn("flex items-center gap-1.5", RADIUS.md, BORDER.default, "px-2.5 py-1")}>
-      <span className="text-[11px] text-[var(--n600)]">{label}</span>
-      <span className={cn("text-[13px] tabular-nums text-[var(--n1050)]", WEIGHT.medium)}>{value}</span>
+    <div className="flex items-center gap-1.5 rounded-md border border-[#E8E5DC] px-2.5 py-1">
+      <span className="text-[11px] text-[#A8A49A]">{label}</span>
+      <span className="text-[13px] font-medium tabular-nums text-[#383633]">{value}</span>
     </div>
   )
 }
@@ -761,7 +759,7 @@ function MetricsTiers({
   return (
     <div>
       {/* Tier 1 — Key Stats */}
-      <div className="flex gap-6 border-y-[0.5px] border-y-[var(--n400)] py-2">
+      <div className="flex gap-6 border-y border-[#E8E5DC] py-2">
         <KS label="Duration" value={durationStr} />
         <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />
         <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />
@@ -773,7 +771,7 @@ function MetricsTiers({
       </div>
 
       {/* Tier 2 — RAMTT Metrics */}
-      <div className="flex gap-6 border-b-[0.5px] border-b-[var(--n400)] bg-[var(--n50)] py-2">
+      <div className="flex gap-6 border-b border-[#E8E5DC] bg-[#FDFCFA] py-2">
         <KS label="Energy Zone" badge={choZone} />
         <KS label="CHO Intake" value={`${totalCHO}`} unit="g" sub={`of ${fuel.targetCHO}g`} />
         <KS label="CHO Rate" value={`${choRate}`} unit="g/h" sub={`Target ${fuel.targetRate}`} />
@@ -783,18 +781,18 @@ function MetricsTiers({
       </div>
 
       {/* Tier 3 — Session Context (collapsible) */}
-      <div className="border-b-[0.5px] border-b-[var(--n400)]">
+      <div className="border-b border-[#E8E5DC]">
         <button
           onClick={() => setContextOpen(!contextOpen)}
-          className={cn("flex w-full items-center gap-1.5 py-1.5 text-[11px] text-[var(--n600)]", WEIGHT.strong, TRANSITION.colors, "hover:text-[var(--n800)]")}
+          className="flex w-full items-center gap-1.5 py-1.5 text-[11px] font-[550] text-[#A8A49A] transition-colors hover:text-[#6B6760]"
         >
-          <span className={cn("text-[9px] transition-transform duration-150", contextOpen && 'rotate-90')}>
+          <span className={`text-[9px] transition-transform duration-150 ${contextOpen ? 'rotate-90' : ''}`}>
             ▶
           </span>
           Session context
         </button>
         {contextOpen && (
-          <div className="flex gap-6 bg-[var(--n50)] pb-2">
+          <div className="flex gap-6 bg-[#FDFCFA] pb-2">
             <KS label="Capacity" value="—" sub="—" />
             <KS label="Form" value="—" sub="—" />
             <KS label="Surge" value="—" sub="—" />
@@ -817,23 +815,23 @@ function KS({ label, value, unit, sub, badge, progress }: {
 }) {
   return (
     <div>
-      <div className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>{label}</div>
+      <div className="text-[10px] font-[550] text-[#A8A49A]">{label}</div>
       {badge && !value ? (
         <span
-          className={cn("mt-0.5 inline-block rounded px-2 py-0.5 text-[11px]", WEIGHT.medium)}
+          className="mt-0.5 inline-block rounded px-2 py-0.5 text-[11px] font-medium"
           style={{ color: badge.color, backgroundColor: `${badge.color}1F` }}
         >
           {badge.label}
         </span>
       ) : (
-        <div className={cn("text-[17px] tabular-nums slashed-zero text-[var(--n1050)]", WEIGHT.medium)}>
+        <div className="text-[17px] font-medium tabular-nums slashed-zero text-[#383633]">
           {value ?? '—'}
-          {unit && <span className="ml-0.5 text-xs text-[var(--n600)]">{unit}</span>}
+          {unit && <span className="ml-0.5 text-xs text-[#A8A49A]">{unit}</span>}
         </div>
       )}
-      {sub && <div className="text-[11px] text-[var(--n600)]">{sub}</div>}
+      {sub && <div className="text-[11px] text-[#A8A49A]">{sub}</div>}
       {progress !== undefined && (
-        <div className="mt-0.5 h-1 w-12 overflow-hidden rounded-full bg-[var(--n400)]">
+        <div className="mt-0.5 h-1 w-12 overflow-hidden rounded-full bg-[#E8E5DC]">
           <div className="h-full rounded-full bg-[#22c55e]" style={{ width: `${Math.min(100, progress)}%` }} />
         </div>
       )}
@@ -861,12 +859,11 @@ function ChartToggles({
         <button
           key={key}
           onClick={() => onToggle(key)}
-          className={cn(
-            "rounded border px-3.5 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+          className={`rounded border px-3.5 py-1 text-xs font-medium transition-colors ${
             visibleCharts.has(key)
-              ? ACTIVE_BLACK
-              : "border-[var(--n400)] text-[var(--n600)] hover:border-[var(--n400)] hover:text-[var(--n800)]"
-          )}
+              ? 'border-[#383633] bg-[#383633] text-white'
+              : 'border-[#E8E5DC] text-[#A8A49A] hover:border-[#D5D3CE] hover:text-[#6B6760]'
+          }`}
         >
           {CHART_LABELS[key]}
         </button>
@@ -876,7 +873,7 @@ function ChartToggles({
       {onFullscreen && (
         <button
           onClick={onFullscreen}
-          className={cn("rounded border border-[var(--n400)] p-1.5 text-[var(--n600)]", TRANSITION.colors, "hover:border-[var(--n400)] hover:text-[var(--n800)]")}
+          className="rounded border border-[#E8E5DC] p-1.5 text-[#A8A49A] transition-colors hover:border-[#D5D3CE] hover:text-[#6B6760]"
           title="Fullscreen (F)"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -889,20 +886,19 @@ function ChartToggles({
       <div className="flex-1" />
 
       {/* Zone toggle */}
-      <span className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Zones</span>
+      <span className="text-[10px] font-[550] text-[#A8A49A]">Zones</span>
       <div className="flex -space-x-px">
         {ZONE_MODES.map((mode, i) => (
           <button
             key={mode}
             onClick={() => setZoneMode(mode)}
-            className={cn(
-              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
-              i === 0 && 'rounded-l',
-              i === ZONE_MODES.length - 1 && 'rounded-r',
+            className={`border border-[#E8E5DC] px-3 py-1 text-xs font-medium transition-colors ${
+              i === 0 ? 'rounded-l' : ''
+            } ${i === ZONE_MODES.length - 1 ? 'rounded-r' : ''} ${
               zoneMode === mode
-                ? cn("z-10", ACTIVE_BLACK)
-                : "text-[var(--n600)] hover:text-[var(--n800)]"
-            )}
+                ? 'z-10 border-[#383633] bg-[#383633] text-white'
+                : 'text-[#A8A49A] hover:text-[#6B6760]'
+            }`}
           >
             {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
           </button>
@@ -981,7 +977,7 @@ function SyncedCharts({
           data={visPower}
           height={h('power', 110)}
           padding={{ ...chartPad, bottom: 4 }}
-          className={cn("rounded-t-lg bg-[var(--n50)]", BORDER.default)}
+          className="rounded-t-lg border border-[#E8E5DC] bg-[#FDFCFA]"
         >
           <ChartIntervalMarkers intervals={visibleIntervals} showLabels />
           <ChartAxisY tickCount={3} />
@@ -994,7 +990,7 @@ function SyncedCharts({
           )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Power</text>
+          <text x={4} y={12} className="fill-[#A8A49A] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Power</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1008,7 +1004,7 @@ function SyncedCharts({
           data={visHR}
           height={h('hr', 75)}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
           <ChartIntervalMarkers intervals={visibleIntervals} />
           <ChartAxisY tickCount={3} />
@@ -1021,7 +1017,7 @@ function SyncedCharts({
           )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#ef4444" />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>HR</text>
+          <text x={4} y={12} className="fill-[#A8A49A] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>HR</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1035,14 +1031,14 @@ function SyncedCharts({
           data={visSpeed}
           height={h('speed', 55)}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
           <ChartArea gradientColor="#3b82f6" opacityFrom={0.08} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#3b82f6" />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
+          <text x={4} y={12} className="fill-[#A8A49A] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1056,7 +1052,7 @@ function SyncedCharts({
           data={visCadence}
           height={h('cadence', 55)}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v}`} />
           <ChartRefLine y={90} label="90" />
@@ -1064,7 +1060,7 @@ function SyncedCharts({
           <ChartLine className="fill-none stroke-purple-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#a855f7" />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Cadence</text>
+          <text x={4} y={12} className="fill-[#A8A49A] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Cadence</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1078,7 +1074,7 @@ function SyncedCharts({
           data={visAltitude}
           height={h('elevation', 40)}
           padding={chartPad}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}m`} />
           {lastChartKey === 'elevation' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
@@ -1086,7 +1082,7 @@ function SyncedCharts({
           <ChartLine className="fill-none stroke-stone-400 stroke-[1]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#78716c" dotRadius={2} />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
+          <text x={4} y={12} className="fill-[#A8A49A] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1101,7 +1097,7 @@ function SyncedCharts({
           height={h('fuel', 75)}
           yDomain={[0, Math.max(fuelTarget, fuelIntakes.reduce((s, i) => s + i.choGrams, 0), 10) * 1.1]}
           padding={lastChartKey === 'fuel' ? chartPad : { ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="-mt-px border-x border-b border-[#E8E5DC] bg-[#FDFCFA]"
         >
           {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartFuelLollipop
@@ -1112,7 +1108,7 @@ function SyncedCharts({
           />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f97316" dotRadius={2} />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>CHO</text>
+          <text x={4} y={12} className="fill-[#A8A49A] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>CHO</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1133,12 +1129,12 @@ function SyncedCharts({
       {/* Zoom indicator — hidden in fullscreen */}
       {!hideExtras && (start > 0 || end < power.length - 1) && (
         <div className="mt-1 flex items-center justify-between">
-          <span className="text-[10px] text-[var(--n600)]">
+          <span className="text-[10px] text-[#A8A49A]">
             {formatTimeForZoom(start, visibleRange)} – {formatTimeForZoom(end, visibleRange)}
           </span>
           <button
             onClick={() => sync.setZoom({ start: 0, end: power.length - 1 })}
-            className={cn("rounded px-2 py-0.5 text-[9px] text-[var(--n800)]", WEIGHT.strong, TRANSITION.colors, HOVER_SAND, "hover:text-[var(--n1050)]")}
+            className="rounded px-2 py-0.5 text-[9px] font-[550] text-[#6B6760] transition-colors hover:bg-[#E8E5DC] hover:text-[#383633]"
           >
             Reset zoom
           </button>
@@ -1223,11 +1219,11 @@ function HoverDataTable({
     if (cadLabelRef.current) cadLabelRef.current.textContent = `${prefix} Cadence`
     if (speedLabelRef.current) speedLabelRef.current.textContent = `${prefix} Speed`
     if (elevLabelRef.current) elevLabelRef.current.textContent = `${prefix} Elevation`
-    if (powerValRef.current) { powerValRef.current.textContent = `${s.power}`; powerValRef.current.style.color = 'var(--n1050)' }
-    if (hrValRef.current) { hrValRef.current.textContent = `${s.hr}`; hrValRef.current.style.color = 'var(--n1050)' }
-    if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = 'var(--n1050)' }
-    if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = 'var(--n1050)' }
-    if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = 'var(--n1050)' }
+    if (powerValRef.current) { powerValRef.current.textContent = `${s.power}`; powerValRef.current.style.color = '#3D3C39' }
+    if (hrValRef.current) { hrValRef.current.textContent = `${s.hr}`; hrValRef.current.style.color = '#3D3C39' }
+    if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = '#3D3C39' }
+    if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = '#3D3C39' }
+    if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = '#3D3C39' }
     if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
     if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
     if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -1256,11 +1252,11 @@ function HoverDataTable({
       if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elevation'
 
       const pw = power[fullIdx], hr = heartRate[fullIdx], cad = cadence[fullIdx], spd = speed[fullIdx], elev = altitude[fullIdx]
-      if (powerValRef.current) { powerValRef.current.textContent = `${pw}`; powerValRef.current.style.color = 'var(--n1150)' }
-      if (hrValRef.current) { hrValRef.current.textContent = `${hr}`; hrValRef.current.style.color = 'var(--n1150)' }
-      if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = 'var(--n1150)' }
-      if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = 'var(--n1150)' }
-      if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = 'var(--n1150)' }
+      if (powerValRef.current) { powerValRef.current.textContent = `${pw}`; powerValRef.current.style.color = '#0F0F0E' }
+      if (hrValRef.current) { hrValRef.current.textContent = `${hr}`; hrValRef.current.style.color = '#0F0F0E' }
+      if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = '#0F0F0E' }
+      if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = '#0F0F0E' }
+      if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = '#0F0F0E' }
       if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
       if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
       if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -1277,13 +1273,13 @@ function HoverDataTable({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, meta, showAverages])
 
-  const rowCls = 'flex items-center gap-3 border-b-[0.5px] border-b-[var(--n400)]/50 py-2'
+  const rowCls = 'flex items-center gap-3 border-b border-[#E8E5DC]/50 py-2'
   const dotCls = 'h-2 w-2 shrink-0 rounded-full'
-  const labelCls = 'w-24 text-[13px] text-[var(--n800)]'
-  const valCls = cn('text-[15px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.medium)
-  const unitCls = 'text-xs text-[var(--n600)]'
-  const deltaCls = 'text-[11px] tabular-nums text-[var(--n600)]'
-  const zoneCls = cn('ml-auto rounded px-2.5 py-0.5 text-[11px] tabular-nums', WEIGHT.medium)
+  const labelCls = 'w-24 text-[13px] text-[#6B6760]'
+  const valCls = 'text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]'
+  const unitCls = 'text-xs text-[#A8A49A]'
+  const deltaCls = 'text-[11px] tabular-nums text-[#A8A49A]'
+  const zoneCls = 'ml-auto rounded px-2.5 py-0.5 text-[11px] font-medium tabular-nums'
 
   const vc = visibleCharts
 
@@ -1291,10 +1287,10 @@ function HoverDataTable({
     <div className="mt-2 mb-1" style={{ paddingLeft: 48, paddingRight: 64 }}>
       {/* Duration — always visible */}
       <div className={rowCls}>
-        <span className={`${dotCls} bg-[var(--n1050)]`} />
+        <span className={`${dotCls} bg-[#383633]`} />
         <span ref={timeLabelRef} className={labelCls}>Duration</span>
         <span ref={timeValRef} className={valCls} />
-        <span ref={timeSpanRef} className="text-[11px] tabular-nums text-[var(--n600)]" />
+        <span ref={timeSpanRef} className="text-[11px] tabular-nums text-[#A8A49A]" />
       </div>
       {vc.has('power') && (
         <div className={rowCls}>
@@ -1344,7 +1340,7 @@ function HoverDataTable({
       )}
       {vc.has('elevation') && (
         <div className={vc.has('fuel') ? rowCls : 'flex items-center gap-3 py-2'}>
-          <span className={`${dotCls} bg-[var(--n600)]`} />
+          <span className={`${dotCls} bg-[#a8a49a]`} />
           <span ref={elevLabelRef} className={labelCls}>Avg Elevation</span>
           <span className="flex items-baseline gap-1">
             <span ref={elevValRef} className={valCls}>0</span>
@@ -1357,7 +1353,7 @@ function HoverDataTable({
         <div className="flex items-center gap-3 py-2">
           <span className={`${dotCls} bg-[#f97316]`} />
           <span className={labelCls}>CHO</span>
-          <span className={cn("text-[15px] tabular-nums slashed-zero text-[var(--n1050)]", WEIGHT.medium)}>
+          <span className="text-[15px] font-medium tabular-nums slashed-zero text-[#3D3C39]">
             {totalCHOProp}
           </span>
           <span className={unitCls}>g</span>
@@ -1391,10 +1387,10 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
   return (
     <div className="mt-6">
       <div className="flex items-center justify-between">
-        <h2 className={cn("text-xs text-[var(--n600)]", WEIGHT.strong)}>Fuel Log</h2>
+        <h2 className="text-xs font-[550] text-[#A8A49A]">Fuel Log</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className={cn("rounded border border-[var(--n400)] px-3 py-1 text-xs text-[var(--n600)] hover:border-[var(--n400)] hover:text-[var(--n800)]", WEIGHT.medium, TRANSITION.colors)}
+          className="rounded border border-[#E8E5DC] px-3 py-1 text-xs font-medium text-[#A8A49A] transition-colors hover:border-[#D5D3CE] hover:text-[#6B6760]"
         >
           {showForm ? 'Cancel' : '+ Add intake'}
         </button>
@@ -1402,40 +1398,40 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
 
       {/* Add intake form */}
       {showForm && (
-        <div className="mt-2 flex items-end gap-3 rounded-lg border border-[var(--n400)] bg-white p-3">
+        <div className="mt-2 flex items-end gap-3 rounded-lg border border-[#E8E5DC] bg-white p-3">
           <div>
-            <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Minute</label>
+            <label className="text-[10px] font-[550] text-[#A8A49A]">Minute</label>
             <input
               type="number"
               min={1}
               max={maxMin}
               value={formMin}
               onChange={(e) => setFormMin(Number(e.target.value) || 0)}
-              className="mt-0.5 block w-20 rounded border border-[var(--n400)] bg-[var(--n50)] px-2 py-1 text-sm tabular-nums text-[var(--n1050)] outline-none focus:border-[var(--n600)]"
+              className="mt-0.5 block w-20 rounded border border-[#E8E5DC] bg-[#FDFCFA] px-2 py-1 text-sm tabular-nums text-[#383633] outline-none focus:border-[#A8A49A]"
             />
           </div>
           <div className="flex-1">
-            <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Product</label>
+            <label className="text-[10px] font-[550] text-[#A8A49A]">Product</label>
             <input
               value={formProduct}
               onChange={(e) => setFormProduct(e.target.value)}
-              className="mt-0.5 block w-full rounded border border-[var(--n400)] bg-[var(--n50)] px-2 py-1 text-sm text-[var(--n1050)] outline-none focus:border-[var(--n600)]"
+              className="mt-0.5 block w-full rounded border border-[#E8E5DC] bg-[#FDFCFA] px-2 py-1 text-sm text-[#383633] outline-none focus:border-[#A8A49A]"
             />
           </div>
           <div>
-            <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>CHO (g)</label>
+            <label className="text-[10px] font-[550] text-[#A8A49A]">CHO (g)</label>
             <input
               type="number"
               min={1}
               max={200}
               value={formCHO}
               onChange={(e) => setFormCHO(Number(e.target.value) || 0)}
-              className="mt-0.5 block w-16 rounded border border-[var(--n400)] bg-[var(--n50)] px-2 py-1 text-sm tabular-nums text-[var(--n1050)] outline-none focus:border-[var(--n600)]"
+              className="mt-0.5 block w-16 rounded border border-[#E8E5DC] bg-[#FDFCFA] px-2 py-1 text-sm tabular-nums text-[#383633] outline-none focus:border-[#A8A49A]"
             />
           </div>
           <button
             onClick={handleAdd}
-            className={cn(RADIUS.md, ACTIVE_BLACK, 'px-4 py-1.5 text-xs hover:bg-[var(--n1150)]', WEIGHT.medium, TRANSITION.colors)}
+            className="rounded bg-[#383633] px-4 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#131211]"
           >
             Add
           </button>
@@ -1453,25 +1449,25 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
             return (
               <div
                 key={i}
-                className="group relative min-w-[150px] flex-1 rounded-md border border-[var(--n400)] py-2 pr-3 pl-3.5"
+                className="group relative min-w-[150px] flex-1 rounded-md border border-[#E8E5DC] py-2 pr-3 pl-3.5"
                 style={{ borderLeft: '2.5px solid #f97316' }}
               >
                 <button
                   onClick={() => onRemove(i)}
-                  className="absolute top-1 right-1.5 hidden rounded-full px-1 text-[10px] text-[var(--n600)] transition-colors hover:text-[#ef4444] group-hover:block"
+                  className="absolute top-1 right-1.5 hidden rounded-full px-1 text-[10px] text-[#A8A49A] transition-colors hover:text-[#ef4444] group-hover:block"
                 >
                   ✕
                 </button>
                 <div className="flex items-baseline justify-between">
-                  <span className={cn("text-[13px] tabular-nums text-[#f97316]", WEIGHT.medium)}>
+                  <span className="text-[13px] font-medium tabular-nums text-[#f97316]">
                     {formatTime(intake.timestamp)}
                   </span>
-                  <span className="text-xs tabular-nums text-[var(--n600)]">
+                  <span className="text-xs tabular-nums text-[#A8A49A]">
                     {intake.choGrams}g
                   </span>
                 </div>
-                <div className="mt-0.5 text-xs text-[var(--n1050)]">{name}</div>
-                {variant && <div className="text-[11px] text-[var(--n600)]">{variant}</div>}
+                <div className="mt-0.5 text-xs text-[#383633]">{name}</div>
+                {variant && <div className="text-[11px] text-[#A8A49A]">{variant}</div>}
               </div>
             )
           })}
@@ -1491,18 +1487,17 @@ function TabBar() {
   const [active, setActive] = useState(0)
 
   return (
-    <div className="mt-8 border-b border-[var(--n400)]">
+    <div className="mt-8 border-b border-[#E8E5DC]">
       <div className="flex gap-6">
         {TABS.map((tab, i) => (
           <button
             key={tab}
             onClick={() => setActive(i)}
-            className={cn(
-              "pb-2 text-[13px]", WEIGHT.strong, TRANSITION.colors,
+            className={`pb-2 text-[13px] font-[550] transition-colors ${
               active === i
-                ? cn("border-b-2 border-[var(--n1050)] text-[var(--n1050)]", WEIGHT.medium)
-                : "text-[var(--n600)] hover:text-[var(--n800)]"
-            )}
+                ? 'border-b-2 border-[#383633] font-medium text-[#383633]'
+                : 'text-[#A8A49A] hover:text-[#6B6760]'
+            }`}
           >
             {tab}
           </button>

@@ -191,7 +191,8 @@ export function ChartFuelLollipop({
             key={`label-${i}`}
             x={lp.x} y={lp.y - 10}
             textAnchor="middle"
-            className="font-space text-[10px] font-medium"
+            className="text-[10px] font-[500]"
+            style={{ fontFamily: "var(--font-sans)" }}
             fill={color}
           >
             {lp.grams}g
@@ -208,7 +209,8 @@ export function ChartFuelLollipop({
           />
           <text
             x={chartWidth + 4} y={targetY} dy="0.32em"
-            className="fill-[#A8A49A] font-space text-[9px]"
+            className="fill-(--n600) text-[9px]"
+            style={{ fontFamily: "var(--font-sans)" }}
           >
             {target}g
           </text>
@@ -220,7 +222,8 @@ export function ChartFuelLollipop({
         <text
           x={chartWidth - 4} y={12}
           textAnchor="end"
-          className="font-space text-[10px] font-medium"
+          className="text-[10px] font-[500]"
+            style={{ fontFamily: "var(--font-sans)" }}
           fill={color}
         >
           {totalCHO}g / {target}g ({pct}%)
