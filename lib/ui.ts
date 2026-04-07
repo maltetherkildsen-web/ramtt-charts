@@ -10,14 +10,14 @@ export function cn(...inputs: (string | undefined | null | false)[]): string {
 // Change them here = changes everywhere.
 
 export const SIZE_HEIGHTS = {
-  xs: 'h-5',     // 20px — badges
-  sm: 'h-7',     // 28px — small buttons, small toggles
-  md: 'h-8',     // 32px — default buttons, inputs, selects, toggles
-  lg: 'h-9',     // 36px — large buttons
+  xs: 'h-[18px]',  // 18px — badges (Figma-calibrated)
+  sm: 'h-7',       // 28px — small buttons, small toggles
+  md: 'h-8',       // 32px — default buttons, inputs, selects, toggles
+  lg: 'h-9',       // 36px — large buttons
 } as const;
 
 export const SIZE_TEXT = {
-  xs: 'text-[10px]',
+  xs: 'text-[11px]',  // 11px — badges (Figma-calibrated)
   sm: 'text-[12px]',
   md: 'text-[13px]',
   lg: 'text-[14px]',
@@ -32,13 +32,25 @@ export const SIZE_PADDING_X = {
 
 export type Size = keyof typeof SIZE_HEIGHTS;
 
+// ─── Font Weight Scale ───
+// Figma's hierarchy: weight communicates IMPORTANCE, not just visual size.
+export const WEIGHT = {
+  /** Standard text — sidebar nav, list items, body text, input text */
+  normal: 'font-normal',        // 400
+  /** Secondary UI — metadata, units, filter dropdowns, descriptions */
+  book: 'font-[450]',           // 450 — between regular and medium
+  /** Badges, medium emphasis, form labels */
+  medium: 'font-medium',        // 500
+  /** Strong emphasis — section headers, active tabs, card titles, values */
+  strong: 'font-[550]',         // 550 — between medium and semibold
+} as const;
+
 // ─── Radius Scale ───
-// 4 values. Nothing else. Figma uses 5px for everything interactive — we do too.
 export const RADIUS = {
   sm: 'rounded-[4px]',   // badges, small pills
   md: 'rounded-[5px]',   // buttons, inputs, toggles — THE DEFAULT
-  lg: 'rounded-[8px]',   // cards, panels
-  xl: 'rounded-[12px]',  // modals, large containers
+  lg: 'rounded-[12px]',  // cards, panels (Figma-calibrated)
+  xl: 'rounded-[16px]',  // modals, large containers
   full: 'rounded-full',  // avatars, circular badges
 } as const;
 
@@ -56,12 +68,11 @@ export const SEMANTIC_COLORS = {
 export type SemanticColor = keyof typeof SEMANTIC_COLORS;
 
 // ─── Font Classes ───
-// These ensure the right font is ALWAYS used for the right purpose.
 // No component should ever hardcode a font-family — use these.
 export const FONT = {
   /** Body text, descriptions, UI copy — Satoshi */
   body: "font-[family-name:var(--font-sans)]",
-  /** Labels (uppercase tracked) AND numbers/values — Space Grotesk */
+  /** Labels AND numbers/values — Satoshi (same font, kept for semantic clarity) */
   label: "font-[family-name:var(--font-label)]",
   /** Editorial only, never in app UI — Cormorant Garamond */
   serif: "font-[family-name:var(--font-serif)]",
@@ -70,20 +81,23 @@ export const FONT = {
 // ─── Composed Text Styles ───
 // Pre-composed styles for common text patterns. Use these, don't reinvent.
 
-/** Section headers, field labels — Space Grotesk, 11px, uppercase, tracked, muted */
-export const LABEL_STYLE = `${FONT.label} text-[11px] uppercase tracking-[0.08em] text-[var(--n600)]`;
+/** Section headers, field labels — Satoshi, 11px, weight 550, muted */
+export const LABEL_STYLE = `${FONT.body} text-[11px] ${WEIGHT.strong} text-[var(--n600)]`;
 
-/** Numeric values, stats, prices — Space Grotesk, tabular nums, no uppercase */
-export const VALUE_STYLE = `${FONT.label} tabular-nums`;
+/** Numeric values, stats, prices — Satoshi, tabular nums, weight 550 */
+export const VALUE_STYLE = `${FONT.body} tabular-nums ${WEIGHT.strong}`;
 
-/** Body text, descriptions — Satoshi, primary color */
-export const BODY_STYLE = `${FONT.body} text-[var(--n1150)]`;
+/** Body text, descriptions — Satoshi, weight 400, primary color */
+export const BODY_STYLE = `${FONT.body} text-[var(--n1150)] ${WEIGHT.normal}`;
 
-/** Secondary/muted text — Satoshi, muted color */
-export const MUTED_STYLE = `${FONT.body} text-[var(--n800)]`;
+/** Secondary/muted text — Satoshi, weight 450, muted color */
+export const MUTED_STYLE = `${FONT.body} text-[var(--n800)] ${WEIGHT.book}`;
 
-/** Quiet/placeholder text — Satoshi, quiet color */
-export const QUIET_STYLE = `${FONT.body} text-[var(--n600)]`;
+/** Quiet/placeholder text — Satoshi, weight 400, quiet color */
+export const QUIET_STYLE = `${FONT.body} text-[var(--n600)] ${WEIGHT.normal}`;
+
+/** Unit suffixes ("W", "BPM", "kJ") — Satoshi, weight 450, muted color */
+export const UNIT_STYLE = `${FONT.body} text-[var(--n800)] ${WEIGHT.book}`;
 
 // ─── Border ───
 // Two levels. Nothing else. All borders are 0.5px warm sand.
@@ -96,7 +110,6 @@ export const BORDER = {
 
 // ─── Transition ───
 // NEVER use transition-all. Specify exact properties.
-// This is a CRISP rendering rule — transition-all causes unnecessary repaints.
 export const TRANSITION = {
   colors: 'transition-colors duration-150',
   background: 'transition-[background-color] duration-150',

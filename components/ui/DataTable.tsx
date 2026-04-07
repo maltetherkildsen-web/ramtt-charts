@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef } from 'react'
-import { cn, FONT, LABEL_STYLE, VALUE_STYLE, SIZE_TEXT, TRANSITION, HOVER_SAND, FOCUS_RING } from '@/lib/ui'
+import { cn, FONT, LABEL_STYLE, VALUE_STYLE, SIZE_TEXT, TRANSITION, HOVER_SAND, FOCUS_RING, WEIGHT } from '@/lib/ui'
 
 export interface DataTableColumn {
   key: string
@@ -30,7 +30,7 @@ const DataTable = forwardRef<HTMLDivElement, DataTableProps>(
                 scope="col"
                 className={cn(
                   LABEL_STYLE,
-                  'font-semibold py-1.5 px-3',
+                  'py-1.5 px-3',
                   col.align === 'right' ? 'text-right' : 'text-left',
                 )}
                 style={{ width: col.width }}
@@ -57,7 +57,7 @@ const DataTable = forwardRef<HTMLDivElement, DataTableProps>(
                 <td
                   key={col.key}
                   className={cn(
-                    col.format === 'number' ? VALUE_STYLE : FONT.body,
+                    col.format === 'number' ? VALUE_STYLE : cn(FONT.body, WEIGHT.normal),
                     SIZE_TEXT.md,
                     'text-[var(--n1150)] py-1.5 px-3',
                     col.align === 'right' ? 'text-right' : 'text-left',

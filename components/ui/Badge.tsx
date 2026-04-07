@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, WEIGHT } from '@/lib/ui'
 
 const SEMANTIC_COLORS: Record<string, { bg: string; text: string; border: string }> = {
   default:  { bg: 'var(--n200)',          text: 'var(--n1050)',            border: 'var(--n400)' },
@@ -37,7 +37,8 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
           SIZE_TEXT.xs,
           SIZE_PADDING_X.xs,
           RADIUS.sm,
-          'inline-flex items-center justify-center leading-none font-medium tracking-[0.04em] whitespace-nowrap uppercase min-w-5',
+          WEIGHT.medium,
+          'inline-flex items-center justify-center leading-none whitespace-nowrap min-w-[18px]',
           className
         )}
         style={colorStyle}

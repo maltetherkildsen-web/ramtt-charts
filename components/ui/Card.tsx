@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode } from 'react'
-import { cn, RADIUS, BORDER, FONT, TRANSITION, WHITE_LIFT } from '@/lib/ui'
+import { cn, RADIUS, BORDER, FONT, TRANSITION, WHITE_LIFT, WEIGHT } from '@/lib/ui'
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   padding?: 'none' | 'sm' | 'md' | 'lg'
@@ -39,7 +39,7 @@ const CardHeader = ({ children, className }: { children: ReactNode; className?: 
 CardHeader.displayName = 'Card.Header'
 
 const CardTitle = ({ children, className }: { children: ReactNode; className?: string }) => (
-  <h3 className={cn(FONT.body, 'text-[14px] font-medium text-[var(--n1150)]', className)}>{children}</h3>
+  <h3 className={cn(FONT.body, 'text-[14px]', WEIGHT.strong, 'text-[var(--n1150)]', className)}>{children}</h3>
 )
 CardTitle.displayName = 'Card.Title'
 

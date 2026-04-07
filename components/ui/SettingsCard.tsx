@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode } from 'react'
-import { cn, FONT, BORDER, RADIUS, TRANSITION, HOVER_SAND, MUTED_STYLE, FOCUS_RING } from '@/lib/ui'
+import { cn, FONT, BORDER, RADIUS, TRANSITION, HOVER_SAND, MUTED_STYLE, FOCUS_RING, WEIGHT } from '@/lib/ui'
 
 export interface SettingsCardProps {
   icon?: ReactNode
@@ -37,7 +37,7 @@ const SettingsCard = forwardRef<HTMLDivElement, SettingsCardProps>(
     >
       {icon && <div className="flex shrink-0 items-center justify-center text-[var(--n600)] w-[18px] h-[18px]">{icon}</div>}
       <div className="flex-1">
-        <div className={cn(FONT.body, 'text-[13px] font-medium text-[var(--n1150)]')}>{title}</div>
+        <div className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)]')}>{title}</div>
         {description && <div className={cn(MUTED_STYLE, 'mt-px text-[12px]')}>{description}</div>}
       </div>
       {onClick && <div className="ml-auto shrink-0 text-[var(--n600)]"><ChevronRight /></div>}

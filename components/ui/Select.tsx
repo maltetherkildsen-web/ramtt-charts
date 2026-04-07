@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback, useId, forwardRef } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, WEIGHT } from '@/lib/ui'
 
 export interface SelectOption {
   value: string
@@ -123,7 +123,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
     return (
       <div ref={ref} className={cn('relative flex flex-col', className)}>
         {label && (
-          <label id={`${uid}-label`} className={cn(LABEL_STYLE, 'font-semibold mb-1')}>
+          <label id={`${uid}-label`} className={cn(LABEL_STYLE, 'mb-1')}>
             {label}
           </label>
         )}
@@ -149,7 +149,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             BORDER.default,
             TRANSITION.colors,
             FOCUS_RING,
-            'font-[450]',
+            WEIGHT.normal,
             value ? 'text-[var(--n1150)]' : 'text-[var(--n600)]',
           )}
         >
@@ -185,7 +185,8 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                   className={cn(
                     FONT.body,
                     RADIUS.md,
-                    'flex items-center justify-between py-1.5 px-3 mx-1 text-[11px] font-[450] text-white/90 transition-[background-color] duration-100',
+                    'flex items-center justify-between py-1.5 px-3 mx-1 text-[11px] text-white/90 transition-[background-color] duration-100',
+                    WEIGHT.normal,
                     (isFocused || isSelected) ? 'bg-[#2A2A2A]' : 'bg-transparent',
                   )}
                 >

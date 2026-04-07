@@ -1,5 +1,5 @@
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, VALUE_STYLE } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string
@@ -15,7 +15,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className={cn('flex flex-col', className)}>
         {label && (
-          <label htmlFor={id} className={cn(LABEL_STYLE, 'font-semibold mb-1')}>
+          <label htmlFor={id} className={cn(LABEL_STYLE, 'mb-1')}>
             {label}
           </label>
         )}
@@ -34,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               BORDER.default,
               TRANSITION.colors,
               FOCUS_RING,
-              'font-[450] text-[var(--n1150)]',
+              WEIGHT.normal, 'text-[var(--n1150)]',
               'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
               SIZE_PADDING_X.sm,
               unit && 'pr-10',
@@ -46,9 +46,9 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               id={`${id}-unit`}
               aria-hidden="true"
               className={cn(
-                FONT.label,
+                UNIT_STYLE,
                 'pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2',
-                'text-[11px] tabular-nums text-[var(--n600)]',
+                'text-[11px]',
               )}
             >
               {unit}

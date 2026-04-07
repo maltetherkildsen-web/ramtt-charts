@@ -49,15 +49,20 @@ npm run dev        # http://localhost:5000
 
 ### Design System
 
-**3-font system:**
-- **Satoshi** (`--font-sans`) — body text, UI copy, variable weight
-- **Space Grotesk** (`--font-label`) — labels (uppercase, tracked) AND all numbers (tabular-nums)
-- **Cormorant Garamond** (`--font-serif`) — editorial only
+**Satoshi for everything:**
+- **Satoshi** (`--font-sans` + `--font-label`) — body, labels, numbers, UI copy
+- **Cormorant Garamond** (`--font-serif`) — editorial only, never in app UI
+
+**4-level weight hierarchy** (Figma-calibrated):
+- 400 (normal) — body text, nav items, input text
+- 450 (book) — units, metadata, descriptions
+- 500 (medium) — badges, form labels, button text
+- 550 (strong) — section headers, card titles, values, active tabs
 
 **Design tokens** in `components/ui/tokens.css`:
 - Warm neutral scale (#FAF9F5 → #131211)
 - Tailwind Catalyst semantic colors (lime/rose/amber/sky)
-- Border radius: 4/5/8/12px (5px dominant for interactive elements)
+- Border radius: 4/5/12/16px (5px for interactive, 12px for cards)
 - 0.5px borders, no shadows, cursor: default everywhere
 
 **5 interaction patterns:**

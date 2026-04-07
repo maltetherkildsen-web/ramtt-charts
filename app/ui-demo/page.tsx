@@ -51,7 +51,7 @@ function MetricsStripDemo() {
           {[
             { label: 'Duration', value: '1:28:40' },
             { label: 'Avg Power', value: '238', unit: 'W', subtitle: 'Max 904W' },
-            { label: 'Avg HR', value: '155', unit: 'bpm', subtitle: 'Max 189bpm' },
+            { label: 'Avg HR', value: '155', unit: 'BPM', subtitle: 'Max 189 BPM' },
             { label: 'TSS', value: '187', subtitle: 'IF 0.92' },
             { label: 'Energy', value: '1,842', unit: 'kJ' },
             { label: 'Form', value: '-8 → -14', subtitle: '-6 loaded', subtitleColor: 'positive' as const },
@@ -94,9 +94,9 @@ function CompactMetricsDemo() {
 
 function ToggleGroupDemo() {
   const [channel, setChannel] = useState('power')
-  const [period, setPeriod] = useState('1M')
+  const [period, setPeriod] = useState('1m')
   const [zone, setZone] = useState('off')
-  const [filters, setFilters] = useState<string | string[]>(['ALL', 'WARNING'])
+  const [filters, setFilters] = useState<string | string[]>(['All', 'Warning'])
 
   return (
     <DemoSection title="Toggle Groups">
@@ -122,7 +122,7 @@ function ToggleGroupDemo() {
             value={period}
             onChange={(v) => setPeriod(v as string)}
             size="sm"
-            options={['1D', '5D', '1M', '6M', 'YTD', '1Y', '5Y', 'MAX']}
+            options={['1d', '5d', '1m', '6m', 'Ytd', '1y', '5y', 'Max']}
           />
         </div>
 
@@ -159,7 +159,7 @@ function ToggleGroupDemo() {
             onChange={setFilters}
             multi
             variant="pill"
-            options={['ALL', 'INFO', 'WARNING', 'CRITICAL']}
+            options={['All', 'Info', 'Warning', 'Critical']}
           />
         </div>
       </div>
@@ -538,8 +538,8 @@ export default function UIDemo() {
           </h1>
           <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
             Minimal, opinionated UI components with RAMTT design tokens baked in.
-            Zero dependencies. Space Grotesk for labels and numbers, Satoshi
-            for body text, every border at 0.5px.
+            Zero dependencies. Satoshi for everything — labels, numbers, body text.
+            Every border at 0.5px. Sentence case labels. Tabular nums for data.
           </p>
         </header>
 

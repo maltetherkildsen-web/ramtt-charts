@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { cn, FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, QUIET_STYLE } from '@/lib/ui'
+import { cn, FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, QUIET_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 import { Badge } from './Badge'
 
 export interface MetricCardProps {
@@ -27,7 +27,7 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
         <div ref={ref} className={cn('flex items-baseline justify-between gap-2 py-0.5', className)}>
           <dt className={cn(QUIET_STYLE, 'text-[11px]')}>{label}</dt>
           <dd className={cn(VALUE_STYLE, 'text-[11px] text-[var(--n1150)] m-0')}>
-            {value}{unit && <span className={cn(MUTED_STYLE, 'ml-0.5 text-[11px]')}>{unit}</span>}
+            {value}{unit && <span className={cn(UNIT_STYLE, 'ml-0.5 text-[11px]')}>{unit}</span>}
           </dd>
         </div>
       )
@@ -35,19 +35,19 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
 
     return (
       <div ref={ref} className={cn('flex flex-col', className)}>
-        <span className={cn(LABEL_STYLE, 'font-semibold text-[10px] tracking-[0.12em] mb-0.5')}>
+        <span className={cn(LABEL_STYLE, 'mb-0.5')}>
           {label}
         </span>
         <div className="flex items-baseline gap-0.5">
-          <span className={cn(VALUE_STYLE, 'text-[16px] font-medium leading-tight text-[var(--n1150)]')}>
+          <span className={cn(VALUE_STYLE, 'text-[16px] leading-tight text-[var(--n1150)]')}>
             {value}
           </span>
-          {unit && <span className={cn(QUIET_STYLE, 'text-[12px] tabular-nums')}>{unit}</span>}
+          {unit && <span className={cn(UNIT_STYLE, 'text-[12px]')}>{unit}</span>}
           {badge && <Badge color={badge.color} size="sm">{badge.label}</Badge>}
         </div>
         {subtitle && (
           <span
-            className={cn(MUTED_STYLE, 'text-[10px] mt-px')}
+            className={cn(MUTED_STYLE, 'text-[11px] mt-px')}
             style={subtitleColor !== 'default' ? { color: SUBTITLE_COLORS[subtitleColor] } : undefined}
           >
             {subtitle}

@@ -9,18 +9,28 @@ When Claude Code or any developer builds new components, these rules apply.
 - Use `cn()` for class merging, never template literals
 
 ## Typography
-- BODY TEXT: Satoshi → use `FONT.body` or `BODY_STYLE`
-- LABELS: Space Grotesk, uppercase, tracked → use `LABEL_STYLE`
-- NUMBERS: Space Grotesk, tabular-nums → use `VALUE_STYLE`
-- MUTED TEXT: Satoshi, --n800 → use `MUTED_STYLE`
+- Satoshi for EVERYTHING — body, labels, numbers, UI copy
+- BODY TEXT: `FONT.body` or `BODY_STYLE` (weight 400)
+- LABELS: `LABEL_STYLE` — sentence case, weight 550, --n600
+- NUMBERS: `VALUE_STYLE` — tabular-nums, weight 550
+- UNITS: `UNIT_STYLE` — weight 450, --n800
+- MUTED TEXT: `MUTED_STYLE` — weight 450, --n800
 - Cormorant Garamond is EDITORIAL ONLY — never in app UI
+- Sentence case everywhere — no uppercase except abbreviations (Z2, FTP, HR, BPM, RPM)
+
+## Font Weights
+- Use `WEIGHT` constants, never hardcode font-weight values
+- 400 (WEIGHT.normal): body text, nav items, input text, unselected toggles
+- 450 (WEIGHT.book): units, metadata, descriptions, subtitles
+- 500 (WEIGHT.medium): badges, form labels, buttons (primary/outline)
+- 550 (WEIGHT.strong): section headers, card titles, values, active tabs, selected toggles
 
 ## Sizing
-- Heights: 20px (xs/badges), 28px (sm), 32px (md/default), 36px (lg)
+- Heights: 18px (xs/badges), 28px (sm), 32px (md/default), 36px (lg)
 - Use SIZE_HEIGHTS constants, never hardcode h-* values
 
 ## Border Radius
-- 4px (sm/badges), 5px (md/buttons/inputs), 8px (lg/cards), 12px (xl/modals)
+- 4px (sm/badges), 5px (md/buttons/inputs), 12px (lg/cards), 16px (xl/modals)
 - Use RADIUS constants, never hardcode rounded-* values
 
 ## Borders

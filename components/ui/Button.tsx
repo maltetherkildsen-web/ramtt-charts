@@ -1,5 +1,5 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING, WEIGHT } from '@/lib/ui'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
@@ -29,7 +29,8 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         RADIUS.md,
         TRANSITION.colors,
         FOCUS_RING,
-        'inline-flex items-center justify-center gap-1.5 font-medium',
+        'inline-flex items-center justify-center gap-1.5',
+        variant === 'ghost' ? WEIGHT.normal : WEIGHT.medium,
         'disabled:pointer-events-none disabled:opacity-40',
         variantStyles[variant],
         sizeStyles[size],

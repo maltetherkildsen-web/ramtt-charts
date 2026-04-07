@@ -1,7 +1,7 @@
 'use client'
 
 import { forwardRef, useRef, useCallback } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_SAND, ACTIVE_UNDERLINE, FOCUS_RING } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_SAND, ACTIVE_UNDERLINE, FOCUS_RING, WEIGHT } from '@/lib/ui'
 
 type OptionItem = string | { value: string; label: string }
 
@@ -103,7 +103,7 @@ const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
                   TRANSITION.colors,
                   FOCUS_RING,
                   'inline-flex items-center justify-center',
-                  isSel ? 'font-medium text-[var(--n1150)]' : 'font-normal text-[var(--n800)]',
+                  isSel ? cn(WEIGHT.strong, 'text-[var(--n1150)]') : cn(WEIGHT.normal, 'text-[var(--n800)]'),
                   isSel ? ACTIVE_UNDERLINE : 'border-b-2 border-transparent',
                 )}
               >
@@ -138,7 +138,7 @@ const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
                   TRANSITION.background,
                   FOCUS_RING,
                   'inline-flex items-center justify-center',
-                  isSel ? cn('font-medium text-[var(--n1150)]', ACTIVE_SAND) : cn('font-normal text-[var(--n800)] bg-transparent', HOVER_SAND),
+                  isSel ? cn(WEIGHT.strong, 'text-[var(--n1150)]', ACTIVE_SAND) : cn(WEIGHT.normal, 'text-[var(--n800)] bg-transparent', HOVER_SAND),
                 )}
               >
                 {label}
@@ -171,7 +171,7 @@ const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
                 FOCUS_RING,
                 'inline-flex items-center justify-center',
                 !isLast && 'border-r-[0.5px] border-r-[var(--n400)]',
-                isSel ? cn('font-medium text-[var(--n1150)]', ACTIVE_SAND) : cn('font-normal text-[var(--n800)]', HOVER_SAND),
+                isSel ? cn(WEIGHT.strong, 'text-[var(--n1150)]', ACTIVE_SAND) : cn(WEIGHT.normal, 'text-[var(--n800)]', HOVER_SAND),
               )}
             >
               {label}

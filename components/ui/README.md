@@ -44,13 +44,16 @@ function CustomWidget({ label, value, className }) {
 | ProgressBar | Bar indicator | value, max, color, label |
 | SectionHeader | Section label | children (auto-uppercased), action |
 
-## Fonts
+## Font
 
-| Font | Usage | Import |
-|------|-------|--------|
-| Satoshi | Body text, UI copy | FONT.body |
-| Space Grotesk | Labels AND numbers | FONT.label |
-| Cormorant Garamond | Editorial only | FONT.serif |
+Satoshi for everything. Cormorant Garamond for editorial only.
+
+| Weight | Constant | Usage |
+|--------|----------|-------|
+| 400 | WEIGHT.normal | Body text, nav, inputs, unselected toggles |
+| 450 | WEIGHT.book | Units, metadata, descriptions |
+| 500 | WEIGHT.medium | Badges, form labels, buttons |
+| 550 | WEIGHT.strong | Section headers, card titles, values, active tabs |
 
 ## Audit
 

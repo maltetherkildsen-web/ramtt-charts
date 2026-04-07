@@ -1,5 +1,5 @@
 import { forwardRef } from 'react'
-import { cn, RADIUS, VALUE_STYLE, SIZE_TEXT } from '@/lib/ui'
+import { cn, RADIUS, FONT, SIZE_TEXT, WEIGHT } from '@/lib/ui'
 
 const FILL_COLORS: Record<string, string> = {
   default: 'var(--n1150)',
@@ -39,7 +39,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
           />
         </div>
         {label && (
-          <span aria-hidden="true" className={cn(VALUE_STYLE, SIZE_TEXT.sm, 'shrink-0 text-[var(--n800)]')}>
+          <span aria-hidden="true" className={cn(FONT.body, WEIGHT.medium, SIZE_TEXT.sm, 'shrink-0 tabular-nums text-[var(--n800)]')}>
             {label}
           </span>
         )}

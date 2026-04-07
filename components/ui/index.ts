@@ -15,7 +15,7 @@ export { ProgressBar } from './ProgressBar';
 export { SectionHeader } from './SectionHeader';
 
 // ─── Utilities (for building custom components with the same system) ───
-export { cn, FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE } from '@/lib/ui';
+export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
 export { HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, TRANSITION } from '@/lib/ui';
 export { LAYOUT } from '@/lib/ui';
