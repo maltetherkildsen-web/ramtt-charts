@@ -37,7 +37,6 @@ import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import type { Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
 import { ChartFuelLollipop } from '@/components/charts/primitives/ChartFuelLollipop'
-import { BrushOverlay } from '@/components/charts/primitives/BrushOverlay'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
@@ -977,10 +976,6 @@ function SyncedCharts({
   return (
     <div className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)} tabIndex={0} style={{ contain: 'paint' }}>
 
-      {/* Chart area wrapper — BrushOverlay is scoped to this */}
-      <div className="relative" data-brush-container>
-      <BrushOverlay />
-
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('power') && (
@@ -991,7 +986,7 @@ function SyncedCharts({
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           yPadding={0.10}
-          className={cn("bg-[var(--n50)]")}
+          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
           <ChartRefLine y={ftp} label={`CP ${ftp}W`} />
@@ -1009,7 +1004,6 @@ function SyncedCharts({
       )}
       </AnimatePresence>
 
-      <div className={cn("border-t-[0.5px] border-t-[var(--n400)]")} />
       {/* HR — 75px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('hr') && (
@@ -1019,7 +1013,7 @@ function SyncedCharts({
           height={h('hr', 75)}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-t-[0.5px] border-[var(--n400)] bg-[var(--n50)]"
+          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
           <ChartArea gradientColor="#ef4444" opacityFrom={0.08} opacityTo={0.005} />
@@ -1045,7 +1039,7 @@ function SyncedCharts({
           height={h('speed', 55)}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
           <ChartArea gradientColor="#3b82f6" opacityFrom={0.08} opacityTo={0.005} />
@@ -1067,7 +1061,7 @@ function SyncedCharts({
           height={h('cadence', 55)}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v}`} />
           <ChartArea gradientColor="#a855f7" opacityFrom={0.08} opacityTo={0.005} />
@@ -1090,7 +1084,7 @@ function SyncedCharts({
           decimationFactor={decimationFactor}
           padding={chartPad}
           yDomain={elevationYDomain}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}m`} />
           {lastChartKey === 'elevation' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
@@ -1114,7 +1108,7 @@ function SyncedCharts({
           decimationFactor={decimationFactor}
           yDomain={[0, Math.max(fuelTarget, fuelIntakes.reduce((s, i) => s + i.choGrams, 0), 10) * 1.1]}
           padding={lastChartKey === 'fuel' ? { ...chartPad, right: 120 } : { ...chartPad, right: 120, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="bg-(--n50)"
         >
           {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartFuelLollipop
@@ -1130,7 +1124,6 @@ function SyncedCharts({
         </motion.div>
       )}
       </AnimatePresence>
-      </div>
 
       {/* Crosshair time label */}
       <CrosshairTimeLabel format={formatTimeLabel} />

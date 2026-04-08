@@ -3,8 +3,10 @@
 /**
  * useChartZoom — zoom, pan, brush, and keyboard navigation for synced charts.
  *
- * Brush uses document-level pointermove/pointerup during drag (not setPointerCapture).
- * This guarantees pointerup fires regardless of where the pointer ends up.
+ * Zoom:     vertical scroll → zoom in/out centered on cursor X
+ * Pan:      horizontal scroll (trackpad) or shift+scroll → fractional pan
+ * Brush:    click + drag → select range → zoom to selection on release
+ * Keyboard: arrows pan, +/- zoom, Home/End jump, Esc reset
  */
 
 import { useEffect, useRef } from 'react'
@@ -15,18 +17,16 @@ const MIN_VISIBLE_POINTS = 2
 const ZOOM_SPEED = 0.15
 const MIN_BRUSH_POINTS = 2
 
-export function useChartZoom() {
+export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
   const { padding, svgRef, data } = useChart()
   const sync = useChartSync()
-  const dragState = useRef<{ startXContainer: number } | null>(null)
+  const dragState = useRef<{ active: boolean; startX: number } | null>(null)
   const panAccum = useRef(0)
   const panRaf = useRef(0)
 
   useEffect(() => {
     const svg = svgRef.current
     if (!svg || !sync) return
-
-    const brushContainer = svg.closest('[data-brush-container]') as HTMLElement | null
 
     const getChartX = (e: MouseEvent): number => {
       const rect = svg.getBoundingClientRect()
@@ -43,26 +43,30 @@ export function useChartZoom() {
       return Math.max(0, Math.min(1, getChartX(e) / cw))
     }
 
+    // ─── Clear brush state ───
     const clearBrush = () => {
-      sync.brush.current = { active: false, leftPx: 0, widthPx: 0 }
+      if (sync.brush?.current) {
+        sync.brush.current = { active: false, startFrac: 0, currentFrac: 0 }
+      }
+      const brush = brushRef.current
+      if (brush) brush.setAttribute('display', 'none')
       dragState.current = null
     }
 
-    const clampToPlotArea = (xInContainer: number, containerWidth: number): number => {
-      return Math.max(padding.left, Math.min(containerWidth - padding.right, xInContainer))
-    }
-
-    // ─── Pan ───
+    // ─── Pan with fractional accumulator ───
     const flushPan = () => {
       panRaf.current = 0
       const cw = getChartWidth()
       if (cw <= 0) return
+
       const range = sync.zoom.end - sync.zoom.start
       const dataFrac = (panAccum.current / cw) * range
       const intDelta = Math.trunc(dataFrac)
       if (intDelta === 0) return
+
       panAccum.current -= (intDelta / range) * cw
       const dl = sync.dataLength
+
       sync.setZoom((prev) => {
         let s = prev.start + intDelta
         let e = prev.end + intDelta
@@ -90,10 +94,9 @@ export function useChartZoom() {
       })
     }
 
-    // ─── Wheel ───
+    // ─── Wheel: zoom or pan ───
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
-      if (dragState.current) clearBrush()
 
       if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         pan(e.shiftKey ? e.deltaY : e.deltaX)
@@ -126,81 +129,77 @@ export function useChartZoom() {
       })
     }
 
-    // ─── Brush: document-level move/up during drag ───
-    const handleDocumentPointerMove = (e: PointerEvent) => {
-      const state = dragState.current
-      if (!state || !brushContainer) return
-      const containerRect = brushContainer.getBoundingClientRect()
-      const xInContainer = clampToPlotArea(e.clientX - containerRect.left, containerRect.width)
+    // ─── Brush ───
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return
+      const cx = getChartX(e)
+      const cw = getChartWidth()
+      dragState.current = { active: true, startX: cx }
+      svg.setPointerCapture(e.pointerId)
 
-      sync.brush.current = {
-        active: true,
-        leftPx: Math.min(state.startXContainer, xInContainer),
-        widthPx: Math.abs(xInContainer - state.startXContainer),
+      const parent = svg.closest('[tabindex]') as HTMLElement | null
+      parent?.focus({ preventScroll: true })
+
+      // Update shared brush state so all charts render the overlay
+      const frac = Math.max(0, Math.min(1, cx / cw))
+      if (sync.brush?.current) {
+        sync.brush.current = { active: true, startFrac: frac, currentFrac: frac }
+      }
+
+      const brush = brushRef.current
+      if (brush) {
+        brush.setAttribute('x', String(Math.max(0, cx)))
+        brush.setAttribute('width', '0')
+        brush.setAttribute('display', '')
       }
     }
 
-    /** Remove all document-level drag listeners */
-    const removeDragListeners = () => {
-      document.removeEventListener('pointermove', handleDocumentPointerMove)
-      document.removeEventListener('pointerup', handleDocumentPointerUp)
-      document.removeEventListener('pointercancel', handleDocumentPointerCancel)
+    const handlePointerMove = (e: PointerEvent) => {
+      const state = dragState.current
+      if (!state?.active) return
+      const cx = getChartX(e)
+      const cw = getChartWidth()
+
+      // Update shared brush state
+      const frac = Math.max(0, Math.min(1, cx / cw))
+      if (sync.brush?.current) {
+        sync.brush.current.currentFrac = frac
+      }
+
+      const brush = brushRef.current
+      if (brush) {
+        const x = Math.max(0, Math.min(state.startX, cx))
+        const w = Math.min(cw - x, Math.abs(cx - state.startX))
+        brush.setAttribute('x', String(x))
+        brush.setAttribute('width', String(Math.max(0, w)))
+      }
     }
 
-    const handleDocumentPointerUp = (e: PointerEvent) => {
+    const handlePointerUp = (e: PointerEvent) => {
       const state = dragState.current
-      if (!state || !brushContainer) return
+      if (!state?.active) return
+      svg.releasePointerCapture(e.pointerId)
 
-      removeDragListeners()
-
-      // Compute zoom range from container coordinates
-      const containerRect = brushContainer.getBoundingClientRect()
-      const xInContainer = clampToPlotArea(e.clientX - containerRect.left, containerRect.width)
-      const plotWidth = containerRect.width - padding.left - padding.right
-      const frac1 = Math.max(0, Math.min(1, (state.startXContainer - padding.left) / plotWidth))
-      const frac2 = Math.max(0, Math.min(1, (xInContainer - padding.left) / plotWidth))
-
-      // Clear brush BEFORE setZoom
-      clearBrush()
-
+      // Capture values before clearing
+      const cx = getChartX(e)
+      const cw = getChartWidth()
       const range = sync.zoom.end - sync.zoom.start
+      const frac1 = Math.max(0, Math.min(1, state.startX / cw))
+      const frac2 = Math.max(0, Math.min(1, cx / cw))
       const idx1 = Math.round(sync.zoom.start + Math.min(frac1, frac2) * range)
       const idx2 = Math.round(sync.zoom.start + Math.max(frac1, frac2) * range)
+
+      clearBrush()
 
       if (idx2 - idx1 >= MIN_BRUSH_POINTS) {
         sync.setZoom({ start: Math.max(0, idx1), end: Math.min(sync.dataLength - 1, idx2) })
       }
     }
 
-    /** pointercancel = browser interrupted drag. Just clean up, no zoom. */
-    const handleDocumentPointerCancel = () => {
-      if (!dragState.current) return
-      removeDragListeners()
+    // pointercancel = browser interrupted drag (implicit capture lost).
+    // Just clean up, no zoom.
+    const handlePointerCancel = () => {
       clearBrush()
-    }
-
-    // ─── Brush: pointerdown on SVG starts the drag ───
-    const handlePointerDown = (e: PointerEvent) => {
-      if (e.button !== 0 || !brushContainer) return
-
-      // Release any implicit pointer capture the browser set on the target.
-      // Without this, the browser fires pointercancel (killing pointerup)
-      // when the captured element changes during drag (e.g. path re-render).
-      try { (e.target as Element).releasePointerCapture(e.pointerId) } catch {}
-
-      const containerRect = brushContainer.getBoundingClientRect()
-      const xInContainer = clampToPlotArea(e.clientX - containerRect.left, containerRect.width)
-
-      dragState.current = { startXContainer: xInContainer }
-      sync.brush.current = { active: true, leftPx: xInContainer, widthPx: 0 }
-
-      const parent = svg.closest('[tabindex]') as HTMLElement | null
-      parent?.focus({ preventScroll: true })
-
-      // Register move/up/cancel on document — guaranteed to fire regardless of pointer position
-      document.addEventListener('pointermove', handleDocumentPointerMove)
-      document.addEventListener('pointerup', handleDocumentPointerUp)
-      document.addEventListener('pointercancel', handleDocumentPointerCancel)
     }
 
     const handleDblClick = (e: MouseEvent) => {
@@ -264,17 +263,21 @@ export function useChartZoom() {
 
     svg.addEventListener('wheel', handleWheel, { passive: false })
     svg.addEventListener('pointerdown', handlePointerDown)
+    svg.addEventListener('pointermove', handlePointerMove)
+    svg.addEventListener('pointerup', handlePointerUp)
+    svg.addEventListener('pointercancel', handlePointerCancel)
     svg.addEventListener('dblclick', handleDblClick)
     container?.addEventListener('keydown', handleKeyDown)
 
     return () => {
       cancelAnimationFrame(panRaf.current)
-      // Clean up document listeners if drag was interrupted by unmount
-      removeDragListeners()
       svg.removeEventListener('wheel', handleWheel)
       svg.removeEventListener('pointerdown', handlePointerDown)
+      svg.removeEventListener('pointermove', handlePointerMove)
+      svg.removeEventListener('pointerup', handlePointerUp)
+      svg.removeEventListener('pointercancel', handlePointerCancel)
       svg.removeEventListener('dblclick', handleDblClick)
       container?.removeEventListener('keydown', handleKeyDown)
     }
-  }, [svgRef, sync, padding, data.length])
+  }, [svgRef, sync, padding, data.length, brushRef])
 }
