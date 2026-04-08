@@ -540,6 +540,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
               ftp={meta.ftp} maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
+              showPeaks={showPeaks} setShowPeaks={setShowPeaks}
               activePeak={activePeak} onClearPeak={() => setActivePeak(null)}
               onClose={() => setIsFullscreen(false)}
             />
@@ -560,7 +561,7 @@ const CHART_WEIGHTS: Record<ChartKey, number> = {
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes,
-  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, activePeak, onClearPeak, onClose,
+  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onClearPeak, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
@@ -568,6 +569,7 @@ function FullscreenOverlay({
   ftp: number; maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
+  showPeaks: boolean; setShowPeaks: (v: boolean) => void
   activePeak?: PeakPowerResult | null; onClearPeak?: () => void
   onClose: () => void
 }) {
@@ -596,34 +598,75 @@ function FullscreenOverlay({
   return (
     <div className="flex h-full flex-col bg-[var(--bg)]">
       {/* Top bar */}
-      <div className="flex h-10 shrink-0 items-center justify-between border-b-[0.5px] border-b-[var(--n400)] px-4">
-        <span className={cn("text-sm", "text-[var(--n1050)]")}>{meta.name}</span>
-        <div className="flex items-center gap-2">
-          {/* Zone toggle */}
-          <div className="flex -space-x-px">
-            {ZONE_MODES.map((mode, i) => (
-              <button
-                key={mode}
-                onClick={() => setZoneMode(mode)}
-                className={cn(
-                  "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
-                  i === 0 && 'rounded-l-[5px]', i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
-                  zoneMode === mode ? cn(ACTIVE_SAND, "text-[var(--n1150)]") : cn("text-[var(--n600)]", HOVER_SAND)
-                )}
-              >
-                {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
-              </button>
-            ))}
-          </div>
-          <button
-            onClick={onClose}
-            className={cn("ml-2 rounded p-1 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND, "hover:text-[var(--n1050)]")}
-          >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M4 4l8 8M12 4l-8 8" />
-            </svg>
-          </button>
+      <div className="flex h-10 shrink-0 items-center gap-2 border-b-[0.5px] border-b-[var(--n400)] px-4">
+        <span className={cn("text-sm text-[var(--n1050)]")}>{meta.name}</span>
+
+        {/* Chart visibility toggles */}
+        <div className="ml-3 flex items-center gap-1">
+          {ALL_CHARTS.map((key) => (
+            <button
+              key={key}
+              onClick={() => onToggle(key)}
+              className={cn(
+                "rounded-[4px] border border-[var(--n400)] px-2 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
+                visibleCharts.has(key)
+                  ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
+                  : cn("text-[var(--n600)]", HOVER_SAND)
+              )}
+            >
+              {CHART_LABELS[key]}
+            </button>
+          ))}
         </div>
+
+        <div className="flex-1" />
+
+        {/* Peaks toggle */}
+        <span className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Peaks</span>
+        <div className="flex -space-x-px">
+          {(['off', 'on'] as const).map((mode, i) => (
+            <button
+              key={mode}
+              onClick={() => setShowPeaks(mode === 'on')}
+              className={cn(
+                "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
+                i === 0 && 'rounded-l-[5px]', i === 1 && 'rounded-r-[5px]',
+                (mode === 'on') === showPeaks
+                  ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
+                  : cn("text-[var(--n600)]", HOVER_SAND)
+              )}
+            >
+              {mode === 'off' ? 'Off' : 'On'}
+            </button>
+          ))}
+        </div>
+
+        {/* Zone toggle */}
+        <span className={cn("ml-1 text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Zones</span>
+        <div className="flex -space-x-px">
+          {ZONE_MODES.map((mode, i) => (
+            <button
+              key={mode}
+              onClick={() => setZoneMode(mode)}
+              className={cn(
+                "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
+                i === 0 && 'rounded-l-[5px]', i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
+                zoneMode === mode ? cn(ACTIVE_SAND, "text-[var(--n1150)]") : cn("text-[var(--n600)]", HOVER_SAND)
+              )}
+            >
+              {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
+            </button>
+          ))}
+        </div>
+
+        <button
+          onClick={onClose}
+          className={cn("ml-2 rounded p-1 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND, "hover:text-[var(--n1050)]")}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M4 4l8 8M12 4l-8 8" />
+          </svg>
+        </button>
       </div>
 
       {/* Charts + data sidebar */}
