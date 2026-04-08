@@ -129,38 +129,13 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       })
     }
 
-    // ─── Brush ───
-    const handlePointerDown = (e: PointerEvent) => {
-      if (e.button !== 0) return
-      const cx = getChartX(e)
-      const cw = getChartWidth()
-      dragState.current = { active: true, startX: cx }
-      svg.setPointerCapture(e.pointerId)
-
-      const parent = svg.closest('[tabindex]') as HTMLElement | null
-      parent?.focus({ preventScroll: true })
-
-      // Update shared brush state so all charts render the overlay
-      const frac = Math.max(0, Math.min(1, cx / cw))
-      if (sync.brush?.current) {
-        sync.brush.current = { active: true, startFrac: frac, currentFrac: frac }
-      }
-
-      const brush = brushRef.current
-      if (brush) {
-        brush.setAttribute('x', String(Math.max(0, cx)))
-        brush.setAttribute('width', '0')
-        brush.setAttribute('display', '')
-      }
-    }
-
-    const handlePointerMove = (e: PointerEvent) => {
+    // ─── Brush: document-level move/up during drag ───
+    const handleDocPointerMove = (e: PointerEvent) => {
       const state = dragState.current
       if (!state?.active) return
       const cx = getChartX(e)
       const cw = getChartWidth()
 
-      // Update shared brush state
       const frac = Math.max(0, Math.min(1, cx / cw))
       if (sync.brush?.current) {
         sync.brush.current.currentFrac = frac
@@ -175,12 +150,18 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       }
     }
 
-    const handlePointerUp = (e: PointerEvent) => {
+    const removeDragListeners = () => {
+      document.removeEventListener('pointermove', handleDocPointerMove)
+      document.removeEventListener('pointerup', handleDocPointerUp)
+      document.removeEventListener('pointercancel', handleDocPointerCancel)
+    }
+
+    const handleDocPointerUp = (e: PointerEvent) => {
       const state = dragState.current
       if (!state?.active) return
-      svg.releasePointerCapture(e.pointerId)
 
-      // Capture values before clearing
+      removeDragListeners()
+
       const cx = getChartX(e)
       const cw = getChartWidth()
       const range = sync.zoom.end - sync.zoom.start
@@ -196,10 +177,43 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       }
     }
 
-    // pointercancel = browser interrupted drag (implicit capture lost).
-    // Just clean up, no zoom.
-    const handlePointerCancel = () => {
+    const handleDocPointerCancel = () => {
+      removeDragListeners()
       clearBrush()
+    }
+
+    // ─── Brush: pointerdown on SVG starts drag ───
+    const handlePointerDown = (e: PointerEvent) => {
+      if (e.button !== 0) return
+
+      // Release implicit pointer capture the browser sets on the target element.
+      // Without this, browser fires pointercancel when the captured <path>/<svg>
+      // changes during drag (downsampling re-render).
+      try { (e.target as Element).releasePointerCapture(e.pointerId) } catch {}
+
+      const cx = getChartX(e)
+      const cw = getChartWidth()
+      dragState.current = { active: true, startX: cx }
+
+      const parent = svg.closest('[tabindex]') as HTMLElement | null
+      parent?.focus({ preventScroll: true })
+
+      const frac = Math.max(0, Math.min(1, cx / cw))
+      if (sync.brush?.current) {
+        sync.brush.current = { active: true, startFrac: frac, currentFrac: frac }
+      }
+
+      const brush = brushRef.current
+      if (brush) {
+        brush.setAttribute('x', String(Math.max(0, cx)))
+        brush.setAttribute('width', '0')
+        brush.setAttribute('display', '')
+      }
+
+      // Document-level listeners — guaranteed to fire regardless of pointer position
+      document.addEventListener('pointermove', handleDocPointerMove)
+      document.addEventListener('pointerup', handleDocPointerUp)
+      document.addEventListener('pointercancel', handleDocPointerCancel)
     }
 
     const handleDblClick = (e: MouseEvent) => {
@@ -261,21 +275,26 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
     const container = (svg.closest('[tabindex]') ?? svg) as HTMLElement
     if (!container.hasAttribute('tabindex')) container.setAttribute('tabindex', '0')
 
+    // pointercancel from implicit capture — must be on SVG directly (where capture lives)
+    const handleSvgPointerCancel = () => {
+      if (dragState.current?.active) {
+        removeDragListeners()
+        clearBrush()
+      }
+    }
+
     svg.addEventListener('wheel', handleWheel, { passive: false })
     svg.addEventListener('pointerdown', handlePointerDown)
-    svg.addEventListener('pointermove', handlePointerMove)
-    svg.addEventListener('pointerup', handlePointerUp)
-    svg.addEventListener('pointercancel', handlePointerCancel)
+    svg.addEventListener('pointercancel', handleSvgPointerCancel, true) // capture phase
     svg.addEventListener('dblclick', handleDblClick)
     container?.addEventListener('keydown', handleKeyDown)
 
     return () => {
       cancelAnimationFrame(panRaf.current)
+      removeDragListeners()
       svg.removeEventListener('wheel', handleWheel)
       svg.removeEventListener('pointerdown', handlePointerDown)
-      svg.removeEventListener('pointermove', handlePointerMove)
-      svg.removeEventListener('pointerup', handlePointerUp)
-      svg.removeEventListener('pointercancel', handlePointerCancel)
+      svg.removeEventListener('pointercancel', handleSvgPointerCancel, true)
       svg.removeEventListener('dblclick', handleDblClick)
       container?.removeEventListener('keydown', handleKeyDown)
     }
