@@ -39,8 +39,8 @@ function ChartCard({
   children: React.ReactNode
 }) {
   return (
-    <section className={`${RADIUS.xl} border border-border bg-elevated p-5`}>
-      <h2 className={`font-label text-[22px] ${WEIGHT.medium} tracking-tight text-text-primary`}>
+    <section className={`${RADIUS.lg} border-[0.5px] border-[var(--n400)] bg-[var(--n50)] p-5`}>
+      <h2 className={`text-[22px] ${WEIGHT.strong} tracking-tight text-[var(--n1150)]`}>
         {title}
       </h2>
       <p className="mt-0.5 font-sans text-[11px] tracking-wide text-text-muted">
@@ -73,9 +73,10 @@ function StockPriceChart() {
       <ChartRoot data={data} height={260} padding={{ right: 16 }}>
         <ChartArea gradientColor="#3b82f6" opacityFrom={0.12} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
-        <ChartAxisX labelCount={6} format={formatMonth} fontFamily="'Space Grotesk', sans-serif" />
+        <ChartAxisX labelCount={6} format={formatMonth} />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
         <ChartCrosshair dotColor="#3b82f6" />
+        <ChartZoomHandler />
       </ChartRoot>
     </ChartCard>
   )
@@ -118,6 +119,7 @@ function RevenueChart() {
                  />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}k`} />
         <ChartCrosshair dotColor="#10b981" />
+        <ChartZoomHandler />
       </ChartRoot>
       {/* Legend */}
       <div className="ml-12 mt-2 flex gap-5">
@@ -173,6 +175,7 @@ function TemperatureChart() {
         <ChartAxisX labelCount={6} format={formatHour} />
         <ChartAxisY tickCount={4} format={(v) => `${v.toFixed(0)}°C`} />
         <ChartCrosshair dotColor="#f59e0b" />
+        <ChartZoomHandler />
       </ChartRoot>
       {/* Zone legend */}
       <div className="ml-12 mt-2 flex gap-4">
@@ -327,7 +330,7 @@ export default function DemoPage() {
       <div className="mx-auto max-w-[920px] px-6">
         {/* ── Header ── */}
         <header className="mb-10">
-          <h1 className={`font-label text-[36px] ${WEIGHT.medium} tracking-tight text-text-primary`}>
+          <h1 className={`text-[36px] ${WEIGHT.strong} tracking-tight text-[var(--n1150)]`}>
             @ramtt/charts
           </h1>
           <p className="mt-1 max-w-lg font-sans text-[13px] leading-relaxed tracking-wide text-text-tertiary">

@@ -42,6 +42,15 @@ export type HoverCallback = (index: number | null, sourceId: string, clientY?: n
 /** Callback for zoom sync. */
 export type ZoomCallback = (range: ZoomRange) => void
 
+/** Shared brush state for synced overlay rendering (ref-based, zero re-renders). */
+export interface BrushState {
+  active: boolean
+  /** Start fraction (0-1) in the visible range */
+  startFrac: number
+  /** Current fraction (0-1) in the visible range */
+  currentFrac: number
+}
+
 export interface ChartSyncContextValue {
   // ─── Hover (ref-based, zero re-renders) ───
   /** Subscribe to hover broadcasts. Returns unsubscribe function. */
@@ -56,6 +65,10 @@ export interface ChartSyncContextValue {
   setZoom: (range: ZoomRange | ((prev: ZoomRange) => ZoomRange)) => void
   /** Total data length (set by the page, needed for zoom bounds). */
   dataLength: number
+
+  // ─── Brush (ref-based, zero re-renders) ───
+  /** Shared brush state — all charts read this to render overlay. */
+  brush: React.RefObject<BrushState>
 }
 
 const SyncContext = createContext<ChartSyncContextValue | null>(null)
@@ -92,6 +105,9 @@ export function ChartSyncProvider({ dataLength, children }: ChartSyncProviderPro
   // ─── Zoom (state-based) ───
   const [zoom, setZoom] = useState<ZoomRange>({ start: 0, end: dataLength - 1 })
 
+  // ─── Brush (ref-based, zero re-renders) ───
+  const brush = useRef<BrushState>({ active: false, startFrac: 0, currentFrac: 0 })
+
   // ─── Stable context value ───
   const ctx = useMemo<ChartSyncContextValue>(
     () => ({
@@ -100,6 +116,7 @@ export function ChartSyncProvider({ dataLength, children }: ChartSyncProviderPro
       zoom,
       setZoom,
       dataLength,
+      brush,
     }),
     [subscribeHover, broadcastHover, zoom, dataLength],
   )

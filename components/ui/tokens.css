@@ -119,6 +119,10 @@ body {
 :focus:not(:focus-visible) {
   outline: none;
 }
+/* Chart containers with tabindex need keyboard focus for zoom/pan but should NOT show a ring */
+[tabindex="0"]:focus-visible {
+  outline: none;
+}
 
 /* ─── Cursor: default everywhere (Figma/Linear pattern) ─── */
 *, *::before, *::after {

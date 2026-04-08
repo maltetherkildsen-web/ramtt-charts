@@ -125,11 +125,18 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
     const handlePointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return
       const cx = getChartX(e)
+      const cw = getChartWidth()
       dragState.current = { active: true, startX: cx }
       svg.setPointerCapture(e.pointerId)
 
       const parent = svg.closest('[tabindex]') as HTMLElement | null
       parent?.focus({ preventScroll: true })
+
+      // Update shared brush state so all charts render the overlay
+      const frac = Math.max(0, Math.min(1, cx / cw))
+      if (sync.brush?.current) {
+        sync.brush.current = { active: true, startFrac: frac, currentFrac: frac }
+      }
 
       const brush = brushRef.current
       if (brush) {
@@ -144,6 +151,13 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       if (!state?.active) return
       const cx = getChartX(e)
       const cw = getChartWidth()
+
+      // Update shared brush state
+      const frac = Math.max(0, Math.min(1, cx / cw))
+      if (sync.brush?.current) {
+        sync.brush.current.currentFrac = frac
+      }
+
       const brush = brushRef.current
       if (brush) {
         const x = Math.max(0, Math.min(state.startX, cx))
@@ -157,6 +171,12 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       const state = dragState.current
       if (!state?.active) return
       svg.releasePointerCapture(e.pointerId)
+
+      // Clear shared brush state
+      if (sync.brush?.current) {
+        sync.brush.current = { active: false, startFrac: 0, currentFrac: 0 }
+      }
+
       const brush = brushRef.current
       if (brush) brush.setAttribute('display', 'none')
 
@@ -230,7 +250,9 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       }
     }
 
-    const container = svg.closest('[tabindex]') as HTMLElement | null
+    const container = (svg.closest('[tabindex]') ?? svg) as HTMLElement
+    // Ensure the container is focusable for keyboard events
+    if (!container.hasAttribute('tabindex')) container.setAttribute('tabindex', '0')
 
     svg.addEventListener('wheel', handleWheel, { passive: false })
     svg.addEventListener('pointerdown', handlePointerDown)

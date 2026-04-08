@@ -119,17 +119,25 @@ export function ChartFuelLollipop({
     }))
   }, [visibleIntakes, scaleX, yScale])
 
-  // Smart label visibility — hide labels that would overlap
+  // Smart label visibility — hide labels that would overlap with each other or the progress text
   const labelVisible = useMemo(() => {
-    const MIN_GAP = 32 // minimum px between label centers
+    const MIN_GAP = 36 // minimum px between label centers
+    const PROGRESS_TEXT_WIDTH = 120 // approx width of "192g / 200g (96%)"
+    const progressTextLeft = chartWidth - PROGRESS_TEXT_WIDTH
     const vis = new Array(lollipops.length).fill(true)
     for (let i = 1; i < lollipops.length; i++) {
       if (lollipops[i].x - lollipops[i - 1].x < MIN_GAP && vis[i - 1]) {
-        vis[i] = false // skip this one, keep previous
+        vis[i] = false
+      }
+    }
+    // Hide labels that would collide with the cumulative progress text in top-right
+    for (let i = 0; i < lollipops.length; i++) {
+      if (vis[i] && lollipops[i].x > progressTextLeft) {
+        vis[i] = false
       }
     }
     return vis
-  }, [lollipops])
+  }, [lollipops, chartWidth])
 
   const targetY = yScale(target)
   const pct = target > 0 ? Math.round((totalCHO / target) * 100) : 0
@@ -208,7 +216,8 @@ export function ChartFuelLollipop({
             stroke={color} strokeOpacity={0.25} strokeWidth={0.5} strokeDasharray="3,3"
           />
           <text
-            x={chartWidth + 4} y={targetY} dy="0.32em"
+            x={chartWidth - 4} y={targetY} dy="0.32em"
+            textAnchor="end"
             className="fill-(--n600) text-[9px]"
             style={{ fontFamily: "var(--font-sans)" }}
           >

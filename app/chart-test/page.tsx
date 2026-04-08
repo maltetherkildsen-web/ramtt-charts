@@ -21,7 +21,7 @@
  */
 
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
-import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, MUTED_STYLE, QUIET_STYLE, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
+import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, MUTED_STYLE, QUIET_STYLE, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
 import { motion, AnimatePresence, MotionConfig } from 'motion/react'
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
@@ -34,7 +34,7 @@ import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/Chart
 import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/ChartSyncProvider'
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
-import { ChartIntervalMarkers, type Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
+import type { Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
 import { ChartFuelLollipop } from '@/components/charts/primitives/ChartFuelLollipop'
 import { niceTicks } from '@/lib/charts/ticks/nice'
@@ -306,7 +306,7 @@ export default function ChartTestPage() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SessionAnalysis({ data }: { data: FitData }) {
-  const { meta, power, heartRate, cadence, speed, altitude, intervals } = data
+  const { meta, power, heartRate, cadence, speed, altitude } = data
   const totalPoints = power.length
 
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
@@ -334,12 +334,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
   }, [])
 
   const durationStr = formatDuration(meta.totalTime)
-
-  const workIntervals = useMemo(() => {
-    return intervals
-      .filter((iv) => (iv.avgPower ?? 0) >= 350)
-      .map((iv, i) => ({ ...iv, name: `Sprint ${i + 1}`, type: 'work' as const }))
-  }, [intervals])
 
   const np = useMemo(() => computeNP(power), [power])
 
@@ -431,7 +425,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
             cumulativeCHO={cumulativeCHO}
             fuelTarget={fuel.targetCHO}
             fuelIntakes={fuelIntakes}
-            intervals={workIntervals}
             ftp={meta.ftp}
             maxHR={meta.maxHR}
             meta={meta}
@@ -465,7 +458,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
               meta={meta}
               power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
               cumulativeCHO={cumulativeCHO} fuelTarget={fuel.targetCHO} fuelIntakes={fuelIntakes}
-              intervals={workIntervals} ftp={meta.ftp} maxHR={meta.maxHR}
+              ftp={meta.ftp} maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
               onClose={() => setIsFullscreen(false)}
@@ -487,12 +480,12 @@ const CHART_WEIGHTS: Record<ChartKey, number> = {
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes,
-  intervals, ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, onClose,
+  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
-  intervals: Interval[]; ftp: number; maxHR: number
+  ftp: number; maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
   onClose: () => void
@@ -533,8 +526,8 @@ function FullscreenOverlay({
                 onClick={() => setZoneMode(mode)}
                 className={cn(
                   "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
-                  i === 0 && 'rounded-l', i === ZONE_MODES.length - 1 && 'rounded-r',
-                  zoneMode === mode ? cn("z-10", ACTIVE_BLACK) : "text-[var(--n600)]"
+                  i === 0 && 'rounded-l-[5px]', i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
+                  zoneMode === mode ? cn(ACTIVE_SAND, "text-[var(--n1150)]") : cn("text-[var(--n600)]", HOVER_SAND)
                 )}
               >
                 {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
@@ -559,7 +552,7 @@ function FullscreenOverlay({
           <SyncedCharts
             power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
             cumulativeCHO={cumulativeCHO} fuelTarget={fuelTarget} fuelIntakes={fuelIntakes}
-            intervals={intervals} ftp={ftp} maxHR={maxHR} meta={meta}
+            ftp={ftp} maxHR={maxHR} meta={meta}
             zoneMode={zoneMode} visibleCharts={visibleCharts}
             heightOverrides={heights}
             hideExtras
@@ -716,7 +709,7 @@ function SessionHeader({ meta }: { meta: FitData['meta'] }) {
   return (
     <div className="flex items-start justify-between pb-2">
       <div>
-        <h1 className={cn("font-display text-[26px] tracking-tight text-[var(--n1150)]", WEIGHT.medium)}>
+        <h1 className={cn("text-[26px] tracking-tight text-[var(--n1150)]", WEIGHT.strong)}>
           {meta.name}
         </h1>
         <p className={cn("mt-0.5 text-xs", QUIET_STYLE)}>
@@ -862,10 +855,10 @@ function ChartToggles({
           key={key}
           onClick={() => onToggle(key)}
           className={cn(
-            "rounded border px-3.5 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+            RADIUS.md, "border border-[var(--n400)] px-3.5 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
             visibleCharts.has(key)
-              ? ACTIVE_BLACK
-              : "border-[var(--n400)] text-[var(--n600)] hover:border-[var(--n400)] hover:text-[var(--n800)]"
+              ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
+              : cn("text-[var(--n600)]", HOVER_SAND)
           )}
         >
           {CHART_LABELS[key]}
@@ -876,7 +869,7 @@ function ChartToggles({
       {onFullscreen && (
         <button
           onClick={onFullscreen}
-          className={cn("rounded border border-[var(--n400)] p-1.5 text-[var(--n600)]", TRANSITION.colors, "hover:border-[var(--n400)] hover:text-[var(--n800)]")}
+          className={cn(RADIUS.md, "border border-[var(--n400)] p-1.5 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND)}
           title="Fullscreen (F)"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -897,11 +890,11 @@ function ChartToggles({
             onClick={() => setZoneMode(mode)}
             className={cn(
               "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
-              i === 0 && 'rounded-l',
-              i === ZONE_MODES.length - 1 && 'rounded-r',
+              i === 0 && 'rounded-l-[5px]',
+              i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
               zoneMode === mode
-                ? cn("z-10", ACTIVE_BLACK)
-                : "text-[var(--n600)] hover:text-[var(--n800)]"
+                ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
+                : cn("text-[var(--n600)]", HOVER_SAND)
             )}
           >
             {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
@@ -917,11 +910,11 @@ function ChartToggles({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, intervals, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras,
+  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
-  intervals: Interval[]; ftp: number; maxHR: number; meta: FitData['meta']
+  ftp: number; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
   heightOverrides?: Partial<Record<ChartKey, number>>
   hideExtras?: boolean
@@ -942,8 +935,21 @@ function SyncedCharts({
   }, [heartRate, start, end, smoothWindow])
   const visAltitude = useMemo(() => {
     const raw = altitude.slice(start, end + 1)
-    return smoothWindow > 1 ? rollingAverage(raw, smoothWindow) : raw
+    return rollingAverage(raw, Math.max(smoothWindow, 5))
   }, [altitude, start, end, smoothWindow])
+
+  // Tight y-domain for elevation — NO zero baseline, just data extent with small padding
+  const elevationYDomain = useMemo(() => {
+    if (visAltitude.length === 0) return [0, 100] as const
+    let min = Infinity, max = -Infinity
+    for (let i = 0; i < visAltitude.length; i++) {
+      if (visAltitude[i] < min) min = visAltitude[i]
+      if (visAltitude[i] > max) max = visAltitude[i]
+    }
+    const range = max - min
+    const pad = Math.max(range * 0.1, 2) // at least 2m padding
+    return [min - pad, max + pad] as const
+  }, [visAltitude])
 
   const visCHO = useMemo(() => cumulativeCHO.slice(start, end + 1), [cumulativeCHO, start, end])
 
@@ -961,18 +967,13 @@ function SyncedCharts({
 
   const chartPad = { right: 64 }
 
-  const visibleIntervals = useMemo(() => {
-    return intervals
-      .map((iv) => ({ ...iv, startIndex: iv.startIndex - start, endIndex: iv.endIndex - start }))
-      .filter((iv) => iv.endIndex > 0 && iv.startIndex < visibleRange)
-  }, [intervals, start, visibleRange])
-
   const h = (key: ChartKey, fallback: number) => heightOverrides?.[key] ?? fallback
   const orderedVisible = ALL_CHARTS.filter((k) => visibleCharts.has(k))
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
   return (
-    <div className="relative select-none outline-none" tabIndex={0} style={{ contain: 'paint' }}>
+    <div className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)} tabIndex={0} style={{ contain: 'paint' }}>
+
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('power') && (
@@ -981,9 +982,9 @@ function SyncedCharts({
           data={visPower}
           height={h('power', 110)}
           padding={{ ...chartPad, bottom: 4 }}
-          className={cn("rounded-t-lg bg-[var(--n50)]", BORDER.default)}
+          yPadding={0.10}
+          className={cn("bg-[var(--n50)]")}
         >
-          <ChartIntervalMarkers intervals={visibleIntervals} showLabels />
           <ChartAxisY tickCount={3} />
           <ChartRefLine y={ftp} label={`CP ${ftp}W`} />
           <ChartArea gradientColor="#059669" opacityFrom={0.10} opacityTo={0.005} />
@@ -1000,6 +1001,7 @@ function SyncedCharts({
       )}
       </AnimatePresence>
 
+      <div className={cn("border-t-[0.5px] border-t-[var(--n400)]")} />
       {/* HR — 75px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('hr') && (
@@ -1008,11 +1010,9 @@ function SyncedCharts({
           data={visHR}
           height={h('hr', 75)}
           padding={{ ...chartPad, bottom: 4 }}
-          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
+          className="-mt-px border-x-[0.5px] border-b-[0.5px] border-t-[0.5px] border-[var(--n400)] bg-[var(--n50)]"
         >
-          <ChartIntervalMarkers intervals={visibleIntervals} />
           <ChartAxisY tickCount={3} />
-          <ChartRefLine y={160} label="LT2" />
           <ChartArea gradientColor="#ef4444" opacityFrom={0.08} opacityTo={0.005} />
           {zoneMode === 'hr' ? (
             <ChartZoneLine threshold={maxHR} zones={HR_ZONES} />
@@ -1059,7 +1059,6 @@ function SyncedCharts({
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v}`} />
-          <ChartRefLine y={90} label="90" />
           <ChartArea gradientColor="#a855f7" opacityFrom={0.08} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-purple-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#a855f7" />
@@ -1076,11 +1075,12 @@ function SyncedCharts({
         <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visAltitude}
-          height={h('elevation', 40)}
+          height={h('elevation', 55)}
           padding={chartPad}
+          yDomain={elevationYDomain}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
         >
-          <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}m`} />
+          <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}m`} />
           {lastChartKey === 'elevation' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartArea gradientColor="#78716c" opacityFrom={0.15} opacityTo={0.03} />
           <ChartLine className="fill-none stroke-stone-400 stroke-[1]" />
@@ -1100,7 +1100,7 @@ function SyncedCharts({
           data={visCHO}
           height={h('fuel', 75)}
           yDomain={[0, Math.max(fuelTarget, fuelIntakes.reduce((s, i) => s + i.choGrams, 0), 10) * 1.1]}
-          padding={lastChartKey === 'fuel' ? chartPad : { ...chartPad, bottom: 4 }}
+          padding={lastChartKey === 'fuel' ? { ...chartPad, right: 120 } : { ...chartPad, right: 120, bottom: 4 }}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
         >
           {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
@@ -1394,7 +1394,7 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
         <h2 className={cn("text-xs text-[var(--n600)]", WEIGHT.strong)}>Fuel Log</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className={cn("rounded border border-[var(--n400)] px-3 py-1 text-xs text-[var(--n600)] hover:border-[var(--n400)] hover:text-[var(--n800)]", WEIGHT.medium, TRANSITION.colors)}
+          className={cn(RADIUS.md, "border border-[var(--n400)] px-3 py-1 text-xs text-[var(--n600)]", WEIGHT.medium, TRANSITION.colors, HOVER_SAND)}
         >
           {showForm ? 'Cancel' : '+ Add intake'}
         </button>
