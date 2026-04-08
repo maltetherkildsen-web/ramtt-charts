@@ -17,7 +17,7 @@ const MIN_VISIBLE_POINTS = 2
 const ZOOM_SPEED = 0.15
 const MIN_BRUSH_POINTS = 2
 
-export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
+export function useChartZoom() {
   const { padding, svgRef, data } = useChart()
   const sync = useChartSync()
   const dragState = useRef<{ active: boolean; startX: number } | null>(null)
@@ -132,17 +132,10 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       const parent = svg.closest('[tabindex]') as HTMLElement | null
       parent?.focus({ preventScroll: true })
 
-      // Update shared brush state so all charts render the overlay
+      // Update shared brush state so BrushOverlay renders the overlay
       const frac = Math.max(0, Math.min(1, cx / cw))
       if (sync.brush?.current) {
         sync.brush.current = { active: true, startFrac: frac, currentFrac: frac }
-      }
-
-      const brush = brushRef.current
-      if (brush) {
-        brush.setAttribute('x', String(Math.max(0, cx)))
-        brush.setAttribute('width', '0')
-        brush.setAttribute('display', '')
       }
     }
 
@@ -157,14 +150,6 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       if (sync.brush?.current) {
         sync.brush.current.currentFrac = frac
       }
-
-      const brush = brushRef.current
-      if (brush) {
-        const x = Math.max(0, Math.min(state.startX, cx))
-        const w = Math.min(cw - x, Math.abs(cx - state.startX))
-        brush.setAttribute('x', String(x))
-        brush.setAttribute('width', String(Math.max(0, w)))
-      }
     }
 
     const handlePointerUp = (e: PointerEvent) => {
@@ -176,9 +161,6 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       if (sync.brush?.current) {
         sync.brush.current = { active: false, startFrac: 0, currentFrac: 0 }
       }
-
-      const brush = brushRef.current
-      if (brush) brush.setAttribute('display', 'none')
 
       const cx = getChartX(e)
       const cw = getChartWidth()
@@ -270,5 +252,5 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       svg.removeEventListener('dblclick', handleDblClick)
       container?.removeEventListener('keydown', handleKeyDown)
     }
-  }, [svgRef, sync, padding, data.length, brushRef])
+  }, [svgRef, sync, padding, data.length])
 }

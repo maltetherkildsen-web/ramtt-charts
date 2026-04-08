@@ -37,6 +37,7 @@ import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import type { Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
 import { ChartFuelLollipop } from '@/components/charts/primitives/ChartFuelLollipop'
+import { BrushOverlay } from '@/components/charts/primitives/BrushOverlay'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
@@ -976,6 +977,10 @@ function SyncedCharts({
   return (
     <div className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)} tabIndex={0} style={{ contain: 'paint' }}>
 
+      {/* Chart area wrapper — BrushOverlay is scoped to this */}
+      <div className="relative">
+      <BrushOverlay paddingLeft={48} paddingRight={64} />
+
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('power') && (
@@ -1125,6 +1130,7 @@ function SyncedCharts({
         </motion.div>
       )}
       </AnimatePresence>
+      </div>
 
       {/* Crosshair time label */}
       <CrosshairTimeLabel format={formatTimeLabel} />
