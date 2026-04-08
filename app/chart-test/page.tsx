@@ -37,6 +37,7 @@ import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import type { Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
 import { ChartFuelLollipop } from '@/components/charts/primitives/ChartFuelLollipop'
+import { BrushOverlay } from '@/components/charts/primitives/BrushOverlay'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
 
@@ -976,6 +977,10 @@ function SyncedCharts({
   return (
     <div className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)} tabIndex={0} style={{ contain: 'paint' }}>
 
+      {/* Brush overlay wrapper — scoped to chart area only */}
+      <div className="relative">
+      <BrushOverlay />
+
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('power') && (
@@ -1007,7 +1012,7 @@ function SyncedCharts({
       {/* HR — 75px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('hr') && (
-        <motion.div key="hr" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+        <motion.div key="hr" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visHR}
           height={h('hr', 75)}
@@ -1033,7 +1038,7 @@ function SyncedCharts({
       {/* Speed — 55px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('speed') && (
-        <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+        <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visSpeed}
           height={h('speed', 55)}
@@ -1055,7 +1060,7 @@ function SyncedCharts({
       {/* Cadence — 55px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('cadence') && (
-        <motion.div key="cadence" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+        <motion.div key="cadence" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visCadence}
           height={h('cadence', 55)}
@@ -1077,7 +1082,7 @@ function SyncedCharts({
       {/* Elevation — 40px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('elevation') && (
-        <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+        <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visAltitude}
           height={h('elevation', 55)}
@@ -1101,7 +1106,7 @@ function SyncedCharts({
       {/* Fuel / CHO — 75px, lollipop */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('fuel') && (
-        <motion.div key="fuel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+        <motion.div key="fuel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visCHO}
           height={h('fuel', 75)}
@@ -1124,6 +1129,7 @@ function SyncedCharts({
         </motion.div>
       )}
       </AnimatePresence>
+      </div>
 
       {/* Crosshair time label */}
       <CrosshairTimeLabel format={formatTimeLabel} />
