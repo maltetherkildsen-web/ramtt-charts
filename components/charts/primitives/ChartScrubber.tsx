@@ -18,7 +18,7 @@
  *   - Click outside the window → center the view on that position.
  */
 
-import { useRef, useMemo, useCallback } from 'react'
+import { useRef, useMemo, useCallback, useEffect } from 'react'
 import { useChartSync } from './ChartSyncProvider'
 import { lttb } from '@/lib/charts/utils/lttb'
 import { cn } from '@/lib/utils'
@@ -127,13 +127,16 @@ export function ChartScrubber({
       dragStartX.current = e.clientX
       dragStartZoomStart.current = sync.zoom.start
 
-      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+      // Document-level listeners — guaranteed to fire regardless of pointer position
+      document.addEventListener('pointermove', handleDocMove)
+      document.addEventListener('pointerup', handleDocUp)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sync],
   )
 
-  const handleWindowPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleDocMove = useCallback(
+    (e: PointerEvent) => {
       if (!dragging.current || !sync || !containerRef.current) return
 
       const containerWidth = containerRef.current.getBoundingClientRect().width
@@ -155,14 +158,24 @@ export function ChartScrubber({
     [sync, dataLength],
   )
 
-  const handleWindowPointerUp = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
+  const handleDocUp = useCallback(
+    () => {
       if (!dragging.current) return
       dragging.current = false
-      ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
+      document.removeEventListener('pointermove', handleDocMove)
+      document.removeEventListener('pointerup', handleDocUp)
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   )
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('pointermove', handleDocMove)
+      document.removeEventListener('pointerup', handleDocUp)
+    }
+  }, [handleDocMove, handleDocUp])
 
   // ─── Click outside window → center view ───
 
@@ -215,8 +228,6 @@ export function ChartScrubber({
         {/* Draggable zoom window */}
         <div
           onPointerDown={handleWindowPointerDown}
-          onPointerMove={handleWindowPointerMove}
-          onPointerUp={handleWindowPointerUp}
           className="absolute inset-y-0 cursor-grab rounded-[3px] border border-(--n600) active:cursor-grabbing"
           style={{
             left: `${windowLeftPct}%`,

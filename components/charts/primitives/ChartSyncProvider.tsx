@@ -42,13 +42,13 @@ export type HoverCallback = (index: number | null, sourceId: string, clientY?: n
 /** Callback for zoom sync. */
 export type ZoomCallback = (range: ZoomRange) => void
 
-/** Shared brush state for synced overlay rendering (ref-based, zero re-renders). */
+/** Shared brush state — pixel positions relative to the brush container element. */
 export interface BrushState {
   active: boolean
-  /** Start fraction (0-1) in the visible range */
-  startFrac: number
-  /** Current fraction (0-1) in the visible range */
-  currentFrac: number
+  /** Left edge in container pixels */
+  leftPx: number
+  /** Width in container pixels */
+  widthPx: number
 }
 
 export interface ChartSyncContextValue {
@@ -106,7 +106,7 @@ export function ChartSyncProvider({ dataLength, children }: ChartSyncProviderPro
   const [zoom, setZoom] = useState<ZoomRange>({ start: 0, end: dataLength - 1 })
 
   // ─── Brush (ref-based, zero re-renders) ───
-  const brush = useRef<BrushState>({ active: false, startFrac: 0, currentFrac: 0 })
+  const brush = useRef<BrushState>({ active: false, leftPx: 0, widthPx: 0 })
 
   // ─── Stable context value ───
   const ctx = useMemo<ChartSyncContextValue>(

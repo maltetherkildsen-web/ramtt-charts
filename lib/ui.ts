@@ -121,7 +121,7 @@ export const TRANSITION = {
 // Six patterns. Every interactive element uses one of these. No exceptions.
 export const HOVER_SAND = 'hover:bg-[var(--n200)]';           // rows, ghost buttons
 export const ACTIVE_SAND = 'bg-[var(--n400)]';                // selected toggles, filters
-export const SELECTION_SAND = 'bg-(--n400)/35';               // brush/selection overlays on charts
+export const SELECTION_SAND = 'bg-(--n600)/15';                // brush/selection overlays on charts
 export const ACTIVE_BLACK = 'bg-[var(--n1150)] text-[var(--n50)]'; // primary CTA only
 export const WHITE_LIFT = 'hover:bg-white';                   // cards on sand background
 export const ACTIVE_UNDERLINE = 'border-b-2 border-[var(--n1150)]'; // tab navigation

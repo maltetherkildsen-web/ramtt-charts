@@ -1,26 +1,16 @@
 'use client'
 
 /**
- * BrushOverlay — renders a single absolute-positioned <div> over the entire
- * chart stack during brush-select. No SVG, no gaps between charts.
- *
- * Place as a direct child of the chart stack container (the tabindex="0" div).
- * Reads shared brush state from ChartSyncProvider via rAF polling.
- *
- * @param paddingLeft — left padding of charts (to align overlay with chart area)
- * @param paddingRight — right padding of charts
+ * BrushOverlay — single absolute-positioned <div> over the chart stack.
+ * No gaps between charts. Dumb pixel renderer — reads leftPx/widthPx
+ * from sync.brush and applies directly. Zero calculations.
  */
 
 import { useRef, useEffect } from 'react'
 import { SELECTION_SAND } from '@/lib/ui'
 import { useChartSync } from './ChartSyncProvider'
 
-interface BrushOverlayProps {
-  paddingLeft?: number
-  paddingRight?: number
-}
-
-export function BrushOverlay({ paddingLeft = 12, paddingRight = 64 }: BrushOverlayProps) {
+export function BrushOverlay() {
   const sync = useChartSync()
   const overlayRef = useRef<HTMLDivElement>(null)
   const rafRef = useRef(0)
@@ -33,18 +23,9 @@ export function BrushOverlay({ paddingLeft = 12, paddingRight = 64 }: BrushOverl
       const el = overlayRef.current
       if (!el) { rafRef.current = requestAnimationFrame(tick); return }
 
-      if (b.active) {
-        const minF = Math.min(b.startFrac, b.currentFrac)
-        const maxF = Math.max(b.startFrac, b.currentFrac)
-        // Map fractions to pixel positions within the container
-        const parent = el.parentElement
-        if (!parent) { rafRef.current = requestAnimationFrame(tick); return }
-        const containerWidth = parent.clientWidth
-        const chartWidth = containerWidth - paddingLeft - paddingRight
-        const left = paddingLeft + minF * chartWidth
-        const width = (maxF - minF) * chartWidth
-        el.style.left = `${left}px`
-        el.style.width = `${Math.max(0, width)}px`
+      if (b.active && b.widthPx > 0) {
+        el.style.left = `${b.leftPx}px`
+        el.style.width = `${b.widthPx}px`
         el.style.display = ''
       } else {
         el.style.display = 'none'
@@ -54,7 +35,7 @@ export function BrushOverlay({ paddingLeft = 12, paddingRight = 64 }: BrushOverl
 
     rafRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafRef.current)
-  }, [sync, paddingLeft, paddingRight])
+  }, [sync])
 
   return (
     <div

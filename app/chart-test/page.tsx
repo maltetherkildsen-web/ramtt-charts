@@ -978,8 +978,8 @@ function SyncedCharts({
     <div className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)} tabIndex={0} style={{ contain: 'paint' }}>
 
       {/* Chart area wrapper — BrushOverlay is scoped to this */}
-      <div className="relative">
-      <BrushOverlay paddingLeft={48} paddingRight={64} />
+      <div className="relative" data-brush-container>
+      <BrushOverlay />
 
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
