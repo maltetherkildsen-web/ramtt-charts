@@ -1416,7 +1416,7 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
 
       {/* Add intake form */}
       {showForm && (
-        <div className="mt-2 flex items-end gap-3 rounded-lg border border-[var(--n400)] bg-white p-3">
+        <div className={cn("mt-2 flex items-end gap-3 border border-[var(--n400)] bg-white p-3", RADIUS.lg)}>
           <div>
             <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Minute</label>
             <input
@@ -1467,7 +1467,7 @@ function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
             return (
               <div
                 key={i}
-                className="group relative min-w-[150px] flex-1 rounded-md border border-[var(--n400)] py-2 pr-3 pl-3.5"
+                className={cn("group relative min-w-[150px] flex-1 border border-[var(--n400)] py-2 pr-3 pl-3.5", RADIUS.md)}
                 style={{ borderLeft: '2.5px solid #f97316' }}
               >
                 <button
