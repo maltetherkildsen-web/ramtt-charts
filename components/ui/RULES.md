@@ -64,7 +64,7 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 ## Accessibility
 - forwardRef on all components (required on interactive, recommended on all)
 - displayName on all components
-- FOCUS_RING on all interactive elements
+- FOCUS_RING (1px) on all interactive elements, FOCUS_RING_THICK (2px) on Input fields
 - Semantic HTML: `<button>`, `<table>`, `<th>`, `<h2>`, `<dl>` where appropriate
 - ARIA roles: radiogroup, tablist, toolbar, listbox, progressbar where appropriate
 - Keyboard navigation: arrow keys in groups, Escape to close, Enter/Space to activate

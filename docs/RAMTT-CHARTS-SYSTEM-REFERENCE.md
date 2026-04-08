@@ -145,10 +145,25 @@ TRANSITION = {
 ### Focus
 
 ```ts
-FOCUS_RING = 'focus-visible:outline-2 focus-visible:outline-[var(--n600)] focus-visible:outline-offset-2'
+// Thin (1px) — default for most interactive elements
+FOCUS_RING = 'focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--n1050)] focus-visible:outline-offset-2'
+
+// Thick (2px) — for text inputs where user is actively typing
+FOCUS_RING_THICK = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--n1050)] focus-visible:outline-offset-2'
 ```
 
-Keyboard only (`:focus-visible`, not `:focus`).
+Single color `--n1050` (#383633). Two thicknesses: thin (default) and thick (Input only). Keyboard only (`:focus-visible`, not `:focus`).
+
+### Text Selection
+
+```css
+::selection {
+  background-color: var(--n1050);  /* warm dark */
+  color: var(--n50);               /* near-white */
+}
+```
+
+Global rule in `tokens.css`. No browser-default blue anywhere.
 
 ### Layout
 
@@ -335,7 +350,7 @@ body {
 
 **Components:** Button, Badge, ToggleGroup, Card, DataRow, DataTable, Input, Select, MetricCard, SettingsCard, ProgressBar, SectionHeader
 
-**Constants:** cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE, BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, TRANSITION, LAYOUT
+**Constants:** cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE, BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, FOCUS_RING_THICK, TRANSITION, LAYOUT
 
 **Types:** Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps
 
@@ -382,6 +397,8 @@ Custom color string: `backgroundColor: color, color: var(--n50)` for filled.
 | `default` | Connected buttons in border | `ACTIVE_SAND` | `radiogroup` / `toolbar` |
 | `pill` | Individual rounded pills | `ACTIVE_SAND` | `radiogroup` / `toolbar` |
 | `underline` | Underline style | `ACTIVE_UNDERLINE` | `tablist` |
+
+Underline variant hover: unselected text transitions from `--n600` → `--n1150` on hover (150ms). Selected has `--n1150` text + 2px underline.
 
 Keyboard: Arrow keys navigate, Home/End jump. Single-select: selection follows focus. Multi: Space toggles.
 

@@ -1,6 +1,6 @@
 # @ramtt/ui — Status & Reference
 
-> Sidst opdateret: 7. april 2026
+> Sidst opdateret: 8. april 2026
 
 ---
 
@@ -93,6 +93,14 @@ Semantiske farver: `positive` (lime), `negative` (rose), `warning` (amber), `inf
 | White lift | `WHITE_LIFT` | `hover:bg-white` | Cards på sand baggrund |
 | Underline | `ACTIVE_UNDERLINE` | `border-b-2 border-[var(--n1150)]` | Tab navigation |
 
+### Underline hover behavior
+
+Underline variant i ToggleGroup har hover feedback: unselected tekst går fra `--n600` → `--n1150` on hover (150ms transition). Valgt tab har `--n1150` tekst + 2px underline.
+
+### Text selection
+
+Global `::selection` bruger `--n1050` baggrund med `--n50` tekst. Ingen browser-default blå synlig noget sted.
+
 ---
 
 ## Size scale
@@ -142,7 +150,8 @@ app/
 ## Accessibility
 
 - **forwardRef** + **displayName** på alle 12 komponenter
-- **FOCUS_RING** (`focus-visible:outline-2`) på alle interaktive elementer
+- **FOCUS_RING** (1px `--n1050` outline) på alle interaktive elementer — tynd, elegant
+- **FOCUS_RING_THICK** (2px `--n1050` outline) på Input felter — tykkere fordi brugeren aktivt taster
 - **ToggleGroup**: WAI-ARIA radiogroup/tablist/toolbar + roving tabindex + arrow keys
 - **Select**: combobox + listbox + type-ahead + Escape to close
 - **DataTable**: scope="col", Enter på klikbare rækker
