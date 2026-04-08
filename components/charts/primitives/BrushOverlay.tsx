@@ -12,6 +12,7 @@
  */
 
 import { useRef, useEffect } from 'react'
+import { SELECTION_SAND } from '@/lib/ui'
 import { useChartSync } from './ChartSyncProvider'
 
 interface BrushOverlayProps {
@@ -59,7 +60,7 @@ export function BrushOverlay({ paddingLeft = 12, paddingRight = 64 }: BrushOverl
     <div
       ref={overlayRef}
       style={{ display: 'none' }}
-      className="absolute top-0 bottom-0 z-10 pointer-events-none bg-[var(--n1150)]/[0.06]"
+      className={`absolute top-0 bottom-0 z-10 pointer-events-none ${SELECTION_SAND}`}
     />
   )
 }
