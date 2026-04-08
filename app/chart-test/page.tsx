@@ -232,6 +232,66 @@ function computeDecoupling(power: number[], heartRate: number[]): number | null 
 
 // ─── Peak power computation ───
 
+interface PeakPowerResult {
+  label: string
+  windowSeconds: number
+  avgPower: number
+  startIdx: number
+  endIdx: number
+}
+
+const PEAK_DURATIONS: { label: string; seconds: number }[] = [
+  { label: '3s',  seconds: 3 },
+  { label: '10s', seconds: 10 },
+  { label: '30s', seconds: 30 },
+  { label: '1m',  seconds: 60 },
+  { label: '3m',  seconds: 180 },
+  { label: '7m',  seconds: 420 },
+  { label: '12m', seconds: 720 },
+  { label: '20m', seconds: 1200 },
+  { label: '30m', seconds: 1800 },
+  { label: '60m', seconds: 3600 },
+]
+
+function findPeakPower(
+  powerData: number[],
+  windowSeconds: number,
+): { avgPower: number; startIdx: number; endIdx: number } {
+  if (powerData.length < windowSeconds) return { avgPower: 0, startIdx: 0, endIdx: 0 }
+
+  let bestSum = 0
+  let bestStart = 0
+
+  // Initial window
+  let sum = 0
+  for (let i = 0; i < windowSeconds; i++) sum += powerData[i]
+  bestSum = sum
+
+  // Slide the window
+  for (let i = windowSeconds; i < powerData.length; i++) {
+    sum += powerData[i] - powerData[i - windowSeconds]
+    if (sum > bestSum) {
+      bestSum = sum
+      bestStart = i - windowSeconds + 1
+    }
+  }
+
+  return {
+    avgPower: Math.round(bestSum / windowSeconds),
+    startIdx: bestStart,
+    endIdx: bestStart + windowSeconds - 1,
+  }
+}
+
+function computeAllPeaks(power: number[]): PeakPowerResult[] {
+  return PEAK_DURATIONS
+    .filter((d) => d.seconds <= power.length)
+    .map((d) => {
+      const result = findPeakPower(power, d.seconds)
+      return { label: d.label, windowSeconds: d.seconds, ...result }
+    })
+}
+
 function computePeakPower(power: number[], durationSecs: number): number {
   if (power.length < durationSecs) return 0
   let sum = 0
@@ -313,6 +373,10 @@ function SessionAnalysis({ data }: { data: FitData }) {
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
   const [visibleCharts, setVisibleCharts] = useState<Set<ChartKey>>(new Set(DEFAULT_VISIBLE))
   const [isFullscreen, setIsFullscreen] = useState(false)
+  const [showPeaks, setShowPeaks] = useState(false)
+  const [activePeak, setActivePeak] = useState<PeakPowerResult | null>(null)
+
+  const peaks = useMemo(() => computeAllPeaks(power), [power])
 
   // Fullscreen keyboard shortcut: F to toggle, Escape to exit
   useEffect(() => {
@@ -413,8 +477,20 @@ function SessionAnalysis({ data }: { data: FitData }) {
             onToggle={toggleChart}
             zoneMode={zoneMode}
             setZoneMode={setZoneMode}
+            showPeaks={showPeaks}
+            setShowPeaks={setShowPeaks}
             onFullscreen={() => setIsFullscreen(true)}
           />
+
+          {/* ── 3b. Peak Powers Strip ── */}
+          {showPeaks && (
+            <PeakPowersStrip
+              peaks={peaks}
+              activePeak={activePeak}
+              onActivePeakChange={setActivePeak}
+              totalPoints={totalPoints}
+            />
+          )}
 
           {/* ── 4–7. Chart Stack + Table + Scrubber ── */}
           <SyncedCharts
@@ -431,6 +507,8 @@ function SessionAnalysis({ data }: { data: FitData }) {
             meta={meta}
             zoneMode={zoneMode}
             visibleCharts={visibleCharts}
+            activePeak={activePeak}
+            onClearPeak={() => setActivePeak(null)}
           />
 
           {/* ━━━━━━━ BELOW FOLD ━━━━━━━ */}
@@ -462,6 +540,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
               ftp={meta.ftp} maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
+              activePeak={activePeak} onClearPeak={() => setActivePeak(null)}
               onClose={() => setIsFullscreen(false)}
             />
           </motion.div>
@@ -481,7 +560,7 @@ const CHART_WEIGHTS: Record<ChartKey, number> = {
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes,
-  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, onClose,
+  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, activePeak, onClearPeak, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
@@ -489,6 +568,7 @@ function FullscreenOverlay({
   ftp: number; maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
+  activePeak?: PeakPowerResult | null; onClearPeak?: () => void
   onClose: () => void
 }) {
   const [winH, setWinH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900)
@@ -558,6 +638,8 @@ function FullscreenOverlay({
             heightOverrides={heights}
             decimationFactor={0.2}
             hideExtras
+            activePeak={activePeak}
+            onClearPeak={onClearPeak}
           />
         </div>
 
@@ -841,12 +923,14 @@ function KS({ label, value, unit, sub, badge, progress }: {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ChartToggles({
-  visibleCharts, onToggle, zoneMode, setZoneMode, onFullscreen,
+  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, onFullscreen,
 }: {
   visibleCharts: Set<ChartKey>
   onToggle: (key: ChartKey) => void
   zoneMode: ZoneMode
   setZoneMode: (mode: ZoneMode) => void
+  showPeaks: boolean
+  setShowPeaks: (v: boolean) => void
   onFullscreen?: () => void
 }) {
   return (
@@ -883,8 +967,29 @@ function ChartToggles({
       {/* Spacer */}
       <div className="flex-1" />
 
+      {/* Peaks toggle */}
+      <span className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Peaks</span>
+      <div className="flex -space-x-px">
+        {(['off', 'on'] as const).map((mode, i) => (
+          <button
+            key={mode}
+            onClick={() => setShowPeaks(mode === 'on')}
+            className={cn(
+              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+              i === 0 && 'rounded-l-[5px]',
+              i === 1 && 'rounded-r-[5px]',
+              (mode === 'on') === showPeaks
+                ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
+                : cn("text-[var(--n600)]", HOVER_SAND)
+            )}
+          >
+            {mode === 'off' ? 'Off' : 'On'}
+          </button>
+        ))}
+      </div>
+
       {/* Zone toggle */}
-      <span className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Zones</span>
+      <span className={cn("ml-2 text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Zones</span>
       <div className="flex -space-x-px">
         {ZONE_MODES.map((mode, i) => (
           <button
@@ -908,11 +1013,69 @@ function ChartToggles({
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 3b. Peak Powers Strip
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function PeakPowersStrip({
+  peaks, activePeak, onActivePeakChange, totalPoints,
+}: {
+  peaks: PeakPowerResult[]
+  activePeak: PeakPowerResult | null
+  onActivePeakChange: (peak: PeakPowerResult | null) => void
+  totalPoints: number
+}) {
+  const sync = useChartSync()
+
+  const handleClick = useCallback((peak: PeakPowerResult) => {
+    if (!sync) return
+
+    // Toggle off if clicking the same peak
+    if (activePeak && activePeak.label === peak.label) {
+      onActivePeakChange(null)
+      sync.setZoom({ start: 0, end: totalPoints - 1 })
+      return
+    }
+
+    // Zoom to peak range — sqrt curve: generous for short, tight for long
+    const pad = Math.max(5, Math.round(Math.sqrt(peak.windowSeconds) * 2))
+    const zoomStart = Math.max(0, peak.startIdx - pad)
+    const zoomEnd = Math.min(totalPoints - 1, peak.endIdx + pad)
+    sync.setZoom({ start: zoomStart, end: zoomEnd })
+    onActivePeakChange(peak)
+  }, [sync, activePeak, onActivePeakChange, totalPoints])
+
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 pb-1">
+      <span className={cn("text-[11px] text-(--n600)", WEIGHT.strong)}>Peak powers</span>
+      {peaks.map((peak, i) => (
+        <button
+          key={peak.label}
+          onClick={() => handleClick(peak)}
+          className={cn(
+            "flex items-baseline gap-1 rounded-[3px] px-1 py-0.5",
+            TRANSITION.colors,
+            activePeak?.label === peak.label
+              ? cn(ACTIVE_SAND, "text-(--n1150)")
+              : "hover:bg-(--n200)"
+          )}
+        >
+          <span className={cn("text-[11px] text-(--n600)", WEIGHT.book)}>{peak.label}</span>
+          <span className={cn("text-[11px] tabular-nums text-(--n1150)", WEIGHT.strong)}>{peak.avgPower}W</span>
+          {i < peaks.length - 1 && (
+            <span className="ml-1 text-[11px] text-(--n600)">·</span>
+          )}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 4–7. Synced Charts + HoverDataTable + Scrubber
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor,
+  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
@@ -921,6 +1084,8 @@ function SyncedCharts({
   heightOverrides?: Partial<Record<ChartKey, number>>
   hideExtras?: boolean
   decimationFactor?: number
+  activePeak?: PeakPowerResult | null
+  onClearPeak?: () => void
 }) {
   const sync = useChartSync()!
   const { zoom } = sync
@@ -975,7 +1140,12 @@ function SyncedCharts({
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
   return (
-    <div className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)} tabIndex={0} style={{ contain: 'paint' }}>
+    <div
+      className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)}
+      tabIndex={0}
+      style={{ contain: 'paint' }}
+      onDoubleClick={onClearPeak}
+    >
 
       {/* Brush overlay wrapper — scoped to chart area only */}
       <div className="relative">
