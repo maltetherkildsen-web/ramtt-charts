@@ -541,7 +541,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
               showPeaks={showPeaks} setShowPeaks={setShowPeaks}
-              activePeak={activePeak} onClearPeak={() => setActivePeak(null)}
+              activePeak={activePeak} onActivePeakChange={setActivePeak}
               onClose={() => setIsFullscreen(false)}
             />
           </motion.div>
@@ -561,7 +561,7 @@ const CHART_WEIGHTS: Record<ChartKey, number> = {
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes,
-  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onClearPeak, onClose,
+  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onActivePeakChange, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
@@ -570,7 +570,7 @@ function FullscreenOverlay({
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
   showPeaks: boolean; setShowPeaks: (v: boolean) => void
-  activePeak?: PeakPowerResult | null; onClearPeak?: () => void
+  activePeak?: PeakPowerResult | null; onActivePeakChange: (p: PeakPowerResult | null) => void
   onClose: () => void
 }) {
   const [winH, setWinH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900)
@@ -669,6 +669,18 @@ function FullscreenOverlay({
         </button>
       </div>
 
+      {/* Peak powers strip */}
+      {showPeaks && (
+        <div className="shrink-0 px-4 pt-1">
+          <PeakPowersStrip
+            peaks={computeAllPeaks(power)}
+            activePeak={activePeak ?? null}
+            onActivePeakChange={onActivePeakChange}
+            totalPoints={power.length}
+          />
+        </div>
+      )}
+
       {/* Charts + data sidebar */}
       <div className="flex flex-1 overflow-hidden">
         {/* Charts fill main area */}
@@ -682,7 +694,7 @@ function FullscreenOverlay({
             decimationFactor={0.2}
             hideExtras
             activePeak={activePeak}
-            onClearPeak={onClearPeak}
+            onClearPeak={() => onActivePeakChange(null)}
           />
         </div>
 
