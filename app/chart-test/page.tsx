@@ -81,11 +81,11 @@ type ZoneMode = 'off' | 'power' | 'hr'
 const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 
 type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'kjmin'
-const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'speed', 'cadence', 'elevation', 'kjmin']
+const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
 const CHART_LABELS: Record<ChartKey, string> = {
-  power: 'Power', hr: 'HR', speed: 'Speed', cadence: 'Cadence', elevation: 'Elevation', kjmin: 'kJ/min',
+  power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', elevation: 'Elevation',
 }
-const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'speed', 'cadence', 'elevation']
+const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
 
 // ─── Time formatting ───
 
@@ -150,44 +150,6 @@ function getHRZone(hr: number, maxHR: number): { label: string; color: string } 
   if (pct < 0.95) return { label: 'Z5', color: '#E83B52' }
   return { label: 'Z5+', color: '#9B40E8' }
 }
-
-// ─── Mock fuel data (replace with real FIT data when available) ───
-
-interface FuelIntake {
-  timestamp: number
-  product: string
-  choGrams: number
-  type: 'gel' | 'drink' | 'bar'
-}
-
-interface FuelData {
-  targetCHO: number
-  targetRate: number
-  riderWeight: number
-  intakes: FuelIntake[]
-}
-
-const MOCK_FUEL: FuelData = {
-  targetCHO: 200,
-  targetRate: 82,
-  riderWeight: 78,
-  intakes: [
-    { timestamp: 900,  product: 'SUHN IO Gel — Citrus', choGrams: 48, type: 'gel' },
-    { timestamp: 1800, product: 'SUHN IO Gel — Berry',  choGrams: 48, type: 'gel' },
-    { timestamp: 2700, product: 'SUHN IO Gel — Citrus', choGrams: 48, type: 'gel' },
-    { timestamp: 3900, product: 'SUHN IO Gel — Berry',  choGrams: 48, type: 'gel' },
-  ],
-}
-
-function getCHOZone(rate: number): { label: string; color: string } {
-  if (rate >= 110) return { label: 'Z6', color: '#dc2626' }
-  if (rate >= 90)  return { label: 'Z5', color: '#ef4444' }
-  if (rate >= 70)  return { label: 'Z4', color: '#f97316' }
-  if (rate >= 50)  return { label: 'Z3', color: '#eab308' }
-  if (rate >= 30)  return { label: 'Z2', color: '#22c55e' }
-  return { label: 'Z1', color: '#94a3b8' }
-}
-
 
 // ─── Decoupling computation ───
 
@@ -428,24 +390,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
     return +(sum / 3600).toFixed(1)
   }, [speed])
 
-  // Fuel — stateful so we can add intakes interactively
-  const [fuelIntakes, setFuelIntakes] = useState<FuelIntake[]>(MOCK_FUEL.intakes)
-  const fuel: FuelData = { ...MOCK_FUEL, intakes: fuelIntakes }
-
-  const addIntake = useCallback((intake: FuelIntake) => {
-    setFuelIntakes((prev) => [...prev, intake].sort((a, b) => a.timestamp - b.timestamp))
-  }, [])
-
-  const removeIntake = useCallback((index: number) => {
-    setFuelIntakes((prev) => prev.filter((_, i) => i !== index))
-  }, [])
-
-  const totalCHO = fuelIntakes.reduce((s, i) => s + i.choGrams, 0)
-  const sessionHours = meta.totalTime / 3600
-  const choRate = sessionHours > 0 ? Math.round(totalCHO / sessionHours) : 0
-  const fuelCompliance = fuel.targetRate > 0 ? Math.round((choRate / fuel.targetRate) * 100) : 0
-  const fuelScore = Math.min(100, Math.round(fuelCompliance * 0.92))
-  const choZone = getCHOZone(choRate)
   const decoupling = useMemo(() => computeDecoupling(power, heartRate), [power, heartRate])
 
   // kJ/min energy rate — derived from power
@@ -463,8 +407,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
           <MetricsTiers
             meta={meta} durationStr={durationStr} np={np} distanceKm={distanceKm} elevGain={elevGain}
             energyKJ={energyKJ} decoupling={decoupling}
-            totalCHO={totalCHO} choRate={choRate} fuel={fuel} fuelScore={fuelScore}
-            fuelCompliance={fuelCompliance} choZone={choZone}
           />
 
           {/* ── 3. Chart Toggles ── */}
@@ -507,9 +449,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
 
           {/* ━━━━━━━ BELOW FOLD ━━━━━━━ */}
           <div style={{ contentVisibility: 'auto', containIntrinsicSize: '0 300px' }}>
-            {/* Fuel Log */}
-            <FuelLog intakes={fuelIntakes} totalSeconds={totalPoints} onAdd={addIntake} onRemove={removeIntake} />
-
             {/* Tab Bar (shell) */}
             <TabBar />
           </div>
@@ -693,17 +632,17 @@ function FullscreenOverlay({
         </div>
 
         {/* Data sidebar — live hover values */}
-        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} meta={meta} visibleCharts={visibleCharts} />
+        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} meta={meta} visibleCharts={visibleCharts} />
       </div>
     </div>
   )
 }
 
 function FullscreenDataSidebar({
-  power, heartRate, cadence, speed, altitude, meta, visibleCharts,
+  power, heartRate, cadence, speed, altitude, kjPerMin, meta, visibleCharts,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  meta: FitData['meta']; visibleCharts: Set<ChartKey>
+  kjPerMin: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -711,15 +650,16 @@ function FullscreenDataSidebar({
 
   const rangeAvg = useMemo(() => {
     const len = end - start + 1
-    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0 }
-    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0
-    for (let i = start; i <= end; i++) { pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i] }
-    return { pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len), spd: +(sp / len).toFixed(1), elv: Math.round(el / len) }
-  }, [power, heartRate, cadence, speed, altitude, start, end])
+    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0, kj: 0 }
+    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0, kj = 0
+    for (let i = start; i <= end; i++) { pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i]; kj += kjPerMin[i] }
+    return { pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len), spd: +(sp / len).toFixed(1), elv: Math.round(el / len), kj: +(kj / len).toFixed(1) }
+  }, [power, heartRate, cadence, speed, altitude, kjPerMin, start, end])
 
   const timeRef = useRef<HTMLSpanElement>(null)
   const pwRef = useRef<HTMLSpanElement>(null)
   const hrRef = useRef<HTMLSpanElement>(null)
+  const kjRef = useRef<HTMLSpanElement>(null)
   const cadRef = useRef<HTMLSpanElement>(null)
   const spdRef = useRef<HTMLSpanElement>(null)
   const elvRef = useRef<HTMLSpanElement>(null)
@@ -732,6 +672,7 @@ function FullscreenDataSidebar({
       : formatDuration(meta.totalTime)
     if (pwRef.current) pwRef.current.textContent = `${a.pw}`
     if (hrRef.current) hrRef.current.textContent = `${a.hr}`
+    if (kjRef.current) kjRef.current.textContent = `${a.kj}`
     if (cadRef.current) cadRef.current.textContent = `${a.cad}`
     if (spdRef.current) spdRef.current.textContent = `${a.spd}`
     if (elvRef.current) elvRef.current.textContent = `${a.elv}`
@@ -750,12 +691,13 @@ function FullscreenDataSidebar({
       if (timeRef.current) timeRef.current.textContent = formatTime(idx)
       if (pwRef.current) pwRef.current.textContent = `${pw}`
       if (hrRef.current) hrRef.current.textContent = `${heartRate[idx]}`
+      if (kjRef.current) kjRef.current.textContent = kjPerMin[idx].toFixed(1)
       if (cadRef.current) cadRef.current.textContent = `${cadence[idx]}`
       if (spdRef.current) spdRef.current.textContent = speed[idx].toFixed(1)
       if (elvRef.current) elvRef.current.textContent = `${Math.round(altitude[idx])}`
       if (modeRef.current) modeRef.current.textContent = ''
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, meta, showAvg])
+  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, meta, showAvg])
 
   const row = 'flex items-baseline justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5'
 
@@ -789,6 +731,18 @@ function FullscreenDataSidebar({
           <div className="flex items-baseline gap-1">
             <span ref={hrRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
             <span className="text-[10px] text-[var(--n600)]">bpm</span>
+          </div>
+        </div>
+      )}
+      {visibleCharts.has('kjmin') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
+            <span className="text-[11px] text-[var(--n600)]">kJ/min</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={kjRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
+            <span className="text-[10px] text-[var(--n600)]">kJ/min</span>
           </div>
         </div>
       )}
@@ -873,12 +827,9 @@ function ScoreBadge({ label, value }: { label: string; value: number }) {
 
 function MetricsTiers({
   meta, durationStr, np, distanceKm, elevGain, energyKJ, decoupling,
-  totalCHO, choRate, fuel, fuelScore, fuelCompliance, choZone,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
   energyKJ: number; decoupling: number | null
-  totalCHO: number; choRate: number; fuel: FuelData; fuelScore: number
-  fuelCompliance: number; choZone: { label: string; color: string }
 }) {
   const [contextOpen, setContextOpen] = useState(false)
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
@@ -900,10 +851,6 @@ function MetricsTiers({
 
       {/* Tier 2 — RAMTT Metrics */}
       <div className="flex gap-6 border-b-[0.5px] border-b-[var(--n400)] bg-[var(--n50)] py-2">
-        <KS label="Energy Zone" badge={choZone} />
-        <KS label="CHO Intake" value={`${totalCHO}`} unit="g" sub={`of ${fuel.targetCHO}g`} />
-        <KS label="CHO Rate" value={`${choRate}`} unit="g/h" sub={`Target ${fuel.targetRate}`} />
-        <KS label="Fuel Score" value={`${fuelScore}`} unit="/100" sub={`${fuelCompliance}% compliance`} progress={fuelScore} />
         <KS label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Eff ${ef}`} />
         <KS label="Durability" value="—" unit="% decay" sub="—" />
       </div>
@@ -1594,120 +1541,6 @@ function HoverDataTable({
             <span ref={kjminValRef} className={valCls}>0</span>
             <span className={unitCls}>kJ/min</span>
           </span>
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// Fuel Log
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-function FuelLog({ intakes, totalSeconds, onAdd, onRemove }: {
-  intakes: FuelIntake[]; totalSeconds: number; onAdd: (intake: FuelIntake) => void; onRemove: (index: number) => void
-}) {
-  const [showForm, setShowForm] = useState(false)
-  const [formMin, setFormMin] = useState(15)
-  const [formProduct, setFormProduct] = useState('SUHN IO Gel — Citrus')
-  const [formCHO, setFormCHO] = useState(48)
-
-  const maxMin = Math.floor(totalSeconds / 60)
-
-  const handleAdd = () => {
-    const secs = formMin * 60
-    if (secs <= 0 || secs >= totalSeconds || formCHO <= 0) return
-    onAdd({ timestamp: secs, product: formProduct, choGrams: formCHO, type: 'gel' })
-    setFormMin((prev) => Math.min(prev + 15, maxMin))
-  }
-
-  return (
-    <div className="mt-6">
-      <div className="flex items-center justify-between">
-        <h2 className={cn("text-xs text-[var(--n600)]", WEIGHT.strong)}>Fuel Log</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className={cn(RADIUS.md, "border border-[var(--n400)] px-3 py-1 text-xs text-[var(--n600)]", WEIGHT.medium, TRANSITION.colors, HOVER_SAND)}
-        >
-          {showForm ? 'Cancel' : '+ Add intake'}
-        </button>
-      </div>
-
-      {/* Add intake form */}
-      {showForm && (
-        <div className={cn("mt-2 flex items-end gap-3 border border-[var(--n400)] bg-white p-3", RADIUS.lg)}>
-          <div>
-            <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Minute</label>
-            <input
-              type="number"
-              min={1}
-              max={maxMin}
-              value={formMin}
-              onChange={(e) => setFormMin(Number(e.target.value) || 0)}
-              className="mt-0.5 block w-20 rounded border border-[var(--n400)] bg-[var(--n50)] px-2 py-1 text-sm tabular-nums text-[var(--n1050)] outline-none focus:border-[var(--n600)]"
-            />
-          </div>
-          <div className="flex-1">
-            <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Product</label>
-            <input
-              value={formProduct}
-              onChange={(e) => setFormProduct(e.target.value)}
-              className="mt-0.5 block w-full rounded border border-[var(--n400)] bg-[var(--n50)] px-2 py-1 text-sm text-[var(--n1050)] outline-none focus:border-[var(--n600)]"
-            />
-          </div>
-          <div>
-            <label className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>CHO (g)</label>
-            <input
-              type="number"
-              min={1}
-              max={200}
-              value={formCHO}
-              onChange={(e) => setFormCHO(Number(e.target.value) || 0)}
-              className="mt-0.5 block w-16 rounded border border-[var(--n400)] bg-[var(--n50)] px-2 py-1 text-sm tabular-nums text-[var(--n1050)] outline-none focus:border-[var(--n600)]"
-            />
-          </div>
-          <button
-            onClick={handleAdd}
-            className={cn(RADIUS.md, ACTIVE_BLACK, 'px-4 py-1.5 text-xs hover:bg-[var(--n1150)]', WEIGHT.medium, TRANSITION.colors)}
-          >
-            Add
-          </button>
-        </div>
-      )}
-
-      {/* Intake cards */}
-      {intakes.length > 0 && (
-        <div className="mt-2 flex flex-wrap gap-2.5">
-          {intakes.map((intake, i) => {
-            // Split product into name + variant (after " — ")
-            const dash = intake.product.indexOf(' — ')
-            const name = dash >= 0 ? intake.product.slice(0, dash) : intake.product
-            const variant = dash >= 0 ? intake.product.slice(dash + 3) : ''
-            return (
-              <div
-                key={i}
-                className={cn("group relative min-w-[150px] flex-1 border border-[var(--n400)] py-2 pr-3 pl-3.5", RADIUS.md)}
-                style={{ borderLeft: '2.5px solid #f97316' }}
-              >
-                <button
-                  onClick={() => onRemove(i)}
-                  className="absolute top-1 right-1.5 hidden rounded-full px-1 text-[10px] text-[var(--n600)] transition-colors hover:text-[#ef4444] group-hover:block"
-                >
-                  ✕
-                </button>
-                <div className="flex items-baseline justify-between">
-                  <span className={cn("text-[13px] tabular-nums text-[#f97316]", WEIGHT.medium)}>
-                    {formatTime(intake.timestamp)}
-                  </span>
-                  <span className="text-xs tabular-nums text-[var(--n600)]">
-                    {intake.choGrams}g
-                  </span>
-                </div>
-                <div className="mt-0.5 text-xs text-[var(--n1050)]">{name}</div>
-                {variant && <div className="text-[11px] text-[var(--n600)]">{variant}</div>}
-              </div>
-            )
-          })}
         </div>
       )}
     </div>
