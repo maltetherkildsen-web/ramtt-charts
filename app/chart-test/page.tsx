@@ -36,7 +36,6 @@ import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandle
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import type { Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
-import { ChartFuelLollipop } from '@/components/charts/primitives/ChartFuelLollipop'
 import { BrushOverlay } from '@/components/charts/primitives/BrushOverlay'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
@@ -81,10 +80,10 @@ const HR_ZONES: ZoneDefinition[] = [
 type ZoneMode = 'off' | 'power' | 'hr'
 const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 
-type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'fuel'
-const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'speed', 'cadence', 'elevation', 'fuel']
+type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'kjmin'
+const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'speed', 'cadence', 'elevation', 'kjmin']
 const CHART_LABELS: Record<ChartKey, string> = {
-  power: 'Power', hr: 'HR', speed: 'Speed', cadence: 'Cadence', elevation: 'Elevation', fuel: 'Fuel',
+  power: 'Power', hr: 'HR', speed: 'Speed', cadence: 'Cadence', elevation: 'Elevation', kjmin: 'kJ/min',
 }
 const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'speed', 'cadence', 'elevation']
 
@@ -189,21 +188,6 @@ function getCHOZone(rate: number): { label: string; color: string } {
   return { label: 'Z1', color: '#94a3b8' }
 }
 
-/** Build cumulative CHO array for stepped chart. Returns per-second values. */
-function buildCumulativeCHO(intakes: FuelIntake[], totalSeconds: number): number[] {
-  const sorted = [...intakes].sort((a, b) => a.timestamp - b.timestamp)
-  const data = new Array<number>(totalSeconds).fill(0)
-  let cumulative = 0
-  let nextIntake = 0
-  for (let i = 0; i < totalSeconds; i++) {
-    while (nextIntake < sorted.length && sorted[nextIntake].timestamp <= i) {
-      cumulative += sorted[nextIntake].choGrams
-      nextIntake++
-    }
-    data[i] = cumulative
-  }
-  return data
-}
 
 // ─── Decoupling computation ───
 
@@ -228,6 +212,24 @@ function computeDecoupling(power: number[], heartRate: number[]): number | null 
   const ef1 = npFirst / avgHR1
   const ef2 = npSecond / avgHR2
   return +((ef1 - ef2) / ef1 * 100).toFixed(1)
+}
+
+// ─── kJ/min (energy expenditure rate) ───
+
+function calculateKjPerMin(powerData: number[]): number[] {
+  const result = new Array<number>(powerData.length)
+  let windowSum = 0
+
+  for (let i = 0; i < powerData.length; i++) {
+    windowSum += powerData[i]
+    if (i >= 60) windowSum -= powerData[i - 60]
+
+    const windowSize = Math.min(i + 1, 60)
+    const avgWatts = windowSum / windowSize
+    result[i] = (avgWatts * 60) / 1000
+  }
+
+  return result
 }
 
 // ─── Peak power computation ───
@@ -432,12 +434,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
 
   const addIntake = useCallback((intake: FuelIntake) => {
     setFuelIntakes((prev) => [...prev, intake].sort((a, b) => a.timestamp - b.timestamp))
-    setVisibleCharts((prev) => {
-      if (prev.has('fuel')) return prev
-      const next = new Set(prev)
-      next.add('fuel')
-      return next
-    })
   }, [])
 
   const removeIntake = useCallback((index: number) => {
@@ -452,8 +448,8 @@ function SessionAnalysis({ data }: { data: FitData }) {
   const choZone = getCHOZone(choRate)
   const decoupling = useMemo(() => computeDecoupling(power, heartRate), [power, heartRate])
 
-  // Cumulative CHO for fuel chart — rebuilds when intakes change
-  const cumulativeCHO = useMemo(() => buildCumulativeCHO(fuelIntakes, totalPoints), [fuelIntakes, totalPoints])
+  // kJ/min energy rate — derived from power
+  const kjPerMin = useMemo(() => calculateKjPerMin(power), [power])
 
   return (
     <ChartSyncProvider dataLength={totalPoints}>
@@ -499,9 +495,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
             cadence={cadence}
             speed={speed}
             altitude={altitude}
-            cumulativeCHO={cumulativeCHO}
-            fuelTarget={fuel.targetCHO}
-            fuelIntakes={fuelIntakes}
+            kjPerMin={kjPerMin}
             ftp={meta.ftp}
             maxHR={meta.maxHR}
             meta={meta}
@@ -536,7 +530,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
             <FullscreenOverlay
               meta={meta}
               power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
-              cumulativeCHO={cumulativeCHO} fuelTarget={fuel.targetCHO} fuelIntakes={fuelIntakes}
+              kjPerMin={kjPerMin}
               ftp={meta.ftp} maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
@@ -556,16 +550,16 @@ function SessionAnalysis({ data }: { data: FitData }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const CHART_WEIGHTS: Record<ChartKey, number> = {
-  power: 3.5, hr: 2, speed: 1.5, cadence: 1.5, elevation: 1, fuel: 1,
+  power: 3.5, hr: 2, speed: 1.5, cadence: 1.5, elevation: 1, kjmin: 1,
 }
 
 function FullscreenOverlay({
-  meta, power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes,
+  meta, power, heartRate, cadence, speed, altitude, kjPerMin,
   ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onActivePeakChange, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
+  kjPerMin: number[]
   ftp: number; maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
@@ -687,7 +681,7 @@ function FullscreenOverlay({
         <div className="flex-1 overflow-hidden px-2">
           <SyncedCharts
             power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
-            cumulativeCHO={cumulativeCHO} fuelTarget={fuelTarget} fuelIntakes={fuelIntakes}
+            kjPerMin={kjPerMin}
             ftp={ftp} maxHR={maxHR} meta={meta}
             zoneMode={zoneMode} visibleCharts={visibleCharts}
             heightOverrides={heights}
@@ -1130,10 +1124,10 @@ function PeakPowersStrip({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
+  power, heartRate, cadence, speed, altitude, kjPerMin, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
+  kjPerMin: number[]
   ftp: number; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
   heightOverrides?: Partial<Record<ChartKey, number>>
@@ -1174,7 +1168,7 @@ function SyncedCharts({
     return [min - pad, max + pad] as const
   }, [visAltitude])
 
-  const visCHO = useMemo(() => cumulativeCHO.slice(start, end + 1), [cumulativeCHO, start, end])
+  const visKjMin = useMemo(() => kjPerMin.slice(start, end + 1), [kjPerMin, start, end])
 
 
   const formatX = useCallback(
@@ -1328,28 +1322,24 @@ function SyncedCharts({
       )}
       </AnimatePresence>
 
-      {/* Fuel / CHO — 75px, lollipop */}
+      {/* kJ/min — 55px */}
       <AnimatePresence initial={false}>
-      {visibleCharts.has('fuel') && (
-        <motion.div key="fuel" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+      {visibleCharts.has('kjmin') && (
+        <motion.div key="kjmin" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
-          data={visCHO}
-          height={h('fuel', 75)}
+          data={visKjMin}
+          height={h('kjmin', 55)}
           decimationFactor={decimationFactor}
-          yDomain={[0, Math.max(fuelTarget, fuelIntakes.reduce((s, i) => s + i.choGrams, 0), 10) * 1.1]}
-          padding={lastChartKey === 'fuel' ? { ...chartPad, right: 120 } : { ...chartPad, right: 120, bottom: 4 }}
+          padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
         >
-          {lastChartKey === 'fuel' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
-          <ChartFuelLollipop
-            intakes={fuelIntakes
-              .filter((i) => i.timestamp >= start && i.timestamp <= end)
-              .map((i) => ({ timestamp: i.timestamp - start, choGrams: i.choGrams }))}
-            target={fuelTarget}
-          />
-          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f97316" dotRadius={2} />
+          <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
+          {lastChartKey === 'kjmin' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
+          <ChartArea gradientColor="#f59e0b" opacityFrom={0.10} opacityTo={0.005} />
+          <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f59e0b" />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>CHO</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1362,9 +1352,8 @@ function SyncedCharts({
       {/* Hover data table — hidden in fullscreen (sidebar shows data instead) */}
       {!hideExtras && (
         <HoverDataTable
-          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} meta={meta}
+          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} meta={meta}
           visibleCharts={visibleCharts}
-          totalCHO={fuelIntakes.reduce((s, i) => s + i.choGrams, 0)}
         />
       )}
 
@@ -1391,10 +1380,10 @@ function SyncedCharts({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function HoverDataTable({
-  power, heartRate, cadence, speed, altitude, meta, visibleCharts, totalCHO: totalCHOProp,
+  power, heartRate, cadence, speed, altitude, kjPerMin, meta, visibleCharts,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  meta: FitData['meta']; visibleCharts: Set<ChartKey>; totalCHO: number
+  kjPerMin: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -1402,11 +1391,11 @@ function HoverDataTable({
 
   const rangeStats = useMemo(() => {
     const len = end - start + 1
-    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, elev: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
-    let pw = 0, hr = 0, cd = 0, spd = 0, elv = 0
+    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, elev: 0, kjmin: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
+    let pw = 0, hr = 0, cd = 0, spd = 0, elv = 0, kj = 0
     let mxPw = -Infinity, mxHr = -Infinity, mxCd = -Infinity, mxSpd = -Infinity, mxElv = -Infinity
     for (let i = start; i <= end; i++) {
-      pw += power[i]; hr += heartRate[i]; cd += cadence[i]; spd += speed[i]; elv += altitude[i]
+      pw += power[i]; hr += heartRate[i]; cd += cadence[i]; spd += speed[i]; elv += altitude[i]; kj += kjPerMin[i]
       if (power[i] > mxPw) mxPw = power[i]
       if (heartRate[i] > mxHr) mxHr = heartRate[i]
       if (cadence[i] > mxCd) mxCd = cadence[i]
@@ -1415,11 +1404,11 @@ function HoverDataTable({
     }
     return {
       power: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len),
-      speed: +(spd / len).toFixed(1), elev: Math.round(elv / len),
+      speed: +(spd / len).toFixed(1), elev: Math.round(elv / len), kjmin: +(kj / len).toFixed(1),
       maxPower: Math.round(mxPw), maxHR: Math.round(mxHr), maxCad: Math.round(mxCd),
       maxSpeed: +mxSpd.toFixed(1), maxElev: Math.round(mxElv),
     }
-  }, [power, heartRate, cadence, speed, altitude, start, end])
+  }, [power, heartRate, cadence, speed, altitude, kjPerMin, start, end])
 
   const rangeDur = useMemo(() => {
     const secs = end - start
@@ -1449,6 +1438,8 @@ function HoverDataTable({
   const elevLabelRef = useRef<HTMLSpanElement>(null)
   const elevValRef = useRef<HTMLSpanElement>(null)
   const elevDeltaRef = useRef<HTMLSpanElement>(null)
+  const kjminLabelRef = useRef<HTMLSpanElement>(null)
+  const kjminValRef = useRef<HTMLSpanElement>(null)
 
   const showAverages = useCallback(() => {
     const s = rangeStats
@@ -1461,11 +1452,13 @@ function HoverDataTable({
     if (cadLabelRef.current) cadLabelRef.current.textContent = `${prefix} Cadence`
     if (speedLabelRef.current) speedLabelRef.current.textContent = `${prefix} Speed`
     if (elevLabelRef.current) elevLabelRef.current.textContent = `${prefix} Elevation`
+    if (kjminLabelRef.current) kjminLabelRef.current.textContent = `${prefix} kJ/min`
     if (powerValRef.current) { powerValRef.current.textContent = `${s.power}`; powerValRef.current.style.color = 'var(--n1050)' }
     if (hrValRef.current) { hrValRef.current.textContent = `${s.hr}`; hrValRef.current.style.color = 'var(--n1050)' }
     if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = 'var(--n1050)' }
     if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = 'var(--n1050)' }
     if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = 'var(--n1050)' }
+    if (kjminValRef.current) { kjminValRef.current.textContent = `${s.kjmin}`; kjminValRef.current.style.color = 'var(--n1050)' }
     if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
     if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
     if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -1492,6 +1485,7 @@ function HoverDataTable({
       if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cadence'
       if (speedLabelRef.current) speedLabelRef.current.textContent = 'Speed'
       if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elevation'
+      if (kjminLabelRef.current) kjminLabelRef.current.textContent = 'kJ/min'
 
       const pw = power[fullIdx], hr = heartRate[fullIdx], cad = cadence[fullIdx], spd = speed[fullIdx], elev = altitude[fullIdx]
       if (powerValRef.current) { powerValRef.current.textContent = `${pw}`; powerValRef.current.style.color = 'var(--n1150)' }
@@ -1499,6 +1493,7 @@ function HoverDataTable({
       if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = 'var(--n1150)' }
       if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = 'var(--n1150)' }
       if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = 'var(--n1150)' }
+      if (kjminValRef.current) { kjminValRef.current.textContent = kjPerMin[fullIdx].toFixed(1); kjminValRef.current.style.color = 'var(--n1150)' }
       if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
       if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
       if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -1513,7 +1508,7 @@ function HoverDataTable({
         hrZoneRef.current.textContent = z.label; hrZoneRef.current.style.color = z.color; hrZoneRef.current.style.backgroundColor = `${z.color}1F`
       }
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, meta, showAverages])
+  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, meta, showAverages])
 
   const rowCls = 'flex items-center gap-3 border-b-[0.5px] border-b-[var(--n400)]/50 py-2'
   const dotCls = 'h-2 w-2 shrink-0 rounded-full'
@@ -1581,7 +1576,7 @@ function HoverDataTable({
         </div>
       )}
       {vc.has('elevation') && (
-        <div className={vc.has('fuel') ? rowCls : 'flex items-center gap-3 py-2'}>
+        <div className={vc.has('kjmin') ? rowCls : 'flex items-center gap-3 py-2'}>
           <span className={`${dotCls} bg-[var(--n600)]`} />
           <span ref={elevLabelRef} className={labelCls}>Avg Elevation</span>
           <span className="flex items-baseline gap-1">
@@ -1591,14 +1586,14 @@ function HoverDataTable({
           <span ref={elevDeltaRef} className={deltaCls} />
         </div>
       )}
-      {vc.has('fuel') && (
+      {vc.has('kjmin') && (
         <div className="flex items-center gap-3 py-2">
-          <span className={`${dotCls} bg-[#f97316]`} />
-          <span className={labelCls}>CHO</span>
-          <span className={cn("text-[15px] tabular-nums slashed-zero text-[var(--n1050)]", WEIGHT.medium)}>
-            {totalCHOProp}
+          <span className={`${dotCls} bg-[#f59e0b]`} />
+          <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={kjminValRef} className={valCls}>0</span>
+            <span className={unitCls}>kJ/min</span>
           </span>
-          <span className={unitCls}>g</span>
         </div>
       )}
     </div>
