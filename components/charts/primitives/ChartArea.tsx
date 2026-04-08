@@ -28,13 +28,13 @@ export function ChartArea({
   opacityTo = 0.005,
   className,
 }: ChartAreaProps) {
-  const { data: ctxData, scaleX, scaleY, chartHeight, chartWidth } = useChart()
+  const { data: ctxData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor } = useChart()
   const sourceData = dataProp ?? ctxData
   const gradId = useId()
 
   const d = useMemo(() => {
     if (sourceData.length === 0) return ''
-    const target = Math.max(4, Math.floor(chartWidth * 0.3))
+    const target = Math.max(4, Math.floor(chartWidth * decimationFactor))
 
     if (sourceData.length <= target || chartWidth <= 0) {
       return areaPath(
@@ -53,7 +53,7 @@ export function ChartArea({
       (p) => scaleY(p.y),
       chartHeight,
     )
-  }, [sourceData, scaleX, scaleY, chartHeight, chartWidth])
+  }, [sourceData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor])
 
   if (!d) return null
 

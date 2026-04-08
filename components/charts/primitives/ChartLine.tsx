@@ -23,12 +23,12 @@ export interface ChartLineProps {
 }
 
 export function ChartLine({ data: dataProp, className }: ChartLineProps) {
-  const { data: ctxData, scaleX, scaleY, chartWidth } = useChart()
+  const { data: ctxData, scaleX, scaleY, chartWidth, decimationFactor } = useChart()
   const sourceData = dataProp ?? ctxData
 
   const d = useMemo(() => {
     if (sourceData.length === 0) return ''
-    const target = Math.max(4, Math.floor(chartWidth * 0.3))
+    const target = Math.max(4, Math.floor(chartWidth * decimationFactor))
 
     if (sourceData.length <= target || chartWidth <= 0) {
       // Raw: render every point
@@ -46,7 +46,7 @@ export function ChartLine({ data: dataProp, className }: ChartLineProps) {
       (p) => scaleX(p.x),
       (p) => scaleY(p.y),
     )
-  }, [sourceData, scaleX, scaleY, chartWidth])
+  }, [sourceData, scaleX, scaleY, chartWidth, decimationFactor])
 
   if (!d) return null
 

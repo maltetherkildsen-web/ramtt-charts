@@ -47,6 +47,8 @@ export interface ChartContextValue {
   sourceDataLength: number
   /** Ref to the outer SVG element — for mouse listeners. */
   svgRef: React.RefObject<SVGSVGElement | null>
+  /** Multiplier for downsampling target (target = chartWidth × factor). Default 0.3. */
+  decimationFactor: number
 }
 
 export const ChartContext = createContext<ChartContextValue | null>(null)

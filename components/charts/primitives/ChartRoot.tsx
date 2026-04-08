@@ -39,6 +39,8 @@ export interface ChartRootProps {
   padding?: Partial<ChartPadding>
   yPadding?: number
   yDomain?: readonly [number, number]
+  /** Multiplier for downsampling target (target = chartWidth × factor). Lower = smoother. Default 0.3. */
+  decimationFactor?: number
   className?: string
   svgClassName?: string
   children?: ReactNode
@@ -52,6 +54,7 @@ export function ChartRoot({
   padding: paddingOverride,
   yPadding = 0.05,
   yDomain: yDomainProp,
+  decimationFactor = 0.3,
   className,
   svgClassName,
   children,
@@ -116,8 +119,9 @@ export function ChartRoot({
       data,
       sourceDataLength: data.length,
       svgRef,
+      decimationFactor,
     }),
-    [width, height, chartWidth, chartHeight, padding, scaleX, scaleY, data],
+    [width, height, chartWidth, chartHeight, padding, scaleX, scaleY, data, decimationFactor],
   )
 
   const ready = width > 0

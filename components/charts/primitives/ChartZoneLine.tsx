@@ -80,13 +80,13 @@ export function ChartZoneLine({
   threshold,
   className,
 }: ChartZoneLineProps) {
-  const { data: ctxData, scaleX, scaleY, chartWidth } = useChart()
+  const { data: ctxData, scaleX, scaleY, chartWidth, decimationFactor } = useChart()
   const data = dataProp ?? ctxData
   const gradId = useId()
 
   // Build the SVG path with hybrid downsampling
   const d = useMemo(() => {
-    const target = Math.max(4, Math.floor(chartWidth * 0.3))
+    const target = Math.max(4, Math.floor(chartWidth * decimationFactor))
     if (data.length <= target || chartWidth <= 0) {
       return linePath(
         data,
@@ -100,7 +100,7 @@ export function ChartZoneLine({
       (p) => scaleX(p.x),
       (p) => scaleY(p.y),
     )
-  }, [data, scaleX, scaleY, chartWidth])
+  }, [data, scaleX, scaleY, chartWidth, decimationFactor])
 
   // Build gradient stops — only emit at zone transitions
   // Uses full data for accurate zone coloring

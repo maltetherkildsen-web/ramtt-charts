@@ -452,7 +452,7 @@ function SessionAnalysis({ data }: { data: FitData }) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[9999]"
+            className="fixed inset-0 z-[9999] bg-(--bg)"
           >
             <FullscreenOverlay
               meta={meta}
@@ -555,6 +555,7 @@ function FullscreenOverlay({
             ftp={ftp} maxHR={maxHR} meta={meta}
             zoneMode={zoneMode} visibleCharts={visibleCharts}
             heightOverrides={heights}
+            decimationFactor={0.2}
             hideExtras
           />
         </div>
@@ -910,7 +911,7 @@ function ChartToggles({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras,
+  power, heartRate, cadence, speed, altitude, cumulativeCHO, fuelTarget, fuelIntakes, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   cumulativeCHO: number[]; fuelTarget: number; fuelIntakes: FuelIntake[]
@@ -918,6 +919,7 @@ function SyncedCharts({
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
   heightOverrides?: Partial<Record<ChartKey, number>>
   hideExtras?: boolean
+  decimationFactor?: number
 }) {
   const sync = useChartSync()!
   const { zoom } = sync
@@ -981,6 +983,7 @@ function SyncedCharts({
         <ChartRoot
           data={visPower}
           height={h('power', 110)}
+          decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           yPadding={0.10}
           className={cn("bg-[var(--n50)]")}
@@ -1009,6 +1012,7 @@ function SyncedCharts({
         <ChartRoot
           data={visHR}
           height={h('hr', 75)}
+          decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-t-[0.5px] border-[var(--n400)] bg-[var(--n50)]"
         >
@@ -1034,6 +1038,7 @@ function SyncedCharts({
         <ChartRoot
           data={visSpeed}
           height={h('speed', 55)}
+          decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
         >
@@ -1055,6 +1060,7 @@ function SyncedCharts({
         <ChartRoot
           data={visCadence}
           height={h('cadence', 55)}
+          decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
         >
@@ -1076,6 +1082,7 @@ function SyncedCharts({
         <ChartRoot
           data={visAltitude}
           height={h('elevation', 55)}
+          decimationFactor={decimationFactor}
           padding={chartPad}
           yDomain={elevationYDomain}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
@@ -1099,6 +1106,7 @@ function SyncedCharts({
         <ChartRoot
           data={visCHO}
           height={h('fuel', 75)}
+          decimationFactor={decimationFactor}
           yDomain={[0, Math.max(fuelTarget, fuelIntakes.reduce((s, i) => s + i.choGrams, 0), 10) * 1.1]}
           padding={lastChartKey === 'fuel' ? { ...chartPad, right: 120 } : { ...chartPad, right: 120, bottom: 4 }}
           className="-mt-px border-x-[0.5px] border-b-[0.5px] border-x-[var(--n400)] border-b-[var(--n400)] bg-[var(--n50)]"
