@@ -328,8 +328,10 @@ export default function ColorGuidePage() {
                 <Card padding="sm">
                   <div className="flex items-center gap-4">
                     <span className={cn(LABEL_STYLE, 'w-[100px] shrink-0')}>White lift</span>
-                    <div className={cn('flex-1 py-2 px-3 bg-[var(--n50)]', RADIUS.md, BORDER.default, TRANSITION.background, WHITE_LIFT, FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n1150)]')}>
-                      Hover over dette card
+                    <div className={cn('flex-1 bg-[var(--bg)] p-2', RADIUS.md)}>
+                      <div className={cn('py-2 px-3', RADIUS.md, BORDER.default, TRANSITION.background, WHITE_LIFT, FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n1150)]')}>
+                        Hover over dette card
+                      </div>
                     </div>
                   </div>
                 </Card>

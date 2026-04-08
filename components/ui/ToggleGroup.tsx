@@ -103,7 +103,7 @@ const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
                   TRANSITION.colors,
                   FOCUS_RING,
                   'inline-flex items-center justify-center',
-                  isSel ? cn(WEIGHT.strong, 'text-[var(--n1150)]') : cn(WEIGHT.normal, 'text-[var(--n800)]'),
+                  isSel ? cn(WEIGHT.strong, 'text-[var(--n1150)]') : cn(WEIGHT.normal, 'text-[var(--n600)] hover:text-[var(--n1150)]'),
                   isSel ? ACTIVE_UNDERLINE : 'border-b-2 border-transparent',
                 )}
               >

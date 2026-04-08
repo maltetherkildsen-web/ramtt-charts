@@ -111,9 +111,15 @@ body {
   font-weight: 450;
 }
 
+/* ─── Text selection — warm, not browser-default blue ─── */
+::selection {
+  background-color: var(--n1050);
+  color: var(--n50);
+}
+
 /* ─── Focus ring — keyboard only ─── */
 :focus-visible {
-  outline: 2px solid var(--n600);
+  outline: 1px solid var(--n1050);
   outline-offset: 2px;
 }
 :focus:not(:focus-visible) {

@@ -128,7 +128,9 @@ export const ACTIVE_UNDERLINE = 'border-b-2 border-[var(--n1150)]'; // tab navig
 
 // ─── Focus ───
 // Visible on keyboard only. Uses :focus-visible, not :focus.
-export const FOCUS_RING = 'focus-visible:outline-2 focus-visible:outline-[var(--n600)] focus-visible:outline-offset-2';
+// Single color: --n1050. Two thicknesses: thin (default) and thick (text inputs).
+export const FOCUS_RING = 'focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--n1050)] focus-visible:outline-offset-2';
+export const FOCUS_RING_THICK = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--n1050)] focus-visible:outline-offset-2';
 
 // ─── Layout ───
 // Standard content widths for consistent alignment

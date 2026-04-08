@@ -1,5 +1,5 @@
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string
@@ -33,7 +33,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               RADIUS.md,
               BORDER.default,
               TRANSITION.colors,
-              FOCUS_RING,
+              FOCUS_RING_THICK,
               WEIGHT.normal, 'text-[var(--n1150)]',
               'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
               SIZE_PADDING_X.sm,
