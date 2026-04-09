@@ -67,7 +67,7 @@ const CHART_LABELS: Record<ChartKey, string> = {
 const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
-  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 80,
+  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 60,
 }
 
 // ─── Time formatting ───
@@ -1586,7 +1586,7 @@ function SyncedCharts({
     return [...new Set(ticks.map((sec) => Math.round(sec) - start).filter((i) => i >= 0 && i < visibleRange))]
   }, [start, end, visibleRange])
 
-  const chartPad = { right: 64 }
+  const chartPad = { top: 2, right: 64 }
 
   const h = (key: ChartKey) => heightOverrides?.[key] ?? CHART_HEIGHTS[key]
   const orderedVisible = ALL_CHARTS.filter((k) => visibleCharts.has(k))
@@ -1614,7 +1614,6 @@ function SyncedCharts({
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           yPadding={0.10}
-          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
           <ChartRefLine y={ftp} label={`CP ${ftp}W`} />
@@ -1641,7 +1640,6 @@ function SyncedCharts({
           height={h('hr')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
           <ChartArea gradientColor="#ef4444" opacityFrom={0.08} opacityTo={0.005} />
@@ -1666,8 +1664,7 @@ function SyncedCharts({
           data={visKjMin}
           height={h('kjmin')}
           decimationFactor={decimationFactor}
-          padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
-          className="bg-(--n50)"
+          padding={{ ...chartPad, bottom: 4 }}
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
           {lastChartKey === 'kjmin' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
@@ -1690,7 +1687,6 @@ function SyncedCharts({
           height={h('cadence')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v}`} />
           <ChartArea gradientColor="#a855f7" opacityFrom={0.08} opacityTo={0.005} />
@@ -1712,7 +1708,6 @@ function SyncedCharts({
           height={h('speed')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
           <ChartArea gradientColor="#3b82f6" opacityFrom={0.08} opacityTo={0.005} />
@@ -1733,9 +1728,8 @@ function SyncedCharts({
           data={visAltitude}
           height={h('elevation')}
           decimationFactor={decimationFactor}
-          padding={lastChartKey === 'elevation' ? chartPad : { ...chartPad, bottom: 4 }}
+          padding={{ ...chartPad, bottom: 4 }}
           yDomain={elevationYDomain}
-          className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}m`} />
           {lastChartKey === 'elevation' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
@@ -1757,8 +1751,7 @@ function SyncedCharts({
           data={visTorque}
           height={h('torque')}
           decimationFactor={decimationFactor}
-          padding={lastChartKey === 'torque' ? chartPad : { ...chartPad, bottom: 4 }}
-          className="bg-(--n50)"
+          padding={{ ...chartPad, bottom: 4 }}
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
           {lastChartKey === 'torque' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
