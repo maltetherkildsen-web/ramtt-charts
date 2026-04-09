@@ -87,6 +87,10 @@ const CHART_LABELS: Record<ChartKey, string> = {
 }
 const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
 
+const CHART_HEIGHTS: Record<ChartKey, number> = {
+  power: 130, hr: 75, kjmin: 70, cadence: 65, speed: 40, elevation: 40,
+}
+
 // ─── Time formatting ───
 
 function formatTimeForZoom(index: number, _visibleRange: number): string {
@@ -488,9 +492,6 @@ function SessionAnalysis({ data }: { data: FitData }) {
 // Fullscreen Overlay
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-const CHART_WEIGHTS: Record<ChartKey, number> = {
-  power: 3.5, hr: 2, speed: 1.5, cadence: 1.5, elevation: 1, kjmin: 1,
-}
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, altitude, kjPerMin,
@@ -514,19 +515,20 @@ function FullscreenOverlay({
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  // Calculate chart heights proportionally
+  // Scale chart heights proportionally to fill viewport
   const topBar = 40
-  const dataBar = 32
-  const scrubberH = 24
-  const available = winH - topBar - dataBar - scrubberH
+  const peaksBar = showPeaks ? 28 : 0
+  const sidebarW = 176
   const ordered = ALL_CHARTS.filter((k) => visibleCharts.has(k))
-  const totalWeight = ordered.reduce((s, k) => s + CHART_WEIGHTS[k], 0)
+  const normalTotal = ordered.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
+  const available = winH - topBar - peaksBar
+  const scale = available / normalTotal
 
   const heights = useMemo(() => {
     const h: Partial<Record<ChartKey, number>> = {}
-    for (const k of ordered) h[k] = Math.round((CHART_WEIGHTS[k] / totalWeight) * available)
+    for (const k of ordered) h[k] = Math.round(CHART_HEIGHTS[k] * scale)
     return h
-  }, [ordered, totalWeight, available])
+  }, [ordered, scale])
 
   return (
     <div className="flex h-full flex-col bg-[var(--bg)]">
@@ -1131,7 +1133,7 @@ function SyncedCharts({
 
   const chartPad = { right: 64 }
 
-  const h = (key: ChartKey, fallback: number) => heightOverrides?.[key] ?? fallback
+  const h = (key: ChartKey) => heightOverrides?.[key] ?? CHART_HEIGHTS[key]
   const orderedVisible = ALL_CHARTS.filter((k) => visibleCharts.has(k))
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
@@ -1153,7 +1155,7 @@ function SyncedCharts({
         <motion.div key="power" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visPower}
-          height={h('power', 110)}
+          height={h('power')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           yPadding={0.10}
@@ -1181,7 +1183,7 @@ function SyncedCharts({
         <motion.div key="hr" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visHR}
-          height={h('hr', 75)}
+          height={h('hr')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
@@ -1207,7 +1209,7 @@ function SyncedCharts({
         <motion.div key="kjmin" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visKjMin}
-          height={h('kjmin', 55)}
+          height={h('kjmin')}
           decimationFactor={decimationFactor}
           padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
@@ -1230,7 +1232,7 @@ function SyncedCharts({
         <motion.div key="cadence" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visCadence}
-          height={h('cadence', 55)}
+          height={h('cadence')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
@@ -1252,7 +1254,7 @@ function SyncedCharts({
         <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visSpeed}
-          height={h('speed', 55)}
+          height={h('speed')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
@@ -1274,7 +1276,7 @@ function SyncedCharts({
         <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visAltitude}
-          height={h('elevation', 55)}
+          height={h('elevation')}
           decimationFactor={decimationFactor}
           padding={lastChartKey === 'elevation' ? chartPad : { ...chartPad, bottom: 4 }}
           yDomain={elevationYDomain}
