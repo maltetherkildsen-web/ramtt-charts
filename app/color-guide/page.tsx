@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Badge, Card, MetricCard, DataRow, ProgressBar, SectionHeader, ToggleGroup, DataTable, Button,
   cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE,
@@ -18,15 +18,24 @@ import { scaleLinear, linePath, areaPath } from '@/lib/charts'
 import {
   generateZoneData, generatePowerStream, generateHRStream,
   generateCadenceStream, generateSpeedStream, generateElevationStream,
-  generateTemperatureStream, generateCapacityData, generatePeakCurve,
+  generateCapacityData, generatePeakCurve,
   generateWPrimeBalance, generateGlycoDepletion, generateRegulatorData,
   generateFuelData, generateEnergyBalance, generateScatterData,
   generateDualLoad, generateSparkline, generateSportLine,
+  generateTrainingLoadBars, generateSeasonBars, generateCHOComplianceBars,
+  generateMacroPeriodization, generateCHOZoneStacked, generateCoverageTrend,
+  generateGutTrajectory, generateDepletionCurves, generateCPProgression,
+  generateDurabilityData, generateResilienceTrend, generatePeakFreshness,
+  generatePolarization, generateMorningCheckin, generateSeasonMap,
+  generateKPIGrid, generateToleranceHeatmap, generateLactateCurve,
+  generateCourseProgression, generateEnergyBalanceBars, generateHRDrift,
+  generateCalendarWeek,
 } from './chart-data'
+import { RamttWordmark } from '@/components/ui/ramtt-logo'
 
 /* ═══════════════════════════════════════════════════════════════════
    RAMTT Visual Color Guide v3 — for Ruth
-   24 sections, ~130 tokens, ~260 decisions (light + dark)
+   30 sections, ~155 tokens, ~310 decisions, ~65 chart illustrations
    Based on RAMTT-CHARTS-COLOR-SYSTEM + RAMTT-COLOR-GUIDE-PROMPT-FINAL
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -96,16 +105,21 @@ const STREAM_HR = generateHRStream(200)
 const STREAM_CADENCE = generateCadenceStream(200)
 const STREAM_SPEED = generateSpeedStream(200)
 const STREAM_ELEVATION = generateElevationStream(200)
-const STREAM_TEMP = generateTemperatureStream(200)
+
 const CAPACITY = generateCapacityData(120)
 const PEAK_CURVES = [
-  { data: generatePeakCurve(1100, 0.12, 80), label: 'Current', color: '#0F0F0E' },
+  { data: generatePeakCurve(1100, 0.12, 80), label: 'Current', color: NEAR_BLACK },
   { data: generatePeakCurve(1050, 0.11, 80), label: '90 days', color: '#5C97CB' },
   { data: generatePeakCurve(980, 0.13, 80), label: '6 months', color: '#E8834A' },
   { data: generatePeakCurve(920, 0.14, 80), label: '12 months', color: '#A259FF' },
   { data: generatePeakCurve(1150, 0.10, 80), label: 'Best ever', color: '#D4365C' },
 ]
 const REGULATORS = generateRegulatorData(100)
+const REGULATOR_DISPLAY = [
+  { label: 'Fatigue', hex: '#E36B30' },
+  { label: 'Fitness', hex: '#9B40E8' },
+  { label: 'Form', hex: '#7CA3BE' },
+]
 const FUEL = generateFuelData(100)
 const ENERGY = generateEnergyBalance(100)
 const SCATTER = generateScatterData(30)
@@ -123,6 +137,29 @@ const SPORT_LINES = [
 ]
 const W_PRIME = generateWPrimeBalance(200)
 const GLYCO_DEPLETION = generateGlycoDepletion(200)
+
+const TRAINING_LOAD_BARS = generateTrainingLoadBars(14)
+const SEASON_BARS = generateSeasonBars(52)
+const CHO_COMPLIANCE = generateCHOComplianceBars(7)
+const MACRO_PERIOD = generateMacroPeriodization(7)
+const CHO_ZONE_STACKED = generateCHOZoneStacked(12)
+const COVERAGE_TREND = generateCoverageTrend(60)
+const GUT_TRAJECTORY = generateGutTrajectory(60)
+const DEPLETION = generateDepletionCurves(80)
+const CP_PROGRESSION = generateCPProgression(12)
+const DURABILITY = generateDurabilityData(60)
+const RESILIENCE = generateResilienceTrend(40)
+const PEAK_FRESH = generatePeakFreshness()
+const POLARIZATION = generatePolarization()
+const MORNING_CHECKIN = generateMorningCheckin(4)
+const SEASON_MAP = generateSeasonMap(52)
+const KPI_GRID = generateKPIGrid(4, 8)
+const TOLERANCE_HEATMAP = generateToleranceHeatmap(6, 8)
+const LACTATE = generateLactateCurve(40)
+const COURSE_PROG = generateCourseProgression(8)
+const ENERGY_BARS = generateEnergyBalanceBars(14)
+const HR_DRIFT = generateHRDrift(30)
+const CALENDAR_WEEK = generateCalendarWeek()
 
 // CHO zones — blue spectrum
 const CHO_ZONES = [
@@ -281,45 +318,47 @@ const SPORTS = [
   { label: 'Other', hex: '#8A8780' },
 ]
 
-// Brand palette
-const BRAND = [
-  { label: 'Near black', hex: '#050A30' },
-  { label: 'Electric blue', hex: '#0230E0' },
-  { label: 'Aubergine', hex: '#470426' },
+// Brand palette — 2 core colors + white
+const BRAND_CORE = [
+  { label: 'Midnight navy', hex: '#050A30' },
   { label: 'Deep magenta', hex: '#96004D' },
-  { label: 'Soft orchid', hex: '#FFC9FE' },
-  { label: 'Cream', hex: '#FFFEF7' },
-  { label: 'Lemon cream', hex: '#FFFFD0' },
+  { label: 'White/cream', hex: '#FFFEF7' },
+]
+const BRAND_COMBOS = [
+  { bg: '#050A30', text: '#96004D', caption: 'Primary dark — logo on navy' },
+  { bg: '#050A30', text: '#FFFEF7', caption: 'Classic — white on navy' },
+  { bg: '#96004D', text: '#FFFEF7', caption: 'Bold — white on magenta' },
 ]
 
-// Co-visibility map — 13 screens x 15 groups
+// Co-visibility map — 14 screens x 19 groups
 const CO_VIS_SCREENS = [
   'Session graph', 'Session zones', 'Session fuel', 'Session analysis',
   'Capacity chart', 'Regulator chart', 'Peak curves',
   'Today', 'Calendar', 'Fuel daily', 'Fuel products',
-  'CHO×Power matrix', 'Season overview',
+  'CHO×Power matrix', 'Season overview', 'Analytics widgets',
 ]
 
 const CO_VIS_GROUPS = [
-  'Power zones', 'CHO zones', 'Streams', 'Capacity', 'Regulators',
-  'Nutrients', 'Macros', 'Semantics', 'Phases', 'Day types',
-  'Sport', 'Cadence', 'Elevation', 'Intervals', 'Infrastructure',
+  'Power zones', 'CHO zones', 'kJ zones', 'Streams', 'Capacity', 'Regulators',
+  'Nutrients', 'Macros', 'Semantics', 'Phases', 'Day types', 'Intent',
+  'Priority', 'Sport', 'Cadence', 'Elevation', 'Intervals', 'Compliance', 'Infrastructure',
 ]
 
 const CO_VIS_MAP: Record<string, string[]> = {
   'Session graph': ['Power zones', 'Streams', 'Cadence', 'Elevation', 'Intervals', 'Infrastructure'],
-  'Session zones': ['Power zones', 'CHO zones', 'Semantics', 'Infrastructure'],
+  'Session zones': ['Power zones', 'CHO zones', 'kJ zones', 'Semantics', 'Infrastructure'],
   'Session fuel': ['CHO zones', 'Nutrients', 'Macros', 'Semantics', 'Infrastructure'],
-  'Session analysis': ['Power zones', 'Streams', 'Regulators', 'Semantics', 'Infrastructure'],
+  'Session analysis': ['Power zones', 'Streams', 'Regulators', 'Semantics', 'kJ zones', 'Infrastructure'],
   'Capacity chart': ['Capacity', 'Phases', 'Semantics', 'Infrastructure'],
   'Regulator chart': ['Regulators', 'Semantics', 'Infrastructure'],
   'Peak curves': ['Power zones', 'Infrastructure'],
-  'Today': ['Power zones', 'Regulators', 'Nutrients', 'Semantics', 'Day types', 'Sport'],
-  'Calendar': ['Power zones', 'Semantics', 'Phases', 'Day types', 'Sport'],
+  'Today': ['Power zones', 'Regulators', 'Nutrients', 'Semantics', 'Day types', 'Intent', 'Priority', 'Sport', 'Compliance'],
+  'Calendar': ['Power zones', 'Semantics', 'Phases', 'Day types', 'Intent', 'Priority', 'Sport', 'Compliance'],
   'Fuel daily': ['CHO zones', 'Nutrients', 'Macros', 'Semantics'],
   'Fuel products': ['Nutrients', 'Semantics'],
   'CHO×Power matrix': ['Power zones', 'CHO zones'],
   'Season overview': ['Phases', 'Capacity', 'Sport', 'Semantics', 'Infrastructure'],
+  'Analytics widgets': ['Power zones', 'Semantics', 'kJ zones', 'Sport', 'Compliance', 'Infrastructure'],
 }
 
 // Sidebar sections
@@ -334,15 +373,20 @@ const SECTIONS = [
   { id: 'regulators', label: '7. Regulators' },
   { id: 'nutrients', label: '8. Nutrients' },
   { id: 'cadence', label: '9. Cadence zones' },
+  { id: 'kj-zones', label: '9b. kJ / Energy zones' },
+  { id: 'fuel-charts', label: '9A. Fuel & nutrition charts' },
   { id: 'elevation', label: '10. Elevation gradient' },
   { id: 'intervals', label: '11. Interval stack' },
   { id: 'phases', label: '12. Training phases' },
   { id: 'day-types', label: '13. Day types + intent' },
   { id: 'peak-curves', label: '14. Peak curves' },
   { id: 'athlete-dna', label: '15. Athlete DNA radar' },
+  { id: 'perf-analytics', label: '14A. Performance analytics' },
   { id: 'heat-maps', label: '16. Heat map scales' },
   { id: 'wellness', label: '17. Body & wellness' },
+  { id: 'behavioral-heatmaps', label: '17A. Behavioral heatmaps' },
   { id: 'infrastructure', label: '18. Chart infrastructure' },
+  { id: 'advanced-viz', label: '18A. Advanced visualizations' },
   { id: 'sport-colors', label: '19. Sport colors' },
   { id: 'gauges', label: '20. Gauges & scores' },
   { id: 'brand', label: '21. Brand palette' },
@@ -450,6 +494,442 @@ function LegendLine({ hex, label, dash = false, width = 2 }: { hex: string; labe
       </svg>
       <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>{label}</span>
     </div>
+  )
+}
+
+// ── Main page ──
+
+// ── Chart illustration components (math layer for multi-series) ──
+
+function CapacityChartSVG() {
+  const W = 700, H = 220, pad = { top: 12, right: 60, bottom: 24, left: 44 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const { ctl, atl, surge } = CAPACITY
+  const allVals = [...ctl, ...atl, ...surge]
+  const yMin = Math.min(...allVals) - 5, yMax = Math.max(...allVals) + 5
+  const sx = scaleLinear([0, ctl.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  const pathCtl = linePath(ctl, xA, (v) => sy(v))
+  const pathAtl = linePath(atl, xA, (v) => sy(v))
+  const pathSurge = linePath(surge, xA, (v) => sy(v))
+  const formParts = ctl.map((c, i) => ({ x: sx(i), ctlY: sy(c), atlY: sy(atl[i]) }))
+  const areaFwd = formParts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.ctlY.toFixed(1)}`).join('')
+  const areaBack = formParts.slice().reverse().map((p) => `L${p.x.toFixed(1)},${p.atlY.toFixed(1)}`).join('')
+  const forecastX = sx(Math.round(ctl.length * 0.8))
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <rect x={0} y={0} width={cw * 0.3} height={ch} fill="#7CA3BE" opacity={0.06} />
+        <rect x={cw * 0.3} y={0} width={cw * 0.3} height={ch} fill="#E8B020" opacity={0.06} />
+        <rect x={cw * 0.6} y={0} width={cw * 0.2} height={ch} fill="#E83B52" opacity={0.06} />
+        <rect x={cw * 0.8} y={0} width={cw * 0.2} height={ch} fill="#9B40E8" opacity={0.06} />
+        <path d={`${areaFwd}${areaBack}Z`} fill="#1B8A5A" opacity={0.10} />
+        <path d={pathCtl} fill="none" stroke="#14B8A2" strokeWidth={2} strokeLinejoin="round" />
+        <path d={pathAtl} fill="none" stroke="#E83B52" strokeWidth={2} strokeLinejoin="round" />
+        <path d={pathSurge} fill="none" stroke="#9B40E8" strokeWidth={1.5} strokeDasharray="3 3" strokeLinejoin="round" />
+        <line x1={forecastX} y1={0} x2={forecastX} y2={ch} stroke="var(--n400)" strokeWidth={0.5} strokeDasharray="4 4" />
+        <text x={forecastX + 6} y={12} fontSize={9} fill="var(--n600)" fontWeight={450}>Forecast</text>
+        {[yMin, (yMin + yMax) / 2, yMax].map((v) => (
+          <text key={v} x={-8} y={sy(v) + 3} textAnchor="end" fontSize={9} fill="var(--n600)" fontWeight={400}>{Math.round(v)}</text>
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+function ForecastChartSVG() {
+  const W = 400, H = 120, pad = { top: 8, right: 12, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const split = 60, points = 100
+  const ctlFull = CAPACITY.ctl.slice(0, points)
+  const atlFull = CAPACITY.atl.slice(0, points)
+  const allVals = [...ctlFull, ...atlFull]
+  const yMin = Math.min(...allVals) - 3, yMax = Math.max(...allVals) + 3
+  const sx = scaleLinear([0, points - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  const ctlSolid = linePath(ctlFull.slice(0, split + 1), xA, (v) => sy(v))
+  const atlSolid = linePath(atlFull.slice(0, split + 1), xA, (v) => sy(v))
+  const ctlDash = linePath(ctlFull.slice(split).map((v, i) => ({ v, i: i + split })), (d) => sx(d.i), (d) => sy(d.v))
+  const atlDash = linePath(atlFull.slice(split).map((v, i) => ({ v, i: i + split })), (d) => sx(d.i), (d) => sy(d.v))
+  const bandTop = ctlFull.slice(split).map((v, i) => `${i === 0 ? 'M' : 'L'}${sx(i + split).toFixed(1)},${sy(v + 4).toFixed(1)}`).join('')
+  const bandBot = ctlFull.slice(split).reverse().map((v, i) => `L${sx(points - 1 - i).toFixed(1)},${sy(ctlFull[points - 1 - i] - 4).toFixed(1)}`).join('')
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <path d={ctlSolid} fill="none" stroke="#14B8A2" strokeWidth={2} strokeLinejoin="round" />
+        <path d={atlSolid} fill="none" stroke="#E83B52" strokeWidth={2} strokeLinejoin="round" />
+        <line x1={sx(split)} y1={0} x2={sx(split)} y2={ch} stroke="var(--n400)" strokeWidth={0.5} strokeDasharray="4 4" />
+        <text x={sx(split) + 6} y={12} fontSize={9} fill="var(--n600)" fontWeight={450}>Forecast</text>
+        <path d={ctlDash} fill="none" stroke="#14B8A2" strokeWidth={2} strokeDasharray="6 4" opacity={0.5} strokeLinejoin="round" />
+        <path d={atlDash} fill="none" stroke="#E83B52" strokeWidth={2} strokeDasharray="6 4" opacity={0.5} strokeLinejoin="round" />
+        <path d={`${bandTop}${bandBot}Z`} fill="#14B8A2" opacity={0.06} />
+      </g>
+    </svg>
+  )
+}
+
+function ACWRChartSVG() {
+  const W = 400, H = 140, pad = { top: 4, right: 80, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const sy = scaleLinear([0, 2], [ch, 0])
+  const zones = [
+    { y1: 0, y2: 0.5, color: '#C43C3C', label: '<0.5 Danger' },
+    { y1: 0.5, y2: 0.8, color: '#C49B08', label: '0.5–0.8 Warning' },
+    { y1: 0.8, y2: 1.3, color: '#1B8A5A', label: '0.8–1.3 Sweet spot' },
+    { y1: 1.3, y2: 1.5, color: '#C49B08', label: '1.3–1.5 Warning' },
+    { y1: 1.5, y2: 2.0, color: '#C43C3C', label: '>1.5 Danger' },
+  ]
+  const rng = (() => { let s = 555; return () => { s = (Math.imul(s, 1664525) + 1013904223) | 0; return (s >>> 0) / 0xffffffff } })()
+  const acwrData = Array.from({ length: 80 }, (_, i) => ({ x: i, y: 0.9 + Math.sin(i * 0.15) * 0.25 + (rng() - 0.5) * 0.08 }))
+  const sx = scaleLinear([0, 79], [0, cw])
+  const acwrPath = linePath(acwrData, (d) => sx(d.x), (d) => sy(d.y))
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        {zones.map((z) => (
+          <rect key={z.label} x={0} y={sy(z.y2)} width={cw} height={sy(z.y1) - sy(z.y2)} fill={z.color} opacity={0.05} />
+        ))}
+        {zones.map((z) => (
+          <text key={z.label + 't'} x={cw + 6} y={(sy(z.y1) + sy(z.y2)) / 2 + 3} fontSize={8} fill={z.color} fontWeight={450}>{z.label}</text>
+        ))}
+        <path d={acwrPath} fill="none" stroke="#E8B020" strokeWidth={1.5} strokeLinejoin="round" />
+      </g>
+    </svg>
+  )
+}
+
+function PeakCurvesChartSVG() {
+  const W = 600, H = 200, pad = { top: 12, right: 12, bottom: 24, left: 44 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const allVals = PEAK_CURVES.flatMap((c) => c.data)
+  const yMin = Math.min(...allVals) * 0.95, yMax = Math.max(...allVals) * 1.05
+  const sx = scaleLinear([0, 79], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        {PEAK_CURVES.map((c) => (
+          <path key={c.label} d={linePath(c.data, (_, i) => sx(i), (v) => sy(v))} fill="none" stroke={c.color}
+            strokeWidth={c.label === 'Current' ? 2 : 1.5} strokeDasharray={c.label === 'Best ever' ? '5 3' : undefined} strokeLinejoin="round" />
+        ))}
+        {[yMin, (yMin + yMax) / 2, yMax].map((v) => (
+          <text key={v} x={-8} y={sy(v) + 3} textAnchor="end" fontSize={9} fill="var(--n600)" fontWeight={400}>{Math.round(v)}w</text>
+        ))}
+        {[0, 20, 40, 60, 79].map((i) => {
+          const dur = Math.pow(10, (i / 80) * 3.5)
+          const label = dur < 60 ? `${Math.round(dur)}s` : dur < 3600 ? `${Math.round(dur / 60)}m` : `${(dur / 3600).toFixed(1)}h`
+          return <text key={i} x={sx(i)} y={ch + 16} textAnchor="middle" fontSize={9} fill="var(--n600)" fontWeight={400}>{label}</text>
+        })}
+      </g>
+    </svg>
+  )
+}
+
+function RegulatorAreaChartSVG() {
+  const W = 400, H = 120, pad = { top: 4, right: 8, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const { fatigue, fitness, form } = REGULATORS
+  const allVals = [...fatigue, ...fitness, ...form]
+  const yMin = Math.min(...allVals) - 5, yMax = Math.max(...allVals) + 5
+  const sx = scaleLinear([0, fatigue.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  const areas = [
+    { data: fatigue, color: '#E36B30' },
+    { data: fitness, color: '#9B40E8' },
+    { data: form, color: '#7CA3BE' },
+  ]
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        {areas.map((a) => (
+          <path key={a.color} d={areaPath(a.data, xA, (v) => sy(v), ch)} fill={a.color} opacity={0.12} />
+        ))}
+        {areas.map((a) => (
+          <path key={a.color + 'l'} d={linePath(a.data, xA, (v) => sy(v))} fill="none" stroke={a.color} strokeWidth={1.5} strokeLinejoin="round" />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+function FuelChartSVG() {
+  const W = 400, H = 140, pad = { top: 4, right: 8, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const { gutCapacity, gutAdaptation, choIntake } = FUEL
+  const allVals = [...gutCapacity, ...gutAdaptation]
+  const yMin = Math.min(...allVals) - 5, yMax = Math.max(...allVals) + 5
+  const sx = scaleLinear([0, gutCapacity.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <path d={areaPath(gutCapacity, xA, (v) => sy(v), ch)} fill="#14B8A2" opacity={0.08} />
+        <path d={linePath(gutCapacity, xA, (v) => sy(v))} fill="none" stroke="#14B8A2" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={linePath(gutAdaptation, xA, (v) => sy(v))} fill="none" stroke="#E8B020" strokeWidth={1.5} strokeDasharray="4 3" strokeLinejoin="round" />
+        {choIntake.map((v, i) => v > 0 ? <line key={i} x1={sx(i)} y1={ch} x2={sx(i)} y2={sy(v)} stroke="#E36B30" strokeWidth={1.5} opacity={0.7} /> : null)}
+        {choIntake.map((v, i) => v > 0 ? <circle key={i + 'c'} cx={sx(i)} cy={sy(v)} r={2.5} fill="#E36B30" /> : null)}
+      </g>
+    </svg>
+  )
+}
+
+function EnergyBalanceChartSVG() {
+  const W = 400, H = 120, pad = { top: 4, right: 8, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const { surplus, deficit, balance } = ENERGY
+  const yMin = Math.min(...balance) - 20, yMax = Math.max(...balance) + 20
+  const sx = scaleLinear([0, balance.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  const zeroY = sy(0)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <line x1={0} y1={zeroY} x2={cw} y2={zeroY} stroke="var(--n400)" strokeWidth={0.5} />
+        <path d={areaPath(surplus, xA, (v) => sy(v), zeroY)} fill="#1B8A5A" opacity={0.12} />
+        <path d={areaPath(deficit, xA, (v) => sy(v), zeroY)} fill="#C43C3C" opacity={0.12} />
+        <path d={linePath(balance, xA, (v) => sy(v))} fill="none" stroke="var(--n1050)" strokeWidth={1.5} strokeLinejoin="round" />
+      </g>
+    </svg>
+  )
+}
+
+function ScatterChartSVG() {
+  const W = 300, H = 200, pad = { top: 8, right: 8, bottom: 8, left: 8 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const sx = scaleLinear([0, 100], [0, cw])
+  const sy = scaleLinear([0, 100], [ch, 0])
+  const zoneColors = ['#7CA3BE', '#14B8A2', '#E8B020', '#E36B30', '#E83B52', '#9B40E8']
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <line x1={sx(0)} y1={sy(20)} x2={sx(100)} y2={sy(80)} stroke="var(--n600)" strokeWidth={1} strokeDasharray="4 3" opacity={0.5} />
+        <path d={`M${sx(0)},${sy(14)} L${sx(100)},${sy(74)} L${sx(100)},${sy(86)} L${sx(0)},${sy(26)} Z`} fill="var(--n600)" opacity={0.04} />
+        {SCATTER.map((d, i) => (
+          <circle key={i} cx={sx(d.x)} cy={sy(d.y)} r={4} fill={zoneColors[d.zone]} opacity={0.7} />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+function DualLoadChartSVG() {
+  const W = 300, H = 120, pad = { top: 4, right: 8, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const { rScore, pulseLoad } = DUAL_LOAD
+  const allVals = [...rScore, ...pulseLoad]
+  const yMin = Math.min(...allVals) - 5, yMax = Math.max(...allVals) + 5
+  const sx = scaleLinear([0, rScore.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <path d={linePath(rScore, xA, (v) => sy(v))} fill="none" stroke="#14B8A2" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={linePath(pulseLoad, xA, (v) => sy(v))} fill="none" stroke="#E83B52" strokeWidth={1.5} strokeLinejoin="round" />
+      </g>
+    </svg>
+  )
+}
+
+function StreamOverlaySVG({ data, color, dash, area }: { data: number[]; color: string; dash?: boolean; area?: boolean }) {
+  const W = 200, H = 40, pad = { top: 2, right: 4, bottom: 2, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const yMin = Math.min(...data) - 2, yMax = Math.max(...data) + 2
+  const sx = scaleLinear([0, data.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        {area && <path d={areaPath(data, xA, (v) => sy(v), ch)} fill={color} opacity={0.10} />}
+        <path d={linePath(data, xA, (v) => sy(v))} fill="none" stroke={color} strokeWidth={1.5} strokeDasharray={dash ? '5 3' : undefined} strokeLinejoin="round" />
+      </g>
+    </svg>
+  )
+}
+
+function SparklineSVG({ data, color }: { data: number[]; color?: string }) {
+  const W = 120, H = 32, pad = { top: 2, right: 2, bottom: 2, left: 2 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const yMin = Math.min(...data), yMax = Math.max(...data)
+  const sx = scaleLinear([0, data.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        <path d={linePath(data, xA, (v) => sy(v))} fill="none" stroke={color ?? 'var(--n800)'} strokeWidth={1.5} strokeLinejoin="round" />
+      </g>
+    </svg>
+  )
+}
+
+function SportCapacityChartSVG() {
+  const W = 400, H = 120, pad = { top: 4, right: 8, bottom: 4, left: 0 }
+  const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
+  const allVals = SPORT_LINES.flatMap((s) => s.data)
+  const yMin = Math.min(...allVals) - 3, yMax = Math.max(...allVals) + 3
+  const sx = scaleLinear([0, SPORT_LINES[0].data.length - 1], [0, cw])
+  const sy = scaleLinear([yMin, yMax], [ch, 0])
+  const xA = (_: number, i: number) => sx(i)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
+      <g transform={`translate(${pad.left},${pad.top})`}>
+        {SPORT_LINES.map((s) => (
+          <path key={s.label} d={linePath(s.data, xA, (v) => sy(v))} fill="none" stroke={s.color} strokeWidth={1.5} strokeLinejoin="round" />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+function RadarChartSVG() {
+  const cx = 200, cy = 200, outerR = 160
+  const axisCount = 14
+  const labels = [
+    'Sprint', '5s peak', '30s power', '1min power', 'Threshold', 'FTP', '20min power',
+    'Endurance', 'Efficiency', 'Recovery', 'Economy', 'Repeatability', 'Fatigue resist.', 'Pacing',
+  ]
+  // Round to 2 decimals to avoid server/client hydration mismatch from Math.sin/cos float precision
+  const r2 = (n: number) => Math.round(n * 100) / 100
+  const angles = Array.from({ length: axisCount }, (_, i) => ((i / axisCount) * 360 - 90) * (Math.PI / 180))
+  const ptAt = (angle: number, r: number) => ({ x: r2(cx + Math.cos(angle) * r), y: r2(cy + Math.sin(angle) * r) })
+  const ringPoly = (r: number) => angles.map((a) => ptAt(a, r)).map((p) => `${p.x},${p.y}`).join(' ')
+  // Seeded random values for 3 layers
+  const rng = (() => { let s = 777; return () => { s = (Math.imul(s, 1664525) + 1013904223) | 0; return (s >>> 0) / 0xffffffff } })()
+  const currentVals = Array.from({ length: axisCount }, () => r2(0.55 + rng() * 0.35))
+  const bestVals = Array.from({ length: axisCount }, () => r2(0.65 + rng() * 0.30))
+  const trendVals = Array.from({ length: axisCount }, () => r2(0.40 + rng() * 0.40))
+  const layerPoly = (vals: number[]) => vals.map((v, i) => ptAt(angles[i], outerR * v)).map((p) => `${p.x},${p.y}`).join(' ')
+  const labelPts = angles.map((a) => ptAt(a, outerR + 18))
+
+  return (
+    <svg width="420" height="420" viewBox="0 0 400 400" shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+      {[0.2, 0.4, 0.6, 0.8, 1.0].map((frac) => (
+        <polygon key={frac} points={ringPoly(outerR * frac)} fill="none" stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
+      ))}
+      {angles.map((a, i) => {
+        const end = ptAt(a, outerR)
+        return <line key={i} x1={cx} y1={cy} x2={end.x} y2={end.y} stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
+      })}
+      <polygon points={layerPoly(trendVals)} fill="#14B8A2" fillOpacity={0.12} stroke="#14B8A2" strokeWidth={1} strokeLinejoin="round" />
+      <polygon points={layerPoly(bestVals)} fill="#E83B52" fillOpacity={0.06} stroke="#E83B52" strokeWidth={1.5} strokeDasharray="5 3" strokeLinejoin="round" />
+      <polygon points={layerPoly(currentVals)} fill={NEAR_BLACK} fillOpacity={0.04} stroke={NEAR_BLACK} strokeWidth={2} strokeLinejoin="round" />
+      {labels.map((label, i) => (
+        <text key={label} x={labelPts[i].x} y={r2(labelPts[i].y + 3)} textAnchor="middle" fontSize={10} fontWeight={400} fill="var(--n600)">{label}</text>
+      ))}
+    </svg>
+  )
+}
+
+function MiniChartLine({ data, stroke, fill, height = 80, dash, strokeWidth = 1.5, refY, refColor, secondData, secondStroke }: {
+  data: number[]; stroke: string; fill?: string; height?: number; dash?: boolean; strokeWidth?: number; refY?: number; refColor?: string; secondData?: number[]; secondStroke?: string
+}) {
+  const W = 280
+  const allVals = [...data, ...(secondData ?? [])]
+  const yMin = Math.min(...allVals) * 0.95, yMax = Math.max(...allVals) * 1.05
+  const sx = scaleLinear([0, data.length - 1], [0, W])
+  const sy = scaleLinear([yMin, yMax], [height, 0])
+  const xA = (_: number, i: number) => sx(i)
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${height}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+      {fill && <path d={areaPath(data, xA, (v) => sy(v), height)} fill={fill} />}
+      <path d={linePath(data, xA, (v) => sy(v))} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeDasharray={dash ? '5 3' : undefined} strokeLinejoin="round" />
+      {secondData && secondStroke && (
+        <path d={linePath(secondData, xA, (v) => sy(v))} fill="none" stroke={secondStroke} strokeWidth={1.5} strokeLinejoin="round" />
+      )}
+      {refY != null && refColor && (
+        <line x1={0} y1={sy(refY)} x2={W} y2={sy(refY)} stroke={refColor} strokeWidth={0.5} strokeDasharray="4 4" />
+      )}
+    </svg>
+  )
+}
+
+function MiniBarChart({ data, color, height = 80, bipolar = false }: {
+  data: number[]; color: string | ((v: number) => string); height?: number; bipolar?: boolean
+}) {
+  const W = 280
+  const maxAbs = Math.max(...data.map(Math.abs)) * 1.1
+  const barW = Math.max(2, W / data.length - 2)
+  const sx = scaleLinear([0, data.length - 1], [barW / 2, W - barW / 2])
+  const sy = bipolar
+    ? scaleLinear([-maxAbs, maxAbs], [height, 0])
+    : scaleLinear([0, maxAbs], [height, 0])
+  const zeroY = bipolar ? sy(0) : height
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${height}`} shapeRendering="geometricPrecision">
+      {bipolar && <line x1={0} y1={zeroY} x2={W} y2={zeroY} stroke="var(--n400)" strokeWidth={0.5} />}
+      {data.map((v, i) => {
+        const c = typeof color === 'function' ? color(v) : color
+        const barH = Math.abs(sy(0) - sy(v))
+        const y = v >= 0 ? sy(v) : zeroY
+        return v !== 0 ? <rect key={i} x={sx(i) - barW / 2} y={bipolar ? (v >= 0 ? sy(v) : zeroY) : height - barH} width={barW} height={barH} fill={c} rx={1} /> : null
+      })}
+    </svg>
+  )
+}
+
+function HeatmapGrid({ data, colorFn, cellSize = 12, gap = 2 }: {
+  data: number[][]; colorFn: (v: number) => string; cellSize?: number; gap?: number
+}) {
+  const rows = data.length, cols = data[0]?.length ?? 0
+  const w = cols * (cellSize + gap), h = rows * (cellSize + gap)
+  return (
+    <svg width="100%" viewBox={`0 0 ${w} ${h}`} shapeRendering="crispEdges">
+      {data.map((row, r) => row.map((v, c) => (
+        <rect key={`${r}-${c}`} x={c * (cellSize + gap)} y={r * (cellSize + gap)} width={cellSize} height={cellSize} fill={colorFn(v)} rx={2} />
+      )))}
+    </svg>
+  )
+}
+
+function DonutChart({ segments, size = 120 }: { segments: { value: number; color: string; label: string }[]; size?: number }) {
+  const r2 = (n: number) => Math.round(n * 100) / 100
+  const r = size / 2 - 10, cx = size / 2, cy = size / 2
+  const total = segments.reduce((a, s) => a + s.value, 0)
+  let angle = -90
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ fontFamily: 'var(--font-sans)' }}>
+      {segments.map((seg) => {
+        const sweep = (seg.value / total) * 360
+        const startRad = (angle * Math.PI) / 180
+        const endRad = ((angle + sweep) * Math.PI) / 180
+        const largeArc = sweep > 180 ? 1 : 0
+        const x1 = r2(cx + r * Math.cos(startRad)), y1 = r2(cy + r * Math.sin(startRad))
+        const x2 = r2(cx + r * Math.cos(endRad)), y2 = r2(cy + r * Math.sin(endRad))
+        const d = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`
+        angle += sweep
+        return <path key={seg.label} d={d} fill={seg.color} />
+      })}
+      <circle cx={cx} cy={cy} r={r * 0.55} fill="var(--n50)" />
+    </svg>
+  )
+}
+
+function StackedBarChart({ data, colors, height = 80 }: {
+  data: { values: number[] }[]; colors: string[]; height?: number
+}) {
+  const W = 280
+  const barW = Math.max(8, W / data.length - 4)
+  const maxTotal = Math.max(...data.map((d) => d.values.reduce((a, b) => a + b, 0)))
+  const sy = scaleLinear([0, maxTotal], [height, 0])
+  return (
+    <svg width="100%" viewBox={`0 0 ${W} ${height}`} shapeRendering="geometricPrecision">
+      {data.map((d, i) => {
+        const x = (i / data.length) * W + 2
+        let cumY = height
+        return d.values.map((v, j) => {
+          const h = height - sy(v)
+          cumY -= h
+          return <rect key={`${i}-${j}`} x={x} y={cumY} width={barW} height={h} fill={colors[j]} rx={1} />
+        })
+      })}
+    </svg>
   )
 }
 
@@ -1255,8 +1735,8 @@ export default function ColorGuidePage() {
                 <div className="flex flex-col gap-0">
                   {/* Power */}
                   <ChartRoot data={STREAM_POWER} height={55} padding={{ top: 4, right: 8, bottom: 0, left: 0 }} yPadding={0.08}>
-                    <ChartArea gradientColor="#0F0F0E" opacityFrom={0.06} opacityTo={0.005} />
-                    <ChartLine className="fill-none stroke-[#0F0F0E] stroke-[2]" />
+                    <ChartArea gradientColor="var(--n1150)" opacityFrom={0.06} opacityTo={0.005} />
+                    <ChartLine className="fill-none stroke-(--n1150) stroke-[2]" />
                   </ChartRoot>
                   {/* Heart rate */}
                   <ChartRoot data={STREAM_HR} height={50} padding={{ top: 4, right: 8, bottom: 0, left: 0 }} yPadding={0.08}>
@@ -1313,7 +1793,7 @@ export default function ColorGuidePage() {
                   <ToggleGroup options={['OFF', 'ON']} value={zoneToggle} onChange={(v) => setZoneToggle(v as string)} size="sm" />
                   <ChartRoot data={ZONE_LINE_DATA} height={60} padding={{ top: 4, right: 8, bottom: 4, left: 0 }} yPadding={0.08}>
                     {zoneToggle === 'OFF' ? (
-                      <ChartLine className="fill-none stroke-[#0F0F0E] stroke-[2]" />
+                      <ChartLine className="fill-none stroke-(--n1150) stroke-[2]" />
                     ) : (
                       <ChartZoneLine threshold={280} zones={RAMTT_ZONE_DEFS} className="stroke-[2]" />
                     )}
@@ -1347,34 +1827,27 @@ export default function ColorGuidePage() {
               <SectionHeader>Stream overlays</SectionHeader>
               <InfoText>Togglebare lag oven på session graph. Hvert overlay har sin egen visuelle stil.</InfoText>
               <div className="grid grid-cols-1 gap-3">
-                {/* W' Balance — dashed 4,4 + area fill */}
+                {/* W' Balance — dashed + area fill */}
                 <Card padding="sm">
                   <div className="flex items-center gap-3">
                     <span className={cn(LABEL_STYLE, 'w-[130px] shrink-0')}>W&apos; balance</span>
-                    <svg width="200" height="36" viewBox="0 0 200 36" shapeRendering="geometricPrecision">
-                      <path d="M0,10 C30,12 60,18 100,22 C140,26 170,30 200,32 L200,36 L0,36 Z" fill="rgba(232,176,32,0.10)" />
-                      <path d="M0,10 C30,12 60,18 100,22 C140,26 170,30 200,32" fill="none" stroke="#E8B020" strokeWidth="1.5" strokeDasharray="4 4" />
-                    </svg>
-                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>Z3 #E8B020 &middot; Dashed 4,4 + area fill 10%</span>
+                    <div className="w-[200px]"><StreamOverlaySVG data={W_PRIME} color="#E8B020" dash area /></div>
+                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>Z3 #E8B020 &middot; Dashed + area fill 10%</span>
                   </div>
                 </Card>
-                {/* Glycogen Depletion — dashed 6,3 */}
+                {/* Glycogen Depletion — dashed */}
                 <Card padding="sm">
                   <div className="flex items-center gap-3">
                     <span className={cn(LABEL_STYLE, 'w-[130px] shrink-0')}>Glycogen depletion</span>
-                    <svg width="200" height="36" viewBox="0 0 200 36" shapeRendering="geometricPrecision">
-                      <path d="M0,8 C30,10 60,14 100,20 C140,26 170,30 200,34" fill="none" stroke="#E36B30" strokeWidth="1.5" strokeDasharray="6 3" />
-                    </svg>
+                    <div className="w-[200px]"><StreamOverlaySVG data={GLYCO_DEPLETION} color="#E36B30" dash /></div>
                     <span className={cn(QUIET_STYLE, 'text-[10px]')}>CHO #E36B30 &middot; Dashed 6,3</span>
                   </div>
                 </Card>
-                {/* AAP — dotted 2,4 */}
+                {/* AAP — dotted */}
                 <Card padding="sm">
                   <div className="flex items-center gap-3">
                     <span className={cn(LABEL_STYLE, 'w-[130px] shrink-0')}>AAP (altitude adj.)</span>
-                    <svg width="200" height="36" viewBox="0 0 200 36" shapeRendering="geometricPrecision">
-                      <path d="M0,20 C30,18 60,14 100,16 C140,18 170,15 200,12" fill="none" stroke="#7CA3BE" strokeWidth="1.5" strokeDasharray="2 4" />
-                    </svg>
+                    <div className="w-[200px]"><StreamOverlaySVG data={STREAM_SPEED} color="#7CA3BE" dash /></div>
                     <span className={cn(QUIET_STYLE, 'text-[10px]')}>Z1 #7CA3BE &middot; Dotted 2,4</span>
                   </div>
                 </Card>
@@ -1434,20 +1907,7 @@ export default function ColorGuidePage() {
               <SectionHeader>Projected / forecast lines</SectionHeader>
               <InfoText>Fra forecast-enginen. Samme farver ved 50% opacity, dashed 6,4. Confidence band ved 6% opacity.</InfoText>
               <Card padding="md">
-                <svg width="100%" height="120" viewBox="0 0 400 120" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  {/* Solid portion */}
-                  <path d="M0,80 C40,75 80,60 120,55 C160,50 200,58 240,48" fill="none" stroke="#14B8A2" strokeWidth="2" />
-                  <path d="M0,95 C40,92 80,82 120,78 C160,74 200,80 240,72" fill="none" stroke="#E83B52" strokeWidth="2" />
-                  {/* Divider line */}
-                  <line x1="240" y1="0" x2="240" y2="120" stroke="var(--n400)" strokeWidth="0.5" strokeDasharray="4 4" />
-                  <text x="248" y="12" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>Forecast</text>
-                  {/* Projected lines (dashed, 50% opacity) */}
-                  <path d="M240,48 C280,42 320,38 360,32 L400,28" fill="none" stroke="#14B8A2" strokeWidth="2" strokeDasharray="6 4" opacity="0.5" />
-                  <path d="M240,72 C280,68 320,62 360,58 L400,54" fill="none" stroke="#E83B52" strokeWidth="2" strokeDasharray="6 4" opacity="0.5" />
-                  {/* Confidence bands (6% opacity) */}
-                  <path d="M240,42 C280,36 320,30 360,24 L400,20 L400,36 C360,40 320,46 280,48 L240,54 Z" fill="#14B8A2" opacity="0.06" />
-                  <path d="M240,66 C280,60 320,54 360,50 L400,46 L400,62 C360,66 320,70 280,74 L240,78 Z" fill="#E83B52" opacity="0.06" />
-                </svg>
+                <ForecastChartSVG />
                 <div className="flex gap-4 mt-2">
                   <LegendLine hex="#14B8A2" label="Capacity (solid)" />
                   <LegendLine hex="#14B8A2" label="Projected (dashed 50%)" dash />
@@ -1463,26 +1923,7 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>ACWR reference zones (background bands)</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="140" viewBox="0 0 400 140" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  {/* Danger low */}
-                  <rect x="0" y="110" width="400" height="30" fill="rgba(196,60,60,0.04)" />
-                  {/* Warning low */}
-                  <rect x="0" y="90" width="400" height="20" fill="rgba(196,155,8,0.04)" />
-                  {/* Sweet spot */}
-                  <rect x="0" y="40" width="400" height="50" fill="rgba(27,138,90,0.04)" />
-                  {/* Warning high */}
-                  <rect x="0" y="20" width="400" height="20" fill="rgba(196,155,8,0.04)" />
-                  {/* Danger high */}
-                  <rect x="0" y="0" width="400" height="20" fill="rgba(196,60,60,0.04)" />
-                  {/* Labels */}
-                  <text x="395" y="14" textAnchor="end" style={{ fontSize: '8px', fill: '#C43C3C', fontFamily: 'var(--font-sans)' }}>{'>'}1.5 Danger</text>
-                  <text x="395" y="34" textAnchor="end" style={{ fontSize: '8px', fill: '#C49B08', fontFamily: 'var(--font-sans)' }}>1.3-1.5 Warning</text>
-                  <text x="395" y="68" textAnchor="end" style={{ fontSize: '8px', fill: '#1B8A5A', fontFamily: 'var(--font-sans)' }}>0.8-1.3 Sweet spot</text>
-                  <text x="395" y="104" textAnchor="end" style={{ fontSize: '8px', fill: '#C49B08', fontFamily: 'var(--font-sans)' }}>0.5-0.8 Warning</text>
-                  <text x="395" y="130" textAnchor="end" style={{ fontSize: '8px', fill: '#C43C3C', fontFamily: 'var(--font-sans)' }}>{'<'}0.5 Danger</text>
-                  {/* ACWR line */}
-                  <path d="M0,70 C50,68 100,55 150,62 C200,68 250,50 300,58 C350,62 380,55 400,52" fill="none" stroke="#E8B020" strokeWidth="1.5" />
-                </svg>
+                <ACWRChartSVG />
               </Card>
             </div>
 
@@ -1521,6 +1962,32 @@ export default function ColorGuidePage() {
                 </div>
               </Card>
             </div>
+
+            {/* 6.6 Training load overview */}
+            <div className="space-y-3">
+              <SectionHeader>Training load overview (14 days)</SectionHeader>
+              <InfoText>Bar per session, højde = R-Score. Rest days = tom.</InfoText>
+              <Card padding="md">
+                <MiniBarChart data={TRAINING_LOAD_BARS} color="var(--n1150)" />
+              </Card>
+            </div>
+
+            {/* 6.7 Season overview */}
+            <div className="space-y-3">
+              <SectionHeader>Season overview (52 weeks)</SectionHeader>
+              <InfoText>Ugentlig træningsbelastning med periodiseringsbølger. Fase-bands ved 6% opacity bag.</InfoText>
+              <Card padding="md">
+                <MiniBarChart data={SEASON_BARS} color="var(--n1150)" />
+              </Card>
+            </div>
+
+            {/* 6.8 ACWR trend */}
+            <div className="space-y-3">
+              <SectionHeader>ACWR trend (separate)</SectionHeader>
+              <Card padding="md">
+                <MiniChartLine data={CAPACITY.ctl.map((c, i) => c > 0 ? CAPACITY.atl[i] / c : 1)} stroke="#E8B020" refY={1.0} refColor="#1B8A5A" height={60} />
+              </Card>
+            </div>
           </section>
 
           {/* ══════════════════════════════════════════════════════════
@@ -1531,7 +1998,7 @@ export default function ColorGuidePage() {
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>7. Regulators</h2>
             <InfoText>Tre regulatorer der styrer performance-modellen. Vises som ringe/gauges på Today og som area charts. Farver fra zone-paletten: Z4, Z6, Z1.</InfoText>
 
-            <SwatchRow items={REGULATORS.map((r) => ({ hex: r.hex, label: r.label }))} size={48} round />
+            <SwatchRow items={REGULATOR_DISPLAY.map((r) => ({ hex: r.hex, label: r.label }))} size={48} round />
 
             {/* Gauge arcs */}
             <div className="space-y-3">
@@ -1544,10 +2011,10 @@ export default function ColorGuidePage() {
                       { radius: 60, pct: 0.6, dash: '113.1 188.5' },
                       { radius: 40, pct: 0.85, dash: '106.8 125.7' },
                     ].map((arc, i) => (
-                        <g key={REGULATORS[i].label} transform="translate(100,110)">
+                        <g key={REGULATOR_DISPLAY[i].label} transform="translate(100,110)">
                           <path d={`M ${-arc.radius} 0 A ${arc.radius} ${arc.radius} 0 0 1 ${arc.radius} 0`} fill="none" stroke="var(--n200)" strokeWidth="8" strokeLinecap="round" />
-                          <path d={`M ${-arc.radius} 0 A ${arc.radius} ${arc.radius} 0 0 1 ${arc.radius} 0`} fill="none" stroke={REGULATORS[i].hex} strokeWidth="8" strokeLinecap="round" strokeDasharray={arc.dash} />
-                          <text x={arc.radius + 8} y="4" style={{ fontSize: '10px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>{REGULATORS[i].label}</text>
+                          <path d={`M ${-arc.radius} 0 A ${arc.radius} ${arc.radius} 0 0 1 ${arc.radius} 0`} fill="none" stroke={REGULATOR_DISPLAY[i].hex} strokeWidth="8" strokeLinecap="round" strokeDasharray={arc.dash} />
+                          <text x={arc.radius + 8} y="4" style={{ fontSize: '10px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>{REGULATOR_DISPLAY[i].label}</text>
                         </g>
                     ))}
                   </svg>
@@ -1555,17 +2022,13 @@ export default function ColorGuidePage() {
               </Card>
             </div>
 
-            {/* Area chart preview */}
+            {/* Area chart preview — math layer */}
             <div className="space-y-3">
               <SectionHeader>Area chart preview</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="100" viewBox="0 0 400 100" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  <path d="M0,70 C50,55 100,40 150,45 C200,50 250,35 300,30 C350,25 380,30 400,28 L400,100 L0,100 Z" fill="#E36B30" opacity="0.25" />
-                  <path d="M0,60 C50,50 100,55 150,50 C200,45 250,50 300,40 C350,35 380,38 400,36 L400,100 L0,100 Z" fill="#9B40E8" opacity="0.25" />
-                  <path d="M0,80 C50,70 100,60 150,55 C200,50 250,45 300,50 C350,48 380,45 400,42 L400,100 L0,100 Z" fill="#7CA3BE" opacity="0.25" />
-                </svg>
+                <RegulatorAreaChartSVG />
                 <div className="flex gap-4 mt-2">
-                  {REGULATORS.map((r) => (
+                  {REGULATOR_DISPLAY.map((r) => (
                     <LegendLine key={r.label} hex={r.hex} label={r.label} />
                   ))}
                 </div>
@@ -1577,7 +2040,7 @@ export default function ColorGuidePage() {
               <SectionHeader>Trend indicators</SectionHeader>
               <Card>
                 <dl className="m-0">
-                  {REGULATORS.map((r, i) => (
+                  {REGULATOR_DISPLAY.map((r, i) => (
                     <DataRow
                       key={r.label}
                       label={r.label}
@@ -1609,6 +2072,18 @@ export default function ColorGuidePage() {
               <div className="space-y-3">
                 <SectionHeader>Macros</SectionHeader>
                 <SwatchRow items={MACROS.map((m) => ({ hex: m.hex, label: m.label }))} size={40} round />
+                {/* Stacked macro bar */}
+                <div className={cn(RADIUS.sm, 'overflow-hidden flex')} style={{ height: 24 }}>
+                  <div style={{ width: '55%', backgroundColor: '#E36B30' }} className="flex items-center justify-center">
+                    <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white')}>CHO 55%</span>
+                  </div>
+                  <div style={{ width: '25%', backgroundColor: '#3B82F6' }} className="flex items-center justify-center">
+                    <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white')}>Protein 25%</span>
+                  </div>
+                  <div style={{ width: '20%', backgroundColor: '#E8B020' }} className="flex items-center justify-center">
+                    <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white')}>Fat 20%</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -1642,66 +2117,35 @@ export default function ColorGuidePage() {
               </div>
             </Card>
 
-            {/* 8.5 Fuel capacity chart */}
+            {/* 8.5 Fuel capacity chart — math layer */}
             <div className="space-y-3">
               <SectionHeader>Fuel capacity chart (3 tracks)</SectionHeader>
               <InfoText>Gut capacity linje, CPI bars, fuel coverage area, energy debt overlay. Gut adaptation som stiplet kurve.</InfoText>
               <Card padding="md">
-                <svg width="100%" height="140" viewBox="0 0 500 140" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  {/* Grid */}
-                  {[0, 35, 70, 105, 140].map((y) => (
-                    <line key={y} x1="0" y1={y} x2="500" y2={y} stroke="rgba(0,0,0,0.04)" strokeWidth="0.5" />
-                  ))}
-                  {/* Fuel coverage area (success green) */}
-                  <path d="M0,100 C60,95 120,80 180,75 C240,70 300,78 360,65 C420,58 460,62 500,55 L500,140 L0,140 Z" fill="rgba(27,138,90,0.10)" />
-                  {/* Energy debt overlay (danger, top) */}
-                  <path d="M300,0 C340,0 380,0 420,0 L500,0 L500,30 C460,28 420,20 380,15 C340,12 300,8 300,0 Z" fill="rgba(196,60,60,0.08)" />
-                  {/* CPI bars */}
-                  {[30, 80, 130, 180, 230, 280, 330, 380, 430].map((x, i) => {
-                    const heights = [45, 55, 60, 52, 65, 70, 58, 72, 68]
-                    return <rect key={x} x={x} y={140 - heights[i]} width="20" height={heights[i]} fill="rgba(227,107,48,0.25)" rx="1" />
-                  })}
-                  {/* Gut capacity line (Z2) */}
-                  <path d="M0,90 C60,85 120,70 180,65 C240,60 300,55 360,48 C420,42 460,45 500,40" fill="none" stroke="#14B8A2" strokeWidth="2" />
-                  {/* Gut adaptation curve (dashed 50% opacity) */}
-                  <path d="M0,95 C60,92 120,82 180,78 C240,74 300,68 360,62 C420,55 460,58 500,52" fill="none" stroke="#14B8A2" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.5" />
-                  {/* Fuel coverage line (success) */}
-                  <path d="M0,100 C60,95 120,80 180,75 C240,70 300,78 360,65 C420,58 460,62 500,55" fill="none" stroke="#1B8A5A" strokeWidth="1.5" />
-                </svg>
+                <FuelChartSVG />
                 <div className="flex flex-wrap gap-4 mt-2">
                   <LegendLine hex="#14B8A2" label="Gut capacity" />
-                  <LegendLine hex="#14B8A2" label="Gut adaptation" dash />
-                  <LegendLine hex="#1B8A5A" label="Fuel coverage" />
+                  <LegendLine hex="#E8B020" label="Gut adaptation" dash />
                   <div className="flex items-center gap-1.5">
-                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(227,107,48,0.25)' }} />
-                    <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>CPI bars</span>
+                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(227,107,48,0.7)' }} />
+                    <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>CHO intake</span>
                   </div>
                 </div>
               </Card>
             </div>
 
-            {/* 8.6 Energy balance chart */}
+            {/* 8.6 Energy balance chart — math layer */}
             <div className="space-y-3">
               <SectionHeader>Energy balance chart</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="100" viewBox="0 0 400 100" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  {/* Surplus area (green) */}
-                  <path d="M0,50 C30,45 60,35 90,30 C120,25 150,28 180,32 L180,50 L0,50 Z" fill="rgba(27,138,90,0.20)" />
-                  <path d="M300,50 C330,42 360,38 390,35 L400,34 L400,50 L300,50 Z" fill="rgba(27,138,90,0.20)" />
-                  {/* Deficit area (red) */}
-                  <path d="M180,50 C210,55 240,68 270,72 C300,75 300,50 300,50 Z" fill="rgba(196,60,60,0.20)" />
-                  {/* Zero line */}
-                  <line x1="0" y1="50" x2="400" y2="50" stroke="#E5E3DE" strokeWidth="1" />
-                  {/* Balance line */}
-                  <path d="M0,50 C30,45 60,35 90,30 C120,25 150,28 180,32 C210,55 240,68 270,72 C300,65 330,42 360,38 L400,34" fill="none" stroke={NEAR_BLACK} strokeWidth="1.5" />
-                </svg>
+                <EnergyBalanceChartSVG />
                 <div className="flex gap-4 mt-2">
                   <div className="flex items-center gap-1.5">
-                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(27,138,90,0.20)' }} />
+                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(27,138,90,0.12)' }} />
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Surplus</span>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(196,60,60,0.20)' }} />
+                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(196,60,60,0.12)' }} />
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Deficit</span>
                   </div>
                   <LegendLine hex={NEAR_BLACK} label="Balance" width={1.5} />
@@ -1737,6 +2181,137 @@ export default function ColorGuidePage() {
           </section>
 
           {/* ══════════════════════════════════════════════════════════
+             SECTION 9b: kJ / Energy zones
+             ══════════════════════════════════════════════════════════ */}
+          <SectionAnchor id="kj-zones" />
+          <section className="space-y-8">
+            <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>9b. kJ / Energy zones</h2>
+            <InfoText>Energiforbrug (kilojoule) klassificeret i zoner. Ses som badge i session detail. Antal zoner og grænser er ikke finaliseret.</InfoText>
+
+            {/* Gradient strip */}
+            <div className="space-y-3">
+              <SectionHeader>Energy zone gradient</SectionHeader>
+              <div className={cn(RADIUS.sm, 'overflow-hidden')} style={{ height: 24, background: 'linear-gradient(to right, rgba(196,155,8,0.20), rgba(196,155,8,0.40), rgba(196,155,8,0.60), rgba(196,155,8,0.80), #C49B08)', width: '100%' }} />
+              <div className="flex justify-between px-1">
+                {['E1 <1500', 'E2 1500–2500', 'E3 2500–3500', 'E4 3500–5000', 'E5 >5000'].map((label) => (
+                  <span key={label} className={cn(FONT.body, 'text-[10px]', WEIGHT.normal, 'text-[var(--n600)]')}>{label} kJ</span>
+                ))}
+              </div>
+            </div>
+
+            {/* Badges */}
+            <div className="space-y-3">
+              <SectionHeader>Energy zone badges</SectionHeader>
+              <div className="flex gap-3">
+                {[
+                  { label: 'E1 Low', opacity: 0.20 },
+                  { label: 'E2 Moderate', opacity: 0.40 },
+                  { label: 'E3 High', opacity: 0.60 },
+                  { label: 'E4 Very high', opacity: 0.80 },
+                  { label: 'E5 Extreme', opacity: 1.0 },
+                ].map((z) => (
+                  <Badge key={z.label} color={`rgba(196,155,8,${z.opacity})`}>{z.label}</Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Placeholder note */}
+            <Card>
+              <div className="flex items-start gap-2 p-3">
+                <PlaceholderTag />
+                <p className={cn(QUIET_STYLE, 'text-[11px]')}>Antal zoner, grænser og farve-stil (monokrom vs individuel) er IKKE finaliseret.</p>
+              </div>
+            </Card>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
+             SECTION 9A: Fuel & nutrition charts
+             ══════════════════════════════════════════════════════════ */}
+          <SectionAnchor id="fuel-charts" />
+          <section className="space-y-8">
+            <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>9A. Fuel & nutrition charts</h2>
+            <InfoText>15+ chart-typer i RAMTTs nutrition system. CHO compliance, zone distribution, coverage, energy balance, gut trajectory, macro periodisering, depletion modeling, product tolerance heatmap.</InfoText>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* CHO Compliance weekly */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>CHO compliance (weekly)</p>
+                <MiniBarChart data={CHO_COMPLIANCE.map((d) => d.actual)} color="#E36B30" />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Filled = actual, outline = target. Used in: Fuel daily</p>
+              </Card>
+
+              {/* Coverage trend */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Fuel coverage trend</p>
+                <MiniChartLine data={COVERAGE_TREND} stroke="#1B8A5A" fill="rgba(27,138,90,.10)" refY={85} refColor="#1B8A5A" height={60} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Target 85% dashed. Used in: Fuel daily, session fuel</p>
+              </Card>
+
+              {/* Energy balance bars */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Energy balance (14 days)</p>
+                <MiniBarChart data={ENERGY_BARS} color={(v) => v >= 0 ? '#1B8A5A' : '#C43C3C'} bipolar height={80} />
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex="#1B8A5A" label="Surplus" />
+                  <LegendLine hex="#C43C3C" label="Deficit" />
+                </div>
+              </Card>
+
+              {/* Gut trajectory */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Gut trajectory (capacity growth)</p>
+                <MiniChartLine data={GUT_TRAJECTORY} stroke="#14B8A2" strokeWidth={2} height={60} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Logaritmisk vækst. Used in: Fuel products</p>
+              </Card>
+
+              {/* Macro periodization stacked bars */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Macro periodization (7 days)</p>
+                <StackedBarChart data={MACRO_PERIOD.map((d) => ({ values: [d.cho, d.protein, d.fat] }))} colors={['#E36B30', '#3B82F6', '#E8B020']} />
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex="#E36B30" label="CHO" />
+                  <LegendLine hex="#3B82F6" label="Protein" />
+                  <LegendLine hex="#E8B020" label="Fat" />
+                </div>
+              </Card>
+
+              {/* Depletion curve */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Glycogen depletion model</p>
+                <MiniChartLine data={DEPLETION.muscle} stroke="#E36B30" secondData={DEPLETION.liver} secondStroke="#E8B020" height={80} />
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex="#E36B30" label="Muscle" />
+                  <LegendLine hex="#E8B020" label="Liver" />
+                </div>
+              </Card>
+
+              {/* CHO zone distribution stacked area */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>CHO zone distribution (12 weeks)</p>
+                <HeatmapGrid data={CHO_ZONE_STACKED} colorFn={(v) => {
+                  if (v < 10) return '#94A3B8'
+                  if (v < 20) return '#67B7D1'
+                  if (v < 35) return '#3B9FC9'
+                  if (v < 50) return '#1A85B8'
+                  if (v < 70) return '#0E6FA0'
+                  return '#085A87'
+                }} cellSize={18} gap={2} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>CZ1→CZ6 blå spektrum. Used in: Fuel daily</p>
+              </Card>
+
+              {/* Product tolerance heatmap */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Product tolerance heatmap</p>
+                <HeatmapGrid data={TOLERANCE_HEATMAP} colorFn={(v) => {
+                  const colors = ['#C0BDB6', '#C43C3C', '#C49B08', '#38CC88', '#1B8A5A']
+                  return colors[v] ?? '#C0BDB6'
+                }} cellSize={16} gap={2} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Rows = produkter, cols = sessioner. Used in: Fuel products</p>
+              </Card>
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
              SECTION 10: Elevation gradient
              ══════════════════════════════════════════════════════════ */}
           <SectionAnchor id="elevation" />
@@ -1746,30 +2321,14 @@ export default function ColorGuidePage() {
 
             <SwatchRow items={ELEVATION_LEVELS.map((e) => ({ hex: e.hex, label: e.grade }))} size={56} height={40} />
 
-            {/* Mini elevation profile SVG */}
+            {/* Mini elevation profile — chart primitives */}
             <div className="space-y-3">
               <SectionHeader>Elevation profile simulation</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="100" viewBox="0 0 600 100" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  <defs>
-                    <linearGradient id="elev-grad" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%" stopColor="#14B8A2" />
-                      <stop offset="20%" stopColor="#14B8A2" />
-                      <stop offset="20%" stopColor="#8CC44E" />
-                      <stop offset="35%" stopColor="#8CC44E" />
-                      <stop offset="35%" stopColor="#E8B020" />
-                      <stop offset="50%" stopColor="#E8B020" />
-                      <stop offset="50%" stopColor="#E36B30" />
-                      <stop offset="65%" stopColor="#E36B30" />
-                      <stop offset="65%" stopColor="#E83B52" />
-                      <stop offset="82%" stopColor="#E83B52" />
-                      <stop offset="82%" stopColor="#9B40E8" />
-                      <stop offset="100%" stopColor="#9B40E8" />
-                    </linearGradient>
-                  </defs>
-                  <path d="M0,90 C40,88 80,82 120,70 C160,58 200,40 240,25 C280,15 320,20 360,30 C400,40 440,55 480,65 C520,75 560,82 600,85 L600,100 L0,100 Z" fill="url(#elev-grad)" opacity="0.4" />
-                  <path d="M0,90 C40,88 80,82 120,70 C160,58 200,40 240,25 C280,15 320,20 360,30 C400,40 440,55 480,65 C520,75 560,82 600,85" fill="none" stroke="url(#elev-grad)" strokeWidth="2" />
-                </svg>
+                <ChartRoot data={STREAM_ELEVATION} height={100} padding={{ top: 4, right: 8, bottom: 4, left: 0 }} yPadding={0.05}>
+                  <ChartArea gradientColor="#C0BDB6" opacityFrom={0.30} opacityTo={0.08} />
+                  <ChartLine className="fill-none stroke-[#C0BDB6] stroke-[1.5]" />
+                </ChartRoot>
               </Card>
             </div>
           </section>
@@ -1788,9 +2347,10 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>8 overlaid intervals</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="120" viewBox="0 0 600 120" preserveAspectRatio="none" shapeRendering="geometricPrecision">
+                <svg width="100%" viewBox="0 0 600 84" shapeRendering="geometricPrecision" style={{ overflow: 'visible' }}>
                   {INTERVAL_COLORS.map((c, i) => (
-                    <polyline key={c.n} points={INTERVAL_WAVE_POINTS[i]} fill="none" stroke={c.hex} strokeWidth={i === 0 ? 2 : 1.5} opacity={i === 0 ? 1 : 0.7} />
+                    <polyline key={c.n} points={INTERVAL_WAVE_POINTS[i]} fill="none" stroke={c.hex}
+                      strokeWidth={i === 0 ? 2 : 1.5} opacity={i === 0 ? 1 : 0.65} strokeLinejoin="round" strokeLinecap="round" />
                   ))}
                 </svg>
               </Card>
@@ -1903,6 +2463,43 @@ export default function ColorGuidePage() {
                 </div>
               </Card>
             </div>
+
+            {/* 13.5 Calendar week simulation */}
+            <div className="space-y-3">
+              <SectionHeader>Calendar week simulation</SectionHeader>
+              <InfoText>Maksimal farvedensitet: fase-header, day type badge, intent badge, compliance border-left, sport dot.</InfoText>
+              <Card padding="md">
+                <div className="border-b-[0.5px] border-b-[var(--n200)] pb-2 mb-3">
+                  <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n800)]')}>Build phase — Week 14</span>
+                  <div className={cn(RADIUS.sm, 'h-1 mt-1')} style={{ backgroundColor: 'rgba(232,176,32,0.06)', width: '100%' }} />
+                </div>
+                <div className="grid grid-cols-7 gap-2">
+                  {CALENDAR_WEEK.map((day) => {
+                    const intentColors: Record<string, string> = { Recovery: '#7CA3BE', Endurance: '#14B8A2', Tempo: '#E8B020', Threshold: '#E36B30', VO2max: '#E83B52' }
+                    const complianceColors: Record<string, string> = { hit: '#1B8A5A', partial: '#C49B08', missed: '#C43C3C' }
+                    const sportColors: Record<string, string> = { Cycling: '#14B8A2', Running: '#E83B52' }
+                    const borderColor = day.compliance ? complianceColors[day.compliance] ?? 'transparent' : 'transparent'
+                    return (
+                      <div key={day.day} className={cn(RADIUS.sm, BORDER.subtle, 'p-2 space-y-1.5')} style={{ borderLeft: `2px solid ${borderColor}` }}>
+                        <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-[var(--n800)]')}>{day.day}</span>
+                        {day.type === 'Rest' ? (
+                          <span className={cn(QUIET_STYLE, 'text-[9px] block')}>Rest</span>
+                        ) : (
+                          <>
+                            <Badge color="var(--n1150)">{day.type}</Badge>
+                            {day.intent && <Badge color={intentColors[day.intent] ?? '#8A8780'}>{day.intent}</Badge>}
+                            <div className="flex items-center gap-1">
+                              {day.sport && <ColorDot hex={sportColors[day.sport] ?? '#8A8780'} size={5} />}
+                              {day.rScore && <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>{day.rScore}</span>}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
+            </div>
           </section>
 
           {/* ══════════════════════════════════════════════════════════
@@ -1914,30 +2511,10 @@ export default function ColorGuidePage() {
             <InfoText>5 tidsperioder. Current er sort (tykkest), best-ever er stiplet rød. Logaritmisk x-akse.</InfoText>
 
             <Card padding="md">
-              <svg width="100%" height="180" viewBox="0 0 600 180" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                {/* Grid */}
-                {[0, 45, 90, 135, 180].map((y) => (
-                  <line key={y} x1="0" y1={y} x2="600" y2={y} stroke="rgba(0,0,0,0.04)" strokeWidth="0.5" />
-                ))}
-                {/* Axis labels */}
-                {['1s', '5s', '30s', '1m', '5m', '20m', '60m'].map((t, i) => (
-                  <text key={t} x={i * 100} y="175" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>{t}</text>
-                ))}
-
-                {/* Best ever (dashed red) */}
-                <path d="M0,20 C60,28 120,45 200,65 C280,85 380,110 500,135 C560,148 590,155 600,158" fill="none" stroke="#E83B52" strokeWidth="1.5" strokeDasharray="6 4" />
-                {/* 365d */}
-                <path d="M0,30 C60,38 120,55 200,75 C280,92 380,115 500,138 C560,148 590,155 600,158" fill="none" stroke="#9B40E8" strokeWidth="1.5" />
-                {/* 180d */}
-                <path d="M0,35 C60,43 120,60 200,80 C280,96 380,118 500,140 C560,150 590,155 600,158" fill="none" stroke="#E8B020" strokeWidth="1.5" />
-                {/* 90d */}
-                <path d="M0,40 C60,48 120,65 200,85 C280,100 380,120 500,142 C560,152 590,155 600,158" fill="none" stroke="#14B8A2" strokeWidth="1.5" />
-                {/* Current (black, thickest) */}
-                <path d="M0,45 C60,55 120,72 200,92 C280,108 380,128 500,148 C560,155 590,158 600,160" fill="none" stroke={NEAR_BLACK} strokeWidth="2.5" />
-              </svg>
+              <PeakCurvesChartSVG />
               <div className="flex flex-wrap gap-4 mt-3">
-                {PEAK_PERIODS.map((p) => (
-                  <LegendLine key={p.label} hex={p.hex} label={p.label} dash={p.dash} width={p.width} />
+                {PEAK_CURVES.map((c) => (
+                  <LegendLine key={c.label} hex={c.color} label={c.label} dash={c.label === 'Best ever'} width={c.label === 'Current' ? 2 : 1.5} />
                 ))}
               </div>
             </Card>
@@ -1952,32 +2529,106 @@ export default function ColorGuidePage() {
             <InfoText>3 lag i radar/spider chart: current (sort), personal best (Z5 rød), 3-month trend (Z2 teal). 6 akser: sprint, threshold, endurance, recovery, economy, repeatability.</InfoText>
 
             <Card padding="md">
-              <svg width="300" height="280" viewBox="0 0 300 280" shapeRendering="geometricPrecision">
-                {/* Radar axes */}
-                {RADAR_AXES.map((a, i) => (
-                  <line key={i} x1="150" y1="140" x2={a.x} y2={a.y} stroke="var(--n200)" strokeWidth="0.5" />
-                ))}
-                {/* Radar rings */}
-                {RADAR_RINGS.map((pts, i) => (
-                  <polygon key={i} points={pts} fill="none" stroke="var(--n200)" strokeWidth="0.5" />
-                ))}
-                {/* Axis labels */}
-                {['Sprint', 'Threshold', 'Endurance', 'Recovery', 'Economy', 'Repeatability'].map((label, i) => (
-                  <text key={label} x={RADAR_LABEL_POS[i].x} y={RADAR_LABEL_POS[i].y} textAnchor="middle" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>{label}</text>
-                ))}
-                {/* 3-month trend (teal, wash) */}
-                <polygon points={RADAR_3MO} fill="#14B8A2" fillOpacity="0.15" stroke="#14B8A2" strokeWidth="1" />
-                {/* Personal best (red, tint) */}
-                <polygon points={RADAR_BEST} fill="#E83B52" fillOpacity="0.08" stroke="#E83B52" strokeWidth="1" strokeDasharray="4 3" />
-                {/* Current (black, solid) */}
-                <polygon points={RADAR_CURRENT} fill={NEAR_BLACK} fillOpacity="0.05" stroke={NEAR_BLACK} strokeWidth="2" />
-              </svg>
+              <RadarChartSVG />
               <div className="flex gap-4 mt-2">
                 <LegendLine hex={NEAR_BLACK} label="Current" width={2} />
                 <LegendLine hex="#E83B52" label="Personal best" dash width={1.5} />
                 <LegendLine hex="#14B8A2" label="3-month trend" width={1} />
               </div>
             </Card>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
+             SECTION 14A: Performance analytics
+             ══════════════════════════════════════════════════════════ */}
+          <SectionAnchor id="perf-analytics" />
+          <section className="space-y-8">
+            <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>14A. Performance analytics</h2>
+            <InfoText>CP progression, durability index (Vekta-inspireret), resilience, efficiency scatter, decoupling, dual load, peak freshness, polarization donut.</InfoText>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* CP Progression */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>CP progression (12 months)</p>
+                <MiniChartLine data={CP_PROGRESSION} stroke={NEAR_BLACK} fill="rgba(15,15,14,.06)" strokeWidth={2} height={60} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Used in: Peak curves, analytics widgets</p>
+              </Card>
+
+              {/* Durability Index */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Durability index (CP decay)</p>
+                <MiniChartLine data={DURABILITY.fresh} stroke={NEAR_BLACK} secondData={DURABILITY.fatigued} secondStroke="#E83B52" strokeWidth={2} height={80} />
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex={NEAR_BLACK} label="CP fresh" width={2} />
+                  <LegendLine hex="#E83B52" label="CP fatigued" />
+                </div>
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Gap = durability. Vekta-inspireret. Used in: Session analysis</p>
+              </Card>
+
+              {/* Resilience trend */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Resilience trend</p>
+                <MiniChartLine data={RESILIENCE} stroke="#14B8A2" height={60} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Economy decay rate (W per HR beat). Used in: Analytics</p>
+              </Card>
+
+              {/* Dual load */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Dual load display</p>
+                <DualLoadChartSVG />
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex="#14B8A2" label="R-Score" />
+                  <LegendLine hex="#E83B52" label="Pulse load" />
+                </div>
+              </Card>
+
+              {/* Peak freshness bars */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Peak freshness (10 buckets)</p>
+                <MiniBarChart data={PEAK_FRESH.map((p) => p.value)} color={(v) => {
+                  const i = PEAK_FRESH.findIndex((p) => p.value === v)
+                  const p = PEAK_FRESH[i >= 0 ? i : 0]
+                  const zoneColors = ['#7CA3BE', '#14B8A2', '#E8B020', '#E36B30', '#E83B52', '#9B40E8']
+                  const opacity = Math.max(0.4, 1 - p.staleDays / 30)
+                  return `color-mix(in srgb, ${zoneColors[p.zone]} ${Math.round(opacity * 100)}%, transparent)`
+                }} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Zone-farvet, fader med alder. Used in: Peak curves</p>
+              </Card>
+
+              {/* Polarization donut */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Polarization donut</p>
+                <div className="flex items-center gap-4">
+                  <DonutChart segments={[
+                    { value: POLARIZATION.z12, color: '#14B8A2', label: 'Z1-2' },
+                    { value: POLARIZATION.z3, color: '#E8B020', label: 'Z3' },
+                    { value: POLARIZATION.z46, color: '#E83B52', label: 'Z4-6' },
+                  ]} size={100} />
+                  <div className="space-y-1">
+                    <p className={cn(FONT.body, 'text-[24px] tabular-nums', WEIGHT.strong, 'text-[var(--n1150)]')}>78/7/15</p>
+                    <div className="flex gap-2">
+                      <LegendLine hex="#14B8A2" label="Z1-2 base" />
+                      <LegendLine hex="#E8B020" label="Z3" />
+                      <LegendLine hex="#E83B52" label="Z4-6" />
+                    </div>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Efficiency scatter */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Efficiency scatter</p>
+                <ScatterChartSVG />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Power vs %Threshold HR. Zone-colored dots. Used in: Analytics</p>
+              </Card>
+
+              {/* Decoupling x CHO */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Decoupling x CHO correlation</p>
+                <ScatterChartSVG />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>X = CHO g/h, Y = Decoupling %. Regression line. Used in: Session analysis</p>
+              </Card>
+            </div>
           </section>
 
           {/* ══════════════════════════════════════════════════════════
@@ -2043,91 +2694,47 @@ export default function ColorGuidePage() {
 
             <SwatchRow items={WELLNESS.map((w) => ({ hex: w.hex, label: w.label }))} size={40} round />
 
-            {/* Mini SVG line charts */}
+            {/* Mini SVG line charts — math layer */}
             <div className="space-y-3">
               <SectionHeader>Mini sparklines</SectionHeader>
               <Card padding="md">
                 <div className="grid grid-cols-4 gap-4">
-                  {WELLNESS.slice(0, 4).map((w, i) => {
-                    const paths = [
-                      'M0,20 C10,18 20,15 30,16 C40,17 50,12 60,10 C70,8 80,12 90,11 L100,10',
-                      'M0,15 C10,16 20,18 30,17 C40,16 50,19 60,20 C70,22 80,18 90,17 L100,16',
-                      'M0,18 C10,17 20,18 30,17 C40,18 50,17 60,18 C70,17 80,18 90,17 L100,18',
-                      'M0,22 C10,20 20,15 30,18 C40,16 50,14 60,12 C70,10 80,14 90,12 L100,10',
-                    ]
-                    return (
-                      <div key={w.label} className="flex flex-col gap-1">
-                        <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>{w.label}</span>
-                        <svg width="100" height="30" viewBox="0 0 100 30" shapeRendering="geometricPrecision">
-                          <path d={paths[i]} fill="none" stroke={w.hex} strokeWidth="1.5" />
-                        </svg>
-                      </div>
-                    )
-                  })}
+                  {WELLNESS.slice(0, 4).map((w, i) => (
+                    <div key={w.label} className="flex flex-col gap-1">
+                      <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>{w.label}</span>
+                      <SparklineSVG data={SPARKLINES[i]} color={w.hex} />
+                    </div>
+                  ))}
                 </div>
               </Card>
             </div>
 
-            {/* 17.2 Dual load chart (R-Score vs Pulse Load) */}
+            {/* 17.2 Dual load chart (R-Score vs Pulse Load) — math layer */}
             <div className="space-y-3">
               <SectionHeader>Dual load chart (R-Score vs Pulse Load)</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="100" viewBox="0 0 400 100" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  {/* Divergence zone */}
-                  <path d="M180,40 C220,35 260,30 300,38 C340,46 370,55 400,50 L400,65 C370,68 340,72 300,62 C260,54 220,48 180,52 Z" fill="rgba(196,155,8,0.06)" />
-                  {/* R-Score line (black) */}
-                  <path d="M0,60 C40,55 80,45 120,42 C160,40 200,38 240,35 C280,32 320,38 360,42 L400,40" fill="none" stroke={NEAR_BLACK} strokeWidth="2" />
-                  {/* Pulse Load line (Z5) */}
-                  <path d="M0,65 C40,62 80,55 120,50 C160,48 200,52 240,55 C280,58 320,68 360,72 L400,65" fill="none" stroke="#E83B52" strokeWidth="2" />
-                </svg>
+                <DualLoadChartSVG />
                 <div className="flex gap-4 mt-2">
-                  <LegendLine hex={NEAR_BLACK} label="R-Score" width={2} />
-                  <LegendLine hex="#E83B52" label="Pulse Load" width={2} />
-                  <div className="flex items-center gap-1.5">
-                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(196,155,8,0.06)' }} />
-                    <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Divergence zone</span>
-                  </div>
+                  <LegendLine hex="#14B8A2" label="R-Score" width={1.5} />
+                  <LegendLine hex="#E83B52" label="Pulse Load" width={1.5} />
                 </div>
               </Card>
             </div>
 
-            {/* 17.3 Cross-domain scatter plot colors */}
+            {/* 17.3 Cross-domain scatter plot colors — math layer */}
             <div className="space-y-3">
               <SectionHeader>Scatter plot colors</SectionHeader>
               <InfoText>Bruges i: Durability × Nutrition, R-Score × Fuel Score, Cost:Value, Reserve × Nutrition.</InfoText>
               <Card padding="md">
-                <svg width="300" height="200" viewBox="0 0 300 200" shapeRendering="geometricPrecision">
-                  {/* Quadrant lines */}
-                  <line x1="150" y1="10" x2="150" y2="190" stroke="#E5E3DE" strokeWidth="1" />
-                  <line x1="10" y1="100" x2="290" y2="100" stroke="#E5E3DE" strokeWidth="1" />
-                  {/* Scatter dots (40% opacity) */}
-                  {[
-                    [45, 140], [68, 125], [55, 155], [80, 110], [95, 130],
-                    [120, 80], [135, 65], [110, 95], [140, 45], [160, 55],
-                    [175, 40], [190, 35], [200, 50], [210, 60], [180, 70],
-                    [230, 30], [240, 45], [260, 38], [220, 55], [250, 25],
-                  ].map(([cx, cy], i) => (
-                    <circle key={i} cx={cx} cy={cy} r="3" fill={NEAR_BLACK} opacity="0.4" />
-                  ))}
-                  {/* Highlighted dot */}
-                  <circle cx="230" cy="30" r="4.5" fill={NEAR_BLACK} opacity="1" />
-                  {/* Regression line */}
-                  <line x1="30" y1="170" x2="270" y2="20" stroke="#E83B52" strokeWidth="1.5" />
-                  {/* Confidence band */}
-                  <path d="M30,160 L270,10 L270,30 L30,180 Z" fill="rgba(232,59,82,0.06)" />
-                </svg>
+                <ScatterChartSVG />
                 <div className="flex flex-wrap gap-4 mt-2">
                   <div className="flex items-center gap-1.5">
-                    <div className={RADIUS.full} style={{ width: 6, height: 6, backgroundColor: NEAR_BLACK, opacity: 0.4 }} />
-                    <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Dot (40%)</span>
+                    <div className={RADIUS.full} style={{ width: 6, height: 6, backgroundColor: 'var(--n600)', opacity: 0.7 }} />
+                    <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Zone-colored dots</span>
                   </div>
+                  <LegendLine hex="var(--n600)" label="Regression (dashed)" dash width={1} />
                   <div className="flex items-center gap-1.5">
-                    <div className={RADIUS.full} style={{ width: 6, height: 6, backgroundColor: NEAR_BLACK }} />
-                    <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Highlighted</span>
-                  </div>
-                  <LegendLine hex="#E83B52" label="Regression" width={1.5} />
-                  <div className="flex items-center gap-1.5">
-                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(232,59,82,0.06)' }} />
+                    <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'var(--n600)', opacity: 0.04 }} />
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Confidence band</span>
                   </div>
                 </div>
@@ -2193,6 +2800,58 @@ export default function ColorGuidePage() {
                     <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>rgba(..,.08)</span>
                   </div>
                 </div>
+              </Card>
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
+             SECTION 17A: Behavioral heatmaps
+             ══════════════════════════════════════════════════════════ */}
+          <SectionAnchor id="behavioral-heatmaps" />
+          <section className="space-y-8">
+            <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>17A. Behavioral heatmaps</h2>
+            <InfoText>Morning check-in heatmap, daily state dashboard, sleep x performance scatter, HR drift trend, lactate curve overlay.</InfoText>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Morning check-in heatmap */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Morning check-in (28 days)</p>
+                <HeatmapGrid data={MORNING_CHECKIN} colorFn={(v) => {
+                  if (v < 25) return 'rgba(196,60,60,.25)'
+                  if (v < 50) return 'rgba(196,155,8,.20)'
+                  if (v < 75) return 'rgba(27,138,90,.15)'
+                  return 'rgba(27,138,90,.30)'
+                }} cellSize={10} gap={1} />
+                <div className="flex gap-2 mt-1">
+                  {['Mood', 'Sleep', 'Fatigue', 'Stress'].map((m) => (
+                    <span key={m} className={cn(QUIET_STYLE, 'text-[9px]')}>{m}</span>
+                  ))}
+                </div>
+              </Card>
+
+              {/* HR drift trend */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>HR drift trend</p>
+                <MiniChartLine data={HR_DRIFT} stroke="#E83B52" height={60} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Drift % over sessions. Faldende = bedre fitness. Used in: Analytics</p>
+              </Card>
+
+              {/* Sleep x performance scatter */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Sleep x performance</p>
+                <ScatterChartSVG />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Dots #9B40E8 (sleep = Z6). Used in: Analytics widgets</p>
+              </Card>
+
+              {/* Lactate curve overlay */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Lactate curve overlay</p>
+                <MiniChartLine data={LACTATE.current} stroke={NEAR_BLACK} secondData={LACTATE.old} secondStroke="#B5B2AB" strokeWidth={2} height={80} />
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex={NEAR_BLACK} label="Current" width={2} />
+                  <LegendLine hex="#B5B2AB" label="Previous test" dash />
+                </div>
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Rightward shift = improvement. LT2 marker. Used in: Analytics</p>
               </Card>
             </div>
           </section>
@@ -2288,6 +2947,124 @@ export default function ColorGuidePage() {
           </section>
 
           {/* ══════════════════════════════════════════════════════════
+             SECTION 18A: Advanced visualizations
+             ══════════════════════════════════════════════════════════ */}
+          <SectionAnchor id="advanced-viz" />
+          <section className="space-y-8">
+            <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>18A. Advanced visualizations</h2>
+            <InfoText>Season map, KPI grid, course progression (THE selling chart), energy flow sankey, session fingerprint glyph.</InfoText>
+
+            <div className="grid grid-cols-2 gap-4">
+              {/* Season map */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Season map (52 weeks x 5 days)</p>
+                <HeatmapGrid data={SEASON_MAP} colorFn={(v) => {
+                  if (v === 0) return 'var(--n200)'
+                  const opacity = Math.min(0.8, v / 100)
+                  return `rgba(20,184,162,${opacity.toFixed(2)})`
+                }} cellSize={6} gap={1} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Sequential: canvas → Z2 teal. Used in: Season overview</p>
+              </Card>
+
+              {/* KPI grid */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>KPI grid (4 metrics x 8 weeks)</p>
+                <HeatmapGrid data={KPI_GRID} colorFn={(v) => {
+                  if (v > 20) return 'rgba(27,138,90,.30)'
+                  if (v > 0) return 'rgba(27,138,90,.12)'
+                  if (v > -20) return 'rgba(196,60,60,.12)'
+                  return 'rgba(196,60,60,.30)'
+                }} cellSize={24} gap={3} />
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Diverging: rød = decline, grøn = improvement. Used in: Analytics</p>
+              </Card>
+
+              {/* Course Progression — THE selling chart */}
+              <Card padding="md" className="col-span-2">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-2')}>Course progression (RAMTT selling chart)</p>
+                <InfoText>Bedre ernæring → hurtigere tider. Visual bevis.</InfoText>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <MiniChartLine data={COURSE_PROG.duration} stroke={NEAR_BLACK} strokeWidth={2} height={80} />
+                    <MiniChartLine data={COURSE_PROG.cho} stroke="#E36B30" height={60} />
+                    <div className="flex gap-3 mt-1">
+                      <LegendLine hex={NEAR_BLACK} label="Duration (↓ faster)" width={2} />
+                      <LegendLine hex="#E36B30" label="CHO g/h (↑ more)" />
+                    </div>
+                  </div>
+                  <div>
+                    <ScatterChartSVG />
+                    <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>X = CHO g/h, Y = Duration. Negative correlation.</p>
+                  </div>
+                </div>
+              </Card>
+
+              {/* Energy flow sankey (simplified) */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Energy flow (simplified sankey)</p>
+                <svg width="100%" viewBox="0 0 280 100" shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
+                  {/* Input flows */}
+                  <rect x={0} y={5} width={12} height={35} fill="#E36B30" rx={2} />
+                  <rect x={0} y={45} width={12} height={25} fill="#E8B020" rx={2} />
+                  <rect x={0} y={75} width={12} height={20} fill="#3B82F6" rx={2} />
+                  {/* Flow paths */}
+                  <path d="M12,22 C80,22 100,30 140,30" fill="none" stroke="#E36B30" strokeWidth={8} opacity={0.3} />
+                  <path d="M12,57 C80,57 100,50 140,50" fill="none" stroke="#E8B020" strokeWidth={6} opacity={0.3} />
+                  <path d="M12,85 C80,85 100,70 140,70" fill="none" stroke="#3B82F6" strokeWidth={5} opacity={0.3} />
+                  {/* Output blocks */}
+                  <rect x={140} y={10} width={12} height={50} fill="var(--n1150)" rx={2} />
+                  <rect x={140} y={65} width={12} height={25} fill="#8A8780" rx={2} />
+                  {/* Labels */}
+                  <text x={160} y={38} fontSize={9} fill="var(--n600)" fontWeight={400}>Exercise</text>
+                  <text x={160} y={80} fontSize={9} fill="var(--n600)" fontWeight={400}>BMR</text>
+                </svg>
+                <div className="flex gap-3 mt-1">
+                  <LegendLine hex="#E36B30" label="CHO" />
+                  <LegendLine hex="#E8B020" label="Fat" />
+                  <LegendLine hex="#3B82F6" label="Protein" />
+                </div>
+              </Card>
+
+              {/* Session fingerprint */}
+              <Card padding="md">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Session fingerprint glyphs</p>
+                <div className="flex gap-6 justify-center">
+                  {[
+                    { label: 'Easy ride', zones: [0.8, 0.3, 0.1, 0, 0, 0] },
+                    { label: 'Intervals', zones: [0.2, 0.3, 0.2, 0.6, 0.8, 0.3] },
+                    { label: 'Race', zones: [0.1, 0.2, 0.4, 0.7, 0.5, 0.2] },
+                  ].map((fp) => {
+                    const colors = ['#7CA3BE', '#14B8A2', '#E8B020', '#E36B30', '#E83B52', '#9B40E8']
+                    const total = fp.zones.reduce((a, b) => a + b, 0)
+                    const r2 = (n: number) => Math.round(n * 100) / 100
+                    let angle = -90
+                    return (
+                      <div key={fp.label} className="flex flex-col items-center gap-1">
+                        <svg width={50} height={50} viewBox="0 0 50 50">
+                          {fp.zones.map((v, j) => {
+                            if (v === 0) { angle += (v / total) * 360; return null }
+                            const sweep = (v / total) * 360
+                            const r = 20
+                            const startRad = (angle * Math.PI) / 180
+                            const endRad = ((angle + sweep) * Math.PI) / 180
+                            const x1 = r2(25 + r * Math.cos(startRad)), y1 = r2(25 + r * Math.sin(startRad))
+                            const x2 = r2(25 + r * Math.cos(endRad)), y2 = r2(25 + r * Math.sin(endRad))
+                            const largeArc = sweep > 180 ? 1 : 0
+                            const d = `M25,25 L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z`
+                            angle += sweep
+                            return <path key={j} d={d} fill={colors[j]} />
+                          })}
+                          <circle cx={25} cy={25} r={8} fill="var(--n50)" />
+                        </svg>
+                        <span className={cn(QUIET_STYLE, 'text-[9px]')}>{fp.label}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </Card>
+            </div>
+          </section>
+
+          {/* ══════════════════════════════════════════════════════════
              SECTION 19: Sport colors
              ══════════════════════════════════════════════════════════ */}
           <SectionAnchor id="sport-colors" />
@@ -2297,20 +3074,30 @@ export default function ColorGuidePage() {
 
             <SwatchRow items={SPORTS.map((s) => ({ hex: s.hex, label: s.label }))} size={48} round />
 
-            {/* Mini capacity chart with 3 sport overlays */}
+            {/* Mini capacity chart with 3 sport overlays — math layer */}
             <div className="space-y-3">
               <SectionHeader>Sport-colored capacity lines</SectionHeader>
               <Card padding="md">
-                <svg width="100%" height="100" viewBox="0 0 400 100" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                  <path d="M0,70 C50,65 100,50 150,45 C200,40 250,50 300,35 C350,30 380,32 400,30" fill="none" stroke="#14B8A2" strokeWidth="2" />
-                  <path d="M0,80 C50,78 100,65 150,60 C200,55 250,62 300,50 C350,45 380,48 400,45" fill="none" stroke="#E83B52" strokeWidth="2" />
-                  <path d="M0,85 C50,82 100,75 150,72 C200,68 250,74 300,65 C350,60 380,62 400,60" fill="none" stroke="#2AACCC" strokeWidth="2" />
-                </svg>
+                <SportCapacityChartSVG />
                 <div className="flex gap-4 mt-2">
-                  {SPORTS.slice(0, 3).map((s) => (
-                    <LegendLine key={s.label} hex={s.hex} label={s.label} />
+                  {SPORT_LINES.map((s) => (
+                    <LegendLine key={s.label} hex={s.color} label={s.label} />
                   ))}
                 </div>
+              </Card>
+            </div>
+
+            {/* 19.2 Per-sport capacity chart */}
+            <div className="space-y-3">
+              <SectionHeader>Per-sport capacity lines</SectionHeader>
+              <Card padding="md">
+                <SportCapacityChartSVG />
+                <div className="flex gap-4 mt-2">
+                  {SPORT_LINES.map((s) => (
+                    <LegendLine key={s.label} hex={s.color} label={s.label} />
+                  ))}
+                </div>
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Separate CTL-linjer per sport. High contrast nødvendig. Used in: Capacity chart</p>
               </Card>
             </div>
           </section>
@@ -2336,48 +3123,67 @@ export default function ColorGuidePage() {
                 </div>
               </Card>
 
-              {/* Product tolerance */}
+              {/* Product tolerance — gradient strip + badges */}
               <Card>
                 <Card.Title>Product tolerance</Card.Title>
-                <div className="flex gap-1 mt-3">
-                  {[
-                    { hex: '#1B8A5A', label: 'Excellent' },
-                    { hex: '#38CC88', label: 'Good' },
-                    { hex: '#C49B08', label: 'Fair' },
-                    { hex: '#C43C3C', label: 'Poor' },
-                    { hex: '#C0BDB6', label: 'Untested' },
-                  ].map((t) => (
-                    <div key={t.label} className="flex flex-col items-center gap-0.5">
-                      <Swatch hex={t.hex} size={28} height={20} />
-                      <span className={cn(QUIET_STYLE, 'text-[9px]')}>{t.label}</span>
-                    </div>
-                  ))}
+                <div className="space-y-3 mt-3">
+                  <div className={cn(RADIUS.sm, 'overflow-hidden flex')} style={{ height: 20 }}>
+                    {[
+                      { hex: '#1B8A5A', w: '20%' },
+                      { hex: '#38CC88', w: '20%' },
+                      { hex: '#C49B08', w: '20%' },
+                      { hex: '#C43C3C', w: '20%' },
+                      { hex: '#C0BDB6', w: '20%' },
+                    ].map((t) => (
+                      <div key={t.hex} style={{ width: t.w, backgroundColor: t.hex }} />
+                    ))}
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {[
+                      { hex: '#1B8A5A', label: 'Excellent' },
+                      { hex: '#38CC88', label: 'Good' },
+                      { hex: '#C49B08', label: 'Fair' },
+                      { hex: '#C43C3C', label: 'Poor' },
+                      { hex: '#C0BDB6', label: 'Untested' },
+                    ].map((t) => (
+                      <Badge key={t.label} color={t.hex}>{t.label}</Badge>
+                    ))}
+                  </div>
                 </div>
               </Card>
 
-              {/* Gut tiers */}
+              {/* Gut tiers — badges + ProgressBar */}
               <Card>
                 <Card.Title>Gut training tiers</Card.Title>
-                <div className="flex gap-2 mt-3">
-                  {[
-                    { hex: '#7CA3BE', label: 'Starter' },
-                    { hex: '#14B8A2', label: 'Developing' },
-                    { hex: '#E8B020', label: 'Trained' },
-                    { hex: '#E83B52', label: 'Elite' },
-                  ].map((t) => (
-                    <div key={t.label} className="flex flex-col items-center gap-0.5">
-                      <Swatch hex={t.hex} size={32} height={24} />
-                      <span className={cn(QUIET_STYLE, 'text-[9px]')}>{t.label}</span>
-                    </div>
-                  ))}
+                <div className="space-y-3 mt-3">
+                  <div className="flex gap-1.5">
+                    {[
+                      { hex: '#7CA3BE', label: 'Starter <40 g/h' },
+                      { hex: '#14B8A2', label: 'Developing 40–60' },
+                      { hex: '#E8B020', label: 'Trained 60–90' },
+                      { hex: '#E83B52', label: 'Elite >90' },
+                    ].map((t) => (
+                      <Badge key={t.label} color={t.hex}>{t.label}</Badge>
+                    ))}
+                  </div>
+                  <ProgressBar value={72} max={120} color="#E8B020" label="72 g/h — Trained tier" />
                 </div>
               </Card>
 
-              {/* Gamification + Glycogen */}
+              {/* Glycogen bars */}
               <Card>
-                <Card.Title>Gamification + glycogen</Card.Title>
-                <div className="flex gap-4 mt-3">
-                  <div className="flex gap-1">
+                <Card.Title>Glycogen stores</Card.Title>
+                <div className="space-y-2 mt-3">
+                  <ProgressBar value={72} max={100} color="#E36B30" label="Muscle 72%" />
+                  <ProgressBar value={85} max={100} color="#E8B020" label="Liver 85%" />
+                </div>
+              </Card>
+
+              {/* Gamification — medals + XP bar + level */}
+              <Card>
+                <Card.Title>Gamification</Card.Title>
+                <div className="space-y-3 mt-3">
+                  <div className="flex gap-1.5">
                     {[
                       { hex: '#CD7F32', label: 'Bronze' },
                       { hex: '#B5B2AB', label: 'Silver' },
@@ -2389,17 +3195,8 @@ export default function ColorGuidePage() {
                       </div>
                     ))}
                   </div>
-                  <div className="border-l-[0.5px] border-l-[var(--n200)] pl-4 flex gap-2">
-                    {[
-                      { hex: '#E36B30', label: 'Muscle' },
-                      { hex: '#E8B020', label: 'Liver' },
-                    ].map((g) => (
-                      <div key={g.label} className="flex items-center gap-1">
-                        <Swatch hex={g.hex} size={20} height={12} />
-                        <span className={cn(QUIET_STYLE, 'text-[10px]')}>{g.label}</span>
-                      </div>
-                    ))}
-                  </div>
+                  <ProgressBar value={3400} max={5000} color="#14B8A2" label="XP 3400 / 5000" />
+                  <Badge color={NEAR_BLACK}>Level 12</Badge>
                 </div>
               </Card>
             </div>
@@ -2411,29 +3208,24 @@ export default function ColorGuidePage() {
           <SectionAnchor id="brand" />
           <section className="space-y-8">
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>21. Brand palette</h2>
-            <InfoText>RAMTTs eksisterende brand-farver. Bruges til landing pages, share cards og immersive UI. Plus flare-farven til akutte alerts.</InfoText>
+            <InfoText>To kernefarver + hvid. Bruges til landing pages, share cards og immersive UI. Plus flare-farven til akutte alerts.</InfoText>
 
-            <SwatchRow items={BRAND.map((b) => ({ hex: b.hex, label: b.label }))} size={64} height={48} />
+            {/* Core swatches */}
+            <SwatchRow items={BRAND_CORE.map((b) => ({ hex: b.hex, label: b.label }))} size={80} height={60} />
 
-            {/* Dark immersive preview */}
+            {/* Three brand combinations */}
             <div className="space-y-3">
-              <SectionHeader>Dark immersive preview</SectionHeader>
-              <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: '#050A30', padding: 28 }}>
-                  <h3 className={cn(FONT.body, 'text-[20px]', WEIGHT.strong, 'mb-2')} style={{ color: '#0230E0' }}>Race-day fuel strategy</h3>
-                  <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'mb-4 max-w-[45ch]')} style={{ color: '#FFFEF7' }}>
-                    Your personalized nutrition plan for Ironman Copenhagen, optimized for 87 g/h CHO with dual-transport.
-                  </p>
-                  <div className="flex gap-2">
-                    <div className={cn(RADIUS.md, 'px-4 py-2 inline-flex')} style={{ backgroundColor: '#96004D' }}>
-                      <span className={cn(FONT.body, 'text-[12px]', WEIGHT.medium)} style={{ color: '#FFFEF7' }}>View plan</span>
+              <SectionHeader>Brand combinations</SectionHeader>
+              <div className="grid grid-cols-3 gap-4">
+                {BRAND_COMBOS.map((combo) => (
+                  <Card key={combo.caption} padding="none">
+                    <div className={cn(RADIUS.lg, 'overflow-hidden flex flex-col items-center justify-center')} style={{ backgroundColor: combo.bg, height: 180, padding: 24 }}>
+                      <RamttWordmark className="h-10 w-auto" style={{ color: combo.text }} />
                     </div>
-                    <div className={cn(RADIUS.md, 'px-4 py-2 inline-flex')} style={{ border: '0.5px solid #FFC9FE40' }}>
-                      <span className={cn(FONT.body, 'text-[12px]', WEIGHT.normal)} style={{ color: '#FFC9FE' }}>Share</span>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+                    <p className={cn(QUIET_STYLE, 'text-[11px] px-3 py-2')}>{combo.caption}</p>
+                  </Card>
+                ))}
+              </div>
             </div>
 
             {/* Flare */}
@@ -2462,7 +3254,7 @@ export default function ColorGuidePage() {
           <SectionAnchor id="co-visibility" />
           <section className="space-y-8">
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>22. Co-visibility map</h2>
-            <InfoText>13 skærme × 15 farve-grupper. Dots = synlig på den skærm. Bruges til at vurdere farve-konflikter.</InfoText>
+            <InfoText>14 skærme × 19 farve-grupper. Dots = synlig på den skærm. Bruges til at vurdere farve-konflikter.</InfoText>
 
             <Card padding="md">
               <div className="overflow-x-auto">
@@ -2500,7 +3292,7 @@ export default function ColorGuidePage() {
           <SectionAnchor id="tokens" />
           <section className="space-y-8">
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>23. Token checklist</h2>
-            <InfoText>Alle ~130 CSS custom property navne grupperet efter domæne. Disse implementeres i tokens.css når farverne er besluttet. ~260 farve-beslutninger med dark mode.</InfoText>
+            <InfoText>Alle ~155 CSS custom property navne grupperet efter domæne. Disse implementeres i tokens.css når farverne er besluttet. ~310 farve-beslutninger med dark mode.</InfoText>
 
             <div className="grid grid-cols-2 gap-4">
               {[
@@ -2530,7 +3322,14 @@ export default function ColorGuidePage() {
                 { group: 'CHO zones (6)', tokens: ['--cz1', '--cz2', '--cz3', '--cz4', '--cz5', '--cz6'] },
                 { group: 'Nutrients (7)', tokens: ['--nut-cho', '--nut-fluid', '--nut-sodium', '--nut-caffeine', '--macro-cho', '--macro-protein', '--macro-fat'] },
                 { group: 'Sports (6)', tokens: ['--sport-cycling', '--sport-running', '--sport-swimming', '--sport-strength', '--sport-rowing', '--sport-other'] },
-                { group: 'Brand (9)', tokens: ['--brand-near-black', '--brand-electric', '--brand-aubergine', '--brand-magenta', '--brand-orchid', '--brand-cream', '--brand-lemon', '--flare', '--flare-dark'] },
+                { group: 'kJ / Energy zones (5)', tokens: ['--energy-z1', '--energy-z2', '--energy-z3', '--energy-z4', '--energy-z5'] },
+                { group: 'Macros (3)', tokens: ['--macro-cho', '--macro-protein', '--macro-fat'] },
+                { group: 'Glycogen (2)', tokens: ['--glycogen-muscle', '--glycogen-liver'] },
+                { group: 'Product tolerance (5)', tokens: ['--tolerance-excellent', '--tolerance-good', '--tolerance-fair', '--tolerance-poor', '--tolerance-untested'] },
+                { group: 'Gut training tiers (4)', tokens: ['--gut-starter', '--gut-developing', '--gut-trained', '--gut-elite'] },
+                { group: 'Gamification (5)', tokens: ['--tier-bronze', '--tier-silver', '--tier-gold', '--xp-fill', '--level-bg'] },
+                { group: 'Session intent (7)', tokens: ['--intent-recovery', '--intent-endurance', '--intent-tempo', '--intent-threshold', '--intent-vo2max', '--intent-race', '--intent-test'] },
+                { group: 'Brand (5)', tokens: ['--brand-navy', '--brand-magenta', '--brand-cream', '--flare', '--flare-dark'] },
                 { group: 'Heat maps (9)', tokens: ['--heat-neg-3', '--heat-neg-2', '--heat-neg-1', '--heat-0', '--heat-pos-1', '--heat-pos-2', '--heat-pos-3', '--seq-start', '--seq-end'] },
               ].map((g) => (
                 <Card key={g.group} padding="sm">
@@ -2582,14 +3381,15 @@ export default function ColorGuidePage() {
                   { group: 'Infrastructure', colors: '~9', priority: 'Locked', share: 'Neutral scale' },
                   { group: 'Sport', colors: '6', priority: 'Low', share: 'Zone palette' },
                   { group: 'Gauges & scores', colors: '~12', priority: 'Low', share: 'Semantic + zone' },
-                  { group: 'Brand', colors: '7+2', priority: 'Existing', share: 'Landing / share cards' },
+                  { group: 'kJ / Energy zones', colors: '5', priority: 'Medium', share: 'Monokrom amber' },
+                  { group: 'Brand', colors: '3+2', priority: 'Existing', share: 'Landing / share cards' },
                 ]}
               />
             </div>
 
-            {/* The 14 questions */}
+            {/* The 15 questions */}
             <div className="space-y-3">
-              <SectionHeader>De 14 spørgsmål til Ruth</SectionHeader>
+              <SectionHeader>De 15 spørgsmål til Ruth</SectionHeader>
               <div className="space-y-2">
                 {[
                   'RAMTT-paletten (Z1 blå-grå, Z2 teal, Z3 gul, Z4 orange, Z5 rød, Z6 lilla) vs Coggan-standarden for power/HR zones?',
@@ -2604,8 +3404,9 @@ export default function ColorGuidePage() {
                   'Elevation bruger zone-farverne Z2→Z6 — er det klart nok, eller skal det være en separat gradient?',
                   'Interval stack: 8 farver med sort som #1 — er rækkefølgen rigtig?',
                   'Training phases ved ~6% opacity — kan de adskilles på sand canvas?',
-                  'Brand-palette: bruges som den er, eller tilpasses til sand canvas?',
+                  'Brand-palette: Navy + Magenta + White — er de tre kombinationer tilstrækkelige?',
                   'Flare (#FF6A00) vs CHO-orange (#E36B30) vs Z4 (#E36B30) — tre orange-tøner tæt på hinanden — problem?',
+                  'kJ/Energy zones — monokrom amber eller individuelle farver? Antal zoner (5 foreslået)?',
                 ].map((q, i) => (
                   <Card key={i} padding="sm">
                     <div className="flex gap-3 items-start">
@@ -2621,7 +3422,7 @@ export default function ColorGuidePage() {
           {/* Footer */}
           <footer className="pt-8 pb-16">
             <div className="border-t-[0.5px] border-t-[var(--n400)] pt-4">
-              <p className={cn(QUIET_STYLE, 'text-[11px]')}>RAMTT color system v3 &middot; Generated 9. april 2026 &middot; 24 sections &middot; ~130 tokens &middot; ~260 beslutninger med dark mode</p>
+              <p className={cn(QUIET_STYLE, 'text-[11px]')}>RAMTT color system v3 &middot; Generated 9. april 2026 &middot; 30 sections &middot; ~155 tokens &middot; ~65 chart illustrations &middot; 76 chart types covered</p>
             </div>
           </footer>
 

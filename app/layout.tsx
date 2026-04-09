@@ -1,37 +1,19 @@
 import type { Metadata } from 'next'
-import { JetBrains_Mono, Space_Grotesk } from 'next/font/google'
 import localFont from 'next/font/local'
 import { DevCacheGuard } from '@/components/dev/DevCacheGuard'
 import '@/components/ui/tokens.css'
 import './globals.css'
 
 /**
- * Fonts loaded via next/font — each sets a CSS variable on <html>.
- *
- * IMPORTANT: next/font generates unique font-family names internally.
- * The CSS variable (e.g. --font-space) is set to that generated name,
- * which OVERRIDES the static string in @theme at higher specificity.
- * That's how font-space utility resolves to the actual loaded woff2.
+ * Satoshi is the ONLY font loaded.
+ * --font-sans, --font-label, and --font-mono all resolve to Satoshi
+ * (with tabular-nums for numeric contexts).
+ * JetBrains Mono and Space Grotesk were removed — Satoshi replaced both.
  */
 
 const satoshi = localFont({
-  src: [
-    { path: '../public/fonts/Satoshi-Variable.woff2', style: 'normal' },
-    { path: '../public/fonts/Satoshi-VariableItalic.woff2', style: 'italic' },
-  ],
+  src: '../public/fonts/Satoshi-Variable.woff2',
   variable: '--font-sans',
-  display: 'swap',
-})
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ['latin'],
-  variable: '--font-space',
-  display: 'swap',
-})
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ['latin'],
-  variable: '--font-label',
   display: 'swap',
 })
 
@@ -46,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="da" className={`${satoshi.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable}`}>
+    <html lang="da" className={satoshi.variable}>
       <body className="font-sans antialiased bg-canvas text-text-primary">
         <DevCacheGuard />
         {children}

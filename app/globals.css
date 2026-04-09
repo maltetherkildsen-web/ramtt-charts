@@ -12,8 +12,8 @@
   --font-sans: "Satoshi", system-ui, sans-serif;
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-serif: "Cormorant Garamond", Georgia, serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --font-space: "JetBrains Mono", ui-monospace, monospace;
+  --font-mono: "Satoshi", system-ui, sans-serif;
+  --font-space: "Satoshi", system-ui, sans-serif;
   --font-label: "Satoshi", system-ui, sans-serif;
 
   /* ── Surfaces ── */
