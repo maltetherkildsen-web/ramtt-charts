@@ -1501,6 +1501,16 @@ function HoverDataTable({
           <span ref={hrZoneRef} className={zoneCls} />
         </div>
       )}
+      {vc.has('kjmin') && (
+        <div className={rowCls}>
+          <span className={`${dotCls} bg-[#f59e0b]`} />
+          <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={kjminValRef} className={valCls}>0</span>
+            <span className={unitCls}>kJ/min</span>
+          </span>
+        </div>
+      )}
       {vc.has('cadence') && (
         <div className={rowCls}>
           <span className={`${dotCls} bg-[#8b5cf6]`} />
@@ -1524,7 +1534,7 @@ function HoverDataTable({
         </div>
       )}
       {vc.has('elevation') && (
-        <div className={vc.has('kjmin') ? rowCls : 'flex items-center gap-3 py-2'}>
+        <div className="flex items-center gap-3 py-2">
           <span className={`${dotCls} bg-[var(--n600)]`} />
           <span ref={elevLabelRef} className={labelCls}>Avg Elevation</span>
           <span className="flex items-baseline gap-1">
@@ -1532,16 +1542,6 @@ function HoverDataTable({
             <span className={unitCls}>m</span>
           </span>
           <span ref={elevDeltaRef} className={deltaCls} />
-        </div>
-      )}
-      {vc.has('kjmin') && (
-        <div className="flex items-center gap-3 py-2">
-          <span className={`${dotCls} bg-[#f59e0b]`} />
-          <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
-          <span className="flex items-baseline gap-1">
-            <span ref={kjminValRef} className={valCls}>0</span>
-            <span className={unitCls}>kJ/min</span>
-          </span>
         </div>
       )}
     </div>
