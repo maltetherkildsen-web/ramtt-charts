@@ -566,7 +566,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
     return power.map((pw, i) => {
       const cad = cadence[i]
       if (!cad || cad === 0) return 0
-      return pw / (cad * 2 * Math.PI / 60)
+      return Math.min(pw / (cad * 2 * Math.PI / 60), 200)
     })
   }, [power, cadence])
 
@@ -734,19 +734,23 @@ function FullscreenOverlay({
   }, [])
 
   // Scale chart heights proportionally to fill viewport
+  // Torque uses fixed height — excluded from proportional scaling so toggling it doesn't resize others
   const topBar = 40
   const peaksBar = showPeaks ? 28 : 0
   const sidebarW = 176
   const ordered = ALL_CHARTS.filter((k) => visibleCharts.has(k))
-  const normalTotal = ordered.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
-  const available = winH - topBar - peaksBar
+  const scalable = ordered.filter(k => k !== 'torque')
+  const fixedTorqueH = visibleCharts.has('torque') ? CHART_HEIGHTS.torque : 0
+  const normalTotal = scalable.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
+  const available = winH - topBar - peaksBar - fixedTorqueH
   const scale = available / normalTotal
 
   const heights = useMemo(() => {
     const h: Partial<Record<ChartKey, number>> = {}
-    for (const k of ordered) h[k] = Math.round(CHART_HEIGHTS[k] * scale)
+    for (const k of scalable) h[k] = Math.round(CHART_HEIGHTS[k] * scale)
+    if (visibleCharts.has('torque')) h.torque = CHART_HEIGHTS.torque
     return h
-  }, [ordered, scale])
+  }, [scalable, scale, visibleCharts])
 
   return (
     <div className="flex h-full flex-col bg-[var(--bg)]">
