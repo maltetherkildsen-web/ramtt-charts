@@ -58,15 +58,15 @@ const HR_ZONES: ZoneDefinition[] = [
 type ZoneMode = 'off' | 'power' | 'hr'
 const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 
-type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'kjmin'
-const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
+type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'kjmin' | 'torque'
+const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation', 'torque']
 const CHART_LABELS: Record<ChartKey, string> = {
-  power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', elevation: 'Elevation',
+  power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', elevation: 'Elevation', torque: 'Torque',
 }
 const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
-  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60,
+  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 80,
 }
 
 // ─── Time formatting ───
@@ -561,6 +561,15 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   // kJ/min energy rate — derived from power
   const kjPerMin = useMemo(() => calculateKjPerMin(power), [power])
 
+  // Torque (Nm) — derived from power and cadence
+  const torque = useMemo(() => {
+    return power.map((pw, i) => {
+      const cad = cadence[i]
+      if (!cad || cad === 0) return 0
+      return pw / (cad * 2 * Math.PI / 60)
+    })
+  }, [power, cadence])
+
   // Zone calculations
   const durationHours = meta.totalTime / 3600
   const choGPerHour = durationHours > 0 && sessionInput.choIntake > 0 ? sessionInput.choIntake / durationHours : 0
@@ -575,6 +584,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   // Determine which channels have data
   const hasPower = power.some(v => v > 0)
   const hasHR = heartRate.some(v => v > 0)
+  const hasTorque = hasPower && cadence.some(v => v > 0)
 
   // Auto-hide charts without data
   useEffect(() => {
@@ -582,10 +592,11 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
       const next = new Set(prev)
       if (!hasPower) { next.delete('power'); next.delete('kjmin') }
       if (!hasHR) next.delete('hr')
+      if (!hasTorque) next.delete('torque')
       if (next.size === 0) next.add('speed')
       return next
     })
-  }, [hasPower, hasHR])
+  }, [hasPower, hasHR, hasTorque])
 
   // Average kJ/min for display
   const avgKjPerMin = useMemo(() => {
@@ -627,6 +638,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             showPeaks={showPeaks}
             setShowPeaks={setShowPeaks}
             onFullscreen={() => setIsFullscreen(true)}
+            hiddenCharts={hasTorque ? undefined : new Set<ChartKey>(['torque'])}
           />
 
           {/* ── 3b. Peak Powers Strip ── */}
@@ -647,6 +659,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             speed={speed}
             altitude={altitude}
             kjPerMin={kjPerMin}
+            torque={torque}
             ftp={meta.ftp}
             maxHR={meta.maxHR}
             meta={meta}
@@ -678,7 +691,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             <FullscreenOverlay
               meta={meta}
               power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
-              kjPerMin={kjPerMin}
+              kjPerMin={kjPerMin} torque={torque}
               ftp={meta.ftp} maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
@@ -699,12 +712,12 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
 
 
 function FullscreenOverlay({
-  meta, power, heartRate, cadence, speed, altitude, kjPerMin,
+  meta, power, heartRate, cadence, speed, altitude, kjPerMin, torque,
   ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onActivePeakChange, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  kjPerMin: number[]
+  kjPerMin: number[]; torque: number[]
   ftp: number; maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
@@ -743,7 +756,7 @@ function FullscreenOverlay({
 
         {/* Chart visibility toggles */}
         <div className="ml-3 flex items-center gap-1">
-          {ALL_CHARTS.map((key) => (
+          {ALL_CHARTS.filter(k => k !== 'torque' || torque.some(v => v > 0)).map((key) => (
             <button
               key={key}
               onClick={() => onToggle(key)}
@@ -827,7 +840,7 @@ function FullscreenOverlay({
         <div className="flex-1 overflow-hidden px-2">
           <SyncedCharts
             power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
-            kjPerMin={kjPerMin}
+            kjPerMin={kjPerMin} torque={torque}
             ftp={ftp} maxHR={maxHR} meta={meta}
             zoneMode={zoneMode} visibleCharts={visibleCharts}
             heightOverrides={heights}
@@ -839,17 +852,17 @@ function FullscreenOverlay({
         </div>
 
         {/* Data sidebar — live hover values */}
-        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} meta={meta} visibleCharts={visibleCharts} />
+        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta} visibleCharts={visibleCharts} />
       </div>
     </div>
   )
 }
 
 function FullscreenDataSidebar({
-  power, heartRate, cadence, speed, altitude, kjPerMin, meta, visibleCharts,
+  power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, visibleCharts,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  kjPerMin: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
+  kjPerMin: number[]; torque: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -858,10 +871,10 @@ function FullscreenDataSidebar({
   const rangeAvg = useMemo(() => {
     const len = end - start + 1
     if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0, kj: 0 }
-    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0, kj = 0
-    for (let i = start; i <= end; i++) { pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i]; kj += kjPerMin[i] }
-    return { pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len), spd: +(sp / len).toFixed(1), elv: Math.round(el / len), kj: +(kj / len).toFixed(1) }
-  }, [power, heartRate, cadence, speed, altitude, kjPerMin, start, end])
+    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0, kj = 0, tq = 0, tqCount = 0
+    for (let i = start; i <= end; i++) { pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i]; kj += kjPerMin[i]; if (torque[i] > 0) { tq += torque[i]; tqCount++ } }
+    return { pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len), spd: +(sp / len).toFixed(1), elv: Math.round(el / len), kj: +(kj / len).toFixed(1), tq: tqCount > 0 ? +(tq / tqCount).toFixed(1) : 0 }
+  }, [power, heartRate, cadence, speed, altitude, kjPerMin, torque, start, end])
 
   const timeRef = useRef<HTMLSpanElement>(null)
   const pwRef = useRef<HTMLSpanElement>(null)
@@ -870,6 +883,7 @@ function FullscreenDataSidebar({
   const cadRef = useRef<HTMLSpanElement>(null)
   const spdRef = useRef<HTMLSpanElement>(null)
   const elvRef = useRef<HTMLSpanElement>(null)
+  const tqRef = useRef<HTMLSpanElement>(null)
   const modeRef = useRef<HTMLSpanElement>(null)
 
   const showAvg = useCallback(() => {
@@ -883,6 +897,7 @@ function FullscreenDataSidebar({
     if (cadRef.current) cadRef.current.textContent = `${a.cad}`
     if (spdRef.current) spdRef.current.textContent = `${a.spd}`
     if (elvRef.current) elvRef.current.textContent = `${a.elv}`
+    if (tqRef.current) tqRef.current.textContent = `${a.tq}`
     if (modeRef.current) modeRef.current.textContent = isZoomed ? 'selection' : 'session avg'
   }, [rangeAvg, isZoomed, start, end, meta.totalTime])
 
@@ -902,9 +917,10 @@ function FullscreenDataSidebar({
       if (cadRef.current) cadRef.current.textContent = `${cadence[idx]}`
       if (spdRef.current) spdRef.current.textContent = speed[idx].toFixed(1)
       if (elvRef.current) elvRef.current.textContent = `${Math.round(altitude[idx])}`
+      if (tqRef.current) tqRef.current.textContent = torque[idx].toFixed(1)
       if (modeRef.current) modeRef.current.textContent = ''
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, meta, showAvg])
+  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAvg])
 
   const row = 'flex items-baseline justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5'
 
@@ -986,6 +1002,18 @@ function FullscreenDataSidebar({
           <div className="flex items-baseline gap-1">
             <span ref={elvRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
             <span className="text-[10px] text-[var(--n600)]">m</span>
+          </div>
+        </div>
+      )}
+      {visibleCharts.has('torque') && (
+        <div className={row}>
+          <div className="flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-[#b45309]" />
+            <span className="text-[11px] text-[var(--n600)]">Torque</span>
+          </div>
+          <div className="flex items-baseline gap-1">
+            <span ref={tqRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
+            <span className="text-[10px] text-[var(--n600)]">Nm</span>
           </div>
         </div>
       )}
@@ -1331,7 +1359,7 @@ function KS({ label, value, unit, sub, badge, progress, progressColor, dot }: {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ChartToggles({
-  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, onFullscreen,
+  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, onFullscreen, hiddenCharts,
 }: {
   visibleCharts: Set<ChartKey>
   onToggle: (key: ChartKey) => void
@@ -1340,11 +1368,12 @@ function ChartToggles({
   showPeaks: boolean
   setShowPeaks: (v: boolean) => void
   onFullscreen?: () => void
+  hiddenCharts?: Set<ChartKey>
 }) {
   return (
     <div className="flex items-center gap-2 py-2">
       {/* Chart visibility toggles */}
-      {ALL_CHARTS.map((key) => (
+      {ALL_CHARTS.filter(k => !hiddenCharts?.has(k)).map((key) => (
         <button
           key={key}
           onClick={() => onToggle(key)}
@@ -1483,10 +1512,10 @@ function PeakPowersStrip({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, kjPerMin, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
+  power, heartRate, cadence, speed, altitude, kjPerMin, torque, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  kjPerMin: number[]
+  kjPerMin: number[]; torque: number[]
   ftp: number; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
   heightOverrides?: Partial<Record<ChartKey, number>>
@@ -1528,6 +1557,7 @@ function SyncedCharts({
   }, [visAltitude])
 
   const visKjMin = useMemo(() => kjPerMin.slice(start, end + 1), [kjPerMin, start, end])
+  const visTorque = useMemo(() => torque.slice(start, end + 1), [torque, start, end])
 
   const formatX = useCallback(
     (i: number) => formatTimeForZoom(start + i, visibleRange),
@@ -1702,6 +1732,29 @@ function SyncedCharts({
         </motion.div>
       )}
       </AnimatePresence>
+
+      {/* Torque — 80px */}
+      <AnimatePresence initial={false}>
+      {visibleCharts.has('torque') && (
+        <motion.div key="torque" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <ChartRoot
+          data={visTorque}
+          height={h('torque')}
+          decimationFactor={decimationFactor}
+          padding={lastChartKey === 'torque' ? chartPad : { ...chartPad, bottom: 4 }}
+          className="bg-(--n50)"
+        >
+          <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
+          {lastChartKey === 'torque' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
+          <ChartArea gradientColor="#b45309" opacityFrom={0.10} opacityTo={0.005} />
+          <ChartLine className="fill-none stroke-[#b45309] stroke-[1.5]" />
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#b45309" />
+          <ChartZoomHandler />
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Nm</text>
+        </ChartRoot>
+        </motion.div>
+      )}
+      </AnimatePresence>
       </div>
 
       {/* Crosshair time label */}
@@ -1710,7 +1763,7 @@ function SyncedCharts({
       {/* Hover data table — hidden in fullscreen (sidebar shows data instead) */}
       {!hideExtras && (
         <HoverDataTable
-          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} meta={meta}
+          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta}
           visibleCharts={visibleCharts}
         />
       )}
@@ -1738,10 +1791,10 @@ function SyncedCharts({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function HoverDataTable({
-  power, heartRate, cadence, speed, altitude, kjPerMin, meta, visibleCharts,
+  power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, visibleCharts,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  kjPerMin: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
+  kjPerMin: number[]; torque: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -1749,11 +1802,12 @@ function HoverDataTable({
 
   const rangeStats = useMemo(() => {
     const len = end - start + 1
-    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, elev: 0, kjmin: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
-    let pw = 0, hr = 0, cd = 0, spd = 0, elv = 0, kj = 0
+    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, elev: 0, kjmin: 0, torque: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
+    let pw = 0, hr = 0, cd = 0, spd = 0, elv = 0, kj = 0, tq = 0, tqCount = 0
     let mxPw = -Infinity, mxHr = -Infinity, mxCd = -Infinity, mxSpd = -Infinity, mxElv = -Infinity
     for (let i = start; i <= end; i++) {
       pw += power[i]; hr += heartRate[i]; cd += cadence[i]; spd += speed[i]; elv += altitude[i]; kj += kjPerMin[i]
+      if (torque[i] > 0) { tq += torque[i]; tqCount++ }
       if (power[i] > mxPw) mxPw = power[i]
       if (heartRate[i] > mxHr) mxHr = heartRate[i]
       if (cadence[i] > mxCd) mxCd = cadence[i]
@@ -1763,10 +1817,11 @@ function HoverDataTable({
     return {
       power: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len),
       speed: +(spd / len).toFixed(1), elev: Math.round(elv / len), kjmin: +(kj / len).toFixed(1),
+      torque: tqCount > 0 ? +(tq / tqCount).toFixed(1) : 0,
       maxPower: Math.round(mxPw), maxHR: Math.round(mxHr), maxCad: Math.round(mxCd),
       maxSpeed: +mxSpd.toFixed(1), maxElev: Math.round(mxElv),
     }
-  }, [power, heartRate, cadence, speed, altitude, kjPerMin, start, end])
+  }, [power, heartRate, cadence, speed, altitude, kjPerMin, torque, start, end])
 
   const rangeDur = useMemo(() => {
     const secs = end - start
@@ -1798,6 +1853,8 @@ function HoverDataTable({
   const elevDeltaRef = useRef<HTMLSpanElement>(null)
   const kjminLabelRef = useRef<HTMLSpanElement>(null)
   const kjminValRef = useRef<HTMLSpanElement>(null)
+  const torqueLabelRef = useRef<HTMLSpanElement>(null)
+  const torqueValRef = useRef<HTMLSpanElement>(null)
 
   const showAverages = useCallback(() => {
     const s = rangeStats
@@ -1811,12 +1868,14 @@ function HoverDataTable({
     if (speedLabelRef.current) speedLabelRef.current.textContent = `${prefix} Speed`
     if (elevLabelRef.current) elevLabelRef.current.textContent = `${prefix} Elevation`
     if (kjminLabelRef.current) kjminLabelRef.current.textContent = `${prefix} kJ/min`
+    if (torqueLabelRef.current) torqueLabelRef.current.textContent = `${prefix} Torque`
     if (powerValRef.current) { powerValRef.current.textContent = `${s.power}`; powerValRef.current.style.color = 'var(--n1050)' }
     if (hrValRef.current) { hrValRef.current.textContent = `${s.hr}`; hrValRef.current.style.color = 'var(--n1050)' }
     if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = 'var(--n1050)' }
     if (speedValRef.current) { speedValRef.current.textContent = `${s.speed}`; speedValRef.current.style.color = 'var(--n1050)' }
     if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = 'var(--n1050)' }
     if (kjminValRef.current) { kjminValRef.current.textContent = `${s.kjmin}`; kjminValRef.current.style.color = 'var(--n1050)' }
+    if (torqueValRef.current) { torqueValRef.current.textContent = `${s.torque}`; torqueValRef.current.style.color = 'var(--n1050)' }
     if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
     if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
     if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -1844,6 +1903,7 @@ function HoverDataTable({
       if (speedLabelRef.current) speedLabelRef.current.textContent = 'Speed'
       if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elevation'
       if (kjminLabelRef.current) kjminLabelRef.current.textContent = 'kJ/min'
+      if (torqueLabelRef.current) torqueLabelRef.current.textContent = 'Torque'
 
       const pw = power[fullIdx], hr = heartRate[fullIdx], cad = cadence[fullIdx], spd = speed[fullIdx], elev = altitude[fullIdx]
       if (powerValRef.current) { powerValRef.current.textContent = `${pw}`; powerValRef.current.style.color = 'var(--n1150)' }
@@ -1852,6 +1912,7 @@ function HoverDataTable({
       if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = 'var(--n1150)' }
       if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = 'var(--n1150)' }
       if (kjminValRef.current) { kjminValRef.current.textContent = kjPerMin[fullIdx].toFixed(1); kjminValRef.current.style.color = 'var(--n1150)' }
+      if (torqueValRef.current) { torqueValRef.current.textContent = torque[fullIdx].toFixed(1); torqueValRef.current.style.color = 'var(--n1150)' }
       if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
       if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
       if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -1866,7 +1927,7 @@ function HoverDataTable({
         hrZoneRef.current.textContent = z.label; hrZoneRef.current.style.color = z.color; hrZoneRef.current.style.backgroundColor = `${z.color}1F`
       }
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, meta, showAverages])
+  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAverages])
 
   const rowCls = 'flex items-center gap-3 border-b-[0.5px] border-b-[var(--n400)]/50 py-2'
   const dotCls = 'h-2 w-2 shrink-0 rounded-full'
@@ -1952,6 +2013,16 @@ function HoverDataTable({
             <span className={unitCls}>m</span>
           </span>
           <span ref={elevDeltaRef} className={deltaCls} />
+        </div>
+      )}
+      {vc.has('torque') && (
+        <div className="flex items-center gap-3 py-2">
+          <span className={`${dotCls} bg-[#b45309]`} />
+          <span ref={torqueLabelRef} className={labelCls}>Avg Torque</span>
+          <span className="flex items-baseline gap-1">
+            <span ref={torqueValRef} className={valCls}>0</span>
+            <span className={unitCls}>Nm</span>
+          </span>
         </div>
       )}
     </div>
