@@ -31,6 +31,7 @@ import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
 import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/ChartZoneLine'
+import { useChart } from '@/components/charts/primitives/chart-context'
 import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/ChartSyncProvider'
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
@@ -58,6 +59,8 @@ const HR_ZONES: ZoneDefinition[] = [
 type ZoneMode = 'off' | 'power' | 'hr'
 const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
 
+type ViewMode = 'stacked' | 'overlay'
+
 type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'kjmin' | 'torque'
 const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation', 'torque']
 const CHART_LABELS: Record<ChartKey, string> = {
@@ -70,6 +73,36 @@ const CHART_HEIGHTS: Record<ChartKey, number> = {
 }
 
 // ─── Time formatting ───
+
+/** Right-side Y-axis for overlay mode (renders ticks on the right edge). */
+function RightYAxis({ ticks, format, color }: { ticks: number[]; format: (v: number) => string; color: string }) {
+  const { chartWidth, chartHeight, scaleY } = useChart()
+  // Map ticks from their original domain to pixel positions using a local scale
+  // We need to map the HR ticks to the chart's pixel space
+  const minTick = ticks[0], maxTick = ticks[ticks.length - 1]
+  return (
+    <g>
+      {ticks.map(t => {
+        // Map tick value (in HR units) to 0-1 fraction, then to pixel Y
+        const frac = maxTick !== minTick ? (t - minTick) / (maxTick - minTick) : 0.5
+        const py = chartHeight - frac * chartHeight
+        return (
+          <text
+            key={t}
+            x={chartWidth + 8}
+            y={py}
+            dy="0.32em"
+            textAnchor="start"
+            className="text-[9px]"
+            style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums', fill: color }}
+          >
+            {format(t)}
+          </text>
+        )
+      })}
+    </g>
+  )
+}
 
 function formatTimeForZoom(index: number, _visibleRange: number): string {
   const m = Math.floor(index / 60)
@@ -495,6 +528,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showPeaks, setShowPeaks] = useState(false)
   const [activePeak, setActivePeak] = useState<PeakPowerResult | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('stacked')
 
   // Session scores — interactive
   const [scores, setScores] = useState<{ effort: number | null; quality: number | null; legs: number | null }>({ effort: null, quality: null, legs: null })
@@ -639,6 +673,8 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             setZoneMode={setZoneMode}
             showPeaks={showPeaks}
             setShowPeaks={setShowPeaks}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
             onFullscreen={() => setIsFullscreen(true)}
             hiddenCharts={hasTorque ? undefined : new Set<ChartKey>(['torque'])}
           />
@@ -667,6 +703,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             meta={meta}
             zoneMode={zoneMode}
             visibleCharts={visibleCharts}
+            viewMode={viewMode}
             activePeak={activePeak}
             onClearPeak={() => setActivePeak(null)}
           />
@@ -1365,7 +1402,7 @@ function KS({ label, value, unit, sub, badge, progress, progressColor, dot }: {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ChartToggles({
-  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, onFullscreen, hiddenCharts,
+  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, viewMode, setViewMode, onFullscreen, hiddenCharts,
 }: {
   visibleCharts: Set<ChartKey>
   onToggle: (key: ChartKey) => void
@@ -1373,6 +1410,8 @@ function ChartToggles({
   setZoneMode: (mode: ZoneMode) => void
   showPeaks: boolean
   setShowPeaks: (v: boolean) => void
+  viewMode: ViewMode
+  setViewMode: (mode: ViewMode) => void
   onFullscreen?: () => void
   hiddenCharts?: Set<ChartKey>
 }) {
@@ -1451,6 +1490,27 @@ function ChartToggles({
           </button>
         ))}
       </div>
+
+      {/* View toggle */}
+      <span className={cn("ml-2 text-[10px] text-[var(--n600)]", WEIGHT.strong)}>View</span>
+      <div className="flex -space-x-px">
+        {(['stacked', 'overlay'] as const).map((mode, i) => (
+          <button
+            key={mode}
+            onClick={() => setViewMode(mode)}
+            className={cn(
+              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+              i === 0 && 'rounded-l-[5px]',
+              i === 1 && 'rounded-r-[5px]',
+              viewMode === mode
+                ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
+                : cn("text-[var(--n600)]", HOVER_SAND)
+            )}
+          >
+            {mode === 'stacked' ? 'Stacked' : 'Overlay'}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
@@ -1518,12 +1578,13 @@ function PeakPowersStrip({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, kjPerMin, torque, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
+  power, heartRate, cadence, speed, altitude, kjPerMin, torque, ftp, maxHR, meta, zoneMode, visibleCharts, viewMode = 'stacked', heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   kjPerMin: number[]; torque: number[]
   ftp: number; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
+  viewMode?: ViewMode
   heightOverrides?: Partial<Record<ChartKey, number>>
   hideExtras?: boolean
   decimationFactor?: number
@@ -1582,6 +1643,34 @@ function SyncedCharts({
   const orderedVisible = ALL_CHARTS.filter((k) => visibleCharts.has(k))
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
+  // ── Overlay: normalize secondary channels into power's Y range ──
+  const overlayHeight = heightOverrides?.power ? Math.round(Object.values(heightOverrides).reduce((s, v) => s + (v ?? 0), 0)) : 400
+
+  const normalizeToRange = useCallback((source: readonly number[], targetData: readonly number[]) => {
+    let sMin = Infinity, sMax = -Infinity
+    for (let i = 0; i < source.length; i++) { if (source[i] < sMin) sMin = source[i]; if (source[i] > sMax) sMax = source[i] }
+    let tMin = Infinity, tMax = -Infinity
+    for (let i = 0; i < targetData.length; i++) { if (targetData[i] < tMin) tMin = targetData[i]; if (targetData[i] > tMax) tMax = targetData[i] }
+    const sRange = sMax - sMin || 1
+    const tRange = tMax - tMin || 1
+    return source.map(v => ((v - sMin) / sRange) * tRange + tMin)
+  }, [])
+
+  const visHRNorm = useMemo(() => normalizeToRange(visHR, visPower), [visHR, visPower, normalizeToRange])
+  const visCadenceNorm = useMemo(() => normalizeToRange(visCadence, visPower), [visCadence, visPower, normalizeToRange])
+  const visSpeedNorm = useMemo(() => normalizeToRange(visSpeed, visPower), [visSpeed, visPower, normalizeToRange])
+  const visKjMinNorm = useMemo(() => normalizeToRange(visKjMin, visPower), [visKjMin, visPower, normalizeToRange])
+  const visTorqueNorm = useMemo(() => normalizeToRange(visTorque, visPower), [visTorque, visPower, normalizeToRange])
+  const visAltitudeNorm = useMemo(() => normalizeToRange(visAltitude, visPower), [visAltitude, visPower, normalizeToRange])
+
+  // Right Y-axis ticks for HR
+  const hrYTicks = useMemo(() => {
+    if (!visibleCharts.has('hr')) return []
+    let min = Infinity, max = -Infinity
+    for (let i = 0; i < visHR.length; i++) { if (visHR[i] < min) min = visHR[i]; if (visHR[i] > max) max = visHR[i] }
+    return niceTicks(min * 0.95, max * 1.05, 3)
+  }, [visHR, visibleCharts])
+
   return (
     <div
       className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)}
@@ -1593,6 +1682,74 @@ function SyncedCharts({
       {/* Brush overlay wrapper — scoped to chart area only */}
       <div className="relative">
       <BrushOverlay />
+
+      {/* ═══ OVERLAY MODE ═══ */}
+      {viewMode === 'overlay' && (
+        <ChartRoot
+          data={visPower}
+          height={overlayHeight}
+          decimationFactor={decimationFactor}
+          padding={{ right: 64, bottom: 4 }}
+          yPadding={0.10}
+          className="bg-(--n50)"
+        >
+          {/* Elevation as background fill */}
+          {visibleCharts.has('elevation') && (
+            <ChartArea data={visAltitudeNorm} gradientColor="#78716c" opacityFrom={0.08} opacityTo={0.02} />
+          )}
+
+          {/* kJ/min line */}
+          {visibleCharts.has('kjmin') && (
+            <ChartLine data={visKjMinNorm} className="fill-none stroke-amber-500 stroke-[1]" />
+          )}
+
+          {/* Speed line */}
+          {visibleCharts.has('speed') && (
+            <ChartLine data={visSpeedNorm} className="fill-none stroke-blue-500 stroke-[1]" />
+          )}
+
+          {/* Cadence line */}
+          {visibleCharts.has('cadence') && (
+            <ChartLine data={visCadenceNorm} className="fill-none stroke-purple-500 stroke-[1]" />
+          )}
+
+          {/* Torque line */}
+          {visibleCharts.has('torque') && (
+            <ChartLine data={visTorqueNorm} className="fill-none stroke-[#b45309] stroke-[1]" />
+          )}
+
+          {/* HR line */}
+          {visibleCharts.has('hr') && (
+            <ChartLine data={visHRNorm} className="fill-none stroke-red-500 stroke-[1.5]" />
+          )}
+
+          {/* Power line (primary — on top) */}
+          {visibleCharts.has('power') && (
+            zoneMode === 'power'
+              ? <ChartZoneLine zones={POWER_ZONES} threshold={ftp} className="stroke-[1.5]" />
+              : <ChartLine className="fill-none stroke-emerald-600 stroke-[1.5]" />
+          )}
+
+          {/* Left Y-axis: Power */}
+          <ChartAxisY tickCount={4} />
+
+          {/* Right Y-axis: HR (manual SVG) */}
+          {visibleCharts.has('hr') && hrYTicks.length > 0 && (
+            <RightYAxis ticks={hrYTicks} format={(v) => `${Math.round(v)}`} color="#ef4444" />
+          )}
+
+          <ChartAxisX format={formatX} tickValues={timeTicks} />
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#059669" />
+          <ChartZoomHandler />
+
+          {/* Channel legend */}
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Overlay</text>
+        </ChartRoot>
+      )}
+
+      {/* ═══ STACKED MODE ═══ */}
+      {viewMode === 'stacked' && (<>
+
 
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
@@ -1761,6 +1918,7 @@ function SyncedCharts({
         </motion.div>
       )}
       </AnimatePresence>
+      </>)}
       </div>
 
       {/* Crosshair time label */}
