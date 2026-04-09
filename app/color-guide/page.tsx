@@ -70,12 +70,12 @@ const NEUTRAL_HEX: Record<string, string> = {
 
 // Power zones — RAMTT proposal (primary)
 const POWER_ZONES_RAMTT = [
-  { zone: 'Z1', label: 'Recovery', range: '0–55%', hex: '#7CA3BE' },
-  { zone: 'Z2', label: 'Endurance', range: '55–75%', hex: '#14B8A2' },
-  { zone: 'Z3', label: 'Tempo', range: '75–90%', hex: '#E8B020' },
-  { zone: 'Z4', label: 'Threshold', range: '90–105%', hex: '#E36B30' },
-  { zone: 'Z5', label: 'VO2max', range: '105–120%', hex: '#E83B52' },
-  { zone: 'Z6', label: 'Anaerobic', range: '>120%', hex: '#9B40E8' },
+  { zone: 'Z1', label: 'Recovery', range: '0–55%', hex: '#94A3B8' },
+  { zone: 'Z2', label: 'Endurance', range: '55–75%', hex: '#16A34A' },
+  { zone: 'Z3', label: 'Tempo', range: '75–90%', hex: '#F59E0B' },
+  { zone: 'Z4', label: 'Threshold', range: '90–105%', hex: '#F97316' },
+  { zone: 'Z5', label: 'VO2max', range: '105–120%', hex: '#EF4444' },
+  { zone: 'Z6', label: 'Anaerobic', range: '>120%', hex: '#A855F7' },
 ]
 
 // Power zones — Coggan standard (comparison)
@@ -90,12 +90,12 @@ const POWER_ZONES_COGGAN = [
 
 // RAMTT zones for ChartZoneLine primitive (ZoneDefinition format)
 const RAMTT_ZONE_DEFS = [
-  { min: 0, max: 0.55, color: '#7CA3BE', label: 'Z1' },
-  { min: 0.55, max: 0.75, color: '#14B8A2', label: 'Z2' },
-  { min: 0.75, max: 0.90, color: '#E8B020', label: 'Z3' },
-  { min: 0.90, max: 1.05, color: '#E36B30', label: 'Z4' },
-  { min: 1.05, max: 1.20, color: '#E83B52', label: 'Z5' },
-  { min: 1.20, max: Infinity, color: '#9B40E8', label: 'Z6' },
+  { min: 0, max: 0.55, color: '#94A3B8', label: 'Z1' },
+  { min: 0.55, max: 0.75, color: '#16A34A', label: 'Z2' },
+  { min: 0.75, max: 0.90, color: '#F59E0B', label: 'Z3' },
+  { min: 0.90, max: 1.05, color: '#F97316', label: 'Z4' },
+  { min: 1.05, max: 1.20, color: '#EF4444', label: 'Z5' },
+  { min: 1.20, max: Infinity, color: '#A855F7', label: 'Z6' },
 ]
 
 // Pre-generated chart data (seeded — deterministic across renders)
@@ -109,16 +109,16 @@ const STREAM_ELEVATION = generateElevationStream(200)
 const CAPACITY = generateCapacityData(120)
 const PEAK_CURVES = [
   { data: generatePeakCurve(1100, 0.12, 80), label: 'Current', color: NEAR_BLACK },
-  { data: generatePeakCurve(1050, 0.11, 80), label: '90 days', color: '#5C97CB' },
-  { data: generatePeakCurve(980, 0.13, 80), label: '6 months', color: '#E8834A' },
-  { data: generatePeakCurve(920, 0.14, 80), label: '12 months', color: '#A259FF' },
-  { data: generatePeakCurve(1150, 0.10, 80), label: 'Best ever', color: '#D4365C' },
+  { data: generatePeakCurve(1050, 0.11, 80), label: '90 days', color: '#10B981' },
+  { data: generatePeakCurve(980, 0.13, 80), label: '6 months', color: '#F59E0B' },
+  { data: generatePeakCurve(920, 0.14, 80), label: '12 months', color: '#A855F7' },
+  { data: generatePeakCurve(1150, 0.10, 80), label: 'Best ever', color: '#EF4444' },
 ]
 const REGULATORS = generateRegulatorData(100)
 const REGULATOR_DISPLAY = [
-  { label: 'Fatigue', hex: '#E36B30' },
-  { label: 'Fitness', hex: '#9B40E8' },
-  { label: 'Form', hex: '#7CA3BE' },
+  { label: 'Fatigue', hex: '#F97316' },
+  { label: 'Fitness', hex: '#A855F7' },
+  { label: 'Form', hex: '#3B82F6' },
 ]
 const FUEL = generateFuelData(100)
 const ENERGY = generateEnergyBalance(100)
@@ -131,9 +131,9 @@ const SPARKLINES = [
   generateSparkline(1600, 30, 55, 20),
 ]
 const SPORT_LINES = [
-  { data: generateSportLine(2000, 100), label: 'Cycling', color: '#14B8A2' },
-  { data: generateSportLine(2100, 100), label: 'Running', color: '#D4365C' },
-  { data: generateSportLine(2200, 100), label: 'Swimming', color: '#0891B2' },
+  { data: generateSportLine(2000, 100), label: 'Cycling', color: '#16A34A' },
+  { data: generateSportLine(2100, 100), label: 'Running', color: '#EF4444' },
+  { data: generateSportLine(2200, 100), label: 'Swimming', color: '#3B82F6' },
 ]
 const W_PRIME = generateWPrimeBalance(200)
 const GLYCO_DEPLETION = generateGlycoDepletion(200)
@@ -163,127 +163,127 @@ const CALENDAR_WEEK = generateCalendarWeek()
 
 // CHO zones — blue spectrum
 const CHO_ZONES = [
-  { zone: 'CZ1', label: 'Minimal', range: '<30 g/h', hex: '#94A3B8' },
-  { zone: 'CZ2', label: 'Low', range: '30–50 g/h', hex: '#67B7D1' },
-  { zone: 'CZ3', label: 'Moderate', range: '50–70 g/h', hex: '#3B9FC9' },
-  { zone: 'CZ4', label: 'High', range: '70–90 g/h', hex: '#1A85B8' },
-  { zone: 'CZ5', label: 'Very high', range: '90–110 g/h', hex: '#0E6FA0' },
-  { zone: 'CZ6', label: 'Extreme', range: '>110 g/h', hex: '#085A87' },
+  { zone: 'C1', label: 'Cream', range: '0–30 g/h', hex: '#FEF3C7' },
+  { zone: 'C2', label: 'Butter', range: '30–50 g/h', hex: '#FCD34D' },
+  { zone: 'C3', label: 'Gold', range: '50–70 g/h', hex: '#FBBF24' },
+  { zone: 'C4', label: 'Amber', range: '70–90 g/h', hex: '#F59E0B' },
+  { zone: 'C5', label: 'Dark amber', range: '90–120 g/h', hex: '#D97706' },
+  { zone: 'C6', label: 'Deep amber', range: '>120 g/h', hex: '#92400E' },
 ]
 
 // Semantic colors (proposed RAMTT set)
 const SEMANTICS = [
-  { key: 'success', label: 'Success', hex: '#1B8A5A', usage: 'Compliant, improving, on track, saved' },
-  { key: 'warning', label: 'Warning', hex: '#C49B08', usage: 'GI risk, caution, partial compliance' },
-  { key: 'danger', label: 'Danger', hex: '#C43C3C', usage: 'Missed, declining, error, critical' },
-  { key: 'info', label: 'Info', hex: '#0099CC', usage: 'Stable trend, informational, neutral signal' },
+  { key: 'success', label: 'Success', hex: '#16A34A', usage: 'Compliant, improving, on track, saved' },
+  { key: 'warning', label: 'Warning', hex: '#F59E0B', usage: 'GI risk, caution, partial compliance' },
+  { key: 'danger', label: 'Danger', hex: '#EF4444', usage: 'Missed, declining, error, critical' },
+  { key: 'info', label: 'Info', hex: '#3B82F6', usage: 'Stable trend, informational, neutral signal' },
 ]
 
 // Session activity streams
 const STREAMS_LIGHT = [
-  { label: 'Power', hex: NEAR_BLACK, unit: 'W', value: '238', dark: '#F0EDE8' },
-  { label: 'Heart rate', hex: '#E83B52', unit: 'bpm', value: '142', dark: '#ED96A4' },
-  { label: 'Cadence', hex: '#9B40E8', unit: 'rpm', value: '88', dark: '#C496EF' },
-  { label: 'Speed', hex: '#14B8A2', unit: 'km/h', value: '34.2', dark: '#72DBC8' },
-  { label: 'Elevation', hex: '#C0BDB6', unit: 'm', value: '342', dark: DARK_SAND },
-  { label: 'Temperature', hex: '#C49B08', unit: '°C', value: '28', dark: '#EDD070' },
+  { label: 'Power', hex: '#16A34A', unit: 'W', value: '238', dark: '#4ADE80' },
+  { label: 'Heart rate', hex: '#EF4444', unit: 'bpm', value: '142', dark: '#FCA5A5' },
+  { label: 'Cadence', hex: '#A855F7', unit: 'rpm', value: '88', dark: '#D8B4FE' },
+  { label: 'Speed', hex: '#3B82F6', unit: 'km/h', value: '34.2', dark: '#93C5FD' },
+  { label: 'Elevation', hex: 'var(--n600)', unit: 'm', value: '342', dark: '#B5B2AB' },
+  { label: 'Temperature', hex: '#F97316', unit: '°C', value: '28', dark: '#FDBA74' },
 ]
 
 // Capacity chart lines
 const CAPACITY_LINES = [
-  { label: 'Capacity (CTL)', hex: '#14B8A2', dash: false, width: 2 },
-  { label: 'Pressure (ATL)', hex: '#E83B52', dash: false, width: 2 },
-  { label: 'Form +', hex: '#1B8A5A', dash: false, width: 1.5 },
-  { label: 'Form −', hex: '#C43C3C', dash: false, width: 1.5 },
-  { label: 'Surge', hex: '#9B40E8', dash: true, width: 1.5 },
-  { label: 'ACWR', hex: '#E8B020', dash: false, width: 1.5 },
+  { label: 'Capacity (CTL)', hex: '#10B981', dash: false, width: 2 },
+  { label: 'Pressure (ATL)', hex: '#EF4444', dash: false, width: 2 },
+  { label: 'Form +', hex: '#16A34A', dash: false, width: 1.5 },
+  { label: 'Form −', hex: '#EF4444', dash: false, width: 1.5 },
+  { label: 'Surge', hex: '#A855F7', dash: true, width: 1.5 },
+  { label: 'ACWR', hex: '#F59E0B', dash: false, width: 1.5 },
 ]
 
 
 // Nutrients
 const NUTRIENTS = [
-  { label: 'CHO', hex: '#E36B30' },
-  { label: 'Fluid', hex: '#2AACCC' },
-  { label: 'Sodium', hex: '#9B40E8' },
-  { label: 'Caffeine', hex: '#14B8A2' },
+  { label: 'CHO', hex: '#F97316' },
+  { label: 'Fluid', hex: '#3B82F6' },
+  { label: 'Sodium', hex: '#EC4899' },
+  { label: 'Caffeine', hex: '#9333EA' },
 ]
 
 // Macros
 const MACROS = [
-  { label: 'CHO', hex: '#E36B30' },
-  { label: 'Protein', hex: '#3B82F6' },
-  { label: 'Fat', hex: '#E8B020' },
+  { label: 'CHO', hex: '#F97316' },
+  { label: 'Protein', hex: '#A855F7' },
+  { label: 'Fat', hex: '#F59E0B' },
 ]
 
 // Cadence zones (9 brackets, cold to warm)
 const CADENCE_ZONES = [
-  { rpm: 'Coasting', hex: '#C0BDB6' },
-  { rpm: '≤60', hex: '#7CA3BE' },
-  { rpm: '61–70', hex: '#5B9EAD' },
-  { rpm: '71–80', hex: '#14B8A2' },
-  { rpm: '81–85', hex: '#8CC44E' },
-  { rpm: '86–90', hex: '#E8B020' },
-  { rpm: '91–95', hex: '#E68A58' },
-  { rpm: '96–105', hex: '#E36B30' },
-  { rpm: '≥106', hex: '#E83B52' },
+  { rpm: 'Coasting', hex: 'var(--n600)' },
+  { rpm: '≤60', hex: '#94A3B8' },
+  { rpm: '61–70', hex: '#3B82F6' },
+  { rpm: '71–80', hex: '#10B981' },
+  { rpm: '81–85', hex: '#16A34A' },
+  { rpm: '86–90', hex: '#F59E0B' },
+  { rpm: '91–95', hex: '#F97316' },
+  { rpm: '96–105', hex: '#EF4444' },
+  { rpm: '≥106', hex: '#A855F7' },
 ]
 
 // Elevation gradient (6 levels)
 const ELEVATION_LEVELS = [
-  { grade: '0–2%', hex: '#14B8A2' },
-  { grade: '2–5%', hex: '#8CC44E' },
-  { grade: '5–8%', hex: '#E8B020' },
-  { grade: '8–12%', hex: '#E36B30' },
-  { grade: '12–16%', hex: '#E83B52' },
-  { grade: '>16%', hex: '#9B40E8' },
+  { grade: '0–2%', hex: '#3B82F6' },
+  { grade: '2–5%', hex: '#10B981' },
+  { grade: '5–8%', hex: '#F59E0B' },
+  { grade: '8–12%', hex: '#F97316' },
+  { grade: '12–16%', hex: '#EF4444' },
+  { grade: '>16%', hex: '#A855F7' },
 ]
 
 // Interval stack (8 colors)
 const INTERVAL_COLORS = [
   { n: 1, hex: NEAR_BLACK },
-  { n: 2, hex: '#E83B52' },
-  { n: 3, hex: '#14B8A2' },
-  { n: 4, hex: '#E8B020' },
-  { n: 5, hex: '#9B40E8' },
-  { n: 6, hex: '#2AACCC' },
-  { n: 7, hex: '#7CA3BE' },
-  { n: 8, hex: '#E36B30' },
+  { n: 2, hex: '#EF4444' },
+  { n: 3, hex: '#16A34A' },
+  { n: 4, hex: '#F59E0B' },
+  { n: 5, hex: '#A855F7' },
+  { n: 6, hex: '#3B82F6' },
+  { n: 7, hex: '#10B981' },
+  { n: 8, hex: '#F97316' },
 ]
 
 // Training phases
 const PHASES = [
-  { label: 'Base', hex: '#7CA3BE', width: 22 },
-  { label: 'Build', hex: '#E8B020', width: 20 },
-  { label: 'Peak', hex: '#E83B52', width: 15 },
-  { label: 'Taper', hex: '#9B40E8', width: 12 },
+  { label: 'Base', hex: '#3B82F6', width: 22 },
+  { label: 'Build', hex: '#F59E0B', width: 20 },
+  { label: 'Peak', hex: '#EF4444', width: 15 },
+  { label: 'Taper', hex: '#A855F7', width: 12 },
   { label: 'Race', hex: NEAR_BLACK, width: 8 },
-  { label: 'Transition', hex: '#C0BDB6', width: 23 },
+  { label: 'Transition', hex: 'var(--n600)', width: 23 },
 ]
 
 // Day types
 const DAY_TYPES = [
-  { label: 'Rest', hex: '#8A8780' },
-  { label: 'Easy', hex: '#7CA3BE' },
-  { label: 'Moderate', hex: '#14B8A2' },
-  { label: 'Hard', hex: '#E36B30' },
-  { label: 'Carb load', hex: '#E8B020' },
+  { label: 'Rest', hex: 'var(--n600)' },
+  { label: 'Easy', hex: '#3B82F6' },
+  { label: 'Moderate', hex: '#10B981' },
+  { label: 'Hard', hex: '#EF4444' },
+  { label: 'Carb load', hex: '#F59E0B' },
   { label: 'Race', hex: NEAR_BLACK },
 ]
 
 // Intent badges (outline, zone-colored)
 const INTENTS = [
-  { label: 'Recovery', hex: '#7CA3BE' },
-  { label: 'Endurance', hex: '#14B8A2' },
-  { label: 'Tempo', hex: '#E8B020' },
-  { label: 'Threshold', hex: '#E36B30' },
-  { label: 'VO2max', hex: '#E83B52' },
+  { label: 'Recovery', hex: '#3B82F6' },
+  { label: 'Endurance', hex: '#10B981' },
+  { label: 'Tempo', hex: '#F59E0B' },
+  { label: 'Threshold', hex: '#F97316' },
+  { label: 'VO2max', hex: '#EF4444' },
   { label: 'Race', hex: NEAR_BLACK },
-  { label: 'Test', hex: '#9B40E8' },
+  { label: 'Test', hex: '#A855F7' },
 ]
 
 // Priority badges
 const PRIORITIES = [
-  { label: 'Critical', hex: '#C43C3C' },
+  { label: 'Critical', hex: '#EF4444' },
   { label: 'Routine', hex: '#8A8780' },
   { label: 'Optional', hex: '#B5B2AB' },
 ]
@@ -291,31 +291,31 @@ const PRIORITIES = [
 // Peak curves (5 periods)
 const PEAK_PERIODS = [
   { label: 'Current', hex: NEAR_BLACK, width: 2.5, dash: false },
-  { label: '90 d', hex: '#14B8A2', width: 1.5, dash: false },
-  { label: '180 d', hex: '#E8B020', width: 1.5, dash: false },
-  { label: '365 d', hex: '#9B40E8', width: 1.5, dash: false },
-  { label: 'Best ever', hex: '#E83B52', width: 1.5, dash: true },
+  { label: '90 d', hex: '#10B981', width: 1.5, dash: false },
+  { label: '180 d', hex: '#F59E0B', width: 1.5, dash: false },
+  { label: '365 d', hex: '#A855F7', width: 1.5, dash: false },
+  { label: 'Best ever', hex: '#EF4444', width: 1.5, dash: true },
 ]
 
 // Body & wellness streams
 const WELLNESS = [
-  { label: 'HRV', hex: '#14B8A2' },
-  { label: 'RHR', hex: '#E83B52' },
+  { label: 'HRV', hex: '#10B981' },
+  { label: 'RHR', hex: '#EF4444' },
   { label: 'Weight', hex: NEAR_BLACK },
-  { label: 'Body fat', hex: '#E8B020' },
-  { label: 'Lean mass', hex: '#14B8A2' },
-  { label: 'Sleep efficiency', hex: '#9B40E8' },
-  { label: 'Sleep duration', hex: '#7CA3BE' },
+  { label: 'Body fat', hex: '#F59E0B' },
+  { label: 'Lean mass', hex: '#16A34A' },
+  { label: 'Sleep efficiency', hex: '#A855F7' },
+  { label: 'Sleep duration', hex: '#3B82F6' },
 ]
 
 // Sport colors
 const SPORTS = [
-  { label: 'Cycling', hex: '#14B8A2' },
-  { label: 'Running', hex: '#E83B52' },
-  { label: 'Swimming', hex: '#2AACCC' },
-  { label: 'Strength', hex: '#9B40E8' },
-  { label: 'Rowing', hex: '#E8B020' },
-  { label: 'Other', hex: '#8A8780' },
+  { label: 'Cycling', hex: '#16A34A' },
+  { label: 'Running', hex: '#EF4444' },
+  { label: 'Swimming', hex: '#3B82F6' },
+  { label: 'Strength', hex: '#A855F7' },
+  { label: 'Rowing', hex: '#F59E0B' },
+  { label: 'Other', hex: 'var(--n600)' },
 ]
 
 // Brand palette — 2 core colors + white
@@ -430,10 +430,10 @@ const RADAR_CURRENT = '150.0,63.0 211.9,104.3 226.2,184.0 150.0,200.5 83.3,178.5
 
 // Gauge arcs (section 20) — pre-computed SVG path d attributes
 const GAUGE_SEGMENTS = [
-  { hex: '#1B8A5A', label: 'Low', d: 'M 15.0 70.0 A 55 55 0 0 1 42.0 22.7' },
-  { hex: '#E8B020', label: 'Moderate', d: 'M 42.0 22.7 A 55 55 0 0 1 96.5 21.8' },
-  { hex: '#E36B30', label: 'High', d: 'M 96.5 21.8 A 55 55 0 0 1 119.0 45.0' },
-  { hex: '#C43C3C', label: 'Critical', d: 'M 119.0 45.0 A 55 55 0 0 1 125.0 70.0' },
+  { hex: '#16A34A', label: 'Low', d: 'M 15.0 70.0 A 55 55 0 0 1 42.0 22.7' },
+  { hex: '#F59E0B', label: 'Moderate', d: 'M 42.0 22.7 A 55 55 0 0 1 96.5 21.8' },
+  { hex: '#F97316', label: 'High', d: 'M 96.5 21.8 A 55 55 0 0 1 119.0 45.0' },
+  { hex: '#EF4444', label: 'Critical', d: 'M 119.0 45.0 A 55 55 0 0 1 125.0 70.0' },
 ]
 
 // ── Helpers ──
@@ -520,14 +520,14 @@ function CapacityChartSVG() {
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
       <g transform={`translate(${pad.left},${pad.top})`}>
-        <rect x={0} y={0} width={cw * 0.3} height={ch} fill="#7CA3BE" opacity={0.06} />
-        <rect x={cw * 0.3} y={0} width={cw * 0.3} height={ch} fill="#E8B020" opacity={0.06} />
-        <rect x={cw * 0.6} y={0} width={cw * 0.2} height={ch} fill="#E83B52" opacity={0.06} />
-        <rect x={cw * 0.8} y={0} width={cw * 0.2} height={ch} fill="#9B40E8" opacity={0.06} />
-        <path d={`${areaFwd}${areaBack}Z`} fill="#1B8A5A" opacity={0.10} />
-        <path d={pathCtl} fill="none" stroke="#14B8A2" strokeWidth={2} strokeLinejoin="round" />
-        <path d={pathAtl} fill="none" stroke="#E83B52" strokeWidth={2} strokeLinejoin="round" />
-        <path d={pathSurge} fill="none" stroke="#9B40E8" strokeWidth={1.5} strokeDasharray="3 3" strokeLinejoin="round" />
+        <rect x={0} y={0} width={cw * 0.3} height={ch} fill="#3B82F6" opacity={0.06} />
+        <rect x={cw * 0.3} y={0} width={cw * 0.3} height={ch} fill="#F59E0B" opacity={0.06} />
+        <rect x={cw * 0.6} y={0} width={cw * 0.2} height={ch} fill="#EF4444" opacity={0.06} />
+        <rect x={cw * 0.8} y={0} width={cw * 0.2} height={ch} fill="#A855F7" opacity={0.06} />
+        <path d={`${areaFwd}${areaBack}Z`} fill="#16A34A" opacity={0.10} />
+        <path d={pathCtl} fill="none" stroke="#10B981" strokeWidth={2} strokeLinejoin="round" />
+        <path d={pathAtl} fill="none" stroke="#EF4444" strokeWidth={2} strokeLinejoin="round" />
+        <path d={pathSurge} fill="none" stroke="#A855F7" strokeWidth={1.5} strokeDasharray="3 3" strokeLinejoin="round" />
         <line x1={forecastX} y1={0} x2={forecastX} y2={ch} stroke="var(--n400)" strokeWidth={0.5} strokeDasharray="4 4" />
         <text x={forecastX + 6} y={12} fontSize={9} fill="var(--n600)" fontWeight={450}>Forecast</text>
         {[yMin, (yMin + yMax) / 2, yMax].map((v) => (
@@ -558,13 +558,13 @@ function ForecastChartSVG() {
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
       <g transform={`translate(${pad.left},${pad.top})`}>
-        <path d={ctlSolid} fill="none" stroke="#14B8A2" strokeWidth={2} strokeLinejoin="round" />
-        <path d={atlSolid} fill="none" stroke="#E83B52" strokeWidth={2} strokeLinejoin="round" />
+        <path d={ctlSolid} fill="none" stroke="#10B981" strokeWidth={2} strokeLinejoin="round" />
+        <path d={atlSolid} fill="none" stroke="#EF4444" strokeWidth={2} strokeLinejoin="round" />
         <line x1={sx(split)} y1={0} x2={sx(split)} y2={ch} stroke="var(--n400)" strokeWidth={0.5} strokeDasharray="4 4" />
         <text x={sx(split) + 6} y={12} fontSize={9} fill="var(--n600)" fontWeight={450}>Forecast</text>
-        <path d={ctlDash} fill="none" stroke="#14B8A2" strokeWidth={2} strokeDasharray="6 4" opacity={0.5} strokeLinejoin="round" />
-        <path d={atlDash} fill="none" stroke="#E83B52" strokeWidth={2} strokeDasharray="6 4" opacity={0.5} strokeLinejoin="round" />
-        <path d={`${bandTop}${bandBot}Z`} fill="#14B8A2" opacity={0.06} />
+        <path d={ctlDash} fill="none" stroke="#10B981" strokeWidth={2} strokeDasharray="6 4" opacity={0.5} strokeLinejoin="round" />
+        <path d={atlDash} fill="none" stroke="#EF4444" strokeWidth={2} strokeDasharray="6 4" opacity={0.5} strokeLinejoin="round" />
+        <path d={`${bandTop}${bandBot}Z`} fill="#10B981" opacity={0.06} />
       </g>
     </svg>
   )
@@ -575,11 +575,11 @@ function ACWRChartSVG() {
   const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
   const sy = scaleLinear([0, 2], [ch, 0])
   const zones = [
-    { y1: 0, y2: 0.5, color: '#C43C3C', label: '<0.5 Danger' },
-    { y1: 0.5, y2: 0.8, color: '#C49B08', label: '0.5–0.8 Warning' },
-    { y1: 0.8, y2: 1.3, color: '#1B8A5A', label: '0.8–1.3 Sweet spot' },
-    { y1: 1.3, y2: 1.5, color: '#C49B08', label: '1.3–1.5 Warning' },
-    { y1: 1.5, y2: 2.0, color: '#C43C3C', label: '>1.5 Danger' },
+    { y1: 0, y2: 0.5, color: '#EF4444', label: '<0.5 Danger' },
+    { y1: 0.5, y2: 0.8, color: '#F59E0B', label: '0.5–0.8 Warning' },
+    { y1: 0.8, y2: 1.3, color: '#16A34A', label: '0.8–1.3 Sweet spot' },
+    { y1: 1.3, y2: 1.5, color: '#F59E0B', label: '1.3–1.5 Warning' },
+    { y1: 1.5, y2: 2.0, color: '#EF4444', label: '>1.5 Danger' },
   ]
   const rng = (() => { let s = 555; return () => { s = (Math.imul(s, 1664525) + 1013904223) | 0; return (s >>> 0) / 0xffffffff } })()
   const acwrData = Array.from({ length: 80 }, (_, i) => ({ x: i, y: 0.9 + Math.sin(i * 0.15) * 0.25 + (rng() - 0.5) * 0.08 }))
@@ -594,7 +594,7 @@ function ACWRChartSVG() {
         {zones.map((z) => (
           <text key={z.label + 't'} x={cw + 6} y={(sy(z.y1) + sy(z.y2)) / 2 + 3} fontSize={8} fill={z.color} fontWeight={450}>{z.label}</text>
         ))}
-        <path d={acwrPath} fill="none" stroke="#E8B020" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={acwrPath} fill="none" stroke="#F59E0B" strokeWidth={1.5} strokeLinejoin="round" />
       </g>
     </svg>
   )
@@ -637,9 +637,9 @@ function RegulatorAreaChartSVG() {
   const sy = scaleLinear([yMin, yMax], [ch, 0])
   const xA = (_: number, i: number) => sx(i)
   const areas = [
-    { data: fatigue, color: '#E36B30' },
-    { data: fitness, color: '#9B40E8' },
-    { data: form, color: '#7CA3BE' },
+    { data: fatigue, color: '#F97316' },
+    { data: fitness, color: '#A855F7' },
+    { data: form, color: '#3B82F6' },
   ]
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
@@ -667,11 +667,11 @@ function FuelChartSVG() {
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
       <g transform={`translate(${pad.left},${pad.top})`}>
-        <path d={areaPath(gutCapacity, xA, (v) => sy(v), ch)} fill="#14B8A2" opacity={0.08} />
-        <path d={linePath(gutCapacity, xA, (v) => sy(v))} fill="none" stroke="#14B8A2" strokeWidth={1.5} strokeLinejoin="round" />
-        <path d={linePath(gutAdaptation, xA, (v) => sy(v))} fill="none" stroke="#E8B020" strokeWidth={1.5} strokeDasharray="4 3" strokeLinejoin="round" />
-        {choIntake.map((v, i) => v > 0 ? <line key={i} x1={sx(i)} y1={ch} x2={sx(i)} y2={sy(v)} stroke="#E36B30" strokeWidth={1.5} opacity={0.7} /> : null)}
-        {choIntake.map((v, i) => v > 0 ? <circle key={i + 'c'} cx={sx(i)} cy={sy(v)} r={2.5} fill="#E36B30" /> : null)}
+        <path d={areaPath(gutCapacity, xA, (v) => sy(v), ch)} fill="#10B981" opacity={0.08} />
+        <path d={linePath(gutCapacity, xA, (v) => sy(v))} fill="none" stroke="#10B981" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={linePath(gutAdaptation, xA, (v) => sy(v))} fill="none" stroke="#F59E0B" strokeWidth={1.5} strokeDasharray="4 3" strokeLinejoin="round" />
+        {choIntake.map((v, i) => v > 0 ? <line key={i} x1={sx(i)} y1={ch} x2={sx(i)} y2={sy(v)} stroke="#F97316" strokeWidth={1.5} opacity={0.7} /> : null)}
+        {choIntake.map((v, i) => v > 0 ? <circle key={i + 'c'} cx={sx(i)} cy={sy(v)} r={2.5} fill="#F97316" /> : null)}
       </g>
     </svg>
   )
@@ -690,8 +690,8 @@ function EnergyBalanceChartSVG() {
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
       <g transform={`translate(${pad.left},${pad.top})`}>
         <line x1={0} y1={zeroY} x2={cw} y2={zeroY} stroke="var(--n400)" strokeWidth={0.5} />
-        <path d={areaPath(surplus, xA, (v) => sy(v), zeroY)} fill="#1B8A5A" opacity={0.12} />
-        <path d={areaPath(deficit, xA, (v) => sy(v), zeroY)} fill="#C43C3C" opacity={0.12} />
+        <path d={areaPath(surplus, xA, (v) => sy(v), zeroY)} fill="#16A34A" opacity={0.12} />
+        <path d={areaPath(deficit, xA, (v) => sy(v), zeroY)} fill="#EF4444" opacity={0.12} />
         <path d={linePath(balance, xA, (v) => sy(v))} fill="none" stroke="var(--n1050)" strokeWidth={1.5} strokeLinejoin="round" />
       </g>
     </svg>
@@ -703,7 +703,7 @@ function ScatterChartSVG() {
   const cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom
   const sx = scaleLinear([0, 100], [0, cw])
   const sy = scaleLinear([0, 100], [ch, 0])
-  const zoneColors = ['#7CA3BE', '#14B8A2', '#E8B020', '#E36B30', '#E83B52', '#9B40E8']
+  const zoneColors = ['#94A3B8', '#16A34A', '#F59E0B', '#F97316', '#EF4444', '#A855F7']
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
       <g transform={`translate(${pad.left},${pad.top})`}>
@@ -729,8 +729,8 @@ function DualLoadChartSVG() {
   return (
     <svg width="100%" viewBox={`0 0 ${W} ${H}`} shapeRendering="geometricPrecision">
       <g transform={`translate(${pad.left},${pad.top})`}>
-        <path d={linePath(rScore, xA, (v) => sy(v))} fill="none" stroke="#14B8A2" strokeWidth={1.5} strokeLinejoin="round" />
-        <path d={linePath(pulseLoad, xA, (v) => sy(v))} fill="none" stroke="#E83B52" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={linePath(rScore, xA, (v) => sy(v))} fill="none" stroke="#10B981" strokeWidth={1.5} strokeLinejoin="round" />
+        <path d={linePath(pulseLoad, xA, (v) => sy(v))} fill="none" stroke="#EF4444" strokeWidth={1.5} strokeLinejoin="round" />
       </g>
     </svg>
   )
@@ -817,8 +817,8 @@ function RadarChartSVG() {
         const end = ptAt(a, outerR)
         return <line key={i} x1={cx} y1={cy} x2={end.x} y2={end.y} stroke="rgba(0,0,0,0.06)" strokeWidth={0.5} />
       })}
-      <polygon points={layerPoly(trendVals)} fill="#14B8A2" fillOpacity={0.12} stroke="#14B8A2" strokeWidth={1} strokeLinejoin="round" />
-      <polygon points={layerPoly(bestVals)} fill="#E83B52" fillOpacity={0.06} stroke="#E83B52" strokeWidth={1.5} strokeDasharray="5 3" strokeLinejoin="round" />
+      <polygon points={layerPoly(trendVals)} fill="#16A34A" fillOpacity={0.12} stroke="#16A34A" strokeWidth={1} strokeLinejoin="round" />
+      <polygon points={layerPoly(bestVals)} fill="#EF4444" fillOpacity={0.06} stroke="#EF4444" strokeWidth={1.5} strokeDasharray="5 3" strokeLinejoin="round" />
       <polygon points={layerPoly(currentVals)} fill={NEAR_BLACK} fillOpacity={0.04} stroke={NEAR_BLACK} strokeWidth={2} strokeLinejoin="round" />
       {labels.map((label, i) => (
         <text key={label} x={labelPts[i].x} y={r2(labelPts[i].y + 3)} textAnchor="middle" fontSize={10} fontWeight={400} fill="var(--n600)">{label}</text>
@@ -1148,10 +1148,10 @@ export default function ColorGuidePage() {
                         style={{
                           width: 60,
                           height: 44,
-                          backgroundColor: v.name === 'Deep' ? '#0A3D2E' : v.name === 'On-soft' ? '#0E9E8B' : v.name === 'Vivid' ? '#17D4B8' : '#14B8A2',
+                          backgroundColor: v.name === 'Deep' ? '#14532D' : v.name === 'On-soft' ? '#15803D' : v.name === 'Vivid' ? '#22C55E' : '#16A34A',
                           opacity: v.name === 'Base' || v.name === 'Vivid' || v.name === 'On-soft' || v.name === 'Deep' ? 1 : v.opacity,
                           border: v.name === 'Whisper' || v.name === 'Tint' || v.name === 'Wash'
-                            ? `0.5px solid rgba(20, 184, 162, ${v.border})` : '0.5px solid transparent',
+                            ? `0.5px solid rgba(22, 163, 74, ${v.border})` : '0.5px solid transparent',
                         }}
                       />
                       <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>{v.name}</span>
@@ -1165,24 +1165,24 @@ export default function ColorGuidePage() {
             {/* 6 chart variants per color — SVG demo */}
             <div className="space-y-3">
               <SectionHeader>6 chart variants per color (Z2 endurance)</SectionHeader>
-              <InfoText>Hver farve der bruges i charts har 6 varianter. Her demonstreret med Z2 #14B8A2.</InfoText>
+              <InfoText>Hver farve der bruges i charts har 6 varianter. Her demonstreret med Z2 #16A34A (green-600).</InfoText>
               <Card padding="md">
                 <div className="flex flex-wrap gap-4">
                   {/* Stroke */}
                   <div className="flex flex-col items-center gap-1">
                     <svg width="60" height="44" viewBox="0 0 60 44" shapeRendering="geometricPrecision">
                       <rect width="60" height="44" fill="var(--n50)" rx="4" />
-                      <path d="M8,32 C18,28 28,16 38,20 C48,24 52,14 56,12" fill="none" stroke="#14B8A2" strokeWidth="2" />
+                      <path d="M8,32 C18,28 28,16 38,20 C48,24 52,14 56,12" fill="none" stroke="#16A34A" strokeWidth="2" />
                     </svg>
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>Stroke</span>
                     <span className={cn(QUIET_STYLE, 'text-[9px]')}>Line 1-2px</span>
-                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#14B8A2</span>
+                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#16A34A</span>
                   </div>
                   {/* Fill */}
                   <div className="flex flex-col items-center gap-1">
                     <svg width="60" height="44" viewBox="0 0 60 44" shapeRendering="geometricPrecision">
                       <rect width="60" height="44" fill="var(--n50)" rx="4" />
-                      <path d="M4,32 C14,28 24,16 34,20 C44,24 48,14 56,12 L56,40 L4,40 Z" fill="rgba(20,184,162,0.10)" stroke="rgba(20,184,162,0.20)" strokeWidth="0.5" />
+                      <path d="M4,32 C14,28 24,16 34,20 C44,24 48,14 56,12 L56,40 L4,40 Z" fill="rgba(22,163,74,0.10)" stroke="rgba(22,163,74,0.20)" strokeWidth="0.5" />
                     </svg>
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>Fill</span>
                     <span className={cn(QUIET_STYLE, 'text-[9px]')}>Area 8-15%</span>
@@ -1192,33 +1192,33 @@ export default function ColorGuidePage() {
                   <div className="flex flex-col items-center gap-1">
                     <svg width="60" height="44" viewBox="0 0 60 44" shapeRendering="geometricPrecision">
                       <rect width="60" height="44" fill="var(--n50)" rx="4" />
-                      <circle cx="30" cy="22" r="5" fill="#17D4B8" />
+                      <circle cx="30" cy="22" r="5" fill="#22C55E" />
                       <circle cx="30" cy="22" r="5" fill="none" stroke="white" strokeWidth="1" />
                     </svg>
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>Dot</span>
                     <span className={cn(QUIET_STYLE, 'text-[9px]')}>Vivid variant</span>
-                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#17D4B8</span>
+                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#22C55E</span>
                   </div>
                   {/* Hover */}
                   <div className="flex flex-col items-center gap-1">
                     <svg width="60" height="44" viewBox="0 0 60 44" shapeRendering="geometricPrecision">
                       <rect width="60" height="44" fill="var(--n50)" rx="4" />
-                      <circle cx="30" cy="22" r="12" fill="rgba(20,184,162,0.12)" />
-                      <circle cx="30" cy="22" r="4" fill="#3DD0B5" />
+                      <circle cx="30" cy="22" r="12" fill="rgba(22,163,74,0.12)" />
+                      <circle cx="30" cy="22" r="4" fill="#4ADE80" />
                     </svg>
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>Hover</span>
                     <span className={cn(QUIET_STYLE, 'text-[9px]')}>Lighter variant</span>
-                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#3DD0B5</span>
+                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#4ADE80</span>
                   </div>
                   {/* Label */}
                   <div className="flex flex-col items-center gap-1">
                     <svg width="60" height="44" viewBox="0 0 60 44" shapeRendering="geometricPrecision">
                       <rect width="60" height="44" fill="var(--n50)" rx="4" />
-                      <text x="30" y="26" textAnchor="middle" style={{ fontSize: '11px', fill: '#0E9E8B', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>200W</text>
+                      <text x="30" y="26" textAnchor="middle" style={{ fontSize: '11px', fill: '#15803D', fontFamily: 'var(--font-sans)', fontWeight: 500 }}>200W</text>
                     </svg>
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)]')}>Label</span>
                     <span className={cn(QUIET_STYLE, 'text-[9px]')}>Darker for contrast</span>
-                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#0E9E8B</span>
+                    <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>#15803D</span>
                   </div>
                   {/* Bg */}
                   <div className="flex flex-col items-center gap-1">
@@ -1262,19 +1262,19 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <svg width="100%" height="80" viewBox="0 0 400 80" preserveAspectRatio="xMidYMid meet" shapeRendering="geometricPrecision">
                   {/* Large area — whisper */}
-                  <rect x="10" y="10" width="120" height="60" rx="4" fill="#14B8A2" opacity="0.06" stroke="#14B8A2" strokeWidth="0.5" strokeOpacity="0.15" />
+                  <rect x="10" y="10" width="120" height="60" rx="4" fill="#16A34A" opacity="0.06" stroke="#16A34A" strokeWidth="0.5" strokeOpacity="0.15" />
                   <text x="70" y="44" textAnchor="middle" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>Card bg (4%)</text>
 
                   {/* Medium area — tint */}
-                  <rect x="155" y="20" width="80" height="40" rx="4" fill="#14B8A2" opacity="0.15" stroke="#14B8A2" strokeWidth="0.5" strokeOpacity="0.25" />
+                  <rect x="155" y="20" width="80" height="40" rx="4" fill="#16A34A" opacity="0.15" stroke="#16A34A" strokeWidth="0.5" strokeOpacity="0.25" />
                   <text x="195" y="44" textAnchor="middle" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>Area fill (15%)</text>
 
                   {/* Line — base */}
-                  <line x1="260" y1="60" x2="330" y2="20" stroke="#14B8A2" strokeWidth="2.5" />
+                  <line x1="260" y1="60" x2="330" y2="20" stroke="#16A34A" strokeWidth="2.5" />
                   <text x="295" y="72" textAnchor="middle" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>Line (100%)</text>
 
                   {/* Dot — vivid */}
-                  <circle cx="370" cy="35" r="6" fill="#17D4B8" />
+                  <circle cx="370" cy="35" r="6" fill="#22C55E" />
                   <text x="370" y="56" textAnchor="middle" style={{ fontSize: '9px', fill: 'var(--n600)', fontFamily: 'var(--font-sans)' }}>Dot (vivid)</text>
                 </svg>
               </Card>
@@ -1349,16 +1349,16 @@ export default function ColorGuidePage() {
                   <div className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n800)] mb-2')}>Light canvas</div>
                   <svg width="100%" height="60" viewBox="0 0 300 60" preserveAspectRatio="none" shapeRendering="geometricPrecision">
                     <rect width="300" height="60" fill={CANVAS_HEX} rx="4" />
-                    <path d="M0,40 C30,35 60,25 90,30 C120,35 150,15 180,20 C210,25 240,18 270,22 L300,20" fill="none" stroke="#14B8A2" strokeWidth="2" />
-                    <path d="M0,45 C30,42 60,38 90,42 C120,46 150,35 180,30 C210,32 240,28 270,32 L300,30" fill="none" stroke="#E83B52" strokeWidth="1.5" />
+                    <path d="M0,40 C30,35 60,25 90,30 C120,35 150,15 180,20 C210,25 240,18 270,22 L300,20" fill="none" stroke="#16A34A" strokeWidth="2" />
+                    <path d="M0,45 C30,42 60,38 90,42 C120,46 150,35 180,30 C210,32 240,28 270,32 L300,30" fill="none" stroke="#EF4444" strokeWidth="1.5" />
                   </svg>
                 </Card>
                 <Card padding="md">
                   <div className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n800)] mb-2')}>Dark canvas</div>
                   <svg width="100%" height="60" viewBox="0 0 300 60" preserveAspectRatio="none" shapeRendering="geometricPrecision">
                     <rect width="300" height="60" fill="#0A0A09" rx="4" />
-                    <path d="M0,40 C30,35 60,25 90,30 C120,35 150,15 180,20 C210,25 240,18 270,22 L300,20" fill="none" stroke="#72DBC8" strokeWidth="2" />
-                    <path d="M0,45 C30,42 60,38 90,42 C120,46 150,35 180,30 C210,32 240,28 270,32 L300,30" fill="none" stroke="#ED96A4" strokeWidth="1.5" />
+                    <path d="M0,40 C30,35 60,25 90,30 C120,35 150,15 180,20 C210,25 240,18 270,22 L300,20" fill="none" stroke="#4ADE80" strokeWidth="2" />
+                    <path d="M0,45 C30,42 60,38 90,42 C120,46 150,35 180,30 C210,32 240,28 270,32 L300,30" fill="none" stroke="#FCA5A5" strokeWidth="1.5" />
                   </svg>
                 </Card>
               </div>
@@ -1392,7 +1392,7 @@ export default function ColorGuidePage() {
           <SectionAnchor id="power-zones" />
           <section className="space-y-8">
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>2. Power / HR zones</h2>
-            <InfoText>Power zones er polykromatiske (6 unikke farver), HR zones er en monokromatisk rød ramp. Ses overalt i appen. Den vigtigste farve-beslutning. RAMTT-paletten vises som primær, Coggan til sammenligning.</InfoText>
+            <InfoText>Power zones er polykromatiske (6 Tailwind hues), HR zones er en monokromatisk rød ramp. Ses overalt i appen. Den vigtigste farve-beslutning. RAMTT-paletten bruger Tailwind ramps, Coggan vist til sammenligning.</InfoText>
 
             {/* 2.1 RAMTT palette — primary */}
             <div className="space-y-3">
@@ -1453,12 +1453,12 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <div className="flex overflow-hidden" style={{ height: 24, borderRadius: 4 }}>
                   {[
-                    { zone: 'Z1', pct: 8, hex: '#7CA3BE' },
-                    { zone: 'Z2', pct: 35, hex: '#14B8A2' },
-                    { zone: 'Z3', pct: 22, hex: '#E8B020' },
-                    { zone: 'Z4', pct: 18, hex: '#E36B30' },
-                    { zone: 'Z5', pct: 12, hex: '#E83B52' },
-                    { zone: 'Z6', pct: 5, hex: '#9B40E8' },
+                    { zone: 'Z1', pct: 8, hex: '#94A3B8' },
+                    { zone: 'Z2', pct: 35, hex: '#16A34A' },
+                    { zone: 'Z3', pct: 22, hex: '#F59E0B' },
+                    { zone: 'Z4', pct: 18, hex: '#F97316' },
+                    { zone: 'Z5', pct: 12, hex: '#EF4444' },
+                    { zone: 'Z6', pct: 5, hex: '#A855F7' },
                   ].map((z) => (
                     <div key={z.zone} className="flex items-center justify-center" style={{ width: `${z.pct}%`, backgroundColor: z.hex }}>
                       <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white/90')}>{z.pct}%</span>
@@ -1529,10 +1529,10 @@ export default function ColorGuidePage() {
           <SectionAnchor id="cho-zones" />
           <section className="space-y-8">
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>3. CHO zones</h2>
-            <InfoText>Carbohydrate intake zones. Blue spectrum, bevidst distinkt fra power zones da de vises side om side.</InfoText>
+            <InfoText>Carbohydrate intake zones. Monokromatisk amber ramp (amber-100 → amber-800). Distinkt fra power zones da de vises side om side.</InfoText>
 
             <div className="space-y-3">
-              <SectionHeader>CHO zone palette (blue spectrum)</SectionHeader>
+              <SectionHeader>CHO zone palette (amber ramp)</SectionHeader>
               <div className="flex flex-wrap gap-4">
                 {CHO_ZONES.map((z) => (
                   <div key={z.zone} className="flex flex-col items-center">
@@ -1707,10 +1707,10 @@ export default function ColorGuidePage() {
             {/* 4.4 Warning vs Z3 proximity note */}
             <Card>
               <div className="flex gap-3 items-start">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" shapeRendering="geometricPrecision"><path d="M8 1L15 14H1L8 1Z" fill="#C49B08" /><text x="8" y="12" textAnchor="middle" fill="white" style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>!</text></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" shapeRendering="geometricPrecision"><path d="M8 1L15 14H1L8 1Z" fill="#F59E0B" /><text x="8" y="12" textAnchor="middle" fill="white" style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>!</text></svg>
                 <div>
                   <p className={cn(FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
-                    Warning (#C49B08) og Z3 Tempo (#E8B020) er tæt på hinanden. De ses sjældent på same skærm, men Ruth bør være opmærksom på overlaprisikoen.
+                    Warning (amber-500) og Z3 Tempo (amber-500) er identiske. De ses sjældent på same skærm, men Ruth bør være opmærksom.
                   </p>
                 </div>
               </div>
@@ -1740,23 +1740,23 @@ export default function ColorGuidePage() {
                   </ChartRoot>
                   {/* Heart rate */}
                   <ChartRoot data={STREAM_HR} height={50} padding={{ top: 4, right: 8, bottom: 0, left: 0 }} yPadding={0.08}>
-                    <ChartArea gradientColor="#E83B52" opacityFrom={0.06} opacityTo={0.005} />
-                    <ChartLine className="fill-none stroke-[#E83B52] stroke-[1.5]" />
+                    <ChartArea gradientColor="#EF4444" opacityFrom={0.06} opacityTo={0.005} />
+                    <ChartLine className="fill-none stroke-[#EF4444] stroke-[1.5]" />
                   </ChartRoot>
                   {/* Cadence */}
                   <ChartRoot data={STREAM_CADENCE} height={45} padding={{ top: 4, right: 8, bottom: 0, left: 0 }} yPadding={0.08}>
-                    <ChartArea gradientColor="#9B40E8" opacityFrom={0.04} opacityTo={0.005} />
-                    <ChartLine className="fill-none stroke-[#9B40E8] stroke-[1.5]" />
+                    <ChartArea gradientColor="#A855F7" opacityFrom={0.04} opacityTo={0.005} />
+                    <ChartLine className="fill-none stroke-[#A855F7] stroke-[1.5]" />
                   </ChartRoot>
                   {/* Speed */}
                   <ChartRoot data={STREAM_SPEED} height={45} padding={{ top: 4, right: 8, bottom: 0, left: 0 }} yPadding={0.08}>
-                    <ChartArea gradientColor="#14B8A2" opacityFrom={0.04} opacityTo={0.005} />
-                    <ChartLine className="fill-none stroke-[#14B8A2] stroke-[1.5]" />
+                    <ChartArea gradientColor="#3B82F6" opacityFrom={0.04} opacityTo={0.005} />
+                    <ChartLine className="fill-none stroke-[#3B82F6] stroke-[1.5]" />
                   </ChartRoot>
                   {/* Elevation */}
                   <ChartRoot data={STREAM_ELEVATION} height={40} padding={{ top: 4, right: 8, bottom: 0, left: 0 }} yPadding={0.05}>
-                    <ChartArea gradientColor="#C0BDB6" opacityFrom={0.25} opacityTo={0.08} />
-                    <ChartLine className="fill-none stroke-[#C0BDB6] stroke-[1]" />
+                    <ChartArea gradientColor="var(--n600)" opacityFrom={0.25} opacityTo={0.08} />
+                    <ChartLine className="fill-none stroke-(--n600) stroke-[1]" />
                   </ChartRoot>
                 </div>
                 <div className="flex flex-wrap gap-4 mt-3">
@@ -1831,24 +1831,24 @@ export default function ColorGuidePage() {
                 <Card padding="sm">
                   <div className="flex items-center gap-3">
                     <span className={cn(LABEL_STYLE, 'w-[130px] shrink-0')}>W&apos; balance</span>
-                    <div className="w-[200px]"><StreamOverlaySVG data={W_PRIME} color="#E8B020" dash area /></div>
-                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>Z3 #E8B020 &middot; Dashed + area fill 10%</span>
+                    <div className="w-[200px]"><StreamOverlaySVG data={W_PRIME} color="#F59E0B" dash area /></div>
+                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>amber-500 #F59E0B &middot; Dashed + area fill 10%</span>
                   </div>
                 </Card>
                 {/* Glycogen Depletion — dashed */}
                 <Card padding="sm">
                   <div className="flex items-center gap-3">
                     <span className={cn(LABEL_STYLE, 'w-[130px] shrink-0')}>Glycogen depletion</span>
-                    <div className="w-[200px]"><StreamOverlaySVG data={GLYCO_DEPLETION} color="#E36B30" dash /></div>
-                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>CHO #E36B30 &middot; Dashed 6,3</span>
+                    <div className="w-[200px]"><StreamOverlaySVG data={GLYCO_DEPLETION} color="#F97316" dash /></div>
+                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>orange-500 #F97316 &middot; Dashed 6,3</span>
                   </div>
                 </Card>
                 {/* AAP — dotted */}
                 <Card padding="sm">
                   <div className="flex items-center gap-3">
                     <span className={cn(LABEL_STYLE, 'w-[130px] shrink-0')}>AAP (altitude adj.)</span>
-                    <div className="w-[200px]"><StreamOverlaySVG data={STREAM_SPEED} color="#7CA3BE" dash /></div>
-                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>Z1 #7CA3BE &middot; Dotted 2,4</span>
+                    <div className="w-[200px]"><StreamOverlaySVG data={STREAM_SPEED} color="#94A3B8" dash /></div>
+                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>Z1 slate-400 #94A3B8 &middot; Dotted 2,4</span>
                   </div>
                 </Card>
                 {/* CHO Intake Markers — vertical lines + dots */}
@@ -1858,12 +1858,12 @@ export default function ColorGuidePage() {
                     <svg width="200" height="36" viewBox="0 0 200 36" shapeRendering="geometricPrecision">
                       {[40, 80, 130, 170].map((x) => (
                         <g key={x}>
-                          <line x1={x} y1="4" x2={x} y2="32" stroke="#E36B30" strokeWidth="1" />
-                          <circle cx={x} cy="4" r="2.5" fill="#E36B30" />
+                          <line x1={x} y1="4" x2={x} y2="32" stroke="#F97316" strokeWidth="1" />
+                          <circle cx={x} cy="4" r="2.5" fill="#F97316" />
                         </g>
                       ))}
                     </svg>
-                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>CHO #E36B30 &middot; Vertical lines + dot</span>
+                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>CHO #F97316 &middot; Vertical lines + dot</span>
                   </div>
                 </Card>
                 {/* Coasting Segments — highlight bands */}
@@ -1874,7 +1874,7 @@ export default function ColorGuidePage() {
                       <rect x="30" y="0" width="40" height="36" fill="rgba(192,189,182,0.15)" />
                       <rect x="120" y="0" width="30" height="36" fill="rgba(192,189,182,0.15)" />
                     </svg>
-                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>n700 #C0BDB6 &middot; Highlight bands 15%</span>
+                    <span className={cn(QUIET_STYLE, 'text-[10px]')}>var(--n600) &middot; Highlight bands 15%</span>
                   </div>
                 </Card>
               </div>
@@ -1909,10 +1909,10 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <ForecastChartSVG />
                 <div className="flex gap-4 mt-2">
-                  <LegendLine hex="#14B8A2" label="Capacity (solid)" />
-                  <LegendLine hex="#14B8A2" label="Projected (dashed 50%)" dash />
+                  <LegendLine hex="#10B981" label="Capacity (solid)" />
+                  <LegendLine hex="#10B981" label="Projected (dashed 50%)" dash />
                   <div className="flex items-center gap-1.5">
-                    <div className={cn(RADIUS.sm)} style={{ width: 16, height: 8, backgroundColor: '#14B8A2', opacity: 0.06 }} />
+                    <div className={cn(RADIUS.sm)} style={{ width: 16, height: 8, backgroundColor: '#10B981', opacity: 0.06 }} />
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Confidence band (6%)</span>
                   </div>
                 </div>
@@ -1942,22 +1942,22 @@ export default function ColorGuidePage() {
                     {/* Form negative area */}
                     <path d="M0,100 L80,100 C160,108 240,115 320,118 C400,115 480,112 600,108 L600,85 C480,75 400,78 320,80 C240,82 160,88 80,92 L0,100 Z" fill="rgba(216,96,96,0.08)" />
                     {/* Capacity — dark mode Z2-300 */}
-                    <path d="M0,85 C80,78 160,60 240,52 C320,44 400,48 480,40 L600,35" fill="none" stroke="#3DD0B5" strokeWidth="2" />
+                    <path d="M0,85 C80,78 160,60 240,52 C320,44 400,48 480,40 L600,35" fill="none" stroke="#6EE7B7" strokeWidth="2" />
                     {/* Pressure — dark mode Z5-300 */}
-                    <path d="M0,110 C80,105 160,92 240,88 C320,82 400,88 480,80 L600,75" fill="none" stroke="#E66E80" strokeWidth="2" />
+                    <path d="M0,110 C80,105 160,92 240,88 C320,82 400,88 480,80 L600,75" fill="none" stroke="#FCA5A5" strokeWidth="2" />
                     {/* Form line */}
-                    <path d="M0,100 C80,90 160,75 240,65 C320,55 400,62 480,52 L600,45" fill="none" stroke="#38CC88" strokeWidth="1.5" />
+                    <path d="M0,100 C80,90 160,75 240,65 C320,55 400,62 480,52 L600,45" fill="none" stroke="#86EFAC" strokeWidth="1.5" />
                     {/* Surge — dotted */}
-                    <path d="M0,120 C80,115 160,108 240,112 C320,118 400,108 480,102 L600,98" fill="none" stroke="#AE6EE8" strokeWidth="1.5" strokeDasharray="3 3" />
+                    <path d="M0,120 C80,115 160,108 240,112 C320,118 400,108 480,102 L600,98" fill="none" stroke="#D8B4FE" strokeWidth="1.5" strokeDasharray="3 3" />
                     {/* ACWR */}
-                    <path d="M0,60 C80,58 160,52 240,55 C320,58 400,52 480,50 L600,48" fill="none" stroke="#EFD46E" strokeWidth="1.5" />
+                    <path d="M0,60 C80,58 160,52 240,55 C320,58 400,52 480,50 L600,48" fill="none" stroke="#FCD34D" strokeWidth="1.5" />
                   </svg>
                   <div className="flex flex-wrap gap-4 mt-3">
-                    <LegendLine hex="#3DD0B5" label="Capacity" width={2} />
-                    <LegendLine hex="#E66E80" label="Pressure" width={2} />
-                    <LegendLine hex="#38CC88" label="Form +" width={1.5} />
-                    <LegendLine hex="#AE6EE8" label="Surge" dash width={1.5} />
-                    <LegendLine hex="#EFD46E" label="ACWR" width={1.5} />
+                    <LegendLine hex="#6EE7B7" label="Capacity" width={2} />
+                    <LegendLine hex="#FCA5A5" label="Pressure" width={2} />
+                    <LegendLine hex="#86EFAC" label="Form +" width={1.5} />
+                    <LegendLine hex="#D8B4FE" label="Surge" dash width={1.5} />
+                    <LegendLine hex="#FCD34D" label="ACWR" width={1.5} />
                   </div>
                 </div>
               </Card>
@@ -1985,7 +1985,7 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>ACWR trend (separate)</SectionHeader>
               <Card padding="md">
-                <MiniChartLine data={CAPACITY.ctl.map((c, i) => c > 0 ? CAPACITY.atl[i] / c : 1)} stroke="#E8B020" refY={1.0} refColor="#1B8A5A" height={60} />
+                <MiniChartLine data={CAPACITY.ctl.map((c, i) => c > 0 ? CAPACITY.atl[i] / c : 1)} stroke="#F59E0B" refY={1.0} refColor="#16A34A" height={60} />
               </Card>
             </div>
           </section>
@@ -2062,7 +2062,7 @@ export default function ColorGuidePage() {
           <SectionAnchor id="nutrients" />
           <section className="space-y-8">
             <h2 className={cn(FONT.body, 'text-[18px]', WEIGHT.strong, 'text-[var(--n1150)]')}>8. Nutrients</h2>
-            <InfoText>Fire næringsstoffer + tre makronæringsstoffer. CHO deler farve (#E36B30) med Z4 Threshold — de ses sjældent på samme skærm.</InfoText>
+            <InfoText>Fire næringsstoffer + tre makronæringsstoffer. CHO = orange-500 (#F97316), Protein = purple-500, Fat = amber-500. CHO deler farve med Z4 Threshold — de ses sjældent på samme skærm.</InfoText>
 
             <div className="grid grid-cols-2 gap-6">
               <div className="space-y-3">
@@ -2074,13 +2074,13 @@ export default function ColorGuidePage() {
                 <SwatchRow items={MACROS.map((m) => ({ hex: m.hex, label: m.label }))} size={40} round />
                 {/* Stacked macro bar */}
                 <div className={cn(RADIUS.sm, 'overflow-hidden flex')} style={{ height: 24 }}>
-                  <div style={{ width: '55%', backgroundColor: '#E36B30' }} className="flex items-center justify-center">
+                  <div style={{ width: '55%', backgroundColor: '#F97316' }} className="flex items-center justify-center">
                     <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white')}>CHO 55%</span>
                   </div>
-                  <div style={{ width: '25%', backgroundColor: '#3B82F6' }} className="flex items-center justify-center">
+                  <div style={{ width: '25%', backgroundColor: '#A855F7' }} className="flex items-center justify-center">
                     <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white')}>Protein 25%</span>
                   </div>
-                  <div style={{ width: '20%', backgroundColor: '#E8B020' }} className="flex items-center justify-center">
+                  <div style={{ width: '20%', backgroundColor: '#F59E0B' }} className="flex items-center justify-center">
                     <span className={cn(FONT.body, 'text-[10px]', WEIGHT.medium, 'text-white')}>Fat 20%</span>
                   </div>
                 </div>
@@ -2095,8 +2095,8 @@ export default function ColorGuidePage() {
                   <div className="flex gap-2">
                     {NUTRIENTS.map((n) => <Badge key={n.label} color={n.hex}>{n.label}</Badge>)}
                   </div>
-                  <ProgressBar value={78} max={90} color="#E36B30" label="78 g/h" />
-                  <ProgressBar value={520} max={750} color="#2AACCC" label="520 ml/h" />
+                  <ProgressBar value={78} max={90} color="#F97316" label="78 g/h" />
+                  <ProgressBar value={520} max={750} color="#3B82F6" label="520 ml/h" />
                   <dl className="m-0">
                     <DataRow label="CHO rate" value="78" unit="g/h" delta="+12" deltaColor="positive" />
                     <DataRow label="Fluid rate" value="520" unit="ml/h" />
@@ -2110,9 +2110,9 @@ export default function ColorGuidePage() {
             {/* CHO vs Z4 conflict note */}
             <Card>
               <div className="flex gap-3 items-start">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" shapeRendering="geometricPrecision"><path d="M8 1L15 14H1L8 1Z" fill="#C49B08" /><text x="8" y="12" textAnchor="middle" fill="white" style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>!</text></svg>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" shapeRendering="geometricPrecision"><path d="M8 1L15 14H1L8 1Z" fill="#F59E0B" /><text x="8" y="12" textAnchor="middle" fill="white" style={{ fontSize: '9px', fontWeight: 700, fontFamily: 'var(--font-sans)' }}>!</text></svg>
                 <p className={cn(FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
-                  CHO nutrient (#E36B30) og Power Z4 Threshold (#E36B30) er <strong className={WEIGHT.strong}>identisk</strong>. De ses sjældent på same skærm (co-visibility map bekræfter), men Ruth bør overveje om fuel skal have sin egen tone.
+                  CHO nutrient (orange-500) og Power Z4 Threshold (orange-500) er <strong className={WEIGHT.strong}>identiske</strong>. De ses sjældent på same skærm (co-visibility map bekræfter), men Ruth bør overveje om fuel skal have sin egen tone.
                 </p>
               </div>
             </Card>
@@ -2124,8 +2124,8 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <FuelChartSVG />
                 <div className="flex flex-wrap gap-4 mt-2">
-                  <LegendLine hex="#14B8A2" label="Gut capacity" />
-                  <LegendLine hex="#E8B020" label="Gut adaptation" dash />
+                  <LegendLine hex="#10B981" label="Gut capacity" />
+                  <LegendLine hex="#F59E0B" label="Gut adaptation" dash />
                   <div className="flex items-center gap-1.5">
                     <div className={cn(RADIUS.sm)} style={{ width: 12, height: 8, backgroundColor: 'rgba(227,107,48,0.7)' }} />
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>CHO intake</span>
@@ -2166,7 +2166,7 @@ export default function ColorGuidePage() {
               <div className="flex overflow-hidden" style={{ height: 32, borderRadius: 4 }}>
                 {CADENCE_ZONES.map((c) => (
                   <div key={c.rpm} className="flex-1 flex items-center justify-center" style={{ backgroundColor: c.hex }}>
-                    <span className={cn(FONT.body, 'text-[9px]', WEIGHT.medium)} style={{ color: ['#C0BDB6', '#8CC44E', '#E8B020', '#EDD070'].includes(c.hex) ? 'var(--n1050)' : 'white' }}>{c.rpm}</span>
+                    <span className={cn(FONT.body, 'text-[9px]', WEIGHT.medium)} style={{ color: ['#94A3B8', '#F59E0B'].includes(c.hex) ? 'var(--n1050)' : 'white' }}>{c.rpm}</span>
                   </div>
                 ))}
               </div>
@@ -2191,7 +2191,7 @@ export default function ColorGuidePage() {
             {/* Gradient strip */}
             <div className="space-y-3">
               <SectionHeader>Energy zone gradient</SectionHeader>
-              <div className={cn(RADIUS.sm, 'overflow-hidden')} style={{ height: 24, background: 'linear-gradient(to right, rgba(196,155,8,0.20), rgba(196,155,8,0.40), rgba(196,155,8,0.60), rgba(196,155,8,0.80), #C49B08)', width: '100%' }} />
+              <div className={cn(RADIUS.sm, 'overflow-hidden')} style={{ height: 24, background: 'linear-gradient(to right, rgba(249,115,22,0.20), rgba(249,115,22,0.40), rgba(249,115,22,0.60), rgba(249,115,22,0.80), #F97316)', width: '100%' }} />
               <div className="flex justify-between px-1">
                 {['E1 <1500', 'E2 1500–2500', 'E3 2500–3500', 'E4 3500–5000', 'E5 >5000'].map((label) => (
                   <span key={label} className={cn(FONT.body, 'text-[10px]', WEIGHT.normal, 'text-[var(--n600)]')}>{label} kJ</span>
@@ -2236,52 +2236,52 @@ export default function ColorGuidePage() {
               {/* CHO Compliance weekly */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>CHO compliance (weekly)</p>
-                <MiniBarChart data={CHO_COMPLIANCE.map((d) => d.actual)} color="#E36B30" />
+                <MiniBarChart data={CHO_COMPLIANCE.map((d) => d.actual)} color="#F97316" />
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Filled = actual, outline = target. Used in: Fuel daily</p>
               </Card>
 
               {/* Coverage trend */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Fuel coverage trend</p>
-                <MiniChartLine data={COVERAGE_TREND} stroke="#1B8A5A" fill="rgba(27,138,90,.10)" refY={85} refColor="#1B8A5A" height={60} />
+                <MiniChartLine data={COVERAGE_TREND} stroke="#16A34A" fill="rgba(27,138,90,.10)" refY={85} refColor="#16A34A" height={60} />
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Target 85% dashed. Used in: Fuel daily, session fuel</p>
               </Card>
 
               {/* Energy balance bars */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Energy balance (14 days)</p>
-                <MiniBarChart data={ENERGY_BARS} color={(v) => v >= 0 ? '#1B8A5A' : '#C43C3C'} bipolar height={80} />
+                <MiniBarChart data={ENERGY_BARS} color={(v) => v >= 0 ? '#16A34A' : '#EF4444'} bipolar height={80} />
                 <div className="flex gap-3 mt-1">
-                  <LegendLine hex="#1B8A5A" label="Surplus" />
-                  <LegendLine hex="#C43C3C" label="Deficit" />
+                  <LegendLine hex="#16A34A" label="Surplus" />
+                  <LegendLine hex="#EF4444" label="Deficit" />
                 </div>
               </Card>
 
               {/* Gut trajectory */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Gut trajectory (capacity growth)</p>
-                <MiniChartLine data={GUT_TRAJECTORY} stroke="#14B8A2" strokeWidth={2} height={60} />
+                <MiniChartLine data={GUT_TRAJECTORY} stroke="#10B981" strokeWidth={2} height={60} />
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Logaritmisk vækst. Used in: Fuel products</p>
               </Card>
 
               {/* Macro periodization stacked bars */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Macro periodization (7 days)</p>
-                <StackedBarChart data={MACRO_PERIOD.map((d) => ({ values: [d.cho, d.protein, d.fat] }))} colors={['#E36B30', '#3B82F6', '#E8B020']} />
+                <StackedBarChart data={MACRO_PERIOD.map((d) => ({ values: [d.cho, d.protein, d.fat] }))} colors={['#F97316', '#A855F7', '#F59E0B']} />
                 <div className="flex gap-3 mt-1">
-                  <LegendLine hex="#E36B30" label="CHO" />
-                  <LegendLine hex="#3B82F6" label="Protein" />
-                  <LegendLine hex="#E8B020" label="Fat" />
+                  <LegendLine hex="#F97316" label="CHO" />
+                  <LegendLine hex="#A855F7" label="Protein" />
+                  <LegendLine hex="#F59E0B" label="Fat" />
                 </div>
               </Card>
 
               {/* Depletion curve */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Glycogen depletion model</p>
-                <MiniChartLine data={DEPLETION.muscle} stroke="#E36B30" secondData={DEPLETION.liver} secondStroke="#E8B020" height={80} />
+                <MiniChartLine data={DEPLETION.muscle} stroke="#F97316" secondData={DEPLETION.liver} secondStroke="#F59E0B" height={80} />
                 <div className="flex gap-3 mt-1">
-                  <LegendLine hex="#E36B30" label="Muscle" />
-                  <LegendLine hex="#E8B020" label="Liver" />
+                  <LegendLine hex="#F97316" label="Muscle" />
+                  <LegendLine hex="#F59E0B" label="Liver" />
                 </div>
               </Card>
 
@@ -2289,22 +2289,22 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>CHO zone distribution (12 weeks)</p>
                 <HeatmapGrid data={CHO_ZONE_STACKED} colorFn={(v) => {
-                  if (v < 10) return '#94A3B8'
-                  if (v < 20) return '#67B7D1'
-                  if (v < 35) return '#3B9FC9'
-                  if (v < 50) return '#1A85B8'
-                  if (v < 70) return '#0E6FA0'
-                  return '#085A87'
+                  if (v < 10) return '#FEF3C7'
+                  if (v < 20) return '#FCD34D'
+                  if (v < 35) return '#FBBF24'
+                  if (v < 50) return '#F59E0B'
+                  if (v < 70) return '#D97706'
+                  return '#92400E'
                 }} cellSize={18} gap={2} />
-                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>CZ1→CZ6 blå spektrum. Used in: Fuel daily</p>
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>C1→C6 amber ramp. Used in: Fuel daily</p>
               </Card>
 
               {/* Product tolerance heatmap */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Product tolerance heatmap</p>
                 <HeatmapGrid data={TOLERANCE_HEATMAP} colorFn={(v) => {
-                  const colors = ['#C0BDB6', '#C43C3C', '#C49B08', '#38CC88', '#1B8A5A']
-                  return colors[v] ?? '#C0BDB6'
+                  const colors = ['var(--n600)', '#EF4444', '#F59E0B', '#4ADE80', '#16A34A']
+                  return colors[v] ?? 'var(--n600)'
                 }} cellSize={16} gap={2} />
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Rows = produkter, cols = sessioner. Used in: Fuel products</p>
               </Card>
@@ -2326,8 +2326,8 @@ export default function ColorGuidePage() {
               <SectionHeader>Elevation profile simulation</SectionHeader>
               <Card padding="md">
                 <ChartRoot data={STREAM_ELEVATION} height={100} padding={{ top: 4, right: 8, bottom: 4, left: 0 }} yPadding={0.05}>
-                  <ChartArea gradientColor="#C0BDB6" opacityFrom={0.30} opacityTo={0.08} />
-                  <ChartLine className="fill-none stroke-[#C0BDB6] stroke-[1.5]" />
+                  <ChartArea gradientColor="var(--n600)" opacityFrom={0.30} opacityTo={0.08} />
+                  <ChartLine className="fill-none stroke-(--n600) stroke-[1.5]" />
                 </ChartRoot>
               </Card>
             </div>
@@ -2426,12 +2426,12 @@ export default function ColorGuidePage() {
                     <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)]')}>Tirsdag</span>
                   </div>
                   <div className="flex flex-wrap gap-1">
-                    <Badge color="#E36B30">Hard</Badge>
-                    <Badge variant="outline" color="#E36B30">Threshold</Badge>
-                    <Badge variant="outline" color="#C43C3C">Critical</Badge>
+                    <Badge color="#F97316">Hard</Badge>
+                    <Badge variant="outline" color="#F97316">Threshold</Badge>
+                    <Badge variant="outline" color="#EF4444">Critical</Badge>
                   </div>
                   <div className="flex items-center gap-1.5">
-                    <ColorDot hex="#14B8A2" size={6} />
+                    <ColorDot hex="#16A34A" size={6} />
                     <span className={cn(QUIET_STYLE, 'text-[11px]')}>Cykling</span>
                   </div>
                   <div style={{ borderLeft: '2px solid var(--positive)', paddingLeft: 8 }}>
@@ -2447,9 +2447,9 @@ export default function ColorGuidePage() {
               <Card>
                 <div className="space-y-2">
                   {[
-                    { label: 'Compliant (≤15%)', hex: '#1B8A5A', desc: 'Grøn border-left' },
-                    { label: 'Partial (15–35%)', hex: '#C49B08', desc: 'Gul border-left' },
-                    { label: 'Missed (>35%)', hex: '#C43C3C', desc: 'Rød border-left' },
+                    { label: 'Compliant (≤15%)', hex: '#16A34A', desc: 'Grøn border-left' },
+                    { label: 'Partial (15–35%)', hex: '#F59E0B', desc: 'Gul border-left' },
+                    { label: 'Missed (>35%)', hex: '#EF4444', desc: 'Rød border-left' },
                     { label: 'Unscheduled', hex: '#8A8780', desc: 'Grå border-left (bonus session)' },
                     { label: 'Rest day', hex: '#E5E3DE', desc: 'Neutral' },
                   ].map((c) => (
@@ -2475,9 +2475,9 @@ export default function ColorGuidePage() {
                 </div>
                 <div className="grid grid-cols-7 gap-2">
                   {CALENDAR_WEEK.map((day) => {
-                    const intentColors: Record<string, string> = { Recovery: '#7CA3BE', Endurance: '#14B8A2', Tempo: '#E8B020', Threshold: '#E36B30', VO2max: '#E83B52' }
-                    const complianceColors: Record<string, string> = { hit: '#1B8A5A', partial: '#C49B08', missed: '#C43C3C' }
-                    const sportColors: Record<string, string> = { Cycling: '#14B8A2', Running: '#E83B52' }
+                    const intentColors: Record<string, string> = { Recovery: '#3B82F6', Endurance: '#10B981', Tempo: '#F59E0B', Threshold: '#F97316', VO2max: '#EF4444' }
+                    const complianceColors: Record<string, string> = { hit: '#16A34A', partial: '#F59E0B', missed: '#EF4444' }
+                    const sportColors: Record<string, string> = { Cycling: '#16A34A', Running: '#EF4444' }
                     const borderColor = day.compliance ? complianceColors[day.compliance] ?? 'transparent' : 'transparent'
                     return (
                       <div key={day.day} className={cn(RADIUS.sm, BORDER.subtle, 'p-2 space-y-1.5')} style={{ borderLeft: `2px solid ${borderColor}` }}>
@@ -2532,8 +2532,8 @@ export default function ColorGuidePage() {
               <RadarChartSVG />
               <div className="flex gap-4 mt-2">
                 <LegendLine hex={NEAR_BLACK} label="Current" width={2} />
-                <LegendLine hex="#E83B52" label="Personal best" dash width={1.5} />
-                <LegendLine hex="#14B8A2" label="3-month trend" width={1} />
+                <LegendLine hex="#EF4444" label="Personal best" dash width={1.5} />
+                <LegendLine hex="#10B981" label="3-month trend" width={1} />
               </div>
             </Card>
           </section>
@@ -2557,10 +2557,10 @@ export default function ColorGuidePage() {
               {/* Durability Index */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Durability index (CP decay)</p>
-                <MiniChartLine data={DURABILITY.fresh} stroke={NEAR_BLACK} secondData={DURABILITY.fatigued} secondStroke="#E83B52" strokeWidth={2} height={80} />
+                <MiniChartLine data={DURABILITY.fresh} stroke={NEAR_BLACK} secondData={DURABILITY.fatigued} secondStroke="#EF4444" strokeWidth={2} height={80} />
                 <div className="flex gap-3 mt-1">
                   <LegendLine hex={NEAR_BLACK} label="CP fresh" width={2} />
-                  <LegendLine hex="#E83B52" label="CP fatigued" />
+                  <LegendLine hex="#EF4444" label="CP fatigued" />
                 </div>
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Gap = durability. Vekta-inspireret. Used in: Session analysis</p>
               </Card>
@@ -2568,7 +2568,7 @@ export default function ColorGuidePage() {
               {/* Resilience trend */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Resilience trend</p>
-                <MiniChartLine data={RESILIENCE} stroke="#14B8A2" height={60} />
+                <MiniChartLine data={RESILIENCE} stroke="#10B981" height={60} />
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Economy decay rate (W per HR beat). Used in: Analytics</p>
               </Card>
 
@@ -2577,8 +2577,8 @@ export default function ColorGuidePage() {
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Dual load display</p>
                 <DualLoadChartSVG />
                 <div className="flex gap-3 mt-1">
-                  <LegendLine hex="#14B8A2" label="R-Score" />
-                  <LegendLine hex="#E83B52" label="Pulse load" />
+                  <LegendLine hex="#10B981" label="R-Score" />
+                  <LegendLine hex="#EF4444" label="Pulse load" />
                 </div>
               </Card>
 
@@ -2588,7 +2588,7 @@ export default function ColorGuidePage() {
                 <MiniBarChart data={PEAK_FRESH.map((p) => p.value)} color={(v) => {
                   const i = PEAK_FRESH.findIndex((p) => p.value === v)
                   const p = PEAK_FRESH[i >= 0 ? i : 0]
-                  const zoneColors = ['#7CA3BE', '#14B8A2', '#E8B020', '#E36B30', '#E83B52', '#9B40E8']
+                  const zoneColors = ['#94A3B8', '#16A34A', '#F59E0B', '#F97316', '#EF4444', '#A855F7']
                   const opacity = Math.max(0.4, 1 - p.staleDays / 30)
                   return `color-mix(in srgb, ${zoneColors[p.zone]} ${Math.round(opacity * 100)}%, transparent)`
                 }} />
@@ -2600,16 +2600,16 @@ export default function ColorGuidePage() {
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Polarization donut</p>
                 <div className="flex items-center gap-4">
                   <DonutChart segments={[
-                    { value: POLARIZATION.z12, color: '#14B8A2', label: 'Z1-2' },
-                    { value: POLARIZATION.z3, color: '#E8B020', label: 'Z3' },
-                    { value: POLARIZATION.z46, color: '#E83B52', label: 'Z4-6' },
+                    { value: POLARIZATION.z12, color: '#16A34A', label: 'Z1-2' },
+                    { value: POLARIZATION.z3, color: '#F59E0B', label: 'Z3' },
+                    { value: POLARIZATION.z46, color: '#EF4444', label: 'Z4-6' },
                   ]} size={100} />
                   <div className="space-y-1">
                     <p className={cn(FONT.body, 'text-[24px] tabular-nums', WEIGHT.strong, 'text-[var(--n1150)]')}>78/7/15</p>
                     <div className="flex gap-2">
-                      <LegendLine hex="#14B8A2" label="Z1-2 base" />
-                      <LegendLine hex="#E8B020" label="Z3" />
-                      <LegendLine hex="#E83B52" label="Z4-6" />
+                      <LegendLine hex="#16A34A" label="Z1-2 base" />
+                      <LegendLine hex="#F59E0B" label="Z3" />
+                      <LegendLine hex="#EF4444" label="Z4-6" />
                     </div>
                   </div>
                 </div>
@@ -2644,7 +2644,7 @@ export default function ColorGuidePage() {
               <SectionHeader>Diverging scale (−3 to +3)</SectionHeader>
               <Card padding="md">
                 <div className="flex overflow-hidden" style={{ height: 28, borderRadius: 4 }}>
-                  {['#C43C3C', '#D46B6B', '#E5A5A5', '#E5E3DE', '#A5D4B5', '#5FB88A', '#1B8A5A'].map((hex) => (
+                  {['#EF4444', '#FCA5A5', '#FEE2E2', '#E5E3DE', '#BBF7D0', '#4ADE80', '#16A34A'].map((hex) => (
                     <div key={hex} className="flex-1" style={{ backgroundColor: hex }} />
                   ))}
                 </div>
@@ -2661,7 +2661,7 @@ export default function ColorGuidePage() {
               <SectionHeader>Sequential scale (canvas to Z2-600)</SectionHeader>
               <Card padding="md">
                 <div className="flex overflow-hidden" style={{ height: 28, borderRadius: 4 }}>
-                  {[CANVAS_HEX, '#D4EDEA', '#A8DDD5', '#6CC8BC', '#30B3A5', '#0E9E8B'].map((hex) => (
+                  {[CANVAS_HEX, '#D1FAE5', '#A7F3D0', '#6EE7B7', '#34D399', '#10B981'].map((hex) => (
                     <div key={hex} className="flex-1" style={{ backgroundColor: hex }} />
                   ))}
                 </div>
@@ -2674,7 +2674,7 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <div className="grid grid-cols-7 gap-0.5">
                   {Array.from({ length: 28 }, (_, i) => {
-                    const vals = ['#E5E3DE', '#A5D4B5', '#5FB88A', '#1B8A5A', '#C43C3C', '#D46B6B', '#E5A5A5']
+                    const vals = ['#E5E3DE', '#BBF7D0', '#4ADE80', '#16A34A', '#EF4444', '#FCA5A5', '#FEE2E2']
                     return (
                       <div key={i} className={cn(RADIUS.sm)} style={{ width: '100%', aspectRatio: '1', backgroundColor: vals[i % 7], opacity: 0.5 + (i % 4) * 0.15 }} />
                     )
@@ -2715,8 +2715,8 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <DualLoadChartSVG />
                 <div className="flex gap-4 mt-2">
-                  <LegendLine hex="#14B8A2" label="R-Score" width={1.5} />
-                  <LegendLine hex="#E83B52" label="Pulse Load" width={1.5} />
+                  <LegendLine hex="#10B981" label="R-Score" width={1.5} />
+                  <LegendLine hex="#EF4444" label="Pulse Load" width={1.5} />
                 </div>
               </Card>
             </div>
@@ -2753,11 +2753,11 @@ export default function ColorGuidePage() {
                     <circle cx="40" cy="40" r="24" fill="none" stroke="var(--n200)" strokeWidth="0.5" />
                     <circle cx="40" cy="40" r="12" fill="none" stroke="var(--n200)" strokeWidth="0.5" />
                     {/* Dimension arcs using zone/stream colors */}
-                    <path d="M40,4 A36,36 0 0,1 72,22" fill="none" stroke="#E8B020" strokeWidth="4" strokeLinecap="round" />
-                    <path d="M72,22 A36,36 0 0,1 72,58" fill="none" stroke="#E83B52" strokeWidth="4" strokeLinecap="round" />
-                    <path d="M72,58 A36,36 0 0,1 40,76" fill="none" stroke="#E36B30" strokeWidth="4" strokeLinecap="round" />
-                    <path d="M40,76 A36,36 0 0,1 8,58" fill="none" stroke="#9B40E8" strokeWidth="4" strokeLinecap="round" />
-                    <path d="M8,58 A36,36 0 0,1 8,22" fill="none" stroke="#14B8A2" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M40,4 A36,36 0 0,1 72,22" fill="none" stroke="#F59E0B" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M72,22 A36,36 0 0,1 72,58" fill="none" stroke="#EF4444" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M72,58 A36,36 0 0,1 40,76" fill="none" stroke="#F97316" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M40,76 A36,36 0 0,1 8,58" fill="none" stroke="#A855F7" strokeWidth="4" strokeLinecap="round" />
+                    <path d="M8,58 A36,36 0 0,1 8,22" fill="none" stroke="#10B981" strokeWidth="4" strokeLinecap="round" />
                   </svg>
                   <div className="space-y-1">
                     {[
@@ -2783,10 +2783,10 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <div className="flex gap-2">
                   {[
-                    { label: 'Low', hex: '#7CA3BE' },
-                    { label: 'Medium', hex: '#E8B020' },
-                    { label: 'High', hex: '#E83B52' },
-                    { label: 'Peak', hex: '#9B40E8' },
+                    { label: 'Low', hex: '#94A3B8' },
+                    { label: 'Medium', hex: '#F59E0B' },
+                    { label: 'High', hex: '#EF4444' },
+                    { label: 'Peak', hex: '#A855F7' },
                   ].map((lev) => (
                     <div key={lev.label} className="flex flex-col items-center gap-1">
                       <div className={cn(RADIUS.sm)} style={{ width: 48, height: 32, backgroundColor: lev.hex, opacity: 0.7 }} />
@@ -2832,7 +2832,7 @@ export default function ColorGuidePage() {
               {/* HR drift trend */}
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>HR drift trend</p>
-                <MiniChartLine data={HR_DRIFT} stroke="#E83B52" height={60} />
+                <MiniChartLine data={HR_DRIFT} stroke="#EF4444" height={60} />
                 <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Drift % over sessions. Faldende = bedre fitness. Used in: Analytics</p>
               </Card>
 
@@ -2840,7 +2840,7 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Sleep x performance</p>
                 <ScatterChartSVG />
-                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Dots #9B40E8 (sleep = Z6). Used in: Analytics widgets</p>
+                <p className={cn(QUIET_STYLE, 'text-[10px] mt-1')}>Dots purple-500 #A855F7 (sleep = Z6). Used in: Analytics widgets</p>
               </Card>
 
               {/* Lactate curve overlay */}
@@ -2894,7 +2894,7 @@ export default function ColorGuidePage() {
                   <text x="305" y="234" textAnchor="middle" style={{ fontSize: '10px', fill: '#5C5A55', fontFamily: 'var(--font-sans)' }}>Duration</text>
 
                   {/* Data line */}
-                  <path d="M60,160 C100,150 140,120 180,110 C220,100 260,130 300,100 C340,80 380,90 420,85 C460,75 500,90 540,82" fill="none" stroke="#14B8A2" strokeWidth="2" />
+                  <path d="M60,160 C100,150 140,120 180,110 C220,100 260,130 300,100 C340,80 380,90 420,85 C460,75 500,90 540,82" fill="none" stroke="#16A34A" strokeWidth="2" />
 
                   {/* Crosshair */}
                   <line x1="300" y1="40" x2="300" y2="200" stroke="rgba(0,0,0,0.15)" strokeWidth="1" strokeDasharray="4 4" />
@@ -2985,10 +2985,10 @@ export default function ColorGuidePage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <MiniChartLine data={COURSE_PROG.duration} stroke={NEAR_BLACK} strokeWidth={2} height={80} />
-                    <MiniChartLine data={COURSE_PROG.cho} stroke="#E36B30" height={60} />
+                    <MiniChartLine data={COURSE_PROG.cho} stroke="#F97316" height={60} />
                     <div className="flex gap-3 mt-1">
                       <LegendLine hex={NEAR_BLACK} label="Duration (↓ faster)" width={2} />
-                      <LegendLine hex="#E36B30" label="CHO g/h (↑ more)" />
+                      <LegendLine hex="#F97316" label="CHO g/h (↑ more)" />
                     </div>
                   </div>
                   <div>
@@ -3003,13 +3003,13 @@ export default function ColorGuidePage() {
                 <p className={cn(FONT.body, 'text-[13px]', WEIGHT.medium, 'text-[var(--n1150)] mb-2')}>Energy flow (simplified sankey)</p>
                 <svg width="100%" viewBox="0 0 280 100" shapeRendering="geometricPrecision" style={{ fontFamily: 'var(--font-sans)' }}>
                   {/* Input flows */}
-                  <rect x={0} y={5} width={12} height={35} fill="#E36B30" rx={2} />
-                  <rect x={0} y={45} width={12} height={25} fill="#E8B020" rx={2} />
-                  <rect x={0} y={75} width={12} height={20} fill="#3B82F6" rx={2} />
+                  <rect x={0} y={5} width={12} height={35} fill="#F97316" rx={2} />
+                  <rect x={0} y={45} width={12} height={25} fill="#F59E0B" rx={2} />
+                  <rect x={0} y={75} width={12} height={20} fill="#A855F7" rx={2} />
                   {/* Flow paths */}
-                  <path d="M12,22 C80,22 100,30 140,30" fill="none" stroke="#E36B30" strokeWidth={8} opacity={0.3} />
-                  <path d="M12,57 C80,57 100,50 140,50" fill="none" stroke="#E8B020" strokeWidth={6} opacity={0.3} />
-                  <path d="M12,85 C80,85 100,70 140,70" fill="none" stroke="#3B82F6" strokeWidth={5} opacity={0.3} />
+                  <path d="M12,22 C80,22 100,30 140,30" fill="none" stroke="#F97316" strokeWidth={8} opacity={0.3} />
+                  <path d="M12,57 C80,57 100,50 140,50" fill="none" stroke="#F59E0B" strokeWidth={6} opacity={0.3} />
+                  <path d="M12,85 C80,85 100,70 140,70" fill="none" stroke="#A855F7" strokeWidth={5} opacity={0.3} />
                   {/* Output blocks */}
                   <rect x={140} y={10} width={12} height={50} fill="var(--n1150)" rx={2} />
                   <rect x={140} y={65} width={12} height={25} fill="#8A8780" rx={2} />
@@ -3018,9 +3018,9 @@ export default function ColorGuidePage() {
                   <text x={160} y={80} fontSize={9} fill="var(--n600)" fontWeight={400}>BMR</text>
                 </svg>
                 <div className="flex gap-3 mt-1">
-                  <LegendLine hex="#E36B30" label="CHO" />
-                  <LegendLine hex="#E8B020" label="Fat" />
-                  <LegendLine hex="#3B82F6" label="Protein" />
+                  <LegendLine hex="#F97316" label="CHO" />
+                  <LegendLine hex="#F59E0B" label="Fat" />
+                  <LegendLine hex="#A855F7" label="Protein" />
                 </div>
               </Card>
 
@@ -3033,7 +3033,7 @@ export default function ColorGuidePage() {
                     { label: 'Intervals', zones: [0.2, 0.3, 0.2, 0.6, 0.8, 0.3] },
                     { label: 'Race', zones: [0.1, 0.2, 0.4, 0.7, 0.5, 0.2] },
                   ].map((fp) => {
-                    const colors = ['#7CA3BE', '#14B8A2', '#E8B020', '#E36B30', '#E83B52', '#9B40E8']
+                    const colors = ['#94A3B8', '#16A34A', '#F59E0B', '#F97316', '#EF4444', '#A855F7']
                     const total = fp.zones.reduce((a, b) => a + b, 0)
                     const r2 = (n: number) => Math.round(n * 100) / 100
                     let angle = -90
@@ -3129,22 +3129,22 @@ export default function ColorGuidePage() {
                 <div className="space-y-3 mt-3">
                   <div className={cn(RADIUS.sm, 'overflow-hidden flex')} style={{ height: 20 }}>
                     {[
-                      { hex: '#1B8A5A', w: '20%' },
-                      { hex: '#38CC88', w: '20%' },
-                      { hex: '#C49B08', w: '20%' },
-                      { hex: '#C43C3C', w: '20%' },
-                      { hex: '#C0BDB6', w: '20%' },
+                      { hex: '#16A34A', w: '20%' },
+                      { hex: '#4ADE80', w: '20%' },
+                      { hex: '#F59E0B', w: '20%' },
+                      { hex: '#EF4444', w: '20%' },
+                      { hex: 'var(--n600)', w: '20%' },
                     ].map((t) => (
                       <div key={t.hex} style={{ width: t.w, backgroundColor: t.hex }} />
                     ))}
                   </div>
                   <div className="flex gap-1.5 flex-wrap">
                     {[
-                      { hex: '#1B8A5A', label: 'Excellent' },
-                      { hex: '#38CC88', label: 'Good' },
-                      { hex: '#C49B08', label: 'Fair' },
-                      { hex: '#C43C3C', label: 'Poor' },
-                      { hex: '#C0BDB6', label: 'Untested' },
+                      { hex: '#16A34A', label: 'Excellent' },
+                      { hex: '#4ADE80', label: 'Good' },
+                      { hex: '#F59E0B', label: 'Fair' },
+                      { hex: '#EF4444', label: 'Poor' },
+                      { hex: 'var(--n600)', label: 'Untested' },
                     ].map((t) => (
                       <Badge key={t.label} color={t.hex}>{t.label}</Badge>
                     ))}
@@ -3158,15 +3158,15 @@ export default function ColorGuidePage() {
                 <div className="space-y-3 mt-3">
                   <div className="flex gap-1.5">
                     {[
-                      { hex: '#7CA3BE', label: 'Starter <40 g/h' },
-                      { hex: '#14B8A2', label: 'Developing 40–60' },
-                      { hex: '#E8B020', label: 'Trained 60–90' },
-                      { hex: '#E83B52', label: 'Elite >90' },
+                      { hex: '#94A3B8', label: 'Starter <40 g/h' },
+                      { hex: '#10B981', label: 'Developing 40–60' },
+                      { hex: '#F59E0B', label: 'Trained 60–90' },
+                      { hex: '#EF4444', label: 'Elite >90' },
                     ].map((t) => (
                       <Badge key={t.label} color={t.hex}>{t.label}</Badge>
                     ))}
                   </div>
-                  <ProgressBar value={72} max={120} color="#E8B020" label="72 g/h — Trained tier" />
+                  <ProgressBar value={72} max={120} color="#F59E0B" label="72 g/h — Trained tier" />
                 </div>
               </Card>
 
@@ -3174,8 +3174,8 @@ export default function ColorGuidePage() {
               <Card>
                 <Card.Title>Glycogen stores</Card.Title>
                 <div className="space-y-2 mt-3">
-                  <ProgressBar value={72} max={100} color="#E36B30" label="Muscle 72%" />
-                  <ProgressBar value={85} max={100} color="#E8B020" label="Liver 85%" />
+                  <ProgressBar value={72} max={100} color="#F97316" label="Muscle 72%" />
+                  <ProgressBar value={85} max={100} color="#F59E0B" label="Liver 85%" />
                 </div>
               </Card>
 
@@ -3187,7 +3187,7 @@ export default function ColorGuidePage() {
                     {[
                       { hex: '#CD7F32', label: 'Bronze' },
                       { hex: '#B5B2AB', label: 'Silver' },
-                      { hex: '#E8B020', label: 'Gold' },
+                      { hex: '#F59E0B', label: 'Gold' },
                     ].map((m) => (
                       <div key={m.label} className="flex flex-col items-center gap-0.5">
                         <Swatch hex={m.hex} size={24} round />
@@ -3195,7 +3195,7 @@ export default function ColorGuidePage() {
                       </div>
                     ))}
                   </div>
-                  <ProgressBar value={3400} max={5000} color="#14B8A2" label="XP 3400 / 5000" />
+                  <ProgressBar value={3400} max={5000} color="#10B981" label="XP 3400 / 5000" />
                   <Badge color={NEAR_BLACK}>Level 12</Badge>
                 </div>
               </Card>
@@ -3242,7 +3242,7 @@ export default function ColorGuidePage() {
                 </div>
                 <div className="flex flex-col gap-2">
                   <Badge color="#FF6A00">Fuel now</Badge>
-                  <p className={cn(QUIET_STYLE, 'text-[11px] max-w-[40ch]')}>Skal differentieres fra CHO orange (#E36B30) og Power Z4.</p>
+                  <p className={cn(QUIET_STYLE, 'text-[11px] max-w-[40ch]')}>Skal differentieres fra CHO/Z4 orange-500 (#F97316).</p>
                 </div>
               </div>
             </div>
@@ -3392,21 +3392,21 @@ export default function ColorGuidePage() {
               <SectionHeader>De 15 spørgsmål til Ruth</SectionHeader>
               <div className="space-y-2">
                 {[
-                  'RAMTT-paletten (Z1 blå-grå, Z2 teal, Z3 gul, Z4 orange, Z5 rød, Z6 lilla) vs Coggan-standarden for power/HR zones?',
-                  'Skal CHO zones være blå spektrum (#94A3B8→#085A87), eller en anden tone?',
-                  'Nye semantiske farver (success #1B8A5A, warning #C49B08, danger #C43C3C, info #0099CC) — godkendt?',
-                  'Warning (#C49B08) og Z3 Tempo (#E8B020) er tætte — er det OK, eller skal warning flyttes?',
-                  'Session streams: Power = sort, HR = Z5, Cadence = Z6, Speed = Z2, Elevation = neutral, Temp = warning hue — fungerer det?',
-                  'Capacity chart: CTL = Z2, ATL = Z5, Form = success/danger, Surge = Z6 stiplet, ACWR = Z3 — er mapping korrekt?',
-                  'Regulatorer: Metabolic = Z4, Neural = Z6, Peripheral = Z1 — tre zone-farver genbrugt — OK?',
-                  'CHO nutrient (#E36B30) og Power Z4 er identiske — de ses sjældent sammen, men skal fuel have sin egen tone?',
+                  'RAMTT bruger 8 Tailwind farve-familier (Z1 slate, Z2 green, Z3 amber, Z4 orange, Z5 red, Z6 purple) — vs Coggan?',
+                  'CHO zones er nu monokrom amber ramp (amber-100→amber-800) — fungerer det adskilt fra power zones?',
+                  'Semantiske farver (success green-600, warning amber-500, danger red-500, info blue-500) — godkendt?',
+                  'Warning (amber-500) og Z3 Tempo (amber-500) er identiske — de ses sjældent på same skærm, men OK?',
+                  'Session streams: Power=green-600, HR=red-500, Cadence=purple-500, Speed=blue-500, Elevation=--n600, Temp=orange-500?',
+                  'Capacity chart: CTL=emerald-500, ATL=red-500, Form=green-600/red-500, Surge=purple-500, ACWR=amber-500?',
+                  'Regulatorer: Metabolic=orange-500, Neural=purple-500, Peripheral=blue-500 — OK?',
+                  'CHO nutrient (#F97316) og Power Z4 er identiske — de ses sjældent sammen, men skal fuel have sin egen tone?',
                   'Cadence gradient (cold→warm med 9 brackets) — fungerer de 9 trin?',
-                  'Elevation bruger zone-farverne Z2→Z6 — er det klart nok, eller skal det være en separat gradient?',
+                  'Elevation bruger blue→emerald→amber→orange→red→purple — er det klart nok?',
                   'Interval stack: 8 farver med sort som #1 — er rækkefølgen rigtig?',
                   'Training phases ved ~6% opacity — kan de adskilles på sand canvas?',
                   'Brand-palette: Navy + Magenta + White — er de tre kombinationer tilstrækkelige?',
-                  'Flare (#FF6A00) vs CHO-orange (#E36B30) vs Z4 (#E36B30) — tre orange-tøner tæt på hinanden — problem?',
-                  'kJ/Energy zones — monokrom amber eller individuelle farver? Antal zoner (5 foreslået)?',
+                  'Flare (#FF6A00) vs CHO-orange (orange-500) vs Z4 (orange-500) — problem?',
+                  'kJ/Energy zones — monokrom emerald ramp (emerald-100→emerald-800) — godkendt?',
                 ].map((q, i) => (
                   <Card key={i} padding="sm">
                     <div className="flex gap-3 items-start">
