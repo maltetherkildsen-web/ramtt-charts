@@ -744,23 +744,19 @@ function FullscreenOverlay({
   }, [])
 
   // Scale chart heights proportionally to fill viewport
-  // Torque uses fixed height — excluded from proportional scaling so toggling it doesn't resize others
   const topBar = 40
   const peaksBar = showPeaks ? 28 : 0
   const sidebarW = 176
   const ordered = ALL_CHARTS.filter((k) => visibleCharts.has(k))
-  const scalable = ordered.filter(k => k !== 'torque')
-  const fixedTorqueH = visibleCharts.has('torque') ? CHART_HEIGHTS.torque : 0
-  const normalTotal = scalable.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
-  const available = winH - topBar - peaksBar - fixedTorqueH
+  const normalTotal = ordered.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
+  const available = winH - topBar - peaksBar
   const scale = available / normalTotal
 
   const heights = useMemo(() => {
     const h: Partial<Record<ChartKey, number>> = {}
-    for (const k of scalable) h[k] = Math.round(CHART_HEIGHTS[k] * scale)
-    if (visibleCharts.has('torque')) h.torque = CHART_HEIGHTS.torque
+    for (const k of ordered) h[k] = Math.round(CHART_HEIGHTS[k] * scale)
     return h
-  }, [scalable, scale, visibleCharts])
+  }, [ordered, scale])
 
   return (
     <div className="flex h-full flex-col bg-[var(--bg)]">
@@ -1670,7 +1666,7 @@ function SyncedCharts({
           data={visKjMin}
           height={h('kjmin')}
           decimationFactor={decimationFactor}
-          padding={{ ...chartPad, bottom: 4 }}
+          padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
@@ -1737,7 +1733,7 @@ function SyncedCharts({
           data={visAltitude}
           height={h('elevation')}
           decimationFactor={decimationFactor}
-          padding={{ ...chartPad, bottom: 4 }}
+          padding={lastChartKey === 'elevation' ? chartPad : { ...chartPad, bottom: 4 }}
           yDomain={elevationYDomain}
           className="bg-(--n50)"
         >
@@ -1761,7 +1757,7 @@ function SyncedCharts({
           data={visTorque}
           height={h('torque')}
           decimationFactor={decimationFactor}
-          padding={{ ...chartPad, bottom: 4 }}
+          padding={lastChartKey === 'torque' ? chartPad : { ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
