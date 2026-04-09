@@ -67,7 +67,7 @@ const CHART_LABELS: Record<ChartKey, string> = {
 const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
-  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 60,
+  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 80,
 }
 
 // ─── Time formatting ───
@@ -1594,7 +1594,7 @@ function SyncedCharts({
 
   return (
     <div
-      className={cn("relative select-none outline-none focus:outline-none focus:ring-0 bg-[var(--n50)] overflow-hidden", BORDER.default, RADIUS.lg)}
+      className={cn("relative select-none outline-none focus:outline-none focus:ring-0 overflow-hidden", !hideExtras && "bg-[var(--n50)]", !hideExtras && BORDER.default, !hideExtras && RADIUS.lg)}
       tabIndex={0}
       style={{ contain: 'paint' }}
       onDoubleClick={onClearPeak}
@@ -1667,7 +1667,6 @@ function SyncedCharts({
           padding={{ ...chartPad, bottom: 4 }}
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
-          {lastChartKey === 'kjmin' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartArea gradientColor="#f59e0b" opacityFrom={0.10} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f59e0b" />
@@ -1732,7 +1731,6 @@ function SyncedCharts({
           yDomain={elevationYDomain}
         >
           <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}m`} />
-          {lastChartKey === 'elevation' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartArea gradientColor="#78716c" opacityFrom={0.15} opacityTo={0.03} />
           <ChartLine className="fill-none stroke-stone-400 stroke-[1]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#78716c" dotRadius={2} />
@@ -1754,7 +1752,6 @@ function SyncedCharts({
           padding={{ ...chartPad, bottom: 4 }}
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
-          {lastChartKey === 'torque' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
           <ChartArea gradientColor="#b45309" opacityFrom={0.10} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-[#b45309] stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#b45309" />
@@ -1764,6 +1761,15 @@ function SyncedCharts({
         </motion.div>
       )}
       </AnimatePresence>
+      </div>
+
+      {/* Shared X-axis time bar — outside individual charts so toggling never shifts layout */}
+      <div className="flex justify-between px-12 py-1" style={{ paddingRight: 64 }}>
+        {timeTicks.map(i => (
+          <span key={i} className="text-[10px] tabular-nums text-(--n600)" style={{ fontFamily: 'var(--font-sans)' }}>
+            {formatX(i)}
+          </span>
+        ))}
       </div>
 
       {/* Crosshair time label */}
