@@ -1603,7 +1603,7 @@ function SyncedCharts({
           height={h('power')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          yPadding={0.05}
+          yPadding={0.10}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
@@ -1656,7 +1656,7 @@ function SyncedCharts({
           data={visKjMin}
           height={h('kjmin')}
           decimationFactor={decimationFactor}
-          padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
+          padding={{ ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
@@ -1723,7 +1723,7 @@ function SyncedCharts({
           data={visAltitude}
           height={h('elevation')}
           decimationFactor={decimationFactor}
-          padding={lastChartKey === 'elevation' ? chartPad : { ...chartPad, bottom: 4 }}
+          padding={{ ...chartPad, bottom: 4 }}
           yDomain={elevationYDomain}
           className="bg-(--n50)"
         >
@@ -1747,7 +1747,7 @@ function SyncedCharts({
           data={visTorque}
           height={h('torque')}
           decimationFactor={decimationFactor}
-          padding={lastChartKey === 'torque' ? chartPad : { ...chartPad, bottom: 4 }}
+          padding={{ ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
