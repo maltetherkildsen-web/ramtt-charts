@@ -642,6 +642,12 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
     return +(sum / kjPerMin.length).toFixed(1)
   }, [kjPerMin])
 
+  const avgTorque = useMemo(() => {
+    let sum = 0, count = 0
+    for (let i = 0; i < torque.length; i++) { if (torque[i] > 0) { sum += torque[i]; count++ } }
+    return count > 0 ? Math.round(sum / count) : 0
+  }, [torque])
+
   return (
     <ChartSyncProvider dataLength={totalPoints}>
       <div className="min-h-screen bg-[var(--bg)] py-5">
@@ -663,6 +669,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             avgTemperature={meta.avgTemperature} minTemperature={meta.minTemperature} maxTemperature={meta.maxTemperature}
             choZone={choZone} choGPerHour={choGPerHour} choIntake={sessionInput.choIntake}
             kjDemandZone={kjDemandZone} adjustedKjPerKgH={adjustedKjPerKgH} isDefaultWeight={isDefaultWeight}
+            avgTorque={avgTorque} hasTorque={hasTorque}
           />
 
           {/* ── 3. Chart Toggles ── */}
@@ -1191,7 +1198,7 @@ function SessionDataPanel({ input, onUpdate }: {
       </button>
       {open && (
         <div className="flex items-end gap-4 px-4 pb-3">
-          <div className="w-24">
+          <div className="w-[70px]">
             <Input
               type="number"
               label="Weight"
@@ -1205,7 +1212,7 @@ function SessionDataPanel({ input, onUpdate }: {
               }}
             />
           </div>
-          <div className="w-36">
+          <div className="w-[70px]">
             <Input
               type="number"
               label="Total CHO intake"
@@ -1244,6 +1251,7 @@ function MetricsTiers({
   avgTemperature, minTemperature, maxTemperature,
   choZone, choGPerHour, choIntake,
   kjDemandZone, adjustedKjPerKgH, isDefaultWeight,
+  avgTorque, hasTorque,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
   energyKJ: number; decoupling: number | null
@@ -1252,6 +1260,7 @@ function MetricsTiers({
   avgTemperature: number; minTemperature: number; maxTemperature: number
   choZone: { zone: string; name: string } | null; choGPerHour: number; choIntake: number
   kjDemandZone: { zone: string; name: string } | null; adjustedKjPerKgH: number; isDefaultWeight: boolean
+  avgTorque: number; hasTorque: boolean
 }) {
   const [contextOpen, setContextOpen] = useState(false)
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
@@ -1281,6 +1290,7 @@ function MetricsTiers({
         {totalAscent > 0 && <KS label="Ascent" value={`${totalAscent}`} unit="m" sub={`↓ ${totalDescent}m`} />}
         {energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" sub={`${avgKjPerMin} kJ/min`} />}
         {totalCalories > 0 && <KS label="Calories" value={`${totalCalories}`} unit="kcal" />}
+        {hasTorque && avgTorque > 0 && <KS label="Avg Torque" value={`${avgTorque}`} unit="Nm" />}
         <KS label="R-Score" value="—" unit="rS" sub="PL —" />
       </div>
 
