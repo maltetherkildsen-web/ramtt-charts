@@ -1197,7 +1197,6 @@ function MetricsTiers({
       : '#22c55e'
     : undefined
 
-  const FUEL_DOT = '#f97316'
 
   return (
     <div>
@@ -1217,7 +1216,7 @@ function MetricsTiers({
       {/* Tier 2 — Fueling (dot-grouped) + Derived Metrics */}
       <div className="flex gap-6 border-b-[0.5px] border-b-[var(--n400)] bg-[var(--n50)] py-2">
         <KS
-          dot={FUEL_DOT}
+
           label="kJ demand"
           value={kjDemandZone ? adjustedKjPerKgH.toFixed(1) : '—'}
           unit={kjDemandZone ? 'kJ/kg/h' : undefined}
@@ -1225,7 +1224,7 @@ function MetricsTiers({
           badge={kjDemandZone ? { label: kjDemandZone.zone, color: ZONE_COLORS[kjDemandZone.zone] ?? '#94a3b8' } : undefined}
         />
         <KS
-          dot={FUEL_DOT}
+
           label="CHO zone"
           value={choZone ? `${Math.round(choGPerHour)}` : '—'}
           unit={choZone ? 'g/h' : undefined}
@@ -1233,14 +1232,14 @@ function MetricsTiers({
           badge={choZone ? { label: choZone.zone, color: ZONE_COLORS[choZone.zone] ?? '#94a3b8' } : undefined}
         />
         <KS
-          dot={FUEL_DOT}
+
           label="CHO total"
           value={choIntake > 0 ? `${choIntake}` : '—'}
           unit={choIntake > 0 ? 'g' : undefined}
           sub={choIntake > 0 ? 'of session' : undefined}
         />
         <KS
-          dot={FUEL_DOT}
+
           label="Energy replaced"
           value={energyReplacement !== null ? `${energyReplacement}` : '—'}
           unit={energyReplacement !== null ? '%' : undefined}
@@ -1319,8 +1318,8 @@ function KS({ label, value, unit, sub, badge, progress, progressColor, dot }: {
       )}
       {sub && <div className="text-[11px] text-[var(--n600)]">{sub}</div>}
       {progress !== undefined && (
-        <div className="mt-0.5 h-1 w-12 overflow-hidden rounded-full bg-[var(--n400)]">
-          <div className="h-full rounded-full" style={{ width: `${Math.min(100, progress)}%`, backgroundColor: progressColor ?? '#22c55e' }} />
+        <div className="mt-1 h-2.5 w-12 overflow-hidden rounded-[5px] bg-[var(--n400)]">
+          <div className="h-full rounded-[5px]" style={{ width: `${Math.min(100, progress)}%`, backgroundColor: progressColor ?? '#22c55e' }} />
         </div>
       )}
     </div>
