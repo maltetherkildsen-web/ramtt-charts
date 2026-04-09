@@ -2093,97 +2093,96 @@ function HoverDataTable({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAverages])
 
-  const rowCls = 'flex items-center gap-3 border-b-[0.5px] border-b-[var(--n400)]/50 py-2'
+  const cellCls = 'flex items-center gap-2 py-1.5'
   const dotCls = 'h-2 w-2 shrink-0 rounded-full'
-  const labelCls = 'w-24 text-[13px] text-[var(--n800)]'
-  const valCls = cn('text-[15px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.medium)
-  const unitCls = 'text-xs text-[var(--n600)]'
-  const deltaCls = 'text-[11px] tabular-nums text-[var(--n600)]'
-  const zoneCls = cn('ml-auto rounded px-2.5 py-0.5 text-[11px] tabular-nums', WEIGHT.medium)
+  const labelCls = 'text-[12px] text-[var(--n800)]'
+  const valCls = cn('text-[14px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.medium)
+  const unitCls = 'text-[10px] text-[var(--n600)]'
+  const zoneCls = cn('rounded px-2 py-0.5 text-[10px] tabular-nums', WEIGHT.medium)
 
   const vc = visibleCharts
 
   return (
-    <div className="mt-2 mb-1" style={{ paddingLeft: 48, paddingRight: 64 }}>
+    <div className="mt-2 mb-1 grid grid-cols-3 gap-x-6 gap-y-0.5 border-t-[0.5px] border-t-[var(--n400)]/50" style={{ paddingLeft: 48, paddingRight: 64 }}>
       {/* Duration — always visible */}
-      <div className={rowCls}>
+      <div className={cellCls}>
         <span className={`${dotCls} bg-[var(--n1050)]`} />
         <span ref={timeLabelRef} className={labelCls}>Duration</span>
         <span ref={timeValRef} className={valCls} />
-        <span ref={timeSpanRef} className="text-[11px] tabular-nums text-[var(--n600)]" />
+        <span ref={timeSpanRef} className="text-[10px] tabular-nums text-[var(--n600)]" />
       </div>
       {vc.has('power') && (
-        <div className={rowCls}>
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[#22c55e]`} />
           <span ref={powerLabelRef} className={labelCls}>Avg Power</span>
-          <span className="flex items-baseline gap-1">
+          <span className="flex items-baseline gap-0.5">
             <span ref={powerValRef} className={valCls}>0</span>
             <span className={unitCls}>W</span>
           </span>
-          <span ref={powerDeltaRef} className={deltaCls} />
           <span ref={powerZoneRef} className={zoneCls} />
+          <span ref={powerDeltaRef} className="hidden" />
         </div>
       )}
       {vc.has('hr') && (
-        <div className={rowCls}>
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[#ef4444]`} />
-          <span ref={hrLabelRef} className={labelCls}>Avg Heart Rate</span>
-          <span className="flex items-baseline gap-1">
+          <span ref={hrLabelRef} className={labelCls}>Avg HR</span>
+          <span className="flex items-baseline gap-0.5">
             <span ref={hrValRef} className={valCls}>0</span>
             <span className={unitCls}>bpm</span>
           </span>
-          <span ref={hrDeltaRef} className={deltaCls} />
           <span ref={hrZoneRef} className={zoneCls} />
+          <span ref={hrDeltaRef} className="hidden" />
         </div>
       )}
       {vc.has('kjmin') && (
-        <div className={rowCls}>
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[#f59e0b]`} />
           <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
-          <span className="flex items-baseline gap-1">
+          <span className="flex items-baseline gap-0.5">
             <span ref={kjminValRef} className={valCls}>0</span>
             <span className={unitCls}>kJ/min</span>
           </span>
         </div>
       )}
       {vc.has('cadence') && (
-        <div className={rowCls}>
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[#8b5cf6]`} />
-          <span ref={cadLabelRef} className={labelCls}>Avg Cadence</span>
-          <span className="flex items-baseline gap-1">
+          <span ref={cadLabelRef} className={labelCls}>Cadence</span>
+          <span className="flex items-baseline gap-0.5">
             <span ref={cadValRef} className={valCls}>0</span>
             <span className={unitCls}>rpm</span>
           </span>
-          <span ref={cadDeltaRef} className={deltaCls} />
+          <span ref={cadDeltaRef} className="hidden" />
         </div>
       )}
       {vc.has('speed') && (
-        <div className={rowCls}>
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[#3b82f6]`} />
-          <span ref={speedLabelRef} className={labelCls}>Avg Speed</span>
-          <span className="flex items-baseline gap-1">
+          <span ref={speedLabelRef} className={labelCls}>Speed</span>
+          <span className="flex items-baseline gap-0.5">
             <span ref={speedValRef} className={valCls}>0</span>
             <span className={unitCls}>km/h</span>
           </span>
-          <span ref={speedDeltaRef} className={deltaCls} />
+          <span ref={speedDeltaRef} className="hidden" />
         </div>
       )}
       {vc.has('elevation') && (
-        <div className="flex items-center gap-3 py-2">
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[var(--n600)]`} />
-          <span ref={elevLabelRef} className={labelCls}>Avg Elevation</span>
-          <span className="flex items-baseline gap-1">
+          <span ref={elevLabelRef} className={labelCls}>Elevation</span>
+          <span className="flex items-baseline gap-0.5">
             <span ref={elevValRef} className={valCls}>0</span>
             <span className={unitCls}>m</span>
           </span>
-          <span ref={elevDeltaRef} className={deltaCls} />
+          <span ref={elevDeltaRef} className="hidden" />
         </div>
       )}
       {vc.has('torque') && (
-        <div className="flex items-center gap-3 py-2">
+        <div className={cellCls}>
           <span className={`${dotCls} bg-[#b45309]`} />
-          <span ref={torqueLabelRef} className={labelCls}>Avg Torque</span>
-          <span className="flex items-baseline gap-1">
+          <span ref={torqueLabelRef} className={labelCls}>Torque</span>
+          <span className="flex items-baseline gap-0.5">
             <span ref={torqueValRef} className={valCls}>0</span>
             <span className={unitCls}>Nm</span>
           </span>
