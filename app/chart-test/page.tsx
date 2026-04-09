@@ -1119,37 +1119,6 @@ function SyncedCharts({
 
   const visKjMin = useMemo(() => kjPerMin.slice(start, end + 1), [kjPerMin, start, end])
 
-  // ── Y-domains: nice round numbers above actual max ──
-  const powerYDomain = useMemo(() => {
-    let max = 0
-    for (let i = 0; i < visPower.length; i++) if (visPower[i] > max) max = visPower[i]
-    return [0, Math.ceil(max / 200) * 200 || 200] as const
-  }, [visPower])
-
-  const hrYDomain = useMemo(() => {
-    let max = 0
-    for (let i = 0; i < visHR.length; i++) if (visHR[i] > max) max = visHR[i]
-    return [0, Math.ceil(max / 10) * 10 || 100] as const
-  }, [visHR])
-
-  const kjminYDomain = useMemo(() => {
-    let max = 0
-    for (let i = 0; i < visKjMin.length; i++) if (visKjMin[i] > max) max = visKjMin[i]
-    return [0, Math.ceil(max / 5) * 5 || 5] as const
-  }, [visKjMin])
-
-  const cadenceYDomain = useMemo(() => {
-    let max = 0
-    for (let i = 0; i < visCadence.length; i++) if (visCadence[i] > max) max = visCadence[i]
-    return [0, Math.ceil(max / 10) * 10 || 100] as const
-  }, [visCadence])
-
-  const speedYDomain = useMemo(() => {
-    let max = 0
-    for (let i = 0; i < visSpeed.length; i++) if (visSpeed[i] > max) max = visSpeed[i]
-    return [0, Math.ceil(max / 5) * 5 || 10] as const
-  }, [visSpeed])
-
   const formatX = useCallback(
     (i: number) => formatTimeForZoom(start + i, visibleRange),
     [start, visibleRange],
@@ -1188,7 +1157,7 @@ function SyncedCharts({
           height={h('power')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          yDomain={powerYDomain}
+          yPadding={0.10}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
@@ -1216,7 +1185,6 @@ function SyncedCharts({
           height={h('hr')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          yDomain={hrYDomain}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
@@ -1243,7 +1211,6 @@ function SyncedCharts({
           height={h('kjmin')}
           decimationFactor={decimationFactor}
           padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
-          yDomain={kjminYDomain}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
@@ -1267,7 +1234,6 @@ function SyncedCharts({
           height={h('cadence')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          yDomain={cadenceYDomain}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v}`} />
@@ -1290,7 +1256,6 @@ function SyncedCharts({
           height={h('speed')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          yDomain={speedYDomain}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
