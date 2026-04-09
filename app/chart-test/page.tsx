@@ -1201,23 +1201,24 @@ function SyncedCharts({
       )}
       </AnimatePresence>
 
-      {/* Speed — 55px */}
+      {/* kJ/min — 55px */}
       <AnimatePresence initial={false}>
-      {visibleCharts.has('speed') && (
-        <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+      {visibleCharts.has('kjmin') && (
+        <motion.div key="kjmin" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
-          data={visSpeed}
-          height={h('speed', 55)}
+          data={visKjMin}
+          height={h('kjmin', 55)}
           decimationFactor={decimationFactor}
-          padding={{ ...chartPad, bottom: 4 }}
+          padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
-          <ChartArea gradientColor="#3b82f6" opacityFrom={0.08} opacityTo={0.005} />
-          <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
-          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#3b82f6" />
+          {lastChartKey === 'kjmin' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
+          <ChartArea gradientColor="#f59e0b" opacityFrom={0.10} opacityTo={0.005} />
+          <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f59e0b" />
           <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1245,7 +1246,29 @@ function SyncedCharts({
       )}
       </AnimatePresence>
 
-      {/* Elevation — 40px */}
+      {/* Speed — 55px */}
+      <AnimatePresence initial={false}>
+      {visibleCharts.has('speed') && (
+        <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <ChartRoot
+          data={visSpeed}
+          height={h('speed', 55)}
+          decimationFactor={decimationFactor}
+          padding={{ ...chartPad, bottom: 4 }}
+          className="bg-(--n50)"
+        >
+          <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
+          <ChartArea gradientColor="#3b82f6" opacityFrom={0.08} opacityTo={0.005} />
+          <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#3b82f6" />
+          <ChartZoomHandler />
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
+        </ChartRoot>
+        </motion.div>
+      )}
+      </AnimatePresence>
+
+      {/* Elevation — 55px */}
       <AnimatePresence initial={false}>
       {visibleCharts.has('elevation') && (
         <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
@@ -1253,7 +1276,7 @@ function SyncedCharts({
           data={visAltitude}
           height={h('elevation', 55)}
           decimationFactor={decimationFactor}
-          padding={chartPad}
+          padding={lastChartKey === 'elevation' ? chartPad : { ...chartPad, bottom: 4 }}
           yDomain={elevationYDomain}
           className="bg-(--n50)"
         >
@@ -1264,29 +1287,6 @@ function SyncedCharts({
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#78716c" dotRadius={2} />
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
-        </ChartRoot>
-        </motion.div>
-      )}
-      </AnimatePresence>
-
-      {/* kJ/min — 55px */}
-      <AnimatePresence initial={false}>
-      {visibleCharts.has('kjmin') && (
-        <motion.div key="kjmin" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
-        <ChartRoot
-          data={visKjMin}
-          height={h('kjmin', 55)}
-          decimationFactor={decimationFactor}
-          padding={lastChartKey === 'kjmin' ? chartPad : { ...chartPad, bottom: 4 }}
-          className="bg-(--n50)"
-        >
-          <ChartAxisY tickCount={2} format={(v) => `${v.toFixed(0)}`} />
-          {lastChartKey === 'kjmin' && <ChartAxisX format={formatX} tickValues={timeTicks} />}
-          <ChartArea gradientColor="#f59e0b" opacityFrom={0.10} opacityTo={0.005} />
-          <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
-          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f59e0b" />
-          <ChartZoomHandler />
-          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
         </ChartRoot>
         </motion.div>
       )}
