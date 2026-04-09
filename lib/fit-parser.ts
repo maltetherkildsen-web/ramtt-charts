@@ -25,7 +25,7 @@ export interface FitData {
     recordCount: number
     name: string
     date: string
-    totalDistance: number      // meters
+    totalDistance: number      // km
     totalCalories: number     // kcal
     totalAscent: number       // meters
     totalDescent: number      // meters
@@ -158,16 +158,19 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
   const name = `${displaySport} — ${dateStr}`
 
   // Session-level fields
-  const totalDistance = (session.total_distance ?? 0) as number  // meters
-  const totalCalories = (session.total_calories ?? 0) as number  // kcal
-  const totalAscent = (session.total_ascent ?? 0) as number      // meters
-  const totalDescent = (session.total_descent ?? 0) as number    // meters
+  // Note: lengthUnit:'km' converts all length fields from m→km automatically
+  const totalDistanceKm = (session.total_distance ?? 0) as number  // already km (library converts)
+  const totalCalories = (session.total_calories ?? 0) as number    // kcal
+  const totalAscentKm = (session.total_ascent ?? 0) as number      // km (library converts)
+  const totalDescentKm = (session.total_descent ?? 0) as number    // km (library converts)
+  const totalAscent = Math.round(totalAscentKm * 1000)             // → meters
+  const totalDescent = Math.round(totalDescentKm * 1000)           // → meters
   const avgTemperature = (session.avg_temperature ?? (tempCount > 0 ? Math.round(sumTemp / tempCount) : 0)) as number
   const maxTemperature = (session.max_temperature ?? (maxTempRecord !== -Infinity ? maxTempRecord : 0)) as number
   const minTemperature = minTemp !== Infinity ? minTemp : 0
 
-  // Distance fallback: if session total_distance is 0, use last record's cumulative distance
-  const fallbackDistance = totalDistance > 0 ? totalDistance : ((allRecords[allRecords.length - 1]?.distance ?? 0) as number)
+  // Distance fallback: if session total_distance is 0, use last record's cumulative distance (also in km)
+  const fallbackDistanceKm = totalDistanceKm > 0 ? totalDistanceKm : ((allRecords[allRecords.length - 1]?.distance ?? 0) as number)
 
   const meta = {
     sport: displaySport,
@@ -184,7 +187,7 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     recordCount: n,
     name,
     date,
-    totalDistance: fallbackDistance,
+    totalDistance: fallbackDistanceKm,
     totalCalories,
     totalAscent,
     totalDescent,
