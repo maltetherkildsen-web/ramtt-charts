@@ -1138,7 +1138,7 @@ function SessionDataPanel({ input, onUpdate }: {
           <div className="w-28">
             <Input
               type="number"
-              label="CHO intake"
+              label="Total CHO intake"
               unit="g"
               value={input.choIntake === 0 ? '' : input.choIntake}
               onChange={e => {
@@ -1216,9 +1216,9 @@ function MetricsTiers({
           sub={choZone ? choZone.name : (choIntake === 0 ? 'Enter CHO intake above' : undefined)}
           badge={choZone ? { label: choZone.zone, color: ZONE_COLORS[choZone.zone] ?? '#94a3b8' } : undefined}
         />
-        {/* CHO intake */}
+        {/* CHO total */}
         <KS
-          label="CHO intake"
+          label="CHO total"
           value={choIntake > 0 ? `${choIntake}` : '—'}
           unit={choIntake > 0 ? 'g' : undefined}
           sub={choIntake > 0 ? 'of session' : undefined}
