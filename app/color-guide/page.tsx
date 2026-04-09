@@ -1356,7 +1356,7 @@ export default function ColorGuidePage() {
                 <Card padding="md">
                   <div className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n800)] mb-2')}>Dark canvas</div>
                   <svg width="100%" height="60" viewBox="0 0 300 60" preserveAspectRatio="none" shapeRendering="geometricPrecision">
-                    <rect width="300" height="60" fill="#0A0A09" rx="4" />
+                    <rect width="300" height="60" fill="var(--n1150)" rx="4" />
                     <path d="M0,40 C30,35 60,25 90,30 C120,35 150,15 180,20 C210,25 240,18 270,22 L300,20" fill="none" stroke="#4ADE80" strokeWidth="2" />
                     <path d="M0,45 C30,42 60,38 90,42 C120,46 150,35 180,30 C210,32 240,28 270,32 L300,30" fill="none" stroke="#FCA5A5" strokeWidth="1.5" />
                   </svg>
@@ -1370,13 +1370,13 @@ export default function ColorGuidePage() {
               <Card padding="md">
                 <div className="flex gap-3">
                   {[
-                    { label: 'Canvas', hex: '#0A0A09' },
-                    { label: 'Card', hex: '#141413' },
-                    { label: 'Elevated', hex: '#1A1918' },
-                    { label: 'Sidebar', hex: '#0E0E0D' },
+                    { label: 'Canvas', hex: '#131211' },
+                    { label: 'Card', hex: '#1C1B18' },
+                    { label: 'Elevated', hex: '#242320' },
+                    { label: 'Sidebar', hex: '#181716' },
                   ].map((s) => (
                     <div key={s.label} className="flex flex-col items-center gap-1">
-                      <div className={cn(RADIUS.sm)} style={{ width: 56, height: 40, backgroundColor: s.hex, border: '0.5px solid rgba(255,255,255,0.08)' }} />
+                      <div className={cn(RADIUS.sm)} style={{ width: 56, height: 40, backgroundColor: s.hex, border: '0.5px solid rgba(255,253,250,0.10)' }} />
                       <span className={cn(QUIET_STYLE, 'text-[10px]')}>{s.label}</span>
                       <span className={cn(FONT.body, 'text-[10px] tabular-nums', WEIGHT.normal, 'text-[var(--n600)]')}>{s.hex}</span>
                     </div>
@@ -1511,13 +1511,13 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>Dark mode zone preview</SectionHeader>
               <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: '#0A0A09', padding: 20 }}>
+                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1150)', padding: 20 }}>
                   <div className="flex gap-2">
                     {POWER_ZONES_RAMTT.map((z) => (
                       <div key={z.zone} className={cn(RADIUS.sm)} style={{ width: 40, height: 28, backgroundColor: z.hex }} />
                     ))}
                   </div>
-                  <p className={cn(FONT.body, 'text-[11px] mt-2', WEIGHT.normal)} style={{ color: '#B5B2AB' }}>Zone colors maintain vibrancy on dark canvas</p>
+                  <p className={cn(FONT.body, 'text-[11px] mt-2', WEIGHT.normal)} style={{ color: 'var(--n600)' }}>Zone colors maintain vibrancy on dark canvas</p>
                 </div>
               </Card>
             </div>
@@ -1809,12 +1809,12 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>Dark mode stream colors</SectionHeader>
               <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: '#0A0A09', padding: 20 }}>
+                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1150)', padding: 20 }}>
                   <div className="flex gap-3">
                     {STREAMS_LIGHT.map((s) => (
                       <div key={s.label} className="flex flex-col items-center gap-1">
                         <div className={cn(RADIUS.full)} style={{ width: 32, height: 32, backgroundColor: s.dark }} />
-                        <span className={cn(FONT.body, 'text-[10px]', WEIGHT.normal)} style={{ color: '#8A8780' }}>{s.label}</span>
+                        <span className={cn(FONT.body, 'text-[10px]', WEIGHT.normal)} style={{ color: 'var(--n600)' }}>{s.label}</span>
                       </div>
                     ))}
                   </div>
@@ -1931,11 +1931,11 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>Capacity chart — dark mode</SectionHeader>
               <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: '#0A0A09', padding: 20 }}>
+                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1150)', padding: 20 }}>
                   <svg width="100%" height="160" viewBox="0 0 600 160" preserveAspectRatio="none" shapeRendering="geometricPrecision">
                     {/* Grid (white 4%) */}
                     {[0, 40, 80, 120, 160].map((y) => (
-                      <line key={y} x1="0" y1={y} x2="600" y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="0.5" />
+                      <line key={y} x1="0" y1={y} x2="600" y2={y} stroke="rgba(255,253,250,0.04)" strokeWidth="0.5" />
                     ))}
                     {/* Form positive area */}
                     <path d="M0,100 C80,90 160,75 240,65 C320,55 400,62 480,52 L600,45 L600,85 C480,75 400,78 320,80 C240,82 160,88 80,92 L0,100 Z" fill="rgba(56,204,136,0.10)" />
