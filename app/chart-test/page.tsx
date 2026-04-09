@@ -1168,7 +1168,7 @@ function SessionDataPanel({ input, onUpdate }: {
               }}
             />
           </div>
-          <div className="w-28">
+          <div className="w-36">
             <Input
               type="number"
               label="Total CHO intake"
