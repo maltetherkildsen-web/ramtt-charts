@@ -1170,7 +1170,7 @@ function SyncedCharts({
           )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} />
           <ChartZoomHandler />
-          <text x={4} y={-4} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Power</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Power</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1196,7 +1196,7 @@ function SyncedCharts({
           )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#ef4444" />
           <ChartZoomHandler />
-          <text x={4} y={-4} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>HR</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>HR</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1219,7 +1219,7 @@ function SyncedCharts({
           <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f59e0b" />
           <ChartZoomHandler />
-          <text x={4} y={-4} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1241,7 +1241,7 @@ function SyncedCharts({
           <ChartLine className="fill-none stroke-purple-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#a855f7" />
           <ChartZoomHandler />
-          <text x={4} y={-4} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Cadence</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Cadence</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1263,7 +1263,7 @@ function SyncedCharts({
           <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#3b82f6" />
           <ChartZoomHandler />
-          <text x={4} y={-4} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
         </ChartRoot>
         </motion.div>
       )}
@@ -1287,7 +1287,7 @@ function SyncedCharts({
           <ChartLine className="fill-none stroke-stone-400 stroke-[1]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#78716c" dotRadius={2} />
           <ChartZoomHandler />
-          <text x={4} y={-4} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
         </ChartRoot>
         </motion.div>
       )}
