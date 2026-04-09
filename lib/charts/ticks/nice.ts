@@ -51,6 +51,12 @@ export function niceTicks(min: number, max: number, count = 5): number[] {
     iter++
   }
 
+  // Ensure there's always a tick at or above the domain max.
+  // If the last tick is more than 10% of a step below max, add the next one.
+  if (ticks.length > 0 && ticks[ticks.length - 1] < max - step * 0.1) {
+    ticks.push(Math.round(t * 1e12) / 1e12)
+  }
+
   return ticks
 }
 

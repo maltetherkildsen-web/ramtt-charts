@@ -88,7 +88,7 @@ const CHART_LABELS: Record<ChartKey, string> = {
 const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
-  power: 130, hr: 75, kjmin: 70, cadence: 65, speed: 40, elevation: 40,
+  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60,
 }
 
 // ─── Time formatting ───

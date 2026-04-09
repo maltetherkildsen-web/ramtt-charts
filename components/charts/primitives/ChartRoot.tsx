@@ -22,6 +22,7 @@ import {
 
 import { scaleLinear } from '@/lib/charts/scales/linear'
 import { extentOf } from '@/lib/charts/utils/extent'
+import { niceTicks } from '@/lib/charts/ticks/nice'
 import { cn } from '@/lib/utils'
 
 import {
@@ -99,7 +100,11 @@ export function ChartRoot({
 
   const yDomain = useMemo(() => {
     if (yDomainProp) return yDomainProp
-    return extentOf(data as number[], yPadding)
+    const [lo, hi] = extentOf(data as number[], yPadding)
+    // Extend top to the highest nice tick so axis labels always cover data peaks
+    const ticks = niceTicks(lo, hi, 4)
+    const topTick = ticks.length > 0 ? ticks[ticks.length - 1] : hi
+    return [lo, Math.max(hi, topTick)] as [number, number]
   }, [data, yPadding, yDomainProp])
 
   const scaleY = useMemo(
