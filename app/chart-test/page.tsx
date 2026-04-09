@@ -1318,8 +1318,8 @@ function KS({ label, value, unit, sub, badge, progress, progressColor, dot }: {
       )}
       {sub && <div className="text-[11px] text-[var(--n600)]">{sub}</div>}
       {progress !== undefined && (
-        <div className="mt-1 h-2.5 w-12 overflow-hidden rounded-[5px] bg-[var(--n400)]">
-          <div className="h-full rounded-[5px]" style={{ width: `${Math.min(100, progress)}%`, backgroundColor: progressColor ?? '#22c55e' }} />
+        <div className="mt-1 h-1.5 w-[58px] overflow-hidden rounded-[3px] bg-[var(--n400)]">
+          <div className="h-full rounded-[3px]" style={{ width: `${Math.min(100, progress)}%`, backgroundColor: progressColor ?? '#22c55e' }} />
         </div>
       )}
     </div>
