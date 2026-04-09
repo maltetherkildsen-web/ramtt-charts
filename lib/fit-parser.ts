@@ -90,7 +90,7 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     power.push(r.power ?? 0)
     heartRate.push(r.heart_rate ?? 0)
     cadence.push(r.cadence ?? 0)
-    speed.push(r.speed ?? 0)
+    speed.push(r.enhanced_speed ?? r.speed ?? 0)
     // lengthUnit:'km' converts altitude to km — multiply by 1000 to get meters
     const rawAlt = r.enhanced_altitude ?? r.altitude ?? 0
     altitude.push(rawAlt * 1000)
