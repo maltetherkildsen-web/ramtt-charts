@@ -34,37 +34,15 @@ import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/Chart
 import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/ChartSyncProvider'
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
-import type { Interval } from '@/components/charts/primitives/ChartIntervalMarkers'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
 import { BrushOverlay } from '@/components/charts/primitives/BrushOverlay'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import type { ZoneDefinition } from '@/components/charts/primitives/ChartZoneLine'
-
-// ─── FIT data types ───
-
-interface FitData {
-  meta: {
-    sport: string
-    totalTime: number
-    avgPower: number
-    maxPower: number
-    avgHR: number
-    maxHR: number
-    avgCadence: number
-    avgSpeed: number
-    ftp: number
-    maxHeartRate: number
-    recordCount: number
-    name: string
-    date: string
-  }
-  power: number[]
-  heartRate: number[]
-  cadence: number[]
-  speed: number[]
-  altitude: number[]
-  intervals: (Interval & { avgPower?: number; maxPower?: number })[]
-}
+import { parseFitFile, type FitData } from '@/lib/fit-parser'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Select } from '@/components/ui/Select'
+import { Badge } from '@/components/ui/Badge'
 
 // ─── Constants ───
 
@@ -85,7 +63,7 @@ const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'ele
 const CHART_LABELS: Record<ChartKey, string> = {
   power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', elevation: 'Elevation',
 }
-const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
+const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
   power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60,
@@ -294,39 +272,213 @@ function computeNP(power: number[]): number {
   return Math.round(Math.pow(sum4 / rolled.length, 0.25))
 }
 
+// ─── Zone calculations ───
+
+const ZONE_COLORS: Record<string, string> = {
+  Z1: '#94a3b8', Z2: '#22c55e', Z3: '#eab308', Z4: '#f97316', Z5: '#ef4444', Z6: '#dc2626',
+}
+
+function getCHOZone(cho_g_per_hour: number): { zone: string; name: string } {
+  if (cho_g_per_hour < 30) return { zone: 'Z1', name: 'Minimal' }
+  if (cho_g_per_hour < 60) return { zone: 'Z2', name: 'Low' }
+  if (cho_g_per_hour < 90) return { zone: 'Z3', name: 'Moderate' }
+  if (cho_g_per_hour < 120) return { zone: 'Z4', name: 'High' }
+  if (cho_g_per_hour < 150) return { zone: 'Z5', name: 'Very High' }
+  return { zone: 'Z6', name: 'Explorer' }
+}
+
+const SPORT_COEFFICIENTS: Record<string, number> = {
+  'Cycling': 1.00, 'Triathlon': 0.90, 'Rowing': 0.88, 'Walking': 0.85,
+  'Cross-country skiing': 0.85, 'Running': 0.82, 'Hiking': 0.80,
+  'Trail running': 0.78, 'Swimming': 0.75, 'Strength training': 0.70,
+}
+
+const SPORT_OPTIONS = Object.keys(SPORT_COEFFICIENTS).map(s => ({ value: s, label: s }))
+
+function getKJDemandZone(kj_per_kg_per_hour: number): { zone: string; name: string } {
+  if (kj_per_kg_per_hour < 15) return { zone: 'Z1', name: 'Recovery' }
+  if (kj_per_kg_per_hour < 25) return { zone: 'Z2', name: 'Endurance' }
+  if (kj_per_kg_per_hour < 35) return { zone: 'Z3', name: 'Tempo' }
+  if (kj_per_kg_per_hour < 45) return { zone: 'Z4', name: 'Threshold' }
+  if (kj_per_kg_per_hour < 55) return { zone: 'Z5', name: 'VO2max' }
+  return { zone: 'Z6', name: 'Supramaximal' }
+}
+
+// ─── Session input state ───
+
+interface SessionInput {
+  weight: number
+  choIntake: number
+  sport: string
+}
+
+const DEFAULT_SESSION_INPUT: SessionInput = { weight: 75, choIntake: 0, sport: 'Cycling' }
+
+function loadSessionInput(): SessionInput {
+  if (typeof window === 'undefined') return DEFAULT_SESSION_INPUT
+  try {
+    const stored = localStorage.getItem('ramtt-session-input')
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      // Only restore weight and sport — CHO intake is per-session, always starts at 0
+      return { ...DEFAULT_SESSION_INPUT, weight: parsed.weight ?? 75, sport: parsed.sport ?? 'Cycling' }
+    }
+  } catch { /* ignore */ }
+  return DEFAULT_SESSION_INPUT
+}
+
+function saveSessionInput(input: SessionInput) {
+  // Only persist weight and sport — CHO intake is per-session
+  try { localStorage.setItem('ramtt-session-input', JSON.stringify({ weight: input.weight, sport: input.sport })) } catch { /* ignore */ }
+}
+
 // ─── Page ───
 
 export default function ChartTestPage() {
   const [fitData, setFitData] = useState<FitData | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  const [parseError, setParseError] = useState<string | null>(null)
+  const [isParsing, setIsParsing] = useState(false)
 
-  useEffect(() => {
-    const url =
-      process.env.NODE_ENV === 'development'
-        ? `/fit-data/mit-with-spikes.json?t=${Date.now()}`
-        : '/fit-data/mit-with-spikes.json'
-    fetch(url, { cache: 'no-store' })
-      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
-      .then((d: FitData) => setFitData(d))
-      .catch((e) => setError(e.message))
+  const handleFile = useCallback(async (file: File) => {
+    setParseError(null)
+    setIsParsing(true)
+    try {
+      const buffer = await file.arrayBuffer()
+      const data = await parseFitFile(buffer)
+      setFitData(data)
+    } catch (e) {
+      setParseError(e instanceof Error ? e.message : 'Failed to parse FIT file')
+    } finally {
+      setIsParsing(false)
+    }
   }, [])
 
-  if (error) return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]">
-      <p className="text-red-500">Failed to load FIT data: {error}</p>
-    </div>
-  )
+  const handleClear = useCallback(() => {
+    setFitData(null)
+    setParseError(null)
+  }, [])
 
-  if (!fitData) return (
-    <div className="flex min-h-screen items-center justify-center bg-[var(--bg)]">
-      <p className={cn("text-[11px]", WEIGHT.strong, "text-[var(--n600)]")}>Loading activity data…</p>
-    </div>
-  )
+  if (!fitData) {
+    return (
+      <div className="min-h-screen bg-[var(--bg)] py-5">
+        <div className="mx-auto max-w-[1140px] px-6">
+          <UploadZone onFile={handleFile} isParsing={isParsing} error={parseError} />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <MotionConfig reducedMotion="user">
-      <SessionAnalysis data={fitData} />
+      <SessionAnalysis data={fitData} onChangeFile={handleClear} />
     </MotionConfig>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Upload Zone
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function UploadZone({ onFile, isParsing, error }: {
+  onFile: (file: File) => void
+  isParsing: boolean
+  error: string | null
+}) {
+  const [isDragOver, setIsDragOver] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(true)
+  }, [])
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+  }, [])
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOver(false)
+    const file = e.dataTransfer.files[0]
+    if (file) onFile(file)
+  }, [onFile])
+
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) onFile(file)
+  }, [onFile])
+
+  if (isParsing) {
+    return (
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center py-20",
+          "border-[0.5px] border-dashed border-[var(--n400)]",
+          RADIUS.lg, "bg-[var(--n50)]"
+        )}
+      >
+        <p className={cn("text-[16px] text-[var(--n1150)] animate-pulse", WEIGHT.strong)}>
+          Parsing FIT file…
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <div
+      onClick={() => inputRef.current?.click()}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className={cn(
+        "flex flex-col items-center justify-center py-20",
+        "border-[0.5px] border-dashed",
+        isDragOver ? "border-[var(--n1150)]" : "border-[var(--n400)]",
+        RADIUS.lg, "bg-[var(--n50)]",
+        TRANSITION.colors
+      )}
+    >
+      {/* Upload icon */}
+      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" className="mb-4 text-[var(--n600)]">
+        <path d="M16 20V8M16 8l-5 5M16 8l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M6 20v4a2 2 0 002 2h16a2 2 0 002-2v-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+
+      <p className={cn("text-[16px] text-[var(--n1150)]", WEIGHT.strong)}>
+        Upload a FIT file to analyze
+      </p>
+      <p className={cn("mt-1 text-[13px] text-[var(--n600)]", WEIGHT.normal)}>
+        Drag & drop or click to select a file
+      </p>
+
+      <Button
+        variant="outline"
+        size="sm"
+        className="mt-4"
+        onClick={(e) => { e.stopPropagation(); inputRef.current?.click() }}
+      >
+        Choose FIT file
+      </Button>
+
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".fit"
+        className="hidden"
+        onChange={handleInputChange}
+      />
+
+      {error && (
+        <p className="mt-4 text-[13px] text-[var(--negative)]">
+          {error}
+        </p>
+      )}
+
+      <p className={cn("mt-4 text-[12px] text-[var(--n600)]", WEIGHT.normal)}>
+        Supports .fit files from Garmin, Wahoo, Zwift, and other devices
+      </p>
+    </div>
   )
 }
 
@@ -334,7 +486,7 @@ export default function ChartTestPage() {
 // Main content
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function SessionAnalysis({ data }: { data: FitData }) {
+function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: () => void }) {
   const { meta, power, heartRate, cadence, speed, altitude } = data
   const totalPoints = power.length
 
@@ -343,6 +495,20 @@ function SessionAnalysis({ data }: { data: FitData }) {
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showPeaks, setShowPeaks] = useState(false)
   const [activePeak, setActivePeak] = useState<PeakPowerResult | null>(null)
+
+  // Session scores — interactive
+  const [scores, setScores] = useState<{ effort: number | null; quality: number | null; legs: number | null }>({ effort: null, quality: null, legs: null })
+
+  // Session input (weight, CHO, sport) — persisted in localStorage
+  const [sessionInput, setSessionInput] = useState<SessionInput>(DEFAULT_SESSION_INPUT)
+  useEffect(() => { setSessionInput(loadSessionInput()) }, [])
+  const updateSessionInput = useCallback((patch: Partial<SessionInput>) => {
+    setSessionInput(prev => {
+      const next = { ...prev, ...patch }
+      saveSessionInput(next)
+      return next
+    })
+  }, [])
 
   const peaks = useMemo(() => computeAllPeaks(power), [power])
 
@@ -399,18 +565,58 @@ function SessionAnalysis({ data }: { data: FitData }) {
   // kJ/min energy rate — derived from power
   const kjPerMin = useMemo(() => calculateKjPerMin(power), [power])
 
+  // Zone calculations
+  const durationHours = meta.totalTime / 3600
+  const choGPerHour = durationHours > 0 && sessionInput.choIntake > 0 ? sessionInput.choIntake / durationHours : 0
+  const choZone = choGPerHour > 0 ? getCHOZone(choGPerHour) : null
+
+  const coefficient = SPORT_COEFFICIENTS[sessionInput.sport] ?? 1.0
+  const rawKjPerKgH = sessionInput.weight > 0 && durationHours > 0 ? energyKJ / sessionInput.weight / durationHours : 0
+  const adjustedKjPerKgH = rawKjPerKgH * coefficient
+  const kjDemandZone = adjustedKjPerKgH > 0 ? getKJDemandZone(adjustedKjPerKgH) : null
+  const isDefaultWeight = sessionInput.weight === 75
+
+  // Determine which channels have data
+  const hasPower = power.some(v => v > 0)
+  const hasHR = heartRate.some(v => v > 0)
+
+  // Auto-hide charts without data
+  useEffect(() => {
+    setVisibleCharts(prev => {
+      const next = new Set(prev)
+      if (!hasPower) { next.delete('power'); next.delete('kjmin') }
+      if (!hasHR) next.delete('hr')
+      if (next.size === 0) next.add('speed')
+      return next
+    })
+  }, [hasPower, hasHR])
+
+  // Average kJ/min for display
+  const avgKjPerMin = useMemo(() => {
+    if (kjPerMin.length === 0) return 0
+    let sum = 0
+    for (let i = 0; i < kjPerMin.length; i++) sum += kjPerMin[i]
+    return +(sum / kjPerMin.length).toFixed(1)
+  }, [kjPerMin])
+
   return (
     <ChartSyncProvider dataLength={totalPoints}>
       <div className="min-h-screen bg-[var(--bg)] py-5">
         <div className="mx-auto max-w-[1140px] px-6">
 
           {/* ── 1. Header ── */}
-          <SessionHeader meta={meta} />
+          <SessionHeader meta={meta} scores={scores} setScores={setScores} onChangeFile={onChangeFile} />
+
+          {/* ── 1b. Session Data Input Panel ── */}
+          <SessionDataPanel input={sessionInput} onUpdate={updateSessionInput} />
 
           {/* ── 2. Three-tier metrics ── */}
           <MetricsTiers
             meta={meta} durationStr={durationStr} np={np} distanceKm={distanceKm} elevGain={elevGain}
             energyKJ={energyKJ} decoupling={decoupling}
+            choZone={choZone} choGPerHour={choGPerHour} choIntake={sessionInput.choIntake}
+            kjDemandZone={kjDemandZone} adjustedKjPerKgH={adjustedKjPerKgH} isDefaultWeight={isDefaultWeight}
+            avgKjPerMin={avgKjPerMin}
           />
 
           {/* ── 3. Chart Toggles ── */}
@@ -794,7 +1000,18 @@ function FullscreenDataSidebar({
 // 1. Session Header
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function SessionHeader({ meta }: { meta: FitData['meta'] }) {
+function SessionHeader({ meta, scores, setScores, onChangeFile }: {
+  meta: FitData['meta']
+  scores: { effort: number | null; quality: number | null; legs: number | null }
+  setScores: React.Dispatch<React.SetStateAction<{ effort: number | null; quality: number | null; legs: number | null }>>
+  onChangeFile: () => void
+}) {
+  const dateStr = (() => {
+    try {
+      return new Date(meta.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+    } catch { return meta.date }
+  })()
+
   return (
     <div className="flex items-start justify-between pb-2">
       <div>
@@ -802,23 +1019,146 @@ function SessionHeader({ meta }: { meta: FitData['meta'] }) {
           {meta.name}
         </h1>
         <p className={cn("mt-0.5 text-xs", QUIET_STYLE)}>
-          {meta.date} &middot; {meta.sport} &middot; Garmin Edge 850
+          {dateStr} &middot; {meta.sport}
         </p>
       </div>
       <div className="flex items-center gap-2 pt-1">
-        <ScoreBadge label="Effort" value={7} />
-        <ScoreBadge label="Quality" value={8} />
-        <ScoreBadge label="Legs" value={7} />
+        <ScoreBadge label="Effort" value={scores.effort} onChange={(v) => setScores(p => ({ ...p, effort: v }))} />
+        <ScoreBadge label="Quality" value={scores.quality} onChange={(v) => setScores(p => ({ ...p, quality: v }))} />
+        <ScoreBadge label="Legs" value={scores.legs} onChange={(v) => setScores(p => ({ ...p, legs: v }))} />
+        <button
+          onClick={onChangeFile}
+          className={cn("text-[12px] text-[var(--n600)]", WEIGHT.book, TRANSITION.colors, "hover:text-[var(--n1050)]")}
+        >
+          ↻ Change file
+        </button>
       </div>
     </div>
   )
 }
 
-function ScoreBadge({ label, value }: { label: string; value: number }) {
+function ScoreBadge({ label, value, onChange }: { label: string; value: number | null; onChange: (v: number) => void }) {
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Close on outside click
+  useEffect(() => {
+    if (!pickerOpen) return
+    function handleClick(e: MouseEvent) {
+      if (!containerRef.current?.contains(e.target as Node)) setPickerOpen(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [pickerOpen])
+
+  const handleSelect = useCallback((v: number) => {
+    onChange(v)
+    closeTimer.current = setTimeout(() => setPickerOpen(false), 400)
+  }, [onChange])
+
+  useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current) }, [])
+
+  const isRated = value !== null
+
   return (
-    <div className={cn("flex items-center gap-1.5", RADIUS.md, BORDER.default, "px-2.5 py-1")}>
-      <span className="text-[11px] text-[var(--n600)]">{label}</span>
-      <span className={cn("text-[13px] tabular-nums text-[var(--n1050)]", WEIGHT.medium)}>{value}</span>
+    <div ref={containerRef} className="relative">
+      <button
+        onClick={() => { if (closeTimer.current) clearTimeout(closeTimer.current); setPickerOpen(p => !p) }}
+        className={cn(
+          "flex items-center gap-1.5", RADIUS.md, "border-[0.5px] px-2.5 py-1", TRANSITION.colors,
+          isRated ? "border-[var(--n400)] text-[var(--n1050)]" : "border-[var(--n400)] text-[var(--n600)]"
+        )}
+      >
+        <span className="text-[11px] text-[var(--n600)]">{label}</span>
+        <span className={cn("text-[13px] tabular-nums", WEIGHT.medium, isRated ? "text-[var(--n1050)]" : "text-[var(--n600)]")}>
+          {value ?? '—'}
+        </span>
+      </button>
+
+      {/* Rating picker */}
+      {pickerOpen && (
+        <div className={cn("absolute right-0 top-full z-50 mt-1 flex gap-0.5 p-1", RADIUS.md, "border-[0.5px] border-[var(--n400)] bg-white")}>
+          {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
+            <button
+              key={n}
+              onClick={() => handleSelect(n)}
+              className={cn(
+                "flex h-6 w-6 items-center justify-center text-[11px] tabular-nums", RADIUS.md, WEIGHT.strong,
+                TRANSITION.background,
+                value === n
+                  ? "bg-[var(--n1150)] text-[var(--n50)]"
+                  : "text-[var(--n800)] hover:bg-[var(--n200)]"
+              )}
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 1b. Session Data Input Panel
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function SessionDataPanel({ input, onUpdate }: {
+  input: SessionInput
+  onUpdate: (patch: Partial<SessionInput>) => void
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className={cn("mb-2", BORDER.default, RADIUS.lg, "bg-[var(--n50)]")}>
+      <button
+        onClick={() => setOpen(p => !p)}
+        className={cn("flex w-full items-center gap-1.5 px-4 py-2 text-[13px] text-[var(--n1150)]", WEIGHT.strong, TRANSITION.colors, "hover:text-[var(--n800)]")}
+      >
+        <span className={cn("text-[9px] transition-transform duration-150", open && 'rotate-90')}>▶</span>
+        Session data
+      </button>
+      {open && (
+        <div className="flex items-end gap-4 px-4 pb-3">
+          <div className="w-24">
+            <Input
+              type="number"
+              label="Weight"
+              unit="kg"
+              value={input.weight === 0 ? '' : input.weight}
+              onChange={e => {
+                const val = e.target.value
+                if (val === '') { onUpdate({ weight: 0 }); return }
+                const num = parseFloat(val)
+                if (!isNaN(num) && num >= 0) onUpdate({ weight: num })
+              }}
+            />
+          </div>
+          <div className="w-28">
+            <Input
+              type="number"
+              label="CHO intake"
+              unit="g"
+              value={input.choIntake === 0 ? '' : input.choIntake}
+              onChange={e => {
+                const val = e.target.value
+                if (val === '') { onUpdate({ choIntake: 0 }); return }
+                const num = parseInt(val, 10)
+                if (!isNaN(num) && num >= 0) onUpdate({ choIntake: num })
+              }}
+            />
+          </div>
+          <div className="w-44">
+            <Select
+              label="Sport"
+              options={SPORT_OPTIONS}
+              value={input.sport}
+              onChange={v => onUpdate({ sport: v })}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -829,31 +1169,70 @@ function ScoreBadge({ label, value }: { label: string; value: number }) {
 
 function MetricsTiers({
   meta, durationStr, np, distanceKm, elevGain, energyKJ, decoupling,
+  choZone, choGPerHour, choIntake,
+  kjDemandZone, adjustedKjPerKgH, isDefaultWeight,
+  avgKjPerMin,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
   energyKJ: number; decoupling: number | null
+  choZone: { zone: string; name: string } | null; choGPerHour: number; choIntake: number
+  kjDemandZone: { zone: string; name: string } | null; adjustedKjPerKgH: number; isDefaultWeight: boolean
+  avgKjPerMin: number
 }) {
   const [contextOpen, setContextOpen] = useState(false)
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
   const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
+  const energyKcal = Math.round(energyKJ / 4.184)
 
   return (
     <div>
       {/* Tier 1 — Key Stats */}
       <div className="flex gap-6 border-y-[0.5px] border-y-[var(--n400)] py-2">
         <KS label="Duration" value={durationStr} />
-        <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />
-        <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />
-        <KS label="Avg HR" value={`${meta.avgHR}`} unit="bpm" sub={`Max ${meta.maxHR}`} />
+        {meta.avgPower > 0 && <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />}
+        {np > 0 && <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />}
+        {meta.avgHR > 0 && <KS label="Avg HR" value={`${meta.avgHR}`} unit="bpm" sub={`Max ${meta.maxHR}`} />}
         <KS label="Distance" value={`${distanceKm}`} unit="km" />
         <KS label="Elevation" value={`${elevGain}`} unit="m" />
-        <KS label="Energy" value={`${energyKJ}`} unit="kJ" />
+        {energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" />}
         <KS label="R-Score" value="—" unit="rS" sub="PL —" />
       </div>
 
       {/* Tier 2 — RAMTT Metrics */}
       <div className="flex gap-6 border-b-[0.5px] border-b-[var(--n400)] bg-[var(--n50)] py-2">
+        {/* kJ demand */}
+        <KS
+          label="kJ demand"
+          value={kjDemandZone ? adjustedKjPerKgH.toFixed(1) : '—'}
+          unit={kjDemandZone ? 'kJ/kg/h' : undefined}
+          sub={kjDemandZone ? `${kjDemandZone.name}${isDefaultWeight ? ' · default weight' : ''}` : undefined}
+          badge={kjDemandZone ? { label: kjDemandZone.zone, color: ZONE_COLORS[kjDemandZone.zone] ?? '#94a3b8' } : undefined}
+        />
+        {/* CHO zone */}
+        <KS
+          label="CHO zone"
+          value={choZone ? `${Math.round(choGPerHour)}` : '—'}
+          unit={choZone ? 'g/h' : undefined}
+          sub={choZone ? choZone.name : (choIntake === 0 ? 'Enter CHO intake above' : undefined)}
+          badge={choZone ? { label: choZone.zone, color: ZONE_COLORS[choZone.zone] ?? '#94a3b8' } : undefined}
+        />
+        {/* CHO intake */}
+        <KS
+          label="CHO intake"
+          value={choIntake > 0 ? `${choIntake}` : '—'}
+          unit={choIntake > 0 ? 'g' : undefined}
+          sub={choIntake > 0 ? 'of session' : undefined}
+        />
+        {/* Energy */}
+        <KS
+          label="Energy"
+          value={energyKJ > 0 ? `${energyKJ}` : '—'}
+          unit={energyKJ > 0 ? 'kJ' : undefined}
+          sub={energyKJ > 0 ? `${energyKcal} kcal · ${avgKjPerMin} kJ/min` : undefined}
+        />
+        {/* Decoupling */}
         <KS label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Eff ${ef}`} />
+        {/* Durability */}
         <KS label="Durability" value="—" unit="% decay" sub="—" />
       </div>
 
