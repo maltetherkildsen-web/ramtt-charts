@@ -1200,12 +1200,13 @@ function SessionDataPanel({ input, onUpdate }: {
         <div className="flex items-end gap-4 px-4 pb-3">
           <div className="w-[70px]">
             <Input
-              type="number"
+              inputMode="decimal"
               label="Weight"
               unit="kg"
-              value={input.weight === 0 ? '' : input.weight}
+              placeholder="75"
+              value={input.weight === 0 ? '' : `${input.weight}`}
               onChange={e => {
-                const val = e.target.value
+                const val = e.target.value.replace(/[^0-9.]/g, '')
                 if (val === '') { onUpdate({ weight: 0 }); return }
                 const num = parseFloat(val)
                 if (!isNaN(num) && num >= 0) onUpdate({ weight: num })
@@ -1214,12 +1215,13 @@ function SessionDataPanel({ input, onUpdate }: {
           </div>
           <div className="w-[70px]">
             <Input
-              type="number"
-              label="Total CHO intake"
+              inputMode="numeric"
+              label="CHO"
               unit="g"
-              value={input.choIntake === 0 ? '' : input.choIntake}
+              placeholder="0"
+              value={input.choIntake === 0 ? '' : `${input.choIntake}`}
               onChange={e => {
-                const val = e.target.value
+                const val = e.target.value.replace(/[^0-9]/g, '')
                 if (val === '') { onUpdate({ choIntake: 0 }); return }
                 const num = parseInt(val, 10)
                 if (!isNaN(num) && num >= 0) onUpdate({ choIntake: num })

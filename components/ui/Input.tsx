@@ -1,5 +1,5 @@
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string
@@ -7,10 +7,9 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
 }
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, unit, className, type, id: idProp, ...props }, ref) => {
+  ({ label, unit, className, id: idProp, ...props }, ref) => {
     const autoId = useId()
     const id = idProp ?? autoId
-    const isNumber = type === 'number'
 
     return (
       <div className={cn('flex flex-col', className)}>
@@ -23,11 +22,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={id}
-            type={type}
             aria-describedby={unit ? `${id}-unit` : undefined}
             className={cn(
               'w-full bg-white outline-none',
-              isNumber ? VALUE_STYLE : FONT.body,
+              FONT.body,
               SIZE_HEIGHTS.md,
               SIZE_TEXT.md,
               RADIUS.md,
@@ -35,10 +33,10 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               TRANSITION.colors,
               FOCUS_RING_THICK,
               WEIGHT.normal, 'text-[var(--n1150)]',
+              'tabular-nums',
               'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
               SIZE_PADDING_X.sm,
-              unit && 'pr-10',
-              isNumber && '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
+              unit && 'pr-8',
             )}
             {...props}
           />
@@ -48,7 +46,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               aria-hidden="true"
               className={cn(
                 UNIT_STYLE,
-                'pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2',
+                'pointer-events-none absolute right-2 top-1/2 -translate-y-1/2',
                 'text-[11px]',
               )}
             >
