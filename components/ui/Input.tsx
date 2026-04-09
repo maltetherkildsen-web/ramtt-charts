@@ -38,6 +38,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
               SIZE_PADDING_X.sm,
               unit && 'pr-10',
+              isNumber && '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
             )}
             {...props}
           />
