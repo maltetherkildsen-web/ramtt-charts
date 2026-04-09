@@ -12,6 +12,7 @@ import FitParser from 'fit-file-parser'
 export interface FitData {
   meta: {
     sport: string
+    subSport: string | null
     totalTime: number
     avgPower: number
     maxPower: number
@@ -24,6 +25,13 @@ export interface FitData {
     recordCount: number
     name: string
     date: string
+    totalDistance: number      // meters
+    totalCalories: number     // kcal
+    totalAscent: number       // meters
+    totalDescent: number      // meters
+    avgTemperature: number    // °C
+    maxTemperature: number    // °C
+    minTemperature: number    // °C
   }
   power: number[]
   heartRate: number[]
@@ -96,6 +104,18 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     altitude.push(rawAlt * 1000)
   }
 
+  // Extract per-record temperature for min calculation
+  let minTemp = Infinity, maxTempRecord = -Infinity, sumTemp = 0, tempCount = 0
+  for (const r of allRecords) {
+    const t = r.temperature as number | undefined
+    if (t != null) {
+      if (t < minTemp) minTemp = t
+      if (t > maxTempRecord) maxTempRecord = t
+      sumTemp += t
+      tempCount++
+    }
+  }
+
   const n = allRecords.length
 
   // Compute averages and maxes
@@ -115,7 +135,12 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
 
   // Sport name — capitalize + humanize
   const rawSport = (session.sport ?? 'unknown') as string
-  const sportName = rawSport.charAt(0).toUpperCase() + rawSport.slice(1).replace(/_/g, ' ')
+  const humanize = (s: string) => s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+  const sportName = humanize(rawSport)
+
+  // Sub-sport (e.g. gravel_cycling → "Gravel Cycling")
+  const rawSubSport = (session.sub_sport ?? null) as string | null
+  const subSport = rawSubSport && rawSubSport !== 'generic' ? humanize(rawSubSport) : null
 
   // Duration
   const totalTime = (session.total_timer_time ?? session.total_elapsed_time ?? n) as number
@@ -126,13 +151,27 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
   // Date
   const date = (session.start_time ?? allRecords[0]?.timestamp ?? new Date().toISOString()) as string
 
-  // Session name
+  // Session name — prefer sub-sport for display
+  const displaySport = subSport ?? sportName
   const dateObj = new Date(date)
   const dateStr = dateObj.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-  const name = `${sportName} — ${dateStr}`
+  const name = `${displaySport} — ${dateStr}`
+
+  // Session-level fields
+  const totalDistance = (session.total_distance ?? 0) as number  // meters
+  const totalCalories = (session.total_calories ?? 0) as number  // kcal
+  const totalAscent = (session.total_ascent ?? 0) as number      // meters
+  const totalDescent = (session.total_descent ?? 0) as number    // meters
+  const avgTemperature = (session.avg_temperature ?? (tempCount > 0 ? Math.round(sumTemp / tempCount) : 0)) as number
+  const maxTemperature = (session.max_temperature ?? (maxTempRecord !== -Infinity ? maxTempRecord : 0)) as number
+  const minTemperature = minTemp !== Infinity ? minTemp : 0
+
+  // Distance fallback: if session total_distance is 0, use last record's cumulative distance
+  const fallbackDistance = totalDistance > 0 ? totalDistance : ((allRecords[allRecords.length - 1]?.distance ?? 0) as number)
 
   const meta = {
-    sport: sportName,
+    sport: displaySport,
+    subSport,
     totalTime: Math.round(totalTime),
     avgPower: Math.round(sumPw / n),
     maxPower: maxPw,
@@ -145,6 +184,13 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     recordCount: n,
     name,
     date,
+    totalDistance: fallbackDistance,
+    totalCalories,
+    totalAscent,
+    totalDescent,
+    avgTemperature,
+    maxTemperature,
+    minTemperature,
   }
 
   // Lap intervals with computed power stats

@@ -553,12 +553,8 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
     return Math.round(gain)
   }, [altitude])
 
-  // Distance estimate (speed in km/h, 1 sample per second)
-  const distanceKm = useMemo(() => {
-    let sum = 0
-    for (let i = 0; i < speed.length; i++) sum += speed[i]
-    return +(sum / 3600).toFixed(1)
-  }, [speed])
+  // Distance from session-level total_distance (meters → km)
+  const distanceKm = +(meta.totalDistance / 1000).toFixed(1)
 
   const decoupling = useMemo(() => computeDecoupling(power, heartRate), [power, heartRate])
 
@@ -617,6 +613,9 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             choZone={choZone} choGPerHour={choGPerHour} choIntake={sessionInput.choIntake}
             kjDemandZone={kjDemandZone} adjustedKjPerKgH={adjustedKjPerKgH} isDefaultWeight={isDefaultWeight}
             avgKjPerMin={avgKjPerMin}
+            totalCalories={meta.totalCalories}
+            totalAscent={meta.totalAscent} totalDescent={meta.totalDescent}
+            avgTemperature={meta.avgTemperature} minTemperature={meta.minTemperature} maxTemperature={meta.maxTemperature}
           />
 
           {/* ── 3. Chart Toggles ── */}
@@ -1172,17 +1171,31 @@ function MetricsTiers({
   choZone, choGPerHour, choIntake,
   kjDemandZone, adjustedKjPerKgH, isDefaultWeight,
   avgKjPerMin,
+  totalCalories, totalAscent, totalDescent,
+  avgTemperature, minTemperature, maxTemperature,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
   energyKJ: number; decoupling: number | null
   choZone: { zone: string; name: string } | null; choGPerHour: number; choIntake: number
   kjDemandZone: { zone: string; name: string } | null; adjustedKjPerKgH: number; isDefaultWeight: boolean
   avgKjPerMin: number
+  totalCalories: number; totalAscent: number; totalDescent: number
+  avgTemperature: number; minTemperature: number; maxTemperature: number
 }) {
   const [contextOpen, setContextOpen] = useState(false)
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
   const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
-  const energyKcal = Math.round(energyKJ / 4.184)
+
+  // Energy replacement %: kcal from CHO intake vs kcal burned
+  const kcalIngested = choIntake * 4
+  const energyReplacement = totalCalories > 0 && choIntake > 0
+    ? Math.round((kcalIngested / totalCalories) * 100) : null
+  const replacementColor = energyReplacement !== null
+    ? energyReplacement < 30 ? 'var(--negative)'
+      : energyReplacement < 50 ? 'var(--warning)'
+      : energyReplacement > 70 ? 'var(--positive)'
+      : 'var(--n1050)'
+    : undefined
 
   return (
     <div>
@@ -1192,9 +1205,10 @@ function MetricsTiers({
         {meta.avgPower > 0 && <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />}
         {np > 0 && <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />}
         {meta.avgHR > 0 && <KS label="Avg HR" value={`${meta.avgHR}`} unit="bpm" sub={`Max ${meta.maxHR}`} />}
-        <KS label="Distance" value={`${distanceKm}`} unit="km" />
-        <KS label="Elevation" value={`${elevGain}`} unit="m" />
-        {energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" />}
+        <KS label="Distance" value={distanceKm > 0 ? `${distanceKm}` : '—'} unit={distanceKm > 0 ? 'km' : undefined} />
+        {totalAscent > 0 && <KS label="Ascent" value={`${totalAscent}`} unit="m" sub={`↓ ${totalDescent}m`} />}
+        {energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" sub={`${avgKjPerMin} kJ/min`} />}
+        {totalCalories > 0 && <KS label="Calories" value={`${totalCalories}`} unit="kcal" />}
         <KS label="R-Score" value="—" unit="rS" sub="PL —" />
       </div>
 
@@ -1223,13 +1237,24 @@ function MetricsTiers({
           unit={choIntake > 0 ? 'g' : undefined}
           sub={choIntake > 0 ? 'of session' : undefined}
         />
-        {/* Energy */}
+        {/* Energy replaced */}
         <KS
-          label="Energy"
-          value={energyKJ > 0 ? `${energyKJ}` : '—'}
-          unit={energyKJ > 0 ? 'kJ' : undefined}
-          sub={energyKJ > 0 ? `${energyKcal} kcal · ${avgKjPerMin} kJ/min` : undefined}
+          label="Energy replaced"
+          value={energyReplacement !== null ? `${energyReplacement}` : '—'}
+          unit={energyReplacement !== null ? '%' : undefined}
+          sub={energyReplacement !== null ? `${kcalIngested} of ${totalCalories} kcal` : undefined}
+          progress={energyReplacement !== null ? energyReplacement : undefined}
+          progressColor={replacementColor}
         />
+        {/* Temperature */}
+        {avgTemperature > 0 && (
+          <KS
+            label="Temperature"
+            value={`${avgTemperature}`}
+            unit="°C"
+            sub={minTemperature !== maxTemperature ? `${minTemperature}–${maxTemperature}°C range` : undefined}
+          />
+        )}
         {/* Decoupling */}
         <KS label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Eff ${ef}`} />
         {/* Durability */}
@@ -1265,9 +1290,9 @@ function MetricsTiers({
 }
 
 /** Compact stat cell with optional sub-value, badge, and progress bar. */
-function KS({ label, value, unit, sub, badge, progress }: {
+function KS({ label, value, unit, sub, badge, progress, progressColor }: {
   label: string; value?: string; unit?: string; sub?: string
-  badge?: { label: string; color: string }; progress?: number
+  badge?: { label: string; color: string }; progress?: number; progressColor?: string
 }) {
   return (
     <div>
@@ -1288,7 +1313,7 @@ function KS({ label, value, unit, sub, badge, progress }: {
       {sub && <div className="text-[11px] text-[var(--n600)]">{sub}</div>}
       {progress !== undefined && (
         <div className="mt-0.5 h-1 w-12 overflow-hidden rounded-full bg-[var(--n400)]">
-          <div className="h-full rounded-full bg-[#22c55e]" style={{ width: `${Math.min(100, progress)}%` }} />
+          <div className="h-full rounded-full" style={{ width: `${Math.min(100, progress)}%`, backgroundColor: progressColor ?? '#22c55e' }} />
         </div>
       )}
     </div>
