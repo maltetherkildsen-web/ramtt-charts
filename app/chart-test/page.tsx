@@ -604,12 +604,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
           <SessionHeader meta={meta} scores={scores} setScores={setScores} onChangeFile={onChangeFile} />
 
           {/* ── 1b. Session Data Input Panel ── */}
-          <SessionDataPanel
-            input={sessionInput} onUpdate={updateSessionInput}
-            choZone={choZone} choGPerHour={choGPerHour}
-            kjDemandZone={kjDemandZone} adjustedKjPerKgH={adjustedKjPerKgH} isDefaultWeight={isDefaultWeight}
-            totalCalories={meta.totalCalories}
-          />
+          <SessionDataPanel input={sessionInput} onUpdate={updateSessionInput} />
 
           {/* ── 2. Three-tier metrics ── */}
           <MetricsTiers
@@ -619,6 +614,8 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             totalCalories={meta.totalCalories}
             totalAscent={meta.totalAscent} totalDescent={meta.totalDescent}
             avgTemperature={meta.avgTemperature} minTemperature={meta.minTemperature} maxTemperature={meta.maxTemperature}
+            choZone={choZone} choGPerHour={choGPerHour} choIntake={sessionInput.choIntake}
+            kjDemandZone={kjDemandZone} adjustedKjPerKgH={adjustedKjPerKgH} isDefaultWeight={isDefaultWeight}
           />
 
           {/* ── 3. Chart Toggles ── */}
@@ -1106,25 +1103,11 @@ function ScoreBadge({ label, value, onChange }: { label: string; value: number |
 // 1b. Session Data Input Panel
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-function SessionDataPanel({ input, onUpdate, choZone, choGPerHour, kjDemandZone, adjustedKjPerKgH, isDefaultWeight, totalCalories }: {
+function SessionDataPanel({ input, onUpdate }: {
   input: SessionInput
   onUpdate: (patch: Partial<SessionInput>) => void
-  choZone: { zone: string; name: string } | null; choGPerHour: number
-  kjDemandZone: { zone: string; name: string } | null; adjustedKjPerKgH: number; isDefaultWeight: boolean
-  totalCalories: number
 }) {
   const [open, setOpen] = useState(false)
-
-  const choIntake = input.choIntake
-  const kcalIngested = choIntake * 4
-  const energyReplacement = totalCalories > 0 && choIntake > 0
-    ? Math.round((kcalIngested / totalCalories) * 100) : null
-  const replacementColor = energyReplacement !== null
-    ? energyReplacement < 30 ? 'var(--negative)'
-      : energyReplacement < 50 ? 'var(--warning)'
-      : energyReplacement > 70 ? 'var(--positive)'
-      : 'var(--n1050)'
-    : undefined
 
   return (
     <div className={cn("mb-2", BORDER.default, RADIUS.lg, "bg-[var(--n50)]")}>
@@ -1136,75 +1119,41 @@ function SessionDataPanel({ input, onUpdate, choZone, choGPerHour, kjDemandZone,
         Session data
       </button>
       {open && (
-        <div className="px-4 pb-3">
-          {/* Input row */}
-          <div className="flex items-end gap-4">
-            <div className="w-24">
-              <Input
-                type="number"
-                label="Weight"
-                unit="kg"
-                value={input.weight === 0 ? '' : input.weight}
-                onChange={e => {
-                  const val = e.target.value
-                  if (val === '') { onUpdate({ weight: 0 }); return }
-                  const num = parseFloat(val)
-                  if (!isNaN(num) && num >= 0) onUpdate({ weight: num })
-                }}
-              />
-            </div>
-            <div className="w-28">
-              <Input
-                type="number"
-                label="Total CHO intake"
-                unit="g"
-                value={input.choIntake === 0 ? '' : input.choIntake}
-                onChange={e => {
-                  const val = e.target.value
-                  if (val === '') { onUpdate({ choIntake: 0 }); return }
-                  const num = parseInt(val, 10)
-                  if (!isNaN(num) && num >= 0) onUpdate({ choIntake: num })
-                }}
-              />
-            </div>
-            <div className="w-44">
-              <Select
-                label="Sport"
-                options={SPORT_OPTIONS}
-                value={input.sport}
-                onChange={v => onUpdate({ sport: v })}
-              />
-            </div>
+        <div className="flex items-end gap-4 px-4 pb-3">
+          <div className="w-24">
+            <Input
+              type="number"
+              label="Weight"
+              unit="kg"
+              value={input.weight === 0 ? '' : input.weight}
+              onChange={e => {
+                const val = e.target.value
+                if (val === '') { onUpdate({ weight: 0 }); return }
+                const num = parseFloat(val)
+                if (!isNaN(num) && num >= 0) onUpdate({ weight: num })
+              }}
+            />
           </div>
-          {/* Fueling metrics */}
-          <div className="mt-3 flex gap-6 border-t-[0.5px] border-t-[var(--n400)] pt-3">
-            <KS
-              label="kJ demand"
-              value={kjDemandZone ? adjustedKjPerKgH.toFixed(1) : '—'}
-              unit={kjDemandZone ? 'kJ/kg/h' : undefined}
-              sub={kjDemandZone ? `${kjDemandZone.name}${isDefaultWeight ? ' · default weight' : ''}` : undefined}
-              badge={kjDemandZone ? { label: kjDemandZone.zone, color: ZONE_COLORS[kjDemandZone.zone] ?? '#94a3b8' } : undefined}
+          <div className="w-28">
+            <Input
+              type="number"
+              label="Total CHO intake"
+              unit="g"
+              value={input.choIntake === 0 ? '' : input.choIntake}
+              onChange={e => {
+                const val = e.target.value
+                if (val === '') { onUpdate({ choIntake: 0 }); return }
+                const num = parseInt(val, 10)
+                if (!isNaN(num) && num >= 0) onUpdate({ choIntake: num })
+              }}
             />
-            <KS
-              label="CHO zone"
-              value={choZone ? `${Math.round(choGPerHour)}` : '—'}
-              unit={choZone ? 'g/h' : undefined}
-              sub={choZone ? choZone.name : undefined}
-              badge={choZone ? { label: choZone.zone, color: ZONE_COLORS[choZone.zone] ?? '#94a3b8' } : undefined}
-            />
-            <KS
-              label="CHO total"
-              value={choIntake > 0 ? `${choIntake}` : '—'}
-              unit={choIntake > 0 ? 'g' : undefined}
-              sub={choIntake > 0 ? 'of session' : undefined}
-            />
-            <KS
-              label="Energy replaced"
-              value={energyReplacement !== null ? `${energyReplacement}` : '—'}
-              unit={energyReplacement !== null ? '%' : undefined}
-              sub={energyReplacement !== null ? `${kcalIngested} of ${totalCalories} kcal` : undefined}
-              progress={energyReplacement !== null ? energyReplacement : undefined}
-              progressColor={replacementColor}
+          </div>
+          <div className="w-44">
+            <Select
+              label="Sport"
+              options={SPORT_OPTIONS}
+              value={input.sport}
+              onChange={v => onUpdate({ sport: v })}
             />
           </div>
         </div>
@@ -1222,16 +1171,33 @@ function MetricsTiers({
   avgKjPerMin,
   totalCalories, totalAscent, totalDescent,
   avgTemperature, minTemperature, maxTemperature,
+  choZone, choGPerHour, choIntake,
+  kjDemandZone, adjustedKjPerKgH, isDefaultWeight,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
   energyKJ: number; decoupling: number | null
   avgKjPerMin: number
   totalCalories: number; totalAscent: number; totalDescent: number
   avgTemperature: number; minTemperature: number; maxTemperature: number
+  choZone: { zone: string; name: string } | null; choGPerHour: number; choIntake: number
+  kjDemandZone: { zone: string; name: string } | null; adjustedKjPerKgH: number; isDefaultWeight: boolean
 }) {
   const [contextOpen, setContextOpen] = useState(false)
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
   const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
+
+  // Energy replacement %
+  const kcalIngested = choIntake * 4
+  const energyReplacement = totalCalories > 0 && choIntake > 0
+    ? Math.round((kcalIngested / totalCalories) * 100) : null
+  const replacementColor = energyReplacement !== null
+    ? energyReplacement < 30 ? '#ef4444'
+      : energyReplacement < 50 ? '#f97316'
+      : energyReplacement < 70 ? '#eab308'
+      : '#22c55e'
+    : undefined
+
+  const FUEL_DOT = '#f97316'
 
   return (
     <div>
@@ -1248,8 +1214,40 @@ function MetricsTiers({
         <KS label="R-Score" value="—" unit="rS" sub="PL —" />
       </div>
 
-      {/* Tier 2 — Derived Metrics */}
+      {/* Tier 2 — Fueling (dot-grouped) + Derived Metrics */}
       <div className="flex gap-6 border-b-[0.5px] border-b-[var(--n400)] bg-[var(--n50)] py-2">
+        <KS
+          dot={FUEL_DOT}
+          label="kJ demand"
+          value={kjDemandZone ? adjustedKjPerKgH.toFixed(1) : '—'}
+          unit={kjDemandZone ? 'kJ/kg/h' : undefined}
+          sub={kjDemandZone ? `${kjDemandZone.name}${isDefaultWeight ? ' · default weight' : ''}` : undefined}
+          badge={kjDemandZone ? { label: kjDemandZone.zone, color: ZONE_COLORS[kjDemandZone.zone] ?? '#94a3b8' } : undefined}
+        />
+        <KS
+          dot={FUEL_DOT}
+          label="CHO zone"
+          value={choZone ? `${Math.round(choGPerHour)}` : '—'}
+          unit={choZone ? 'g/h' : undefined}
+          sub={choZone ? choZone.name : undefined}
+          badge={choZone ? { label: choZone.zone, color: ZONE_COLORS[choZone.zone] ?? '#94a3b8' } : undefined}
+        />
+        <KS
+          dot={FUEL_DOT}
+          label="CHO total"
+          value={choIntake > 0 ? `${choIntake}` : '—'}
+          unit={choIntake > 0 ? 'g' : undefined}
+          sub={choIntake > 0 ? 'of session' : undefined}
+        />
+        <KS
+          dot={FUEL_DOT}
+          label="Energy replaced"
+          value={energyReplacement !== null ? `${energyReplacement}` : '—'}
+          unit={energyReplacement !== null ? '%' : undefined}
+          sub={energyReplacement !== null ? `${kcalIngested} of ${totalCalories} kcal` : undefined}
+          progress={energyReplacement !== null ? energyReplacement : undefined}
+          progressColor={replacementColor}
+        />
         {/* Temperature */}
         {avgTemperature > 0 && (
           <KS
@@ -1295,13 +1293,17 @@ function MetricsTiers({
 
 
 /** Compact stat cell with optional sub-value, badge, and progress bar. */
-function KS({ label, value, unit, sub, badge, progress, progressColor }: {
+function KS({ label, value, unit, sub, badge, progress, progressColor, dot }: {
   label: string; value?: string; unit?: string; sub?: string
   badge?: { label: string; color: string }; progress?: number; progressColor?: string
+  dot?: string
 }) {
   return (
     <div>
-      <div className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>{label}</div>
+      <div className={cn("text-[10px] text-[var(--n600)]", WEIGHT.strong)}>
+        {dot && <span className="mr-1.5 inline-block size-1.5 rounded-full align-middle" style={{ backgroundColor: dot }} />}
+        {label}
+      </div>
       {badge && !value ? (
         <span
           className={cn("mt-0.5 inline-block rounded px-2 py-0.5 text-[11px]", WEIGHT.medium)}
