@@ -1148,7 +1148,7 @@ function SessionDataPanel({ input, onUpdate }: {
         className={cn("flex w-full items-center gap-1.5 px-4 py-2 text-[13px] text-[var(--n1150)]", WEIGHT.strong, TRANSITION.colors, "hover:text-[var(--n800)]")}
       >
         <span className={cn("text-[9px] transition-transform duration-150", open && 'rotate-90')}>▶</span>
-        Weight + CHO
+        CHO & Weight Log
       </button>
       {open && (
         <div className="flex items-end gap-4 px-4 pb-3">
