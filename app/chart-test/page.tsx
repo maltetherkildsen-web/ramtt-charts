@@ -562,11 +562,13 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   const kjPerMin = useMemo(() => calculateKjPerMin(power), [power])
 
   // Torque (Nm) — derived from power and cadence
+  // Min cadence 30 rpm: below this, sensor data is unreliable (starts/stops/gear changes)
+  // Max 120 Nm: pro sprinter peak, safety net for remaining outliers
   const torque = useMemo(() => {
     return power.map((pw, i) => {
       const cad = cadence[i]
-      if (!cad || cad === 0) return 0
-      return Math.min(pw / (cad * 2 * Math.PI / 60), 200)
+      if (!cad || cad < 30) return 0
+      return Math.min(pw / (cad * 2 * Math.PI / 60), 120)
     })
   }, [power, cadence])
 
@@ -1601,7 +1603,7 @@ function SyncedCharts({
           height={h('power')}
           decimationFactor={decimationFactor}
           padding={{ ...chartPad, bottom: 4 }}
-          yPadding={0.10}
+          yPadding={0.05}
           className="bg-(--n50)"
         >
           <ChartAxisY tickCount={3} />
