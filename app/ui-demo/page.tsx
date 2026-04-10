@@ -48,6 +48,16 @@ import {
   FileUpload,
   Tag,
   Gauge,
+  Calendar,
+  DatePicker,
+  Popover,
+  Command,
+  Pagination,
+  Drawer,
+  Spinner,
+  Kbd,
+  Alert,
+  Combobox,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1261,6 +1271,264 @@ function GaugesDemo() {
   )
 }
 
+// ─── 26. Calendar & Dates ───
+
+function CalendarDemo() {
+  const [date, setDate] = useState<Date | null>(new Date())
+  const [range, setRange] = useState<{ from: Date; to: Date } | null>({
+    from: new Date(2026, 3, 6),
+    to: new Date(2026, 3, 12),
+  })
+  const [pickerDate, setPickerDate] = useState<Date | null>(new Date())
+
+  return (
+    <DemoSection title="Calendar & Dates">
+      <div className="space-y-6">
+        <div className="flex gap-8 flex-wrap">
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Single date selection</p>
+            <Card>
+              <Calendar
+                selected={date}
+                onSelect={(v) => setDate(v as Date)}
+              />
+            </Card>
+          </div>
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Range selection</p>
+            <Card>
+              <Calendar
+                mode="range"
+                selected={range}
+                onSelect={(v) => setRange(v as { from: Date; to: Date })}
+              />
+            </Card>
+          </div>
+        </div>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>DatePicker (calendar in popover)</p>
+          <div className="flex gap-4">
+            <DatePicker
+              value={pickerDate}
+              onChange={(v) => setPickerDate(v as Date)}
+              label="Session date"
+            />
+            <DatePicker
+              placeholder="Pick a date"
+              onChange={() => {}}
+            />
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 27. Command Palette ───
+
+function CommandDemo() {
+  const [commandOpen, setCommandOpen] = useState(false)
+
+  return (
+    <DemoSection title="Command Palette">
+      <Card>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" onClick={() => setCommandOpen(true)}>
+            Open command palette
+          </Button>
+          <span className={cn(MUTED_STYLE, 'text-[12px]')}>
+            Press <Kbd>⌘</Kbd> <Kbd>K</Kbd> pattern
+          </span>
+        </div>
+
+        <Modal open={commandOpen} onClose={() => setCommandOpen(false)} size="sm">
+          <Command>
+            <Command.Input placeholder="Type a command or search..." />
+            <Command.List>
+              <Command.Group heading="Navigation">
+                <Command.Item onSelect={() => setCommandOpen(false)} icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="3" stroke="currentColor" strokeWidth="1.25"/></svg>}>
+                  Today
+                  <Command.Shortcut><Kbd>⌘</Kbd><Kbd>T</Kbd></Command.Shortcut>
+                </Command.Item>
+                <Command.Item onSelect={() => setCommandOpen(false)} icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="3" width="12" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.25"/></svg>}>
+                  Calendar
+                  <Command.Shortcut><Kbd>⌘</Kbd><Kbd>C</Kbd></Command.Shortcut>
+                </Command.Item>
+                <Command.Item onSelect={() => setCommandOpen(false)}>Analytics</Command.Item>
+                <Command.Item onSelect={() => setCommandOpen(false)}>Settings</Command.Item>
+              </Command.Group>
+              <Command.Separator />
+              <Command.Group heading="Actions">
+                <Command.Item onSelect={() => setCommandOpen(false)}>Upload FIT file</Command.Item>
+                <Command.Item onSelect={() => setCommandOpen(false)}>New session</Command.Item>
+                <Command.Item onSelect={() => setCommandOpen(false)}>Export data</Command.Item>
+              </Command.Group>
+              <Command.Empty>No results found.</Command.Empty>
+            </Command.List>
+          </Command>
+        </Modal>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 28. Popover & Drawer ───
+
+function PopoverDrawerDemo() {
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [bottomDrawer, setBottomDrawer] = useState(false)
+  const [filterPower, setFilterPower] = useState(true)
+  const [filterHr, setFilterHr] = useState(false)
+
+  return (
+    <DemoSection title="Popover & Drawer">
+      <div className="flex flex-wrap items-start gap-4">
+        <Popover>
+          <Popover.Trigger>
+            <Button variant="outline" size="sm">Filter (popover)</Button>
+          </Popover.Trigger>
+          <Popover.Content align="start">
+            <div className="p-3 flex flex-col gap-2">
+              <Checkbox label="Power" checked={filterPower} onChange={setFilterPower} />
+              <Checkbox label="Heart rate" checked={filterHr} onChange={setFilterHr} />
+              <Checkbox label="Speed" checked={false} onChange={() => {}} />
+            </div>
+          </Popover.Content>
+        </Popover>
+
+        <Button variant="outline" size="sm" onClick={() => setDrawerOpen(true)}>
+          Open drawer (right)
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setBottomDrawer(true)}>
+          Bottom sheet
+        </Button>
+      </div>
+
+      <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Drawer.Header>
+          <Drawer.Title>Session filters</Drawer.Title>
+          <Button variant="ghost" size="icon" onClick={() => setDrawerOpen(false)}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+          </Button>
+        </Drawer.Header>
+        <Drawer.Body>
+          <div className="flex flex-col gap-3">
+            <Checkbox label="Power zones" checked={true} onChange={() => {}} />
+            <Checkbox label="Heart rate zones" checked={false} onChange={() => {}} />
+            <Slider label="Min duration" value={30} onChange={() => {}} min={0} max={300} unit="min" />
+          </div>
+        </Drawer.Body>
+        <Drawer.Footer>
+          <Button variant="outline" onClick={() => setDrawerOpen(false)}>Cancel</Button>
+          <Button onClick={() => setDrawerOpen(false)}>Apply</Button>
+        </Drawer.Footer>
+      </Drawer>
+
+      <Drawer open={bottomDrawer} onClose={() => setBottomDrawer(false)} side="bottom">
+        <Drawer.Body>
+          <div className="flex flex-col items-center gap-3 py-4">
+            <p className={cn(FONT.body, 'text-[14px]', WEIGHT.strong, 'text-[var(--n1150)]')}>Quick actions</p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setBottomDrawer(false)}>Upload</Button>
+              <Button variant="outline" onClick={() => setBottomDrawer(false)}>Share</Button>
+              <Button onClick={() => setBottomDrawer(false)}>Done</Button>
+            </div>
+          </div>
+        </Drawer.Body>
+      </Drawer>
+    </DemoSection>
+  )
+}
+
+// ─── 29. Pagination, Alert, Combobox ───
+
+function MiscDemo() {
+  const [currentPage, setCurrentPage] = useState(6)
+  const [showAlert, setShowAlert] = useState(true)
+  const [combo, setCombo] = useState('maurten')
+
+  const comboOptions = [
+    { group: 'Gels', items: [
+      { value: 'sis-go', label: 'SiS GO Isotonic' },
+      { value: 'maurten', label: 'Maurten Gel 100' },
+      { value: 'precision-hydration', label: 'Precision Hydration' },
+    ]},
+    { group: 'Bars', items: [
+      { value: 'clif', label: 'Clif Bar' },
+      { value: 'trek', label: 'Trek Protein' },
+    ]},
+    { group: 'Drinks', items: [
+      { value: 'maurten-320', label: 'Maurten 320' },
+      { value: 'sis-beta', label: 'SiS Beta Fuel' },
+      { value: 'tailwind', label: 'Tailwind Endurance' },
+    ]},
+  ]
+
+  return (
+    <DemoSection title="Pagination, Alert, Combobox">
+      <div className="space-y-6">
+        {/* Pagination */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Pagination</p>
+          <Pagination page={currentPage} totalPages={24} onChange={setCurrentPage} />
+        </div>
+
+        {/* Alerts */}
+        <div className="flex flex-col gap-2">
+          <p className={cn(MUTED_STYLE, 'text-[12px]')}>Alerts</p>
+          <Alert>Your FTP was updated to 285W based on today's session.</Alert>
+          <Alert variant="info">3 new signals require attention.</Alert>
+          <Alert variant="warning" action={{ label: 'Review', onClick: () => {} }}>
+            Your injury risk score has increased to 72.
+          </Alert>
+          <Alert variant="error" title="Sync failed">
+            Could not connect to Strava. Check your integration settings.
+          </Alert>
+          {showAlert && (
+            <Alert variant="success" onDismiss={() => setShowAlert(false)}>
+              Session uploaded successfully.
+            </Alert>
+          )}
+        </div>
+
+        {/* Spinner + Kbd */}
+        <div className="flex items-center gap-6">
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Spinners</p>
+            <div className="flex items-center gap-3">
+              <Spinner size="sm" />
+              <Spinner size="md" />
+              <Spinner size="lg" />
+              <Button disabled><Spinner size="sm" /> Saving...</Button>
+            </div>
+          </div>
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Keyboard shortcuts</p>
+            <div className="flex items-center gap-2">
+              <Kbd>⌘K</Kbd>
+              <Kbd>⌘S</Kbd>
+              <Kbd>Escape</Kbd>
+              <span className="flex gap-0.5"><Kbd>⌘</Kbd><Kbd>⌫</Kbd></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Combobox */}
+        <div className="max-w-[320px]">
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Combobox (searchable select)</p>
+          <Combobox
+            options={comboOptions}
+            value={combo}
+            onChange={(v) => setCombo(v as string)}
+            label="Nutrition product"
+            placeholder="Search products..."
+          />
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1276,7 +1544,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              32 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              42 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -1308,6 +1576,10 @@ export default function UIDemo() {
             <FormsExtendedDemo />
             <TagsDemo />
             <GaugesDemo />
+            <CalendarDemo />
+            <CommandDemo />
+            <PopoverDrawerDemo />
+            <MiscDemo />
           </div>
         </div>
       </main>

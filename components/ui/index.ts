@@ -43,6 +43,18 @@ export { FileUpload } from './FileUpload';
 export { Tag } from './Tag';
 export { Gauge } from './Gauge';
 
+// ─── Components (Wave 5 — Full Parity + Beyond) ───
+export { Calendar } from './Calendar';
+export { DatePicker } from './DatePicker';
+export { Popover } from './Popover';
+export { Command } from './Command';
+export { Pagination } from './Pagination';
+export { Drawer } from './Drawer';
+export { Spinner } from './Spinner';
+export { Kbd } from './Kbd';
+export { Alert } from './Alert';
+export { Combobox } from './Combobox';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
@@ -50,6 +62,7 @@ export { HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FO
 export { LAYOUT, MODAL_WIDTH, TOAST_MAX_VISIBLE, TOAST_DEFAULT_DURATION, DROPDOWN_ITEM, SWITCH_TRACK, SWITCH_THUMB } from '@/lib/ui';
 export { TOOLTIP_BG, TOOLTIP_TEXT, TOOLTIP_RADIUS, TOOLTIP_PADDING, SLIDER_TRACK_HEIGHT, SLIDER_THUMB_SIZE, AVATAR_SIZES } from '@/lib/ui';
 export { SIDEBAR_WIDTH, SIDEBAR_ITEM_STYLE, SIDEBAR_ITEM_ACTIVE, GAUGE_SIZES } from '@/lib/ui';
+export { CALENDAR_CELL_SIZE, CALENDAR_WEEK_STARTS_ON, PAGE_BUTTON_SIZE, PAGE_BUTTON_ACTIVE, DRAWER_WIDTHS, SPINNER_SIZES } from '@/lib/ui';
 
 // ─── Types ───
 export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';

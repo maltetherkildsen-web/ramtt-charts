@@ -184,6 +184,20 @@ export const SIDEBAR_ITEM_ACTIVE = 'bg-[var(--n200)] font-[550] text-[var(--n115
 // ─── Gauge ───
 export const GAUGE_SIZES = { sm: 64, md: 96, lg: 128 } as const;
 
+// ─── Calendar ───
+export const CALENDAR_CELL_SIZE = 36;
+export const CALENDAR_WEEK_STARTS_ON = 1; // Monday
+
+// ─── Pagination ───
+export const PAGE_BUTTON_SIZE = 'w-8 h-8';
+export const PAGE_BUTTON_ACTIVE = 'bg-[var(--n1150)] text-[var(--n50)] font-[550]';
+
+// ─── Drawer ───
+export const DRAWER_WIDTHS = { sm: 320, md: 420, lg: 560 } as const;
+
+// ─── Spinner ───
+export const SPINNER_SIZES = { sm: 14, md: 18, lg: 24 } as const;
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {

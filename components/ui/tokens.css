@@ -303,6 +303,26 @@ dialog[open] {
   overflow: hidden;
 }
 
+/* ─── Spinner animation ─── */
+@keyframes ramtt-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ─── Drawer slide animations ─── */
+@keyframes ramtt-drawer-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes ramtt-drawer-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes ramtt-drawer-bottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 /* Reduced motion respect */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
