@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { forwardRef } from 'react'
 import { cn, FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, QUIET_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 import { Badge } from './Badge'

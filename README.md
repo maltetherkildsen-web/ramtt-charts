@@ -1,15 +1,29 @@
 # ramtt-charts
 
-> Zero-dependency SVG chart system + UI component library for React. Tailwind-native. Built for endurance sport analytics.
+> Zero-dependency SVG charts + UI components for React. Tailwind-native. 60fps hover. < 12KB.
 
 ![Early Development](https://img.shields.io/badge/status-early%20development-orange)
-![License](https://img.shields.io/badge/license-MIT-blue)
+[![License](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue)](LICENSE-MIT)
 
 Two packages in one repo:
 - **@ramtt/charts** — Custom SVG chart primitives with synced interactions, 60fps hover, LTTB downsampling
 - **@ramtt/ui** — 12 accessible UI components with RAMTT design tokens baked in
 
-**Copyright (c) 2026 RAMTT**
+**Copyright (c) 2026 RAMTT (Malte Therkildsen)**
+
+## Install
+
+```bash
+npm install @ramtt/charts
+npm install @ramtt/ui
+```
+
+Or just one:
+
+```bash
+npm install @ramtt/charts    # charts only
+npm install @ramtt/ui        # UI components only
+```
 
 ---
 
@@ -238,6 +252,17 @@ public/
 
 ## License
 
-MIT License — Copyright (c) 2026 RAMTT
+Licensed under either of:
 
-See [LICENSE](./LICENSE) for full terms.
+- [Apache License, Version 2.0](LICENSE-APACHE)
+- [MIT License](LICENSE-MIT)
+
+at your option.
+
+Copyright (c) 2026 RAMTT (Malte Therkildsen)
+
+### Trademark
+
+"RAMTT" is a trademark of Malte Therkildsen. You may freely use, modify,
+and distribute the code under the license terms, but derivative works must
+not use the RAMTT name or branding without written permission.

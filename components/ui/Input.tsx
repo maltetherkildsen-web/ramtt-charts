@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
 import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 

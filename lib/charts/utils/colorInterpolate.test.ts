@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { describe, it, expect } from 'vitest'
 import { hexToRgb, rgbToHex, interpolateColor } from './colorInterpolate'
 

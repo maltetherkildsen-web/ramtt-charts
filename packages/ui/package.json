@@ -1,0 +1,54 @@
+{
+  "name": "@ramtt/ui",
+  "version": "0.1.0",
+  "description": "18 accessible React UI components with RAMTT design tokens. Zero dependencies. Tailwind-native.",
+  "license": "MIT OR Apache-2.0",
+  "author": "Malte Therkildsen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maltetherkildsen-web/ramtt-charts",
+    "directory": "packages/ui"
+  },
+  "homepage": "https://ramtt-charts.vercel.app/ui-demo",
+  "keywords": [
+    "react",
+    "ui",
+    "components",
+    "design-system",
+    "typescript",
+    "tailwindcss",
+    "accessible",
+    "zero-dependency"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./tokens.css": "./dist/tokens.css"
+  },
+  "files": [
+    "dist",
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "NOTICE",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

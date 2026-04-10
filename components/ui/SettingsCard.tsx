@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { forwardRef, type ReactNode } from 'react'
 import { cn, FONT, BORDER, RADIUS, TRANSITION, HOVER_SAND, MUTED_STYLE, FOCUS_RING, WEIGHT } from '@/lib/ui'
 

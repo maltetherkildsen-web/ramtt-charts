@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAMTT — Type System v3</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+:root {
+  /* ── FONTS ── */
+  --se: 'Cormorant Garamond', Georgia, serif;
+  --sa: 'Satoshi', system-ui, sans-serif;
+  --mo: 'JetBrains Mono', 'SF Mono', monospace;
+
+  /* ── WARM NEUTRALS (Sand Canvas) ── */
+  --n100: #FAF9F5;
+  --n200: #F3F1EC;
+  --n300: #ECEAE4;
+  --n400: #E8E5DC;
+  --n500: #E5E3DE;
+  --n600: #D4D1CA;
+  --n700: #C0BDB6;
+  --n800: #B5B2AB;
+  --n900: #8A8780;
+  --n1000: #5C5A55;
+  --n1050: #383633;
+  --n1100: #2A2826;
+  --n1150: #131211;
+
+  /* ── ZONE COLORS ── */
+  --z1: #7CA3BE;
+  --z2: #14B8A2;
+  --z3: #E8B020;
+  --z4: #E36B30;
+  --z5: #E83B52;
+  --z6: #9B40E8;
+
+  /* ── NUTRIENTS ── */
+  --cho: #D97A4A;
+  --fluid: #2BA4D8;
+  --sodium: #8B5CF6;
+  --caffeine: #1AAD4E;
+
+  /* ── ATMOSPHERE ── */
+  --navy: #0C1832;
+  --cream: #F0DFC0;
+
+  /* ── ACCENT ── */
+  --copper: #E36B30;
+}
+
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; scroll-behavior: smooth; }
+body { background: var(--n100); color: var(--n1150); }
+::selection { background: var(--navy); color: var(--cream); }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 960px; margin: 0 auto; padding: 0 40px; }
+.wide { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+
+/* ── NAV ── */
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(250,249,245,0.88);
+  backdrop-filter: blur(20px) saturate(160%);
+  border-bottom: 1px solid var(--n300);
+  padding: 16px 40px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-logo { font-family: var(--mo); font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+.nav-sub { font-family: var(--se); font-size: 16px; font-weight: 300; font-style: italic; color: var(--n900); }
+.nav-right { font-family: var(--mo); font-size: 10px; color: var(--n800); letter-spacing: .04em; }
+
+/* ── SECTION HEADERS ── */
+.section-num {
+  font-family: var(--mo); font-size: 10px; font-weight: 500;
+  letter-spacing: .2em; text-transform: uppercase; color: var(--n800);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: var(--se); font-weight: 300;
+  font-size: clamp(36px, 5vw, 52px); line-height: 1.05;
+  letter-spacing: -.02em; margin-bottom: 8px;
+}
+.section-desc {
+  font-family: var(--sa); font-size: 14px; font-weight: 400;
+  color: var(--n900); line-height: 1.65; max-width: 600px;
+  margin-bottom: 48px;
+}
+
+/* ── SCALE ROWS ── */
+.scale-row {
+  display: grid; grid-template-columns: 160px 1fr;
+  border-top: 1px solid var(--n300); padding: 32px 0;
+  align-items: baseline; gap: 24px;
+}
+.scale-meta {}
+.scale-name { font-family: var(--mo); font-size: 12px; font-weight: 500; margin-bottom: 4px; }
+.scale-spec { font-family: var(--mo); font-size: 10px; color: var(--n800); line-height: 1.5; }
+.scale-use { font-family: var(--sa); font-size: 11px; color: var(--n900); font-style: italic; margin-top: 6px; }
+
+/* ── MODE CARDS ── */
+.mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 48px; }
+.mode-card {
+  border: 1px solid var(--n300); border-radius: 8px; padding: 32px;
+  background: var(--n100);
+}
+.mode-card h3 { font-size: 28px; margin-bottom: 4px; }
+.mode-label {
+  font-family: var(--mo); font-size: 9px; font-weight: 500;
+  letter-spacing: .15em; text-transform: uppercase; margin-bottom: 16px;
+}
+.mode-list { font-family: var(--sa); font-size: 13px; color: var(--n900); line-height: 2; }
+
+/* ── USAGE MATRIX ── */
+.matrix {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;
+  margin-bottom: 48px;
+}
+.matrix-col {
+  border: 1px solid var(--n300); border-radius: 8px; padding: 28px;
+  background: var(--n100);
+}
+.matrix-col h3 { font-size: 22px; margin-bottom: 4px; }
+.matrix-label {
+  font-family: var(--mo); font-size: 9px; font-weight: 500;
+  letter-spacing: .15em; text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.matrix-item {
+  font-family: var(--sa); font-size: 13px; color: var(--n1050);
+  padding: 10px 0; border-top: 1px solid var(--n300);
+}
+
+/* ── HARD RULES ── */
+.rules-band {
+  background: var(--n400); padding: 64px 0; margin: 64px 0;
+}
+.rules-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 48px; }
+.rule-title {
+  font-family: var(--se); font-size: 24px; font-weight: 400;
+  margin-bottom: 12px;
+}
+.rule-text {
+  font-family: var(--sa); font-size: 13px; color: var(--n1050);
+  line-height: 1.7;
+}
+.rule-text strong { font-weight: 600; }
+
+/* ── STATS ROW ── */
+.stats { display: flex; gap: 48px; margin: 48px 0 64px; }
+.stat-num { font-family: var(--se); font-size: 48px; font-weight: 300; line-height: 1; }
+.stat-label { font-family: var(--mo); font-size: 10px; color: var(--n800); margin-top: 4px; letter-spacing: .04em; }
+
+/* ── CONTEXT DEMO ── */
+.demo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 48px 0; }
+.demo-editorial {
+  background: var(--navy); border-radius: 12px; padding: 40px;
+  color: var(--cream); overflow: hidden; min-height: 420px;
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.demo-functional {
+  background: var(--n200); border-radius: 12px; padding: 32px;
+  min-height: 420px;
+}
+
+/* ── CODE BLOCK ── */
+.code-block {
+  background: var(--n1150); color: var(--cream); border-radius: 8px;
+  padding: 28px; margin: 32px 0; overflow-x: auto;
+  font-family: var(--mo); font-size: 12px; line-height: 1.8;
+}
+.code-comment { color: var(--n800); }
+.code-key { color: var(--z2); }
+.code-val { color: var(--cho); }
+.code-str { color: var(--z3); }
+
+/* ── ZONE STRIP ── */
+.zone-strip { display: flex; height: 3px; border-radius: 2px; overflow: hidden; }
+.zone-strip > div { flex: 1; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .wrap, .wide { padding: 0 20px; }
+  .nav { padding: 12px 20px; }
+  .scale-row { grid-template-columns: 1fr; }
+  .mode-grid, .matrix, .rules-grid, .demo-grid { grid-template-columns: 1fr; }
+  .stats { flex-wrap: wrap; gap: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════ -->
+<!-- NAV                                      -->
+<!-- ════════════════════════════════════════ -->
+<div class="nav">
+  <div class="nav-left">
+    <span class="nav-logo">RAMTT</span>
+    <span class="nav-sub">Type System</span>
+  </div>
+  <div class="nav-right">v3 · Satoshi · Dual-mode</div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- HERO                                     -->
+<!-- ════════════════════════════════════════ -->
+<div style="padding:100px 0 40px">
+  <div class="wrap">
+    <div class="section-num">TYPOGRAFI-SYSTEM</div>
+    <h1 style="font-family:var(--se);font-weight:300;font-size:clamp(48px,7vw,72px);line-height:1.02;letter-spacing:-.03em;margin-bottom:4px">To stemmer.</h1>
+    <h1 style="font-family:var(--se);font-weight:300;font-size:clamp(48px,7vw,72px);line-height:1.02;letter-spacing:-.03em"><em>Én identitet.</em></h1>
+    <p style="font-family:var(--sa);font-size:15px;font-weight:400;color:var(--n1050);line-height:1.75;max-width:620px;margin-top:32px">
+      Cormorant Garamond giver RAMTT en sjæl ingen fitness-app har.
+      Satoshi gør data læsbart — med en humanistisk varme der matcher seriffen,
+      og en width-akse der skalerer fra condensed data-tabeller til regular body-tekst.
+    </p>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- MODE CARDS                               -->
+<!-- ════════════════════════════════════════ -->
+<div class="wrap">
+  <div class="mode-grid">
+    <div class="mode-card">
+      <h3 style="font-family:var(--se);font-weight:300">Cormorant<br>Garamond</h3>
+      <div class="mode-label" style="color:var(--copper)">EDITORIAL MODE</div>
+      <div class="mode-list">
+        Share cards, race recaps, RAMTT Letters,<br>
+        onboarding, marketing. De flader der skal <em>føles</em>.
+      </div>
+    </div>
+    <div class="mode-card" style="border-color:var(--n400)">
+      <h3 style="font-family:var(--sa);font-weight:600">Instrument<br>Sans</h3>
+      <div class="mode-label" style="color:var(--z2)">FUNCTIONAL MODE</div>
+      <div class="mode-list">
+        Dashboards, settings, pipeline audit, coach view,<br>
+        data tables. De flader der skal <em>virke</em>.
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div><div class="stat-num">3</div><div class="stat-label">Font families</div></div>
+    <div><div class="stat-num">12</div><div class="stat-label">Scale steps</div></div>
+    <div><div class="stat-num">2</div><div class="stat-label">Modes</div></div>
+    <div><div class="stat-num">3</div><div class="stat-label">Width variants</div></div>
+  </div>
+</div>
+
+<div style="height:32px"></div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 01 — TYPESKALAEN                         -->
+<!-- ════════════════════════════════════════ -->
+<div class="wrap">
+  <div class="section-num">01 — TYPESKALAEN</div>
+  <div class="section-title">12 trin.<br>To udtryk.</div>
+  <div class="section-desc">
+    Hver størrelse har en editorial (serif) og funktionel (sans) variant. Mono er fast:
+    data, kode, metadata. Minimum læsbar tekst: 13px. Minimum label: 10px.
+  </div>
+
+  <!-- ── EDITORIAL — CORMORANT GARAMOND ── -->
+  <div style="margin-bottom:64px">
+    <div class="section-num" style="color:var(--copper)">EDITORIAL — CORMORANT GARAMOND</div>
+
+    <!-- Display -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Display</div>
+        <div class="scale-spec">48-68px / 300 / -0.03em</div>
+        <div class="scale-use">Hero headlines, landing page</div>
+      </div>
+      <div style="font-family:var(--se);font-size:clamp(48px,5.5vw,68px);font-weight:300;line-height:1.02;letter-spacing:-.03em">Race Day Protocol</div>
+    </div>
+
+    <!-- Headline 1 -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Headline 1</div>
+        <div class="scale-spec">36-44px / 300 / -0.02em</div>
+        <div class="scale-use">Section headers, article titles</div>
+      </div>
+      <div style="font-family:var(--se);font-size:clamp(32px,4vw,44px);font-weight:300;line-height:1.08;letter-spacing:-.02em">The Carbohydrate <em>Timing</em> Paradox</div>
+    </div>
+
+    <!-- Headline 2 -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Headline 2</div>
+        <div class="scale-spec">24-32px / 400 / -0.015em</div>
+        <div class="scale-use">Card headers, share titles</div>
+      </div>
+      <div style="font-family:var(--se);font-size:clamp(22px,2.8vw,32px);font-weight:400;line-height:1.12;letter-spacing:-.015em">Copenhagen Half Marathon</div>
+    </div>
+
+    <!-- Headline 3 -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Headline 3</div>
+        <div class="scale-spec">18-22px / 500 / -0.01em</div>
+        <div class="scale-use">Sub-sections, sidebar titles</div>
+      </div>
+      <div style="font-family:var(--se);font-size:clamp(18px,2vw,22px);font-weight:500;line-height:1.2;letter-spacing:-.01em">Individual Variation in Oxidation Rates</div>
+    </div>
+
+    <!-- Body Large -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Body Large</div>
+        <div class="scale-spec">16px / 400 / 1.8 line</div>
+        <div class="scale-use">Lead paragraphs, intros</div>
+      </div>
+      <div style="font-family:var(--se);font-size:16px;font-weight:400;line-height:1.8;max-width:540px">Perhaps the most important finding across this body of research is the enormous inter-individual variation in optimal carbohydrate intake.</div>
+    </div>
+
+    <!-- Body -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Body</div>
+        <div class="scale-spec">15px / 400 / 1.75 line</div>
+        <div class="scale-use">Article body text</div>
+      </div>
+      <div style="font-family:var(--se);font-size:15px;font-weight:400;line-height:1.75;max-width:540px">Session completed at 87% compliance. CHO intake averaged 72 g/h across the threshold blocks.</div>
+    </div>
+  </div>
+
+  <!-- ── FUNCTIONAL — INSTRUMENT SANS ── -->
+  <div style="margin-bottom:64px">
+    <div class="section-num" style="color:var(--z2)">FUNCTIONAL — INSTRUMENT SANS</div>
+
+    <!-- Display -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Display</div>
+        <div class="scale-spec">48-68px / 600 / -0.03em</div>
+        <div class="scale-use">App hero, dashboard headers</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:clamp(48px,5.5vw,68px);font-weight:600;line-height:1.02;letter-spacing:-.03em">Ugens overblik</div>
+    </div>
+
+    <!-- Headline 1 -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Headline 1</div>
+        <div class="scale-spec">36-44px / 600 / -0.02em</div>
+        <div class="scale-use">Page titles, section headers</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:clamp(32px,4vw,44px);font-weight:600;line-height:1.08;letter-spacing:-.02em">Session Planning</div>
+    </div>
+
+    <!-- Headline 2 -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Headline 2</div>
+        <div class="scale-spec">24-32px / 500 / -0.015em</div>
+        <div class="scale-use">Card titles, widget headers</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:clamp(22px,2.8vw,32px);font-weight:500;line-height:1.12;letter-spacing:-.015em">Ugens overblik</div>
+    </div>
+
+    <!-- Headline 3 -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Headline 3</div>
+        <div class="scale-spec">18-22px / 500 / -0.01em</div>
+        <div class="scale-use">Widget sub-headers</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:clamp(18px,2vw,22px);font-weight:500;line-height:1.2;letter-spacing:-.01em">Zone Distribution</div>
+    </div>
+
+    <!-- Body -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Body</div>
+        <div class="scale-spec">14px / 400 / 1.65 line</div>
+        <div class="scale-use">Descriptions, list items</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:14px;font-weight:400;line-height:1.65;max-width:540px">Session completed at 87% compliance. CHO intake averaged 72 g/h across the threshold blocks.</div>
+    </div>
+
+    <!-- Caption -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Caption</div>
+        <div class="scale-spec">12px / 400</div>
+        <div class="scale-use">Secondary info, timestamps</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:12px;font-weight:400;color:var(--n900)">23. marts 2026 · 18°C · 62% humidity · Copenhagen</div>
+    </div>
+
+    <!-- Condensed -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Condensed</div>
+        <div class="scale-spec">12-14px / 400-500<br>font-stretch: condensed</div>
+        <div class="scale-use">Data tables, compact lists</div>
+      </div>
+      <div style="font-family:var(--sa);font-size:13px;font-weight:400;font-stretch:semi-condensed;color:var(--n1050)">Z1 Recovery 32g · Z2 Easy 45g · Z3 Tempo 62g · Z4 Threshold 78g · Z5 VO₂max 85g · Z6 Sprint 90g</div>
+    </div>
+  </div>
+
+  <!-- ── MONO — JETBRAINS MONO ── -->
+  <div style="margin-bottom:32px">
+    <div class="section-num">MONO — JETBRAINS MONO</div>
+
+    <!-- Data Large -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Data Large</div>
+        <div class="scale-spec">24-32px / 600</div>
+        <div class="scale-use">Hero metrics, big numbers</div>
+      </div>
+      <div style="font-family:var(--mo);font-size:clamp(24px,3vw,32px);font-weight:600;line-height:1"><span style="font-size:inherit">85</span> <span style="font-size:14px;font-weight:400;color:var(--n900)">g/h</span></div>
+    </div>
+
+    <!-- Data -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Data</div>
+        <div class="scale-spec">16-18px / 600</div>
+        <div class="scale-use">Metric values, stats</div>
+      </div>
+      <div style="font-family:var(--mo);font-size:17px;font-weight:600"><span>1:28:34</span> <span style="font-size:13px;font-weight:400;color:var(--n900)">finish time</span></div>
+    </div>
+
+    <!-- Label -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Label</div>
+        <div class="scale-spec">10-11px / 500 / .08em tracking</div>
+        <div class="scale-use">Tags, badges, axis labels</div>
+      </div>
+      <div style="font-family:var(--mo);font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--n1050)">CHO TOLERANCE · ZONE DISTRIBUTION · COMPLIANCE</div>
+    </div>
+
+    <!-- Micro -->
+    <div class="scale-row">
+      <div class="scale-meta">
+        <div class="scale-name">Micro</div>
+        <div class="scale-spec">9px / 400 / .1em tracking</div>
+        <div class="scale-use">Hex codes, chart ticks, footnotes</div>
+      </div>
+      <div style="font-family:var(--mo);font-size:9px;font-weight:400;letter-spacing:.1em;color:var(--n800)">#E36B30 · OKLCH(0.65, 0.17, 55°) · COPPER HEAT</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 02 — I KONTEKST                          -->
+<!-- ════════════════════════════════════════ -->
+<div style="height:64px"></div>
+<div class="wrap">
+  <div class="section-num">02 — I KONTEKST</div>
+  <div class="section-title">Samme data.<br>To stemmer.</div>
+  <div class="section-desc">
+    Til venstre: editorial mode (share card, RAMTT Letters). Til højre: functional mode
+    (dashboard widget). Begge bruger den samme skala, men de rammer forskelligt.
+  </div>
+
+  <div class="demo-grid">
+    <!-- Editorial: Race Recap Card -->
+    <div style="background:var(--n1150);border-radius:12px;overflow:hidden;min-height:480px;display:flex;flex-direction:column">
+      <div style="flex:1;padding:32px 32px 24px;color:var(--cream);display:flex;flex-direction:column">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:auto">
+          <span style="font-family:var(--mo);font-size:11px;font-weight:700;letter-spacing:.08em;opacity:.7">RAMTT</span>
+          <span style="font-family:var(--mo);font-size:9px;letter-spacing:.1em;opacity:.7">RACE RECAP</span>
+        </div>
+        <div>
+          <div style="font-family:var(--sa);font-size:12px;font-weight:400;opacity:.45;margin-bottom:8px">Copenhagen Half Marathon</div>
+          <div style="font-family:var(--se);font-size:clamp(40px,5vw,56px);font-weight:300;line-height:.95;letter-spacing:-.02em;margin-bottom:8px">1:28:34</div>
+          <div style="font-family:var(--sa);font-size:11px;font-weight:400;opacity:.35">23. marts 2026 · 18°C</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr">
+        <div style="background:rgba(217,122,74,0.12);padding:16px;text-align:center">
+          <div style="font-family:var(--mo);font-size:20px;font-weight:600;color:var(--cho)">85</div>
+          <div style="font-family:var(--mo);font-size:8px;letter-spacing:.08em;color:var(--cho);opacity:.7;margin-top:2px">g/h CHO</div>
+        </div>
+        <div style="background:rgba(43,164,216,0.12);padding:16px;text-align:center">
+          <div style="font-family:var(--mo);font-size:20px;font-weight:600;color:var(--fluid)">800</div>
+          <div style="font-family:var(--mo);font-size:8px;letter-spacing:.08em;color:var(--fluid);opacity:.7;margin-top:2px">mL/h</div>
+        </div>
+        <div style="background:rgba(20,184,162,0.12);padding:16px;text-align:center">
+          <div style="font-family:var(--mo);font-size:20px;font-weight:600;color:var(--z2)">92%</div>
+          <div style="font-family:var(--mo);font-size:8px;letter-spacing:.08em;color:var(--z2);opacity:.7;margin-top:2px">compliance</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Functional: Dashboard Widget -->
+    <div style="background:var(--n200);border-radius:12px;padding:28px;min-height:480px;display:flex;flex-direction:column">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <span style="font-family:var(--sa);font-size:18px;font-weight:500;letter-spacing:-.01em">Ugens overblik</span>
+        <span style="font-family:var(--mo);font-size:9px;color:var(--n800);letter-spacing:.08em">Uge 12</span>
+      </div>
+
+      <!-- Metric cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div style="background:var(--n100);border-radius:8px;padding:14px">
+          <div style="font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--cho);margin-bottom:6px">CHO TOLERANCE</div>
+          <div><span style="font-family:var(--mo);font-size:26px;font-weight:600;color:var(--cho)">85</span> <span style="font-family:var(--mo);font-size:11px;font-weight:400;color:var(--n900)">g/h</span></div>
+        </div>
+        <div style="background:var(--n100);border-radius:8px;padding:14px">
+          <div style="font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--fluid);margin-bottom:6px">HYDRATION</div>
+          <div><span style="font-family:var(--mo);font-size:26px;font-weight:600;color:var(--fluid)">680</span> <span style="font-family:var(--mo);font-size:11px;font-weight:400;color:var(--n900)">mL/h</span></div>
+        </div>
+      </div>
+
+      <!-- Zone distribution -->
+      <div style="background:var(--n100);border-radius:8px;padding:14px;margin-bottom:10px">
+        <div style="font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--n900);margin-bottom:8px">ZONE DISTRIBUTION</div>
+        <div style="display:flex;height:26px;border-radius:4px;overflow:hidden;font-family:var(--mo);font-size:10px;font-weight:500;color:white">
+          <div style="flex:8;background:var(--z1)"></div>
+          <div style="flex:35;background:var(--z2);display:flex;align-items:center;justify-content:center">35%</div>
+          <div style="flex:22;background:var(--z3);display:flex;align-items:center;justify-content:center">22%</div>
+          <div style="flex:20;background:var(--z4);display:flex;align-items:center;justify-content:center">20%</div>
+          <div style="flex:10;background:var(--z5);display:flex;align-items:center;justify-content:center">10%</div>
+          <div style="flex:5;background:var(--z6)"></div>
+        </div>
+      </div>
+
+      <!-- Compliance -->
+      <div style="background:var(--n100);border-radius:8px;padding:14px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <span style="font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--n900)">COMPLIANCE</span>
+          <span style="font-family:var(--mo);font-size:13px;font-weight:600;color:var(--z2)">87%</span>
+        </div>
+        <div style="height:6px;background:var(--n300);border-radius:3px;overflow:hidden">
+          <div style="width:87%;height:100%;background:linear-gradient(90deg,var(--z2),var(--z3));border-radius:3px"></div>
+        </div>
+      </div>
+
+      <!-- Session list -->
+      <div style="font-family:var(--sa);font-size:13px;flex:1">
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--n300)">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--z2);margin-right:8px;vertical-align:middle"></span>Easy Run 45min</span>
+          <span style="font-family:var(--mo);font-size:12px;color:var(--cho)">32g</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--n300)">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--z4);margin-right:8px;vertical-align:middle"></span>Threshold 8×1km</span>
+          <span style="font-family:var(--mo);font-size:12px;color:var(--cho)">72g</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:8px 0;border-top:1px solid var(--n300)">
+          <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--z3);margin-right:8px;vertical-align:middle"></span>Long Run 2h10</span>
+          <span style="font-family:var(--mo);font-size:12px;color:var(--cho)">85g</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 03 — REGLERNE                            -->
+<!-- ════════════════════════════════════════ -->
+<div class="wrap">
+  <div class="section-num">03 — REGLERNE</div>
+  <div class="section-title">Hvornår serif.<br>Hvornår sans.</div>
+  <div class="section-desc">
+    Reglen er simpel: hvis brugeren <em>scroller</em> og <em>føler</em>, brug serif. Hvis brugeren <em>scanner</em>
+    og <em>handler</em>, brug sans. Mono er altid for data.
+  </div>
+
+  <!-- Usage Matrix -->
+  <div class="matrix">
+    <div class="matrix-col">
+      <h3 style="font-family:var(--se);font-weight:400">Serif</h3>
+      <div class="matrix-label" style="color:var(--copper)">CORMORANT GARAMOND</div>
+      <div class="matrix-item">Share cards (SoMe)</div>
+      <div class="matrix-item">Race recaps</div>
+      <div class="matrix-item">RAMTT Letters artikler</div>
+      <div class="matrix-item">Onboarding flow</div>
+      <div class="matrix-item">Marketing / landing pages</div>
+      <div class="matrix-item">RAMTT Wrapped</div>
+      <div class="matrix-item">Email newsletters</div>
+    </div>
+    <div class="matrix-col">
+      <h3 style="font-family:var(--sa);font-weight:600">Sans</h3>
+      <div class="matrix-label" style="color:var(--z2)">INSTRUMENT SANS</div>
+      <div class="matrix-item">Dashboards</div>
+      <div class="matrix-item">Session planning</div>
+      <div class="matrix-item">Coach view / athlete list</div>
+      <div class="matrix-item">Pipeline audit</div>
+      <div class="matrix-item">Settings & profile</div>
+      <div class="matrix-item">Notifications</div>
+      <div class="matrix-item">Data tables (condensed)</div>
+    </div>
+    <div class="matrix-col">
+      <h3 style="font-family:var(--mo);font-weight:500">Mono</h3>
+      <div class="matrix-label">JETBRAINS MONO</div>
+      <div class="matrix-item">Alle tal og metrics</div>
+      <div class="matrix-item">Labels og tags</div>
+      <div class="matrix-item">Chart axis labels</div>
+      <div class="matrix-item">Zone badges (Z1-Z6)</div>
+      <div class="matrix-item">Timestamps</div>
+      <div class="matrix-item">Hex koder / tech specs</div>
+      <div class="matrix-item">RAMTT wordmark</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- HÅRDE REGLER                             -->
+<!-- ════════════════════════════════════════ -->
+<div class="rules-band">
+  <div class="wide">
+    <div class="section-num">HÅRDE REGLER</div>
+    <div style="height:24px"></div>
+    <div class="rules-grid">
+      <div>
+        <div class="rule-title">Størrelse</div>
+        <div class="rule-text">
+          Body text: minimum <strong>13px</strong>. Labels: minimum <strong>10px</strong>.
+          Micro: <strong>9px</strong> kun desktop. Ingen tekst under 9px.
+        </div>
+      </div>
+      <div>
+        <div class="rule-title">Vægt</div>
+        <div class="rule-text">
+          Cormorant: <strong>300-500</strong>. Aldrig bold.
+          Satoshi: <strong>400-700</strong>.
+          JetBrains: <strong>400-600</strong>. 600 til data-tal, 400 til labels.
+        </div>
+      </div>
+      <div>
+        <div class="rule-title">Width</div>
+        <div class="rule-text">
+          Regular: <strong>body, UI</strong>. SemiCondensed: <strong>kompakte lister</strong>.
+          Condensed: <strong>data-tabeller</strong>. Brug width til at løse pladsproblemer — aldrig mindre font-size.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 04 — WEIGHT-PROGRESSION                  -->
+<!-- ════════════════════════════════════════ -->
+<div class="wrap">
+  <div class="section-num">04 — WEIGHT-PROGRESSION</div>
+  <div class="section-title">Jo større,<br>jo lettere.</div>
+  <div class="section-desc">
+    Cormorant Garamond har en inverteret weight-logik: de største headlines bruger den tyndeste weight (300).
+    Det er der dens fine stroke-variation og serif-elegance lever. Commitment kommer fra luft og præcision — ikke fra tungere weight.
+  </div>
+
+  <!-- Visual weight progression -->
+  <div style="margin:48px 0;padding:40px;background:var(--n200);border-radius:12px">
+    <div style="display:grid;grid-template-columns:80px 1fr 60px;gap:16px;align-items:baseline">
+      <div style="font-family:var(--mo);font-size:9px;color:var(--n800)">Display</div>
+      <div style="font-family:var(--se);font-size:48px;font-weight:300;line-height:1;letter-spacing:-.03em">Weight 300</div>
+      <div style="font-family:var(--mo);font-size:9px;color:var(--copper)">← lightest</div>
+    </div>
+    <div style="border-top:1px solid var(--n300);margin:16px 0"></div>
+    <div style="display:grid;grid-template-columns:80px 1fr 60px;gap:16px;align-items:baseline">
+      <div style="font-family:var(--mo);font-size:9px;color:var(--n800)">H1</div>
+      <div style="font-family:var(--se);font-size:36px;font-weight:300;line-height:1;letter-spacing:-.02em">Weight 300</div>
+      <div></div>
+    </div>
+    <div style="border-top:1px solid var(--n300);margin:16px 0"></div>
+    <div style="display:grid;grid-template-columns:80px 1fr 60px;gap:16px;align-items:baseline">
+      <div style="font-family:var(--mo);font-size:9px;color:var(--n800)">H2</div>
+      <div style="font-family:var(--se);font-size:28px;font-weight:400;line-height:1;letter-spacing:-.015em">Weight 400</div>
+      <div></div>
+    </div>
+    <div style="border-top:1px solid var(--n300);margin:16px 0"></div>
+    <div style="display:grid;grid-template-columns:80px 1fr 60px;gap:16px;align-items:baseline">
+      <div style="font-family:var(--mo);font-size:9px;color:var(--n800)">H3</div>
+      <div style="font-family:var(--se);font-size:20px;font-weight:500;line-height:1;letter-spacing:-.01em">Weight 500</div>
+      <div style="font-family:var(--mo);font-size:9px;color:var(--copper)">← heaviest</div>
+    </div>
+  </div>
+
+  <div style="background:var(--n1150);color:var(--cream);border-radius:8px;padding:20px 24px;margin:32px 0">
+    <div style="font-family:var(--mo);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--cho);margin-bottom:8px">VIGTIG REGEL</div>
+    <div style="font-family:var(--sa);font-size:13px;line-height:1.7">
+      Cormorant 500 ved stor størrelse (48px+) mister sin elegance — det bliver <em>tykt</em> i stedet for <em>substantielt</em>.
+      300 ved stor størrelse ER sweet-spottet. Brug altid 300 til Display og H1.
+    </div>
+  </div>
+</div>
+
+<div style="height:48px"></div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 05 — CSS TOKENS                          -->
+<!-- ════════════════════════════════════════ -->
+<div class="wrap">
+  <div class="section-num">05 — CSS TOKENS FOR CLAUDE CODE</div>
+  <div class="section-title">Copy-paste ready.</div>
+  <div class="section-desc">
+    Disse CSS custom properties er det komplette type-system. Kopiér dem direkte ind i ethvert RAMTT-projekt.
+  </div>
+
+  <div class="code-block"><span class="code-comment">/* ══ RAMTT TYPE SYSTEM v3 — CSS TOKENS ══ */</span>
+
+<span class="code-comment">/* ── Font Families ── */</span>
+<span class="code-key">--font-serif</span>: <span class="code-str">'Cormorant Garamond', Georgia, serif</span>;
+<span class="code-key">--font-sans</span>: <span class="code-str">'Satoshi', system-ui, sans-serif</span>;
+<span class="code-key">--font-mono</span>: <span class="code-str">'JetBrains Mono', 'SF Mono', monospace</span>;
+
+<span class="code-comment">/* ── Editorial Scale (Cormorant Garamond) ── */</span>
+<span class="code-key">--ed-display</span>: <span class="code-val">300</span> clamp(48px, 5.5vw, 68px) / <span class="code-val">1.02</span> var(--font-serif);
+<span class="code-key">--ed-display-ls</span>: <span class="code-val">-0.03em</span>;
+
+<span class="code-key">--ed-h1</span>: <span class="code-val">300</span> clamp(32px, 4vw, 44px) / <span class="code-val">1.08</span> var(--font-serif);
+<span class="code-key">--ed-h1-ls</span>: <span class="code-val">-0.02em</span>;
+
+<span class="code-key">--ed-h2</span>: <span class="code-val">400</span> clamp(22px, 2.8vw, 32px) / <span class="code-val">1.12</span> var(--font-serif);
+<span class="code-key">--ed-h2-ls</span>: <span class="code-val">-0.015em</span>;
+
+<span class="code-key">--ed-h3</span>: <span class="code-val">500</span> clamp(18px, 2vw, 22px) / <span class="code-val">1.2</span> var(--font-serif);
+<span class="code-key">--ed-h3-ls</span>: <span class="code-val">-0.01em</span>;
+
+<span class="code-key">--ed-body-lg</span>: <span class="code-val">400</span> 16px / <span class="code-val">1.8</span> var(--font-serif);
+<span class="code-key">--ed-body</span>: <span class="code-val">400</span> 15px / <span class="code-val">1.75</span> var(--font-serif);
+
+<span class="code-comment">/* ── Functional Scale (Satoshi) ── */</span>
+<span class="code-key">--fn-display</span>: <span class="code-val">600</span> clamp(48px, 5.5vw, 68px) / <span class="code-val">1.02</span> var(--font-sans);
+<span class="code-key">--fn-display-ls</span>: <span class="code-val">-0.03em</span>;
+
+<span class="code-key">--fn-h1</span>: <span class="code-val">600</span> clamp(32px, 4vw, 44px) / <span class="code-val">1.08</span> var(--font-sans);
+<span class="code-key">--fn-h1-ls</span>: <span class="code-val">-0.02em</span>;
+
+<span class="code-key">--fn-h2</span>: <span class="code-val">500</span> clamp(22px, 2.8vw, 32px) / <span class="code-val">1.12</span> var(--font-sans);
+<span class="code-key">--fn-h2-ls</span>: <span class="code-val">-0.015em</span>;
+
+<span class="code-key">--fn-h3</span>: <span class="code-val">500</span> clamp(18px, 2vw, 22px) / <span class="code-val">1.2</span> var(--font-sans);
+<span class="code-key">--fn-h3-ls</span>: <span class="code-val">-0.01em</span>;
+
+<span class="code-key">--fn-body</span>: <span class="code-val">400</span> 14px / <span class="code-val">1.65</span> var(--font-sans);
+<span class="code-key">--fn-caption</span>: <span class="code-val">400</span> 12px / <span class="code-val">1.5</span> var(--font-sans);
+
+<span class="code-comment">/* ── Mono Scale (JetBrains Mono) ── */</span>
+<span class="code-key">--mo-data-lg</span>: <span class="code-val">600</span> clamp(24px, 3vw, 32px) / <span class="code-val">1</span> var(--font-mono);
+<span class="code-key">--mo-data</span>: <span class="code-val">600</span> 17px / <span class="code-val">1</span> var(--font-mono);
+<span class="code-key">--mo-label</span>: <span class="code-val">500</span> 10px / <span class="code-val">1</span> var(--font-mono);
+<span class="code-key">--mo-label-ls</span>: <span class="code-val">0.08em</span>;
+<span class="code-key">--mo-micro</span>: <span class="code-val">400</span> 9px / <span class="code-val">1</span> var(--font-mono);
+<span class="code-key">--mo-micro-ls</span>: <span class="code-val">0.1em</span>;
+
+<span class="code-comment">/* ── Warm Neutrals ── */</span>
+<span class="code-key">--n100</span>: <span class="code-str">#FAF9F5</span>;  <span class="code-comment">/* Canvas */</span>
+<span class="code-key">--n200</span>: <span class="code-str">#F3F1EC</span>;  <span class="code-comment">/* Card bg */</span>
+<span class="code-key">--n300</span>: <span class="code-str">#ECEAE4</span>;  <span class="code-comment">/* Border */</span>
+<span class="code-key">--n400</span>: <span class="code-str">#E8E5DC</span>;  <span class="code-comment">/* Section band */</span>
+<span class="code-key">--n500</span>: <span class="code-str">#E5E3DE</span>;
+<span class="code-key">--n600</span>: <span class="code-str">#D4D1CA</span>;
+<span class="code-key">--n700</span>: <span class="code-str">#C0BDB6</span>;
+<span class="code-key">--n800</span>: <span class="code-str">#B5B2AB</span>;  <span class="code-comment">/* Disabled */</span>
+<span class="code-key">--n900</span>: <span class="code-str">#8A8780</span>;  <span class="code-comment">/* Secondary text */</span>
+<span class="code-key">--n1000</span>: <span class="code-str">#5C5A55</span>;
+<span class="code-key">--n1050</span>: <span class="code-str">#383633</span>; <span class="code-comment">/* Body text */</span>
+<span class="code-key">--n1100</span>: <span class="code-str">#2A2826</span>;
+<span class="code-key">--n1150</span>: <span class="code-str">#131211</span>; <span class="code-comment">/* Ink */</span>
+
+<span class="code-comment">/* ── Zone Colors ── */</span>
+<span class="code-key">--z1</span>: <span class="code-str">#7CA3BE</span>;  <span class="code-comment">/* Recovery */</span>
+<span class="code-key">--z2</span>: <span class="code-str">#14B8A2</span>;  <span class="code-comment">/* Easy */</span>
+<span class="code-key">--z3</span>: <span class="code-str">#E8B020</span>;  <span class="code-comment">/* Tempo */</span>
+<span class="code-key">--z4</span>: <span class="code-str">#E36B30</span>;  <span class="code-comment">/* Threshold */</span>
+<span class="code-key">--z5</span>: <span class="code-str">#E83B52</span>;  <span class="code-comment">/* VO₂max */</span>
+<span class="code-key">--z6</span>: <span class="code-str">#9B40E8</span>;  <span class="code-comment">/* Sprint */</span>
+
+<span class="code-comment">/* ── Nutrients ── */</span>
+<span class="code-key">--cho</span>: <span class="code-str">#D97A4A</span>;  <span class="code-comment">/* Carbohydrate */</span>
+<span class="code-key">--fluid</span>: <span class="code-str">#2BA4D8</span>;  <span class="code-comment">/* Hydration */</span>
+<span class="code-key">--sodium</span>: <span class="code-str">#8B5CF6</span>;
+<span class="code-key">--caffeine</span>: <span class="code-str">#1AAD4E</span>;
+
+<span class="code-comment">/* ── Atmosphere ── */</span>
+<span class="code-key">--navy</span>: <span class="code-str">#0C1832</span>;
+<span class="code-key">--cream</span>: <span class="code-str">#F0DFC0</span>;
+</div>
+
+  <!-- Google Fonts import -->
+  <div style="margin:32px 0">
+    <div style="font-family:var(--mo);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--n800);margin-bottom:12px">GOOGLE FONTS IMPORT</div>
+    <div class="code-block" style="font-size:11px;word-break:break-all">@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 06 — QUICK-REFERENCE DECISION TABLE      -->
+<!-- ════════════════════════════════════════ -->
+<div style="height:48px"></div>
+<div class="wrap">
+  <div class="section-num">06 — BESLUTNINGSGUIDE</div>
+  <div class="section-title">Hvad bruger jeg hvornår?</div>
+  <div style="height:32px"></div>
+
+  <div style="border:1px solid var(--n300);border-radius:8px;overflow:hidden">
+    <!-- Header -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;background:var(--n400);padding:12px 20px;font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--n900)">
+      <div>ELEMENT</div>
+      <div>FONT</div>
+      <div>WEIGHT / SIZE</div>
+      <div>TRACKING</div>
+    </div>
+    <!-- Rows -->
+    <div style="font-family:var(--sa);font-size:13px">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300)">
+        <div>Hero headline</div><div style="color:var(--copper)">Cormorant</div><div><span style="font-family:var(--mo);font-size:11px">300 / 48-68px</span></div><div><span style="font-family:var(--mo);font-size:11px">-.03em</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300);background:var(--n200)">
+        <div>Article title</div><div style="color:var(--copper)">Cormorant</div><div><span style="font-family:var(--mo);font-size:11px">300 / 36-44px</span></div><div><span style="font-family:var(--mo);font-size:11px">-.02em</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300)">
+        <div>Card header</div><div style="color:var(--copper)">Cormorant</div><div><span style="font-family:var(--mo);font-size:11px">400 / 24-32px</span></div><div><span style="font-family:var(--mo);font-size:11px">-.015em</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300);background:var(--n200)">
+        <div>Article body</div><div style="color:var(--copper)">Cormorant</div><div><span style="font-family:var(--mo);font-size:11px">400 / 15-16px</span></div><div><span style="font-family:var(--mo);font-size:11px">0</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:2px solid var(--n400)">
+        <div>Dashboard title</div><div style="color:var(--z2)">Instrument</div><div><span style="font-family:var(--mo);font-size:11px">600 / 36-44px</span></div><div><span style="font-family:var(--mo);font-size:11px">-.02em</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300);background:var(--n200)">
+        <div>Widget header</div><div style="color:var(--z2)">Instrument</div><div><span style="font-family:var(--mo);font-size:11px">500 / 18-22px</span></div><div><span style="font-family:var(--mo);font-size:11px">-.01em</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300)">
+        <div>UI body text</div><div style="color:var(--z2)">Instrument</div><div><span style="font-family:var(--mo);font-size:11px">400 / 14px</span></div><div><span style="font-family:var(--mo);font-size:11px">0</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300);background:var(--n200)">
+        <div>Timestamp / caption</div><div style="color:var(--z2)">Instrument</div><div><span style="font-family:var(--mo);font-size:11px">400 / 12px</span></div><div><span style="font-family:var(--mo);font-size:11px">0</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300)">
+        <div>Data table</div><div style="color:var(--z2)">Instrument <span style="font-family:var(--mo);font-size:9px;color:var(--n800)">condensed</span></div><div><span style="font-family:var(--mo);font-size:11px">400-500 / 12-14px</span></div><div><span style="font-family:var(--mo);font-size:11px">0</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:2px solid var(--n400);background:var(--n200)">
+        <div>Big metric (85 g/h)</div><div>JetBrains</div><div><span style="font-family:var(--mo);font-size:11px">600 / 24-32px</span></div><div><span style="font-family:var(--mo);font-size:11px">0</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300)">
+        <div>Stat value (1:28:34)</div><div>JetBrains</div><div><span style="font-family:var(--mo);font-size:11px">600 / 16-18px</span></div><div><span style="font-family:var(--mo);font-size:11px">0</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300);background:var(--n200)">
+        <div>Label / tag</div><div>JetBrains</div><div><span style="font-family:var(--mo);font-size:11px">500 / 10-11px</span></div><div><span style="font-family:var(--mo);font-size:11px">.08em</span></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;padding:10px 20px;border-top:1px solid var(--n300)">
+        <div>Micro / footnote</div><div>JetBrains</div><div><span style="font-family:var(--mo);font-size:11px">400 / 9px</span></div><div><span style="font-family:var(--mo);font-size:11px">.1em</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- 07 — ANTI-PATTERNS                       -->
+<!-- ════════════════════════════════════════ -->
+<div style="height:64px"></div>
+<div class="wrap">
+  <div class="section-num">07 — ANTI-PATTERNS</div>
+  <div class="section-title">Gør aldrig dette.</div>
+  <div style="height:32px"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:64px">
+    <!-- Don't -->
+    <div style="border:2px solid var(--z5);border-radius:8px;padding:28px">
+      <div style="font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.15em;color:var(--z5);margin-bottom:20px">✗ ALDRIG</div>
+      <div style="font-family:var(--sa);font-size:13px;color:var(--n1050);line-height:2">
+        <div>Cormorant bold (600+) til noget som helst</div>
+        <div>Cormorant 500 ved størrelse over 44px</div>
+        <div>Satoshi under 400 weight</div>
+        <div>JetBrains til body-tekst eller beskrivelser</div>
+        <div>Tekst under 9px uanset font</div>
+        <div>Blande serif og sans i samme sætning</div>
+        <div>Cormorant til UI-knapper eller form labels</div>
+        <div>Satoshi til artikel-overskrifter</div>
+      </div>
+    </div>
+    <!-- Do -->
+    <div style="border:2px solid var(--z2);border-radius:8px;padding:28px">
+      <div style="font-family:var(--mo);font-size:9px;font-weight:500;letter-spacing:.15em;color:var(--z2);margin-bottom:20px">✓ ALTID</div>
+      <div style="font-family:var(--sa);font-size:13px;color:var(--n1050);line-height:2">
+        <div>Cormorant 300 til Display og H1 (de store)</div>
+        <div>Negative letter-spacing på alle headlines</div>
+        <div>JetBrains til alle numeriske værdier</div>
+        <div>Satoshi condensed til data-tabeller</div>
+        <div>Mono labels i UPPERCASE med tracking</div>
+        <div>Width-akse før font-size til pladsproblemer</div>
+        <div>Generøs line-height på body (1.65-1.8)</div>
+        <div>Luft og spacing som commitment-signal</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- FOOTER                                   -->
+<!-- ════════════════════════════════════════ -->
+<div style="border-top:1px solid var(--n300);padding:32px 0;margin-top:32px">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center">
+    <div style="display:flex;align-items:center;gap:10px">
+      <span style="font-family:var(--mo);font-size:12px;font-weight:700;letter-spacing:.08em">RAMTT</span>
+      <span style="font-family:var(--se);font-style:italic;font-size:14px;font-weight:300;color:var(--n900)">Type System v3</span>
+    </div>
+    <div style="display:flex;height:3px;width:48px;border-radius:2px;overflow:hidden">
+      <div style="flex:1;background:var(--z1)"></div>
+      <div style="flex:1;background:var(--z2)"></div>
+      <div style="flex:1;background:var(--z3)"></div>
+      <div style="flex:1;background:var(--z4)"></div>
+      <div style="flex:1;background:var(--z5)"></div>
+      <div style="flex:1;background:var(--z6)"></div>
+    </div>
+    <div style="font-family:var(--mo);font-size:9px;color:var(--n800);letter-spacing:.04em">26. marts 2026</div>
+  </div>
+</div>
+
+<div style="height:48px"></div>
+
+</body>
+</html>

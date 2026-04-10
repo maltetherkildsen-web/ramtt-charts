@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 /**
  * FIT binary file parser — converts .fit files into the FitData shape
  * used by the session analysis page.

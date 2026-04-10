@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING, WEIGHT } from '@/lib/ui'
 

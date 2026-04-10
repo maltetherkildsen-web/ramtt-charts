@@ -1,0 +1,62 @@
+{
+  "name": "@ramtt/charts",
+  "version": "0.1.0",
+  "description": "Zero-dependency SVG chart primitives for React. Tailwind-native. 60fps hover. < 12KB.",
+  "license": "MIT OR Apache-2.0",
+  "author": "Malte Therkildsen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maltetherkildsen-web/ramtt-charts",
+    "directory": "packages/charts"
+  },
+  "homepage": "https://ramtt-charts.vercel.app/demo",
+  "keywords": [
+    "react",
+    "charts",
+    "svg",
+    "dataviz",
+    "typescript",
+    "tailwindcss",
+    "zero-dependency",
+    "performance"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./math": {
+      "types": "./dist/math/index.d.ts",
+      "import": "./dist/math/index.js",
+      "require": "./dist/math/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE-MIT",
+    "LICENSE-APACHE",
+    "NOTICE",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": false },
+    "react-dom": { "optional": false }
+  },
+  "scripts": {
+    "build": "tsup",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  }
+}

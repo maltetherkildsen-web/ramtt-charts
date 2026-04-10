@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAMTT — 4-Font System Specification</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    /* Canvas & Neutrals */
+    --canvas: #FAF9F5;
+    --n50: #FBFBF8;
+    --n400: #E8E5DC;
+    --n600: #A8A49A;
+    --n800: #6B6760;
+    --n1050: #383633;
+    --n1150: #131211;
+
+    /* Zone Chromatics */
+    --z1: #7CA3BE;
+    --z2: #14B8A2;
+    --z3: #E8B020;
+    --z4: #E36B30;
+    --z5: #E83B52;
+    --z6: #9B40E8;
+    --fluid: #2AACCC;
+
+    /* Vivid Accents */
+    --z1v: #5B8DB0;
+    --z2v: #00D67E;
+    --z3v: #F0B818;
+    --z4v: #F06828;
+    --z5v: #F03060;
+    --z6v: #A040F0;
+
+    /* Font Families */
+    --font-display: 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Satoshi', -apple-system, sans-serif;
+    --font-label: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --font-editorial: 'Lora', Georgia, serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--canvas);
+    color: var(--n1150);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ========================================
+     DOCUMENT STRUCTURE
+     ======================================== */
+
+  .doc-header {
+    padding: 80px 60px 60px;
+    border-bottom: 1px solid var(--n400);
+  }
+
+  .doc-header .label {
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n800);
+    margin-bottom: 16px;
+  }
+
+  .doc-header h1 {
+    font-family: var(--font-display);
+    font-size: 52px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    color: var(--n1150);
+    margin-bottom: 12px;
+    font-feature-settings: 'onum' 1;
+  }
+
+  .doc-header .subtitle {
+    font-family: var(--font-body);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--n800);
+    max-width: 600px;
+  }
+
+  .doc-header .version {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--n600);
+    margin-top: 20px;
+  }
+
+  section {
+    padding: 60px 60px;
+    border-bottom: 1px solid var(--n400);
+  }
+
+  section:last-child {
+    border-bottom: none;
+  }
+
+  .section-label {
+    font-family: var(--font-label);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n800);
+    margin-bottom: 32px;
+  }
+
+  .section-intro {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--n800);
+    max-width: 640px;
+    margin-bottom: 48px;
+    line-height: 1.7;
+  }
+
+  /* ========================================
+     FONT CARDS
+     ======================================== */
+
+  .font-card {
+    background: white;
+    border: 1px solid var(--n400);
+    border-radius: 12px;
+    padding: 48px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .font-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+  }
+
+  .font-card.card-display::before { background: var(--n1150); }
+  .font-card.card-body::before { background: var(--n800); }
+  .font-card.card-label::before { background: var(--z3); }
+  .font-card.card-mono::before { background: var(--z2); }
+  .font-card.card-editorial::before { background: var(--z5); }
+
+  .font-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+  }
+
+  .font-card-header .font-name {
+    font-family: var(--font-body);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--n1150);
+  }
+
+  .font-card-header .font-role {
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n600);
+    background: var(--n50);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid var(--n400);
+  }
+
+  .font-specimen {
+    margin-bottom: 36px;
+  }
+
+  .font-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    padding-top: 28px;
+    border-top: 1px solid var(--n400);
+  }
+
+  .meta-item .meta-label {
+    font-family: var(--font-label);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n600);
+    margin-bottom: 6px;
+  }
+
+  .meta-item .meta-value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--n1050);
+    line-height: 1.5;
+  }
+
+  /* ========================================
+     SPECIMEN STYLES
+     ======================================== */
+
+  /* Cormorant Display */
+  .specimen-display-68 {
+    font-family: var(--font-display);
+    font-size: 68px;
+    font-weight: 300;
+    letter-spacing: -0.03em;
+    line-height: 1.05;
+    color: var(--n1150);
+    font-feature-settings: 'onum' 1;
+    margin-bottom: 16px;
+  }
+
+  .specimen-display-44 {
+    font-family: var(--font-display);
+    font-size: 44px;
+    font-weight: 300;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--n1150);
+    font-feature-settings: 'onum' 1;
+    margin-bottom: 16px;
+  }
+
+  .specimen-display-32 {
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--n1050);
+    font-feature-settings: 'onum' 1;
+  }
+
+  /* Satoshi Body */
+  .specimen-body {
+    font-family: var(--font-body);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.65;
+    color: var(--n1050);
+    max-width: 560px;
+  }
+
+  .specimen-body-sm {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+    color: var(--n800);
+    max-width: 560px;
+    margin-top: 12px;
+  }
+
+  /* Space Grotesk Labels */
+  .specimen-label-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .specimen-label-lg {
+    font-family: var(--font-label);
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n1150);
+  }
+
+  .specimen-label-md {
+    font-family: var(--font-label);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n1150);
+  }
+
+  .specimen-label-sm {
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--n800);
+  }
+
+  .specimen-section-header {
+    font-family: var(--font-label);
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--n1050);
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--n400);
+    margin-bottom: 16px;
+  }
+
+  /* Label examples */
+  .label-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid;
+  }
+
+  .label-tag.zone-1 { color: var(--z1); border-color: var(--z1); background: rgba(124,163,190,0.08); }
+  .label-tag.zone-2 { color: var(--z2); border-color: var(--z2); background: rgba(20,184,162,0.08); }
+  .label-tag.zone-3 { color: var(--z3); border-color: var(--z3); background: rgba(232,176,32,0.08); }
+  .label-tag.zone-4 { color: var(--z4); border-color: var(--z4); background: rgba(227,107,48,0.08); }
+  .label-tag.zone-5 { color: var(--z5); border-color: var(--z5); background: rgba(232,59,82,0.08); }
+
+  /* JetBrains Mono */
+  .specimen-mono-data {
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--n1150);
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .specimen-mono-sm {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--n800);
+  }
+
+  .specimen-mono-unit {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--n600);
+  }
+
+  .data-row {
+    display: flex;
+    gap: 48px;
+    align-items: baseline;
+  }
+
+  .data-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  /* ========================================
+     ROLE MATRIX
+     ======================================== */
+
+  .role-matrix {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 8px;
+  }
+
+  .role-matrix th {
+    font-family: var(--font-label);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n600);
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--n400);
+  }
+
+  .role-matrix td {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--n1050);
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--n400);
+    vertical-align: top;
+  }
+
+  .role-matrix td:first-child {
+    font-family: var(--font-body);
+    font-weight: 600;
+    color: var(--n1150);
+    white-space: nowrap;
+  }
+
+  .role-matrix .font-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--n600);
+    background: var(--n50);
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--n400);
+  }
+
+  .role-matrix .rule-tag {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--z4);
+    background: rgba(227,107,48,0.06);
+    padding: 2px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(227,107,48,0.2);
+  }
+
+  /* ========================================
+     CONTEXT CARDS (where fonts appear)
+     ======================================== */
+
+  .context-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .context-card {
+    background: var(--n50);
+    border: 1px solid var(--n400);
+    border-radius: 10px;
+    padding: 32px;
+  }
+
+  .context-card .context-title {
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n600);
+    margin-bottom: 20px;
+  }
+
+  /* ========================================
+     ANTI-PATTERNS
+     ======================================== */
+
+  .anti-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .anti-card {
+    padding: 24px;
+    border-radius: 10px;
+    border: 1px solid;
+  }
+
+  .anti-card.do {
+    background: rgba(20,184,162,0.04);
+    border-color: rgba(20,184,162,0.2);
+  }
+
+  .anti-card.dont {
+    background: rgba(232,59,82,0.04);
+    border-color: rgba(232,59,82,0.2);
+  }
+
+  .anti-card .anti-label {
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .anti-card.do .anti-label { color: var(--z2); }
+  .anti-card.dont .anti-label { color: var(--z5); }
+
+  .anti-card .anti-example {
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--n1050);
+    line-height: 1.6;
+  }
+
+  .anti-card .anti-example code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: rgba(0,0,0,0.04);
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ========================================
+     LIVE COMBO DEMOS
+     ======================================== */
+
+  .combo-demo {
+    background: white;
+    border: 1px solid var(--n400);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .combo-demo-header {
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--n400);
+    background: var(--n50);
+  }
+
+  .combo-demo-header span {
+    font-family: var(--font-label);
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n600);
+  }
+
+  .combo-demo-content {
+    padding: 40px;
+  }
+
+  /* Dark card demo */
+  .dark-card-demo {
+    background: var(--n1150);
+    border-radius: 12px;
+    padding: 40px;
+    margin-top: 24px;
+  }
+
+  .dark-card-demo .specimen-display-44 { color: var(--canvas); }
+  .dark-card-demo .specimen-label-sm { color: var(--n600); }
+  .dark-card-demo .specimen-mono-data { color: var(--canvas); }
+  .dark-card-demo .specimen-mono-unit { color: var(--n600); }
+  .dark-card-demo .specimen-body-sm { color: var(--n600); }
+
+  /* ========================================
+     CSS TOKENS SECTION
+     ======================================== */
+
+  .token-block {
+    background: var(--n1150);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+
+  .token-block pre {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.8;
+    color: var(--n600);
+    margin: 0;
+  }
+
+  .token-block .token-key { color: var(--z2); }
+  .token-block .token-val { color: var(--canvas); }
+  .token-block .token-comment { color: var(--n800); font-style: italic; }
+
+  /* ========================================
+     FOOTER
+     ======================================== */
+
+  .doc-footer {
+    padding: 40px 60px;
+    text-align: center;
+  }
+
+  .doc-footer p {
+    font-family: var(--font-label);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+    color: var(--n600);
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+
+<div class="doc-header">
+  <div class="label">Typography System</div>
+  <h1>4-Font System</h1>
+  <div class="subtitle">Cormorant Garamond · Space Grotesk · Satoshi · JetBrains Mono — med Lora til editorial body.</div>
+  <div class="version">v1.0 — Locked March 2026 · α Warm Electric</div>
+</div>
+
+
+<!-- ============================================================
+     SECTION 1: THE STACK
+     ============================================================ -->
+
+<section>
+  <div class="section-label">01 — Font Stack Overview</div>
+  <div class="section-intro">
+    Fire fonte, fire adskilte roller. Ingen overlapper. Hver font har ét job — og regler der forhindrer misbrug. Lora tilføjes som femte font udelukkende til editorial/Letters brødtekst.
+  </div>
+
+  <!-- CORMORANT GARAMOND -->
+  <div class="font-card card-display">
+    <div class="font-card-header">
+      <div class="font-name">Cormorant Garamond</div>
+      <div class="font-role">Special Moments · Display</div>
+    </div>
+    <div class="font-specimen">
+      <div class="specimen-display-68">Din krop,<br>dine zoner</div>
+      <div style="height: 20px;"></div>
+      <div class="specimen-display-44">Velkommen tilbage, Malte</div>
+      <div style="height: 16px;"></div>
+      <div class="specimen-display-32">Milestone: 1.000 km løbet i 2026</div>
+    </div>
+    <div class="font-meta">
+      <div class="meta-item">
+        <div class="meta-label">Rolle</div>
+        <div class="meta-value">Reserveret til "special moments"<br>i appen — velkomst, milestones,<br>science-sider, onboarding</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Weights</div>
+        <div class="meta-value">Display (48–68px): 300<br>H1 (36–44px): 300<br>H2 (24–32px): 400<br>H3 (18–22px): 500</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Tracking</div>
+        <div class="meta-value">Display: −0.03em<br>H1: −0.02em<br>H2/H3: −0.02em</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Regler</div>
+        <div class="meta-value">Altid oldstyle numerals<br>Større = lettere weight<br>Aldrig til funktionel UI<br>Maks ~3–5 steder i appen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPACE GROTESK -->
+  <div class="font-card card-label">
+    <div class="font-card-header">
+      <div class="font-name">Space Grotesk</div>
+      <div class="font-role">Labels · Section Headers</div>
+    </div>
+    <div class="font-specimen">
+      <div class="specimen-section-header">Træningshistorik</div>
+      <div style="height: 20px;"></div>
+      <div class="specimen-label-row">
+        <span class="specimen-label-lg">Aktive zoner</span>
+      </div>
+      <div class="specimen-label-row">
+        <span class="specimen-label-md">Næringsstof · Anbefaling · Status</span>
+      </div>
+      <div class="specimen-label-row">
+        <span class="specimen-label-sm">Sidst opdateret 28. mar 2026</span>
+      </div>
+      <div style="height: 20px;"></div>
+      <div class="specimen-label-row">
+        <span class="label-tag zone-1">Zone 1</span>
+        <span class="label-tag zone-2">Zone 2</span>
+        <span class="label-tag zone-3">Zone 3</span>
+        <span class="label-tag zone-4">Zone 4</span>
+        <span class="label-tag zone-5">Zone 5</span>
+      </div>
+    </div>
+    <div class="font-meta">
+      <div class="meta-item">
+        <div class="meta-label">Rolle</div>
+        <div class="meta-value">Alle labels, tags, badges,<br>section headers, tab-bars,<br>sidebar-kategorier, nav-items</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Størrelse</div>
+        <div class="meta-value">Section headers: 14–16px / 500<br>Labels: 11–12px / 600<br>Micro-labels: 9–10px / 600</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Tracking</div>
+        <div class="meta-value">Section headers: 0.08em<br>Labels: 0.10em<br>Micro: 0.12em</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Regler</div>
+        <div class="meta-value">ALTID uppercase<br>ALTID tracked<br>Aldrig mixed case<br>Aldrig til brødtekst</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTRUMENT SANS -->
+  <div class="font-card card-body">
+    <div class="font-card-header">
+      <div class="font-name">Satoshi</div>
+      <div class="font-role">Body · UI · Primary</div>
+    </div>
+    <div class="font-specimen">
+      <div class="specimen-body">
+        Satoshi er RAMTT's hverdagsfont. Den bruges til alt funktionelt indhold — brødtekst, knapper, inputs, tooltips, fejlbeskeder, onboarding-tekst og navigation. Den er luftig nok til små størrelser og neutral nok til at aldrig stjæle opmærksomhed fra indholdet.
+      </div>
+      <div class="specimen-body-sm">
+        Sekundær tekst i 14px — bruges til hjælpetekst, placeholders, og understøttende information der ikke skal dominere hierarkiet.
+      </div>
+    </div>
+    <div class="font-meta">
+      <div class="meta-item">
+        <div class="meta-label">Rolle</div>
+        <div class="meta-value">Alt funktionelt: brødtekst,<br>knapper, inputs, tooltips,<br>navigation, fejlbeskeder</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Størrelse</div>
+        <div class="meta-value">Body: 16px / 400<br>Secondary: 14px / 400<br>Small: 13px / 400<br>Buttons: 14–15px / 500–600</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Tracking</div>
+        <div class="meta-value">Standard (0)<br>Ingen manipulation</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Regler</div>
+        <div class="meta-value">Normal case (sentence/title)<br>Aldrig uppercase<br>Aldrig til labels/tags<br>Preload denne først</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JETBRAINS MONO -->
+  <div class="font-card card-mono">
+    <div class="font-card-header">
+      <div class="font-name">JetBrains Mono</div>
+      <div class="font-role">Data · Numbers</div>
+    </div>
+    <div class="font-specimen">
+      <div class="data-row">
+        <div class="data-cell">
+          <div class="specimen-mono-data">72</div>
+          <div class="specimen-mono-unit">g/h CHO</div>
+        </div>
+        <div class="data-cell">
+          <div class="specimen-mono-data">580</div>
+          <div class="specimen-mono-unit">ml/h fluid</div>
+        </div>
+        <div class="data-cell">
+          <div class="specimen-mono-data">164</div>
+          <div class="specimen-mono-unit">bpm avg</div>
+        </div>
+        <div class="data-cell">
+          <div class="specimen-mono-data">3:42</div>
+          <div class="specimen-mono-unit">min/km pace</div>
+        </div>
+      </div>
+      <div style="height: 20px;"></div>
+      <div class="specimen-mono-sm">
+        0123456789 · 3:42:18 · 72.4g · 164bpm · −0.03em · #FAF9F5
+      </div>
+    </div>
+    <div class="font-meta">
+      <div class="meta-item">
+        <div class="meta-label">Rolle</div>
+        <div class="meta-value">Alle numeriske værdier,<br>data displays, tidsformater,<br>units, kode-snippets</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Størrelse</div>
+        <div class="meta-value">Hero data: 24–32px / 500<br>Inline data: 14–16px / 400<br>Units/labels: 11–12px / 400<br>Micro: 10px / 400</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Tracking</div>
+        <div class="meta-value">Hero: −0.02em<br>Standard: 0<br>Units: 0.02em</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Regler</div>
+        <div class="meta-value">Kun til tal og data<br>Aldrig til brødtekst<br>Tabular figures aktive<br>Parres med Space Grotesk units</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LORA -->
+  <div class="font-card card-editorial">
+    <div class="font-card-header">
+      <div class="font-name">Lora</div>
+      <div class="font-role">Editorial Body · Letters Only</div>
+    </div>
+    <div class="font-specimen">
+      <div style="font-family: var(--font-editorial); font-size: 17px; line-height: 1.75; color: var(--n1050); max-width: 560px;">
+        Når du træner i zone 3, er kroppen i en delikat balance mellem aerob og anaerob energiomsætning. Det er her kulhydratindtaget spiller den mest kritiske rolle — for lidt, og du rammer muren; for meget, og mave-tarm-systemet protesterer. Forskningen peger på et sweet spot omkring 60–90 gram pr. time.
+      </div>
+    </div>
+    <div class="font-meta">
+      <div class="meta-item">
+        <div class="meta-label">Rolle</div>
+        <div class="meta-value">Kun editorial/Letters<br>brødtekst — aldrig i appen</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Størrelse</div>
+        <div class="meta-value">Body: 17px / 400<br>Italic for emphasis</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Tracking</div>
+        <div class="meta-value">Standard (0)</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Regler</div>
+        <div class="meta-value">Kun til Letters/artikler<br>Aldrig i app UI<br>Parres med Cormorant headlines</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 2: ROLE MATRIX
+     ============================================================ -->
+
+<section>
+  <div class="section-label">02 — Role Matrix</div>
+  <div class="section-intro">
+    Enhver tekst i RAMTT falder i én af disse kategorier. Matrixen eliminerer tvetydighed.
+  </div>
+
+  <table class="role-matrix">
+    <thead>
+      <tr>
+        <th>Element</th>
+        <th>Font</th>
+        <th>Størrelse</th>
+        <th>Weight</th>
+        <th>Case</th>
+        <th>Regler</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Display headline</td>
+        <td><span class="font-tag">Cormorant</span></td>
+        <td>48–68px</td>
+        <td>300</td>
+        <td>Sentence</td>
+        <td><span class="rule-tag">Special moments only</span></td>
+      </tr>
+      <tr>
+        <td>H1 headline</td>
+        <td><span class="font-tag">Cormorant</span></td>
+        <td>36–44px</td>
+        <td>300</td>
+        <td>Sentence</td>
+        <td><span class="rule-tag">Special moments only</span></td>
+      </tr>
+      <tr>
+        <td>Section header</td>
+        <td><span class="font-tag">Space Grotesk</span></td>
+        <td>14–16px</td>
+        <td>500</td>
+        <td>UPPERCASE</td>
+        <td><span class="rule-tag">tracking: 0.08em</span></td>
+      </tr>
+      <tr>
+        <td>Tab bar / Nav</td>
+        <td><span class="font-tag">Space Grotesk</span></td>
+        <td>12–14px</td>
+        <td>500–600</td>
+        <td>UPPERCASE</td>
+        <td><span class="rule-tag">tracking: 0.10em</span></td>
+      </tr>
+      <tr>
+        <td>Label / Tag</td>
+        <td><span class="font-tag">Space Grotesk</span></td>
+        <td>10–12px</td>
+        <td>600</td>
+        <td>UPPERCASE</td>
+        <td><span class="rule-tag">tracking: 0.10em</span></td>
+      </tr>
+      <tr>
+        <td>Micro-label</td>
+        <td><span class="font-tag">Space Grotesk</span></td>
+        <td>9–10px</td>
+        <td>600</td>
+        <td>UPPERCASE</td>
+        <td><span class="rule-tag">tracking: 0.12em</span></td>
+      </tr>
+      <tr>
+        <td>Body text</td>
+        <td><span class="font-tag">Satoshi</span></td>
+        <td>16px</td>
+        <td>400</td>
+        <td>Sentence</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Secondary text</td>
+        <td><span class="font-tag">Satoshi</span></td>
+        <td>14px</td>
+        <td>400</td>
+        <td>Sentence</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Button</td>
+        <td><span class="font-tag">Satoshi</span></td>
+        <td>14–15px</td>
+        <td>500–600</td>
+        <td>Sentence</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Input / Placeholder</td>
+        <td><span class="font-tag">Satoshi</span></td>
+        <td>15px</td>
+        <td>400</td>
+        <td>Sentence</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Tooltip / Help</td>
+        <td><span class="font-tag">Satoshi</span></td>
+        <td>13px</td>
+        <td>400</td>
+        <td>Sentence</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Data value (hero)</td>
+        <td><span class="font-tag">JetBrains Mono</span></td>
+        <td>24–32px</td>
+        <td>500</td>
+        <td>—</td>
+        <td><span class="rule-tag">tabular figures</span></td>
+      </tr>
+      <tr>
+        <td>Data value (inline)</td>
+        <td><span class="font-tag">JetBrains Mono</span></td>
+        <td>14–16px</td>
+        <td>400</td>
+        <td>—</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Unit label</td>
+        <td><span class="font-tag">JetBrains Mono</span></td>
+        <td>11–12px</td>
+        <td>400</td>
+        <td>lowercase</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td>Editorial body</td>
+        <td><span class="font-tag">Lora</span></td>
+        <td>17px</td>
+        <td>400</td>
+        <td>Sentence</td>
+        <td><span class="rule-tag">Letters only</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ============================================================
+     SECTION 3: LIVE COMBO DEMOS
+     ============================================================ -->
+
+<section>
+  <div class="section-label">03 — Live Combinations</div>
+  <div class="section-intro">
+    Sådan spiller fontene sammen i realistiske kontekster. Læg mærke til hvordan hver font har sin egen bane — de krydser aldrig.
+  </div>
+
+  <!-- App Dashboard Combo -->
+  <div class="combo-demo">
+    <div class="combo-demo-header">
+      <span>App · Dashboard Card</span>
+    </div>
+    <div class="combo-demo-content">
+      <div class="specimen-section-header">Dagens oversigt</div>
+      <div style="height: 20px;"></div>
+      <div style="display: flex; gap: 40px; align-items: baseline; margin-bottom: 16px;">
+        <div>
+          <div class="specimen-mono-data">72</div>
+          <div class="specimen-mono-unit">g/h mål</div>
+        </div>
+        <div>
+          <div class="specimen-mono-data" style="font-size: 22px;">48</div>
+          <div class="specimen-mono-unit">g/h aktuelt</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <span class="label-tag zone-2">Zone 2</span>
+        <span class="label-tag zone-3">Zone 3</span>
+      </div>
+      <div class="specimen-body-sm">
+        Du ligger 24 g/h under dit mål. Overvej at tilføje en gel ved næste interval.
+      </div>
+    </div>
+  </div>
+
+  <!-- Special Moment Combo -->
+  <div class="combo-demo">
+    <div class="combo-demo-header">
+      <span>App · Special Moment</span>
+    </div>
+    <div class="combo-demo-content" style="text-align: center; padding: 60px 40px;">
+      <div class="specimen-label-sm" style="margin-bottom: 16px;">MILESTONE</div>
+      <div class="specimen-display-68" style="margin-bottom: 20px;">1.000 km</div>
+      <div class="specimen-body" style="max-width: 400px; margin: 0 auto; color: var(--n800);">
+        Du har løbet tusind kilometer med RAMTT. Det er fra København til Firenze.
+      </div>
+    </div>
+  </div>
+
+  <!-- Dark card combo -->
+  <div class="combo-demo">
+    <div class="combo-demo-header">
+      <span>App · Dark Data Card</span>
+    </div>
+    <div class="dark-card-demo">
+      <div class="specimen-label-sm" style="margin-bottom: 24px;">RACE DAY PROTOCOL</div>
+      <div class="specimen-display-44" style="margin-bottom: 32px;">Copenhagen<br>Marathon 2026</div>
+      <div style="display: flex; gap: 48px; margin-bottom: 24px;">
+        <div>
+          <div class="specimen-mono-data">90</div>
+          <div class="specimen-mono-unit">g/h CHO</div>
+        </div>
+        <div>
+          <div class="specimen-mono-data">720</div>
+          <div class="specimen-mono-unit">ml/h fluid</div>
+        </div>
+        <div>
+          <div class="specimen-mono-data">200</div>
+          <div class="specimen-mono-unit">mg caffeine</div>
+        </div>
+      </div>
+      <div class="specimen-body-sm">
+        Baseret på din sveddrate og zone 3–4 fordeling over 42.2 km.
+      </div>
+    </div>
+  </div>
+
+  <!-- Editorial combo -->
+  <div class="combo-demo">
+    <div class="combo-demo-header">
+      <span>Letters · Editorial</span>
+    </div>
+    <div class="combo-demo-content" style="padding: 48px;">
+      <div class="specimen-label-sm" style="margin-bottom: 20px; color: var(--z5);">LETTER #12 · FORDØJELSE</div>
+      <div class="specimen-display-44" style="margin-bottom: 24px;">Hvorfor din mave<br>siger stop i zone 4</div>
+      <div style="font-family: var(--font-editorial); font-size: 17px; line-height: 1.75; color: var(--n1050); max-width: 520px;">
+        Når intensiteten stiger, omdirigerer kroppen blod fra fordøjelsessystemet til de arbejdende muskler. Det er en overlevelsesmekanisme — men for en atlet midt i et løb betyder det, at den gel du lige slugte, nu sidder som en klump i maven.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 4: ANTI-PATTERNS
+     ============================================================ -->
+
+<section>
+  <div class="section-label">04 — Anti-Patterns</div>
+  <div class="section-intro">
+    Regler der aldrig brydes. Hvis du er i tvivl, er svaret sandsynligvis her.
+  </div>
+
+  <div class="anti-grid">
+    <div class="anti-card do">
+      <div class="anti-label">✓ Gør dette</div>
+      <div class="anti-example">
+        Space Grotesk label: <code>AKTIVE ZONER</code><br>
+        Uppercase, tracked, 10–16px
+      </div>
+    </div>
+    <div class="anti-card dont">
+      <div class="anti-label">✗ Aldrig dette</div>
+      <div class="anti-example">
+        Space Grotesk i mixed case: <code>Aktive Zoner</code><br>
+        Space Grotesk til brødtekst
+      </div>
+    </div>
+
+    <div class="anti-card do">
+      <div class="anti-label">✓ Gør dette</div>
+      <div class="anti-example">
+        Cormorant kun på "special moment" sider<br>
+        Weight 300 ved 44px+
+      </div>
+    </div>
+    <div class="anti-card dont">
+      <div class="anti-label">✗ Aldrig dette</div>
+      <div class="anti-example">
+        Cormorant som hverdags-headline i appen<br>
+        Cormorant i bold (700) ved store størrelser
+      </div>
+    </div>
+
+    <div class="anti-card do">
+      <div class="anti-label">✓ Gør dette</div>
+      <div class="anti-example">
+        JetBrains Mono til <code>72 g/h</code><br>
+        Tal, data, units, tidsformater
+      </div>
+    </div>
+    <div class="anti-card dont">
+      <div class="anti-label">✗ Aldrig dette</div>
+      <div class="anti-example">
+        JetBrains Mono til labels: <code>ZONE 2</code><br>
+        Det er Space Grotesks job
+      </div>
+    </div>
+
+    <div class="anti-card do">
+      <div class="anti-label">✓ Gør dette</div>
+      <div class="anti-example">
+        Satoshi til knapper, inputs, hjælpetekst<br>
+        Normal case, ingen tracking
+      </div>
+    </div>
+    <div class="anti-card dont">
+      <div class="anti-label">✗ Aldrig dette</div>
+      <div class="anti-example">
+        Satoshi i uppercase som label<br>
+        Det er Space Grotesks job
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 5: CSS TOKENS
+     ============================================================ -->
+
+<section>
+  <div class="section-label">05 — CSS Custom Properties</div>
+  <div class="section-intro">
+    Copy-paste tokens til implementering. Tailwind 4-kompatibel via <code>@theme</code> directive.
+  </div>
+
+  <div class="token-block">
+    <pre>
+<span class="token-comment">/* ─── Font Families ─── */</span>
+<span class="token-key">--font-display</span>: <span class="token-val">'Cormorant Garamond', Georgia, serif;</span>
+<span class="token-key">--font-body</span>:    <span class="token-val">'Satoshi', -apple-system, sans-serif;</span>
+<span class="token-key">--font-label</span>:   <span class="token-val">'Space Grotesk', sans-serif;</span>
+<span class="token-key">--font-mono</span>:    <span class="token-val">'JetBrains Mono', 'SF Mono', monospace;</span>
+<span class="token-key">--font-editorial</span>: <span class="token-val">'Lora', Georgia, serif;</span>
+
+<span class="token-comment">/* ─── Space Grotesk Label Utilities ─── */</span>
+<span class="token-key">--label-section</span>:  <span class="token-val">500 14px/1.2 var(--font-label); letter-spacing: 0.08em; text-transform: uppercase;</span>
+<span class="token-key">--label-default</span>:  <span class="token-val">600 11px/1.2 var(--font-label); letter-spacing: 0.10em; text-transform: uppercase;</span>
+<span class="token-key">--label-micro</span>:    <span class="token-val">600 10px/1.2 var(--font-label); letter-spacing: 0.12em; text-transform: uppercase;</span>
+
+<span class="token-comment">/* ─── Cormorant Display Scale ─── */</span>
+<span class="token-key">--type-display</span>:  <span class="token-val">300 68px/1.05 var(--font-display); letter-spacing: -0.03em;</span>
+<span class="token-key">--type-h1</span>:       <span class="token-val">300 44px/1.15 var(--font-display); letter-spacing: -0.02em;</span>
+<span class="token-key">--type-h2</span>:       <span class="token-val">400 32px/1.2 var(--font-display); letter-spacing: -0.02em;</span>
+<span class="token-key">--type-h3</span>:       <span class="token-val">500 22px/1.3 var(--font-display); letter-spacing: -0.02em;</span>
+
+<span class="token-comment">/* ─── Satoshi Body Scale ─── */</span>
+<span class="token-key">--type-body</span>:     <span class="token-val">400 16px/1.65 var(--font-body);</span>
+<span class="token-key">--type-body-sm</span>:  <span class="token-val">400 14px/1.6 var(--font-body);</span>
+<span class="token-key">--type-small</span>:    <span class="token-val">400 13px/1.5 var(--font-body);</span>
+<span class="token-key">--type-button</span>:   <span class="token-val">500 14px/1.2 var(--font-body);</span>
+
+<span class="token-comment">/* ─── JetBrains Mono Data Scale ─── */</span>
+<span class="token-key">--data-hero</span>:     <span class="token-val">500 28px/1.1 var(--font-mono); letter-spacing: -0.02em;</span>
+<span class="token-key">--data-default</span>:  <span class="token-val">400 16px/1.3 var(--font-mono);</span>
+<span class="token-key">--data-unit</span>:     <span class="token-val">400 11px/1.2 var(--font-mono); letter-spacing: 0.02em;</span>
+    </pre>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 6: LOADING STRATEGY
+     ============================================================ -->
+
+<section>
+  <div class="section-label">06 — Performance & Loading</div>
+  <div class="section-intro">
+    Fire fonte i woff2 er under 200 KB samlet, subsetted. Denne strategi sikrer at intet blokerer rendering.
+  </div>
+
+  <div class="context-grid">
+    <div class="context-card">
+      <div class="context-title">Preload</div>
+      <div class="specimen-body-sm" style="margin: 0;">
+        Kun Satoshi preloades — det er den første font brugeren ser. Alle andre loader asynkront med <code>font-display: swap</code>.
+      </div>
+    </div>
+    <div class="context-card">
+      <div class="context-title">Subset</div>
+      <div class="specimen-body-sm" style="margin: 0;">
+        Cormorant Garamond subsettes til Latin (evt. kun de tegn der bruges). Space Grotesk subsettes til uppercase Latin + tal. JetBrains Mono til tal + få tegn (:./−+).
+      </div>
+    </div>
+    <div class="context-card">
+      <div class="context-title">Format</div>
+      <div class="specimen-body-sm" style="margin: 0;">
+        Alt i woff2. Ingen woff1/ttf fallbacks nødvendige for moderne browsers. Variable fonts hvor tilgængelige (Satoshi, Space Grotesk).
+      </div>
+    </div>
+    <div class="context-card">
+      <div class="context-title">Self-Host</div>
+      <div class="specimen-body-sm" style="margin: 0;">
+        Self-host alle fonte — én DNS-request mindre pr. font vs. Google Fonts. Servér fra samme domæne/CDN som appen.
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     SECTION 7: DECISION GUIDE
+     ============================================================ -->
+
+<section>
+  <div class="section-label">07 — Decision Guide</div>
+  <div class="section-intro">
+    Når du er i tvivl om hvilken font du skal bruge, følg dette flowchart.
+  </div>
+
+  <div class="font-card" style="background: var(--n50);">
+    <div style="font-family: var(--font-body); font-size: 15px; line-height: 2.2; color: var(--n1050);">
+      <strong>Er det et tal eller en dataværdi?</strong><br>
+      → <span style="font-family: var(--font-mono); font-size: 13px; background: rgba(20,184,162,0.1); padding: 2px 8px; border-radius: 3px;">JetBrains Mono</span><br><br>
+
+      <strong>Er det en label, tag, badge, section header, tab, eller kategori?</strong><br>
+      → <span style="font-family: var(--font-mono); font-size: 13px; background: rgba(232,176,32,0.1); padding: 2px 8px; border-radius: 3px;">Space Grotesk · UPPERCASE · tracked</span><br><br>
+
+      <strong>Er det en "special moment" — velkomst, milestone, onboarding, science-side?</strong><br>
+      → <span style="font-family: var(--font-mono); font-size: 13px; background: rgba(19,18,17,0.08); padding: 2px 8px; border-radius: 3px;">Cormorant Garamond · wt 300 · oldstyle nums</span><br><br>
+
+      <strong>Er det editorial/Letters brødtekst?</strong><br>
+      → <span style="font-family: var(--font-mono); font-size: 13px; background: rgba(232,59,82,0.1); padding: 2px 8px; border-radius: 3px;">Lora</span><br><br>
+
+      <strong>Alt andet?</strong><br>
+      → <span style="font-family: var(--font-mono); font-size: 13px; background: rgba(107,103,96,0.1); padding: 2px 8px; border-radius: 3px;">Satoshi</span>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+
+<div class="doc-footer">
+  <p>RAMTT · α Warm Electric · 4-Font System v1.0 · March 2026</p>
+</div>
+
+</body>
+</html>

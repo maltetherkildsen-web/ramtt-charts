@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { forwardRef, type ReactNode } from 'react'
 import { cn, RADIUS, BORDER, FONT, TRANSITION, WHITE_LIFT, WEIGHT } from '@/lib/ui'
 

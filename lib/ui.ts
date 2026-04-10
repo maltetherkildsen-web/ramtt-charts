@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 // lib/ui.ts — The foundation of @ramtt/ui
 
 /** Merge class names, filtering out falsy values. Zero-dependency alternative to clsx. */
@@ -155,6 +158,23 @@ export const DROPDOWN_ITEM = cn(
 // ─── Switch ───
 export const SWITCH_TRACK = { width: 36, height: 20, radius: 10 } as const;
 export const SWITCH_THUMB = { size: 16, inset: 2 } as const;
+
+// ─── Tooltip ───
+export const TOOLTIP_BG = 'bg-[var(--n1150)]';
+export const TOOLTIP_TEXT = 'text-[var(--n50)] text-[12px] font-[400]';
+export const TOOLTIP_RADIUS = 'rounded-[6px]';
+export const TOOLTIP_PADDING = 'px-2 py-1';
+
+// ─── Slider ───
+export const SLIDER_TRACK_HEIGHT = 4;
+export const SLIDER_THUMB_SIZE = 16;
+
+// ─── Avatar ───
+export const AVATAR_SIZES = {
+  sm: 24,
+  md: 32,
+  lg: 40,
+} as const;
 
 // ─── Layout ───
 // Standard content widths for consistent alignment

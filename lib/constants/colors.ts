@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // RAMTT Color System v3 — Tailwind Data Colors
 // Layer 1: RAMTT neutral base (LOCKED). Layer 2: Tailwind ramps (8 hues × 11 steps)

@@ -247,6 +247,62 @@ dialog[open] {
   50% { opacity: 0.5; }
 }
 
+/* ─── Slider (range input) ─── */
+.ramtt-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(
+    to right,
+    var(--n1150) 0%,
+    var(--n1150) var(--fill-percent),
+    var(--n200) var(--fill-percent),
+    var(--n200) 100%
+  );
+  border-radius: 2px;
+  outline: none;
+}
+.ramtt-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--n1150);
+  border: 2px solid white;
+  transition: transform 100ms;
+}
+.ramtt-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+.ramtt-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--n1150);
+  border: 2px solid white;
+  transition: transform 100ms;
+}
+.ramtt-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+}
+.ramtt-slider::-moz-range-track {
+  background: transparent;
+  border: none;
+  height: 4px;
+}
+
+/* ─── Accordion content animation ─── */
+.ramtt-accordion-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 200ms var(--ease-out-expo);
+}
+.ramtt-accordion-content[data-open="true"] {
+  grid-template-rows: 1fr;
+}
+.ramtt-accordion-content > div {
+  overflow: hidden;
+}
+
 /* Reduced motion respect */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

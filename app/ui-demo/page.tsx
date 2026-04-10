@@ -34,6 +34,12 @@ import {
   Tabs,
   Skeleton,
   Switch,
+  Tooltip,
+  Accordion,
+  Slider,
+  Avatar,
+  EmptyState,
+  Breadcrumb,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -833,6 +839,207 @@ function SwitchesDemo() {
   )
 }
 
+// ─── 18. Tooltip & Info ───
+
+function TooltipDemo() {
+  return (
+    <DemoSection title="Tooltip & Info">
+      <Card>
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Hover over each icon to see tooltip positions</p>
+            <div className="flex items-center gap-4">
+              <Tooltip content="Export as CSV" side="top">
+                <Button variant="ghost" size="icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Duplicate session" side="bottom">
+                <Button variant="ghost" size="icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25"/><path d="M9 6h5v5a2 2 0 01-2 2H9V6z" stroke="currentColor" strokeWidth="1.25"/></svg>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Edit settings" side="left">
+                <Button variant="ghost" size="icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2-9 9H2.5v-2l9-9z" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </Button>
+              </Tooltip>
+              <Tooltip content="Delete session" side="right" delay={500}>
+                <Button variant="ghost" size="icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6.5 4V3h3v1M5 4v8.5a1 1 0 001 1h4a1 1 0 001-1V4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </Button>
+              </Tooltip>
+            </div>
+          </div>
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Info text with tooltip</p>
+            <span className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+              Your FTP is used to calculate power zones{' '}
+              <Tooltip content="Functional Threshold Power — the highest power you can sustain for 1 hour">
+                <span className="text-[var(--n600)] inline-flex items-center">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1"/><path d="M7 6v3M7 4.5v.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/></svg>
+                </span>
+              </Tooltip>
+            </span>
+          </div>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 19. Accordion & Expandable ───
+
+function AccordionDemo() {
+  const [openItem, setOpenItem] = useState('zones')
+
+  return (
+    <DemoSection title="Accordion & Expandable">
+      <Card>
+        <Accordion type="single" value={openItem} onChange={(v) => setOpenItem(v as string)}>
+          <Accordion.Item value="zones">
+            <Accordion.Trigger>Thresholds & zones</Accordion.Trigger>
+            <Accordion.Content>
+              <div className="flex flex-col gap-3">
+                <Input label="FTP" value="280" type="number" unit="W" />
+                <Input label="LTHR" value="172" type="number" unit="bpm" />
+                <Select
+                  label="Zone model"
+                  value="coggan"
+                  options={[
+                    { value: 'coggan', label: 'Coggan (7-zone)' },
+                    { value: 'polarized', label: 'Polarized (3-zone)' },
+                  ]}
+                />
+              </div>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="integrations">
+            <Accordion.Trigger>Integrations</Accordion.Trigger>
+            <Accordion.Content>
+              <div className="flex flex-col gap-3">
+                <Switch checked={true} onChange={() => {}} label="Strava" description="Auto-sync activities from Strava" />
+                <Switch checked={false} onChange={() => {}} label="Garmin Connect" description="Sync from Garmin devices" />
+              </div>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="data">
+            <Accordion.Trigger>Data integrity</Accordion.Trigger>
+            <Accordion.Content>
+              <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                Run validation checks on your training data to detect gaps, spikes, and anomalies.
+              </p>
+            </Accordion.Content>
+          </Accordion.Item>
+          <Accordion.Item value="advanced" disabled>
+            <Accordion.Trigger>Advanced (coming soon)</Accordion.Trigger>
+            <Accordion.Content>
+              <p>Hidden content</p>
+            </Accordion.Content>
+          </Accordion.Item>
+        </Accordion>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 20. Range & Controls ───
+
+function SliderDemo() {
+  const [ftp, setFtp] = useState(280)
+  const [smoothing, setSmoothing] = useState(5)
+  const [plain, setPlain] = useState(50)
+
+  return (
+    <DemoSection title="Range & Controls">
+      <Card>
+        <div className="flex flex-col gap-6">
+          <Slider
+            value={ftp}
+            onChange={setFtp}
+            min={100}
+            max={400}
+            step={5}
+            label="FTP"
+            unit="W"
+          />
+          <Slider
+            value={smoothing}
+            onChange={setSmoothing}
+            min={1}
+            max={60}
+            label="Smoothing"
+            unit="s"
+            marks={[
+              { value: 1, label: '1s' },
+              { value: 5, label: '5s' },
+              { value: 15, label: '15s' },
+              { value: 30, label: '30s' },
+              { value: 60, label: '1m' },
+            ]}
+          />
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Plain slider (no label)</p>
+            <Slider value={plain} onChange={setPlain} min={0} max={100} />
+          </div>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 21. Identity & Navigation ───
+
+function IdentityNavDemo() {
+  return (
+    <DemoSection title="Identity & Navigation">
+      <div className="space-y-6">
+        {/* Avatars */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Avatars — sizes, initials fallback, status dots</p>
+          <div className="flex items-end gap-4">
+            <Avatar name="Malte" size="sm" />
+            <Avatar name="Malte Therkildsen" size="md" />
+            <Avatar name="Ruth Nielsen" size="lg" />
+            <Avatar name="Malte" size="md" status="online" />
+            <Avatar name="Ruth N" size="md" status="away" />
+            <Avatar name="Coach" size="md" status="offline" />
+          </div>
+        </div>
+
+        {/* Breadcrumb */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Breadcrumb navigation</p>
+          <Breadcrumb>
+            <Breadcrumb.Item href="/settings">Settings</Breadcrumb.Item>
+            <Breadcrumb.Item href="/settings/integrations">Integrations</Breadcrumb.Item>
+            <Breadcrumb.Item>Strava</Breadcrumb.Item>
+          </Breadcrumb>
+        </div>
+
+        {/* EmptyState */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Empty state</p>
+          <Card>
+            <EmptyState
+              icon={
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="8" y="8" width="32" height="32" rx="4" />
+                  <path d="M16 28l6-8 4 5 4-3 6 6" />
+                  <circle cx="18" cy="18" r="2" />
+                </svg>
+              }
+              title="No sessions yet"
+              description="Upload a FIT file to see your first session analysis."
+              action={<Button>Upload FIT file</Button>}
+            />
+          </Card>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -848,7 +1055,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              18 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              24 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -872,6 +1079,10 @@ export default function UIDemo() {
             <TabsDemo />
             <LoadingStatesDemo />
             <SwitchesDemo />
+            <TooltipDemo />
+            <AccordionDemo />
+            <SliderDemo />
+            <IdentityNavDemo />
           </div>
         </div>
       </main>
