@@ -40,6 +40,14 @@ import {
   Avatar,
   EmptyState,
   Breadcrumb,
+  Sidebar,
+  PageHeader,
+  Textarea,
+  Checkbox,
+  Radio,
+  FileUpload,
+  Tag,
+  Gauge,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1040,6 +1048,219 @@ function IdentityNavDemo() {
   )
 }
 
+// ─── 22. App Shell ───
+
+function AppShellDemo() {
+  return (
+    <DemoSection title="App Shell">
+      <div className="space-y-6">
+        {/* Sidebars */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Sidebar — expanded and collapsed</p>
+          <div className="flex gap-6">
+            <div className="border-[0.5px] border-[var(--n400)] rounded-[12px] overflow-hidden" style={{ height: 320 }}>
+              <Sidebar>
+                <Sidebar.Logo>
+                  <span className={cn(FONT.body, 'text-[15px]', WEIGHT.strong, 'text-[var(--n1150)]')}>RAMTT</span>
+                </Sidebar.Logo>
+                <Sidebar.Nav>
+                  <Sidebar.Item active icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}>Today</Sidebar.Item>
+                  <Sidebar.Item icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M3 8h14M7 3v2M13 3v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}>Calendar</Sidebar.Item>
+                  <Sidebar.Item icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 16V7l4-4 4 5 4-3 2 3v8H3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}>Analytics</Sidebar.Item>
+                  <Sidebar.Item icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 15l4-6 4 3 4-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}>Fuel</Sidebar.Item>
+                  <Sidebar.Separator />
+                  <Sidebar.Item icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="currentColor" strokeWidth="1.5"/><path d="M10 7v3l2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}>Settings</Sidebar.Item>
+                </Sidebar.Nav>
+                <Sidebar.Footer>
+                  <Sidebar.Item icon={<Avatar name="Malte" size="sm" />}>Malte</Sidebar.Item>
+                </Sidebar.Footer>
+              </Sidebar>
+            </div>
+            <div className="border-[0.5px] border-[var(--n400)] rounded-[12px] overflow-hidden" style={{ height: 320 }}>
+              <Sidebar collapsed>
+                <Sidebar.Logo>
+                  <span className={cn(FONT.body, 'text-[15px]', WEIGHT.strong, 'text-[var(--n1150)]')}>R</span>
+                </Sidebar.Logo>
+                <Sidebar.Nav>
+                  <Sidebar.Item active icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" stroke="currentColor" strokeWidth="1.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}>Today</Sidebar.Item>
+                  <Sidebar.Item icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M3 8h14M7 3v2M13 3v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>}>Calendar</Sidebar.Item>
+                  <Sidebar.Item icon={<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 16V7l4-4 4 5 4-3 2 3v8H3z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>}>Analytics</Sidebar.Item>
+                </Sidebar.Nav>
+                <Sidebar.Footer>
+                  <Sidebar.Item icon={<Avatar name="M" size="sm" />}>M</Sidebar.Item>
+                </Sidebar.Footer>
+              </Sidebar>
+            </div>
+          </div>
+        </div>
+
+        {/* PageHeader */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Page header variants</p>
+          <Card>
+            <PageHeader title="Settings" />
+            <PageHeader
+              title="Session analysis"
+              subtitle="MIT with spikes · 12. april 2026"
+              actions={
+                <>
+                  <Button variant="ghost" size="sm">Export</Button>
+                  <Button variant="outline" size="sm">Share</Button>
+                </>
+              }
+            />
+            <PageHeader
+              breadcrumb={
+                <Breadcrumb>
+                  <Breadcrumb.Item href="/settings">Settings</Breadcrumb.Item>
+                  <Breadcrumb.Item>Integrations</Breadcrumb.Item>
+                </Breadcrumb>
+              }
+              title="Integrations"
+              subtitle="Connect and sync your devices"
+              className="mb-0 border-b-0 pb-0"
+            />
+          </Card>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 23. Form Elements Extended ───
+
+function FormsExtendedDemo() {
+  const [notes, setNotes] = useState('Great session today. Felt strong on the climbs.')
+  const [power, setPower] = useState(true)
+  const [hr, setHr] = useState(true)
+  const [speed, setSpeed] = useState(false)
+  const [cadence, setCadence] = useState(false)
+  const [sport, setSport] = useState('cycling')
+
+  return (
+    <DemoSection title="Form Elements Extended">
+      <div className="grid grid-cols-2 gap-4">
+        {/* Textarea */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Textarea</Card.Title>
+          </Card.Header>
+          <Card.Body className="flex flex-col gap-3">
+            <Textarea
+              label="Session notes"
+              value={notes}
+              onChange={setNotes}
+              rows={3}
+              maxLength={500}
+              showCount
+            />
+            <Textarea placeholder="Add a comment..." rows={2} />
+          </Card.Body>
+        </Card>
+
+        {/* Checkbox + Radio */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Checkbox & radio</Card.Title>
+          </Card.Header>
+          <Card.Body className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <p className={cn(LABEL_STYLE)}>Visible channels</p>
+              <Checkbox checked={power} onChange={setPower} label="Power" />
+              <Checkbox checked={hr} onChange={setHr} label="Heart rate" />
+              <Checkbox checked={speed} onChange={setSpeed} label="Speed" />
+              <Checkbox checked={cadence} onChange={setCadence} label="Cadence" description="Requires crank sensor" />
+            </div>
+            <Radio.Group value={sport} onChange={setSport} label="Primary sport">
+              <Radio value="cycling" label="Cycling" />
+              <Radio value="running" label="Running" />
+              <Radio value="triathlon" label="Triathlon" description="Includes swim, bike, run" />
+            </Radio.Group>
+          </Card.Body>
+        </Card>
+
+        {/* FileUpload */}
+        <Card className="col-span-2">
+          <Card.Header>
+            <Card.Title>File upload</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <FileUpload
+              accept=".fit,.gpx,.tcx"
+              onUpload={() => {}}
+              label="Upload activity file"
+              description="Drag a .fit, .gpx, or .tcx file here"
+            />
+          </Card.Body>
+        </Card>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 24. Tags & Categories ───
+
+function TagsDemo() {
+  const [tags, setTags] = useState(['Cycling', 'Intervals'])
+
+  return (
+    <DemoSection title="Tags & Categories">
+      <Card>
+        <div className="flex flex-col gap-4">
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Display tags</p>
+            <div className="flex gap-1.5 flex-wrap">
+              <Tag>Cycling</Tag>
+              <Tag>Intervals</Tag>
+              <Tag color="var(--positive)">Build phase</Tag>
+              <Tag color="var(--warning)">Recovery</Tag>
+              <Tag onRemove={() => {}}>Removable</Tag>
+            </div>
+          </div>
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Tag input with suggestions</p>
+            <Tag.Input
+              tags={tags}
+              onAdd={(t) => setTags([...tags, t])}
+              onRemove={(t) => setTags(tags.filter((x) => x !== t))}
+              placeholder="Add sport..."
+              suggestions={['Cycling', 'Running', 'Swimming', 'Triathlon', 'Strength']}
+            />
+          </div>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 25. Gauges & Scores ───
+
+function GaugesDemo() {
+  return (
+    <DemoSection title="Gauges & Scores">
+      <Card>
+        <div className="flex items-end gap-8 justify-center py-4">
+          <Gauge value={42} max={100} label="Injury risk" color="warning" size="sm" />
+          <Gauge value={86} max={100} label="Glycogen" unit="%" color="positive" size="md" />
+          <Gauge value={73} max={100} label="Readiness" size="md" />
+          <Gauge
+            value={62}
+            max={100}
+            label="Fuel coverage"
+            unit="%"
+            size="lg"
+            thresholds={[
+              { value: 30, color: 'var(--negative)' },
+              { value: 60, color: 'var(--warning)' },
+              { value: 100, color: 'var(--positive)' },
+            ]}
+          />
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1055,7 +1276,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              24 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              32 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -1083,6 +1304,10 @@ export default function UIDemo() {
             <AccordionDemo />
             <SliderDemo />
             <IdentityNavDemo />
+            <AppShellDemo />
+            <FormsExtendedDemo />
+            <TagsDemo />
+            <GaugesDemo />
           </div>
         </div>
       </main>

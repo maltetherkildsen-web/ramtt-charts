@@ -176,6 +176,14 @@ export const AVATAR_SIZES = {
   lg: 40,
 } as const;
 
+// ─── Sidebar ───
+export const SIDEBAR_WIDTH = { expanded: 240, collapsed: 56 } as const;
+export const SIDEBAR_ITEM_STYLE = 'px-3 py-2 rounded-[6px] text-[13px] font-[400] text-[var(--n800)]';
+export const SIDEBAR_ITEM_ACTIVE = 'bg-[var(--n200)] font-[550] text-[var(--n1150)]';
+
+// ─── Gauge ───
+export const GAUGE_SIZES = { sm: 64, md: 96, lg: 128 } as const;
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {
