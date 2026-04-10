@@ -58,6 +58,14 @@ import {
   Kbd,
   Alert,
   Combobox,
+  Separator,
+  Label,
+  Collapsible,
+  InputGroup,
+  ScrollArea,
+  HoverCard,
+  Resizable,
+  ContextMenu,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1529,6 +1537,315 @@ function MiscDemo() {
   )
 }
 
+// ─── 30. Separators & Labels ───
+
+function SeparatorsLabelsDemo() {
+  const [sport, setSport] = useState('cycling')
+
+  return (
+    <DemoSection title="Separators & Labels">
+      <div className="space-y-6">
+        {/* Separators */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Separator variants</Card.Title>
+          </Card.Header>
+          <Card.Body className="flex flex-col gap-4">
+            <div>
+              <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Horizontal (default)</p>
+              <Separator />
+            </div>
+            <div>
+              <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Horizontal (subtle)</p>
+              <Separator variant="subtle" />
+            </div>
+            <div>
+              <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>With label</p>
+              <Separator label="or" />
+            </div>
+            <div>
+              <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Vertical (between inline elements)</p>
+              <div className="flex items-center gap-3 h-8">
+                <span className={cn(FONT.body, 'text-[13px] text-[var(--n1150)]')}>Power</span>
+                <Separator orientation="vertical" />
+                <span className={cn(FONT.body, 'text-[13px] text-[var(--n1150)]')}>Heart rate</span>
+                <Separator orientation="vertical" />
+                <span className={cn(FONT.body, 'text-[13px] text-[var(--n1150)]')}>Cadence</span>
+              </div>
+            </div>
+          </Card.Body>
+        </Card>
+
+        {/* Labels */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Label variants</Card.Title>
+          </Card.Header>
+          <Card.Body className="flex flex-col gap-4">
+            <div>
+              <Label htmlFor="ftp-label-demo" required description="Based on your last 20-minute test">
+                Functional threshold power
+              </Label>
+              <Input id="ftp-label-demo" type="number" placeholder="280" unit="W" />
+            </div>
+            <fieldset>
+              <Label as="legend">Primary sport</Label>
+              <Radio.Group value={sport} onChange={setSport}>
+                <Radio value="cycling" label="Cycling" />
+                <Radio value="running" label="Running" />
+                <Radio value="triathlon" label="Triathlon" />
+              </Radio.Group>
+            </fieldset>
+          </Card.Body>
+        </Card>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 31. Collapsible & Scroll ───
+
+function CollapsibleScrollDemo() {
+  const [notes, setNotes] = useState('Good tempo ride. Legs felt fresh after rest day.')
+
+  return (
+    <DemoSection title="Collapsible & Scroll">
+      <div className="grid grid-cols-2 gap-4">
+        {/* Collapsibles */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Collapsible</Card.Title>
+          </Card.Header>
+          <Card.Body className="flex flex-col gap-1">
+            <Collapsible>
+              <Collapsible.Trigger>Advanced settings</Collapsible.Trigger>
+              <Collapsible.Content>
+                <div className="flex flex-col gap-3">
+                  <Input label="Custom metric name" placeholder="e.g. NP ratio" />
+                  <Switch label="Show in dashboard" checked={true} onChange={() => {}} />
+                  <Switch label="Include in exports" checked={false} onChange={() => {}} />
+                </div>
+              </Collapsible.Content>
+            </Collapsible>
+            <Separator variant="subtle" />
+            <Collapsible defaultOpen>
+              <Collapsible.Trigger>Session notes</Collapsible.Trigger>
+              <Collapsible.Content>
+                <Textarea value={notes} onChange={setNotes} rows={3} />
+              </Collapsible.Content>
+            </Collapsible>
+          </Card.Body>
+        </Card>
+
+        {/* ScrollArea */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Scroll area</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Vertical (300px, custom scrollbar on hover)</p>
+            <ScrollArea className="h-[200px]">
+              <div className="flex flex-col gap-1">
+                {Array.from({ length: 20 }, (_, i) => (
+                  <DataRow
+                    key={i}
+                    label={`Interval ${i + 1}`}
+                    value={`${260 + Math.floor(Math.random() * 80)}`}
+                    unit="W"
+                  />
+                ))}
+              </div>
+            </ScrollArea>
+          </Card.Body>
+        </Card>
+
+        {/* Horizontal ScrollArea */}
+        <Card className="col-span-2">
+          <Card.Header>
+            <Card.Title>Horizontal scroll</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <ScrollArea orientation="horizontal">
+              <div className="flex gap-3" style={{ width: 'max-content' }}>
+                {['MIT', 'Tempo', 'Recovery', 'VO2max', 'Endurance', 'Sweet Spot', 'Race Pace', 'Threshold'].map((name) => (
+                  <Card key={name} className="min-w-[160px] shrink-0">
+                    <div className="p-3">
+                      <p className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)]')}>{name}</p>
+                      <p className={cn(MUTED_STYLE, 'text-[12px]')}>Session type</p>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </ScrollArea>
+          </Card.Body>
+        </Card>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 32. InputGroup, HoverCard, Resizable, ContextMenu ───
+
+function Wave6ComplexDemo() {
+  return (
+    <DemoSection title="InputGroup, HoverCard, Resizable, ContextMenu">
+      <div className="space-y-6">
+        {/* InputGroup */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Input group</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>With prefix</p>
+                <InputGroup>
+                  <InputGroup.Prefix>https://</InputGroup.Prefix>
+                  <Input placeholder="ramtt.dev" />
+                </InputGroup>
+              </div>
+              <div>
+                <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>With icon prefix</p>
+                <InputGroup>
+                  <InputGroup.Prefix>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.25" />
+                      <path d="M10.5 10.5L13 13" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+                    </svg>
+                  </InputGroup.Prefix>
+                  <Input placeholder="Search sessions..." />
+                </InputGroup>
+              </div>
+              <div>
+                <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>With suffix</p>
+                <InputGroup>
+                  <Input type="number" placeholder="72" />
+                  <InputGroup.Suffix>kg</InputGroup.Suffix>
+                </InputGroup>
+              </div>
+              <div>
+                <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Combined prefix + suffix</p>
+                <InputGroup>
+                  <InputGroup.Prefix>$</InputGroup.Prefix>
+                  <Input type="number" placeholder="0.00" />
+                  <InputGroup.Suffix>USD</InputGroup.Suffix>
+                </InputGroup>
+              </div>
+            </div>
+          </Card.Body>
+        </Card>
+
+        {/* HoverCard */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Hover card</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Hover over the name to see a preview</p>
+            <HoverCard>
+              <HoverCard.Trigger>
+                <span className="text-[var(--info)] text-[13px]">@malte</span>
+              </HoverCard.Trigger>
+              <HoverCard.Content>
+                <div className="flex gap-3 p-3">
+                  <Avatar name="Malte" size="lg" />
+                  <div>
+                    <p className={cn(FONT.body, 'text-[14px]', WEIGHT.strong, 'text-[var(--n1150)]')}>Malte</p>
+                    <p className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>FTP 285W &middot; 72kg</p>
+                    <p className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>Last session: 2h ago</p>
+                  </div>
+                </div>
+              </HoverCard.Content>
+            </HoverCard>
+          </Card.Body>
+        </Card>
+
+        {/* Resizable */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Resizable panels</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Drag the handle to resize (30/70 split)</p>
+            <div className={cn(BORDER.default, 'rounded-[8px] overflow-hidden')} style={{ height: 160 }}>
+              <Resizable direction="horizontal">
+                <Resizable.Panel defaultSize={30} minSize={15} maxSize={50}>
+                  <div className="h-full bg-[var(--n200)] p-3">
+                    <p className={cn(FONT.body, 'text-[12px]', WEIGHT.strong, 'text-[var(--n1150)]')}>Sidebar</p>
+                    <p className={cn(MUTED_STYLE, 'text-[11px] mt-1')}>Drag handle to resize</p>
+                  </div>
+                </Resizable.Panel>
+                <Resizable.Handle />
+                <Resizable.Panel defaultSize={70}>
+                  <div className="h-full bg-[var(--n50)] p-3">
+                    <p className={cn(FONT.body, 'text-[12px]', WEIGHT.strong, 'text-[var(--n1150)]')}>Main content</p>
+                    <p className={cn(MUTED_STYLE, 'text-[11px] mt-1')}>Fills remaining space</p>
+                  </div>
+                </Resizable.Panel>
+              </Resizable>
+            </div>
+          </Card.Body>
+        </Card>
+
+        {/* ContextMenu */}
+        <Card>
+          <Card.Header>
+            <Card.Title>Context menu</Card.Title>
+          </Card.Header>
+          <Card.Body>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Right-click the card below</p>
+            <ContextMenu>
+              <ContextMenu.Trigger>
+                <Card className="p-4">
+                  <p className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)]')}>MIT with spikes</p>
+                  <p className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>12. april 2026 &middot; 1:28:40</p>
+                </Card>
+              </ContextMenu.Trigger>
+              <ContextMenu.Content>
+                <ContextMenu.Item
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5" stroke="currentColor" strokeWidth="1.25"/></svg>}
+                  onClick={() => {}}
+                >
+                  Open session
+                </ContextMenu.Item>
+                <ContextMenu.Item
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  onClick={() => {}}
+                >
+                  Edit
+                </ContextMenu.Item>
+                <ContextMenu.Item
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25"/><path d="M9 7h5v5a1 1 0 01-1 1H9V7z" stroke="currentColor" strokeWidth="1.25"/></svg>}
+                  onClick={() => {}}
+                >
+                  Duplicate
+                  <ContextMenu.Shortcut><Kbd>⌘D</Kbd></ContextMenu.Shortcut>
+                </ContextMenu.Item>
+                <ContextMenu.Separator />
+                <ContextMenu.Item
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M8 3l5 5-5 5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  onClick={() => {}}
+                >
+                  Export as FIT
+                </ContextMenu.Item>
+                <ContextMenu.Separator />
+                <ContextMenu.Item
+                  variant="danger"
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 5h10M6 5V3h4v2M5 5v8h6V5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                  onClick={() => {}}
+                >
+                  Delete session
+                  <ContextMenu.Shortcut><Kbd>⌘⌫</Kbd></ContextMenu.Shortcut>
+                </ContextMenu.Item>
+              </ContextMenu.Content>
+            </ContextMenu>
+          </Card.Body>
+        </Card>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1544,7 +1861,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              42 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              50 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -1580,6 +1897,9 @@ export default function UIDemo() {
             <CommandDemo />
             <PopoverDrawerDemo />
             <MiscDemo />
+            <SeparatorsLabelsDemo />
+            <CollapsibleScrollDemo />
+            <Wave6ComplexDemo />
           </div>
         </div>
       </main>

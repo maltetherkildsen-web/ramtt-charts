@@ -94,7 +94,10 @@ function auditComponent(path: string, content: string) {
        basename.includes('Calendar') || basename.includes('DatePicker') ||
        basename.includes('Popover') || basename.includes('Command') ||
        basename.includes('Pagination') || basename.includes('Drawer') ||
-       basename.includes('Combobox'))) {
+       basename.includes('Combobox') || basename.includes('Collapsible') ||
+       basename.includes('InputGroup') || basename.includes('ScrollArea') ||
+       basename.includes('HoverCard') || basename.includes('Resizable') ||
+       basename.includes('ContextMenu'))) {
     WARNINGS.push(`${path}: Interactive component without forwardRef`);
   }
 
@@ -237,7 +240,7 @@ if (existsSync(chartDir)) {
 // ── Phase 4: lib/ui.ts integrity ──
 console.log('Phase 4: lib/ui.ts integrity');
 const uiTs = readFileSync(join(ROOT, 'lib/ui.ts'), 'utf-8');
-const requiredExports = ['WEIGHT', 'FONT', 'RADIUS', 'BORDER', 'TRANSITION', 'LABEL_STYLE', 'VALUE_STYLE', 'MUTED_STYLE', 'UNIT_STYLE', 'BODY_STYLE', 'QUIET_STYLE', 'HOVER_SAND', 'ACTIVE_SAND', 'ACTIVE_BLACK', 'WHITE_LIFT', 'ACTIVE_UNDERLINE', 'FOCUS_RING', 'LAYOUT', 'SIZE_HEIGHTS', 'SIZE_TEXT', 'SIZE_PADDING_X', 'MODAL_WIDTH', 'TOAST_MAX_VISIBLE', 'TOAST_DEFAULT_DURATION', 'DROPDOWN_ITEM', 'SWITCH_TRACK', 'SWITCH_THUMB', 'TOOLTIP_BG', 'TOOLTIP_TEXT', 'TOOLTIP_RADIUS', 'TOOLTIP_PADDING', 'SLIDER_TRACK_HEIGHT', 'SLIDER_THUMB_SIZE', 'AVATAR_SIZES', 'SIDEBAR_WIDTH', 'SIDEBAR_ITEM_STYLE', 'SIDEBAR_ITEM_ACTIVE', 'GAUGE_SIZES', 'CALENDAR_CELL_SIZE', 'CALENDAR_WEEK_STARTS_ON', 'PAGE_BUTTON_SIZE', 'PAGE_BUTTON_ACTIVE', 'DRAWER_WIDTHS', 'SPINNER_SIZES'];
+const requiredExports = ['WEIGHT', 'FONT', 'RADIUS', 'BORDER', 'TRANSITION', 'LABEL_STYLE', 'VALUE_STYLE', 'MUTED_STYLE', 'UNIT_STYLE', 'BODY_STYLE', 'QUIET_STYLE', 'HOVER_SAND', 'ACTIVE_SAND', 'ACTIVE_BLACK', 'WHITE_LIFT', 'ACTIVE_UNDERLINE', 'FOCUS_RING', 'LAYOUT', 'SIZE_HEIGHTS', 'SIZE_TEXT', 'SIZE_PADDING_X', 'MODAL_WIDTH', 'TOAST_MAX_VISIBLE', 'TOAST_DEFAULT_DURATION', 'DROPDOWN_ITEM', 'SWITCH_TRACK', 'SWITCH_THUMB', 'TOOLTIP_BG', 'TOOLTIP_TEXT', 'TOOLTIP_RADIUS', 'TOOLTIP_PADDING', 'SLIDER_TRACK_HEIGHT', 'SLIDER_THUMB_SIZE', 'AVATAR_SIZES', 'SIDEBAR_WIDTH', 'SIDEBAR_ITEM_STYLE', 'SIDEBAR_ITEM_ACTIVE', 'GAUGE_SIZES', 'CALENDAR_CELL_SIZE', 'CALENDAR_WEEK_STARTS_ON', 'PAGE_BUTTON_SIZE', 'PAGE_BUTTON_ACTIVE', 'DRAWER_WIDTHS', 'SPINNER_SIZES', 'SEPARATOR_DEFAULT', 'SEPARATOR_SUBTLE', 'SCROLLBAR_WIDTH', 'SCROLLBAR_THUMB_MIN', 'SCROLLBAR_THUMB_COLOR', 'SCROLLBAR_THUMB_HOVER', 'SCROLLBAR_THUMB_ACTIVE'];
 for (const exp of requiredExports) {
   if (!uiTs.includes(`export const ${exp}`)) {
     ERRORS.push(`lib/ui.ts: Missing export: ${exp}`);

@@ -55,6 +55,16 @@ export { Kbd } from './Kbd';
 export { Alert } from './Alert';
 export { Combobox } from './Combobox';
 
+// ─── Components (Wave 6 — Final Parity) ───
+export { Separator } from './Separator';
+export { Label } from './Label';
+export { Collapsible } from './Collapsible';
+export { InputGroup } from './InputGroup';
+export { ScrollArea } from './ScrollArea';
+export { HoverCard } from './HoverCard';
+export { Resizable } from './Resizable';
+export { ContextMenu } from './ContextMenu';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
@@ -63,6 +73,7 @@ export { LAYOUT, MODAL_WIDTH, TOAST_MAX_VISIBLE, TOAST_DEFAULT_DURATION, DROPDOW
 export { TOOLTIP_BG, TOOLTIP_TEXT, TOOLTIP_RADIUS, TOOLTIP_PADDING, SLIDER_TRACK_HEIGHT, SLIDER_THUMB_SIZE, AVATAR_SIZES } from '@/lib/ui';
 export { SIDEBAR_WIDTH, SIDEBAR_ITEM_STYLE, SIDEBAR_ITEM_ACTIVE, GAUGE_SIZES } from '@/lib/ui';
 export { CALENDAR_CELL_SIZE, CALENDAR_WEEK_STARTS_ON, PAGE_BUTTON_SIZE, PAGE_BUTTON_ACTIVE, DRAWER_WIDTHS, SPINNER_SIZES } from '@/lib/ui';
+export { SEPARATOR_DEFAULT, SEPARATOR_SUBTLE, SCROLLBAR_WIDTH, SCROLLBAR_THUMB_MIN, SCROLLBAR_THUMB_COLOR, SCROLLBAR_THUMB_HOVER, SCROLLBAR_THUMB_ACTIVE } from '@/lib/ui';
 
 // ─── Types ───
 export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';

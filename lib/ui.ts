@@ -198,6 +198,17 @@ export const DRAWER_WIDTHS = { sm: 320, md: 420, lg: 560 } as const;
 // ─── Spinner ───
 export const SPINNER_SIZES = { sm: 14, md: 18, lg: 24 } as const;
 
+// ─── Separator ───
+export const SEPARATOR_DEFAULT = 'bg-[var(--n400)]'
+export const SEPARATOR_SUBTLE = 'bg-[var(--n200)]'
+
+// ─── Scrollbar ───
+export const SCROLLBAR_WIDTH = 6
+export const SCROLLBAR_THUMB_MIN = 30
+export const SCROLLBAR_THUMB_COLOR = 'var(--n400)'
+export const SCROLLBAR_THUMB_HOVER = 'var(--n600)'
+export const SCROLLBAR_THUMB_ACTIVE = 'var(--n800)'
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {
