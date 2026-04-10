@@ -18,7 +18,7 @@
  *   - Click outside the window → center the view on that position.
  */
 
-import { useRef, useMemo, useCallback } from 'react'
+import { useRef, useMemo, useCallback, useEffect } from 'react'
 import { useChartSync } from './ChartSyncProvider'
 import { lttb } from '@/lib/charts/utils/lttb'
 import { cn } from '@/lib/utils'
@@ -110,12 +110,27 @@ export function ChartScrubber({
   const sampled = useMemo(() => sampleData(data, MAX_SAMPLE_POINTS), [data])
 
   const miniPath = useMemo(() => {
-    // We'll use 100% width conceptually — the SVG viewBox handles scaling
-    // Use a fixed coordinate space and let viewBox stretch
     return buildMiniAreaPath(sampled, 1000, MINI_SVG_HEIGHT)
   }, [sampled])
 
-  // ─── Drag handlers ───
+  // ─── Document-level drag handlers (stable refs) ───
+
+  const handleDocMove = useRef((e: PointerEvent) => {
+    // Placeholder — replaced in onPointerDown
+  })
+
+  const handleDocUp = useRef((e: PointerEvent) => {
+    // Placeholder — replaced in onPointerDown
+  })
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('pointermove', handleDocMove.current)
+      document.removeEventListener('pointerup', handleDocUp.current)
+      document.removeEventListener('pointercancel', handleDocUp.current)
+    }
+  }, [])
 
   const handleWindowPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
@@ -127,41 +142,45 @@ export function ChartScrubber({
       dragStartX.current = e.clientX
       dragStartZoomStart.current = sync.zoom.start
 
-      ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
-    },
-    [sync],
-  )
+      // NO setPointerCapture — it causes pointercancel.
+      // Use document-level listeners instead.
 
-  const handleWindowPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!dragging.current || !sync || !containerRef.current) return
+      const onMove = (me: PointerEvent) => {
+        if (!dragging.current || !sync || !containerRef.current) return
 
-      const containerWidth = containerRef.current.getBoundingClientRect().width
-      const deltaX = e.clientX - dragStartX.current
-      const deltaFraction = deltaX / containerWidth
-      const deltaIndices = Math.round(deltaFraction * dataLength)
+        const containerWidth = containerRef.current.getBoundingClientRect().width
+        const deltaX = me.clientX - dragStartX.current
+        const deltaFraction = deltaX / containerWidth
+        const deltaIndices = Math.round(deltaFraction * dataLength)
 
-      const visibleRange = sync.zoom.end - sync.zoom.start
-      const newStart = Math.max(
-        0,
-        Math.min(dataLength - visibleRange, dragStartZoomStart.current + deltaIndices),
-      )
+        const visibleRange = sync.zoom.end - sync.zoom.start
+        const newStart = Math.max(
+          0,
+          Math.min(dataLength - visibleRange, dragStartZoomStart.current + deltaIndices),
+        )
 
-      sync.setZoom({
-        start: newStart,
-        end: newStart + visibleRange,
-      })
+        sync.setZoom({
+          start: newStart,
+          end: newStart + visibleRange,
+        })
+      }
+
+      const onUp = () => {
+        dragging.current = false
+        document.removeEventListener('pointermove', onMove)
+        document.removeEventListener('pointerup', onUp)
+        document.removeEventListener('pointercancel', onUp)
+      }
+
+      // Store refs for cleanup
+      handleDocMove.current = onMove
+      handleDocUp.current = onUp
+
+      document.addEventListener('pointermove', onMove)
+      document.addEventListener('pointerup', onUp)
+      document.addEventListener('pointercancel', onUp)
     },
     [sync, dataLength],
-  )
-
-  const handleWindowPointerUp = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!dragging.current) return
-      dragging.current = false
-      ;(e.target as HTMLElement).releasePointerCapture(e.pointerId)
-    },
-    [],
   )
 
   // ─── Click outside window → center view ───
@@ -215,13 +234,12 @@ export function ChartScrubber({
         {/* Draggable zoom window */}
         <div
           onPointerDown={handleWindowPointerDown}
-          onPointerMove={handleWindowPointerMove}
-          onPointerUp={handleWindowPointerUp}
           className="absolute inset-y-0 cursor-grab rounded-[3px] border border-(--n600) active:cursor-grabbing"
           style={{
             left: `${windowLeftPct}%`,
             width: `${windowWidthPct}%`,
             backgroundColor: 'rgba(56, 54, 51, 0.08)',
+            touchAction: 'none',
           }}
         />
       </div>

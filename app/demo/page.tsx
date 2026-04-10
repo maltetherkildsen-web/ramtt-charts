@@ -28,6 +28,11 @@ import { ChartTreemap } from '@/components/charts/primitives/ChartTreemap'
 import { ChartFunnel } from '@/components/charts/primitives/ChartFunnel'
 import { ChartBoxPlot } from '@/components/charts/primitives/ChartBoxPlot'
 
+// ─── Batch 5 primitives ───
+import { ChartHeatmap } from '@/components/charts/primitives/ChartHeatmap'
+import { ChartCalendarHeatmap } from '@/components/charts/primitives/ChartCalendarHeatmap'
+import { ChartAnnotation, type Annotation } from '@/components/charts/primitives/ChartAnnotation'
+
 // ─── Math utilities ───
 import { stackSeries } from '@/lib/charts/utils/stack'
 import { scaleLinear } from '@/lib/charts/scales/linear'
@@ -57,8 +62,13 @@ import {
   generateDiskUsageData,
   generateSalesPipeline,
   generateResponseTimeData,
+  generateActivityHeatmap,
+  generateContributionData,
+  generatePortfolioData,
+  generateProductTimelineData,
+  generateTemperatureAnomalyData,
 } from './generate-data'
-import type { ScatterPoint, OHLCPoint, ResponseTimeBox } from './generate-data'
+import type { ScatterPoint, OHLCPoint, ResponseTimeBox, PortfolioStock } from './generate-data'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Shared UI
@@ -2499,6 +2509,208 @@ function BoxPlotInner({ boxData }: { boxData: ResponseTimeBox[] }) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 21. Activity Heatmap — ChartHeatmap + colorInterpolate
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function ActivityHeatmapChart() {
+  const { cells, rowLabels, colLabels } = useMemo(() => generateActivityHeatmap(), [])
+
+  return (
+    <ChartCard title="Activity by hour & day" subtitle="ChartHeatmap + colorInterpolate — cell hover with tooltip">
+      <ChartHeatmap
+        cells={cells}
+        rowLabels={rowLabels}
+        colLabels={colLabels}
+        colorStops={[
+          { value: 0, color: '#EBE9E3' },
+          { value: 25, color: '#bfdbfe' },
+          { value: 50, color: '#3b82f6' },
+          { value: 75, color: '#1d4ed8' },
+          { value: 100, color: '#1e3a5f' },
+        ]}
+        gap={2}
+        radius={2}
+      />
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 22. Contribution Graph — ChartCalendarHeatmap
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function ContributionChart() {
+  const data = useMemo(() => generateContributionData(365, 901), [])
+
+  return (
+    <ChartCard title="Contribution graph" subtitle="ChartCalendarHeatmap — 365 days, 5-level quantized color">
+      <ChartCalendarHeatmap
+        data={data}
+        startDate="2025-04-11"
+        endDate="2026-04-10"
+      />
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 23. Sparkline Table — Portfolio overview
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function SparklineTable() {
+  const stocks = useMemo(() => generatePortfolioData(), [])
+
+  return (
+    <ChartCard title="Portfolio overview" subtitle="Sparkline inside table cells — ChartRoot + ChartLine at micro dimensions">
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b-[0.5px] border-[var(--n400)]">
+              <th className="pb-2 text-left text-[11px] font-[550] text-[var(--n600)]"
+                style={{ fontFamily: 'var(--font-sans)' }}>Asset</th>
+              <th className="pb-2 text-right text-[11px] font-[550] text-[var(--n600)]"
+                style={{ fontFamily: 'var(--font-sans)' }}>Price</th>
+              <th className="pb-2 text-right text-[11px] font-[550] text-[var(--n600)]"
+                style={{ fontFamily: 'var(--font-sans)' }}>24h</th>
+              <th className="pb-2 text-center text-[11px] font-[550] text-[var(--n600)]"
+                style={{ fontFamily: 'var(--font-sans)', width: 120 }}>7d trend</th>
+              <th className="pb-2 text-right text-[11px] font-[550] text-[var(--n600)]"
+                style={{ fontFamily: 'var(--font-sans)' }}>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stocks.map((stock) => (
+              <tr
+                key={stock.ticker}
+                className="h-10 border-b-[0.5px] border-[var(--n200)] transition-colors duration-150 hover:bg-[var(--n200)]"
+              >
+                <td className="pr-4">
+                  <span className="font-[550] text-[var(--n1150)]" style={{ fontFamily: 'var(--font-sans)' }}>
+                    {stock.ticker}
+                  </span>
+                  <span className="ml-2 text-[12px] font-[400] text-[var(--n600)]" style={{ fontFamily: 'var(--font-sans)' }}>
+                    {stock.name}
+                  </span>
+                </td>
+                <td className="text-right font-[550] text-[var(--n1150)]"
+                  style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}>
+                  ${stock.price.toFixed(2)}
+                </td>
+                <td className="text-right"
+                  style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}>
+                  <span className={stock.change >= 0 ? 'font-[500] text-emerald-500' : 'font-[500] text-red-500'}>
+                    {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(1)}%
+                  </span>
+                </td>
+                <td>
+                  <ChartRoot
+                    data={stock.sparkline}
+                    height={28}
+                    padding={{ top: 2, right: 0, bottom: 2, left: 0 }}
+                  >
+                    <ChartLine
+                      className={`fill-none stroke-[1.5] ${
+                        stock.change >= 0 ? 'stroke-emerald-500' : 'stroke-red-500'
+                      }`}
+                    />
+                  </ChartRoot>
+                </td>
+                <td className="text-right font-[450] text-[var(--n800)]"
+                  style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}>
+                  {stock.volume}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 24. Product Timeline — ChartAnnotation
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const TIMELINE_ANNOTATIONS: Annotation[] = [
+  { type: 'line', x: 3, label: 'v2.0 launch', color: '#3b82f6' },
+  { type: 'range', x0: 6, x1: 8, label: 'Holiday season', color: '#22c55e' },
+  { type: 'point', x: 10, y: 95000, label: 'ATH: $95K', color: '#f59e0b' },
+]
+
+function ProductTimelineChart() {
+  const data = useMemo(() => generateProductTimelineData(12, 940), [])
+
+  const formatMonth = useCallback(
+    (i: number) => MONTHS[i] ?? '',
+    [],
+  )
+
+  return (
+    <ChartCard title="Product timeline" subtitle="ChartAnnotation — point, line, and range annotations on a revenue chart">
+      <ChartRoot data={data} height={300} padding={{ right: 48 }}>
+        <ChartArea gradientColor="#3b82f6" opacityFrom={0.1} opacityTo={0.005} />
+        <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+        <ChartAnnotation annotations={TIMELINE_ANNOTATIONS} />
+        <ChartAxisX labelCount={12} format={formatMonth} />
+        <ChartAxisY tickCount={4} format={(v) => `$${(v / 1000).toFixed(0)}K`} />
+        <ChartCrosshair dotColor="#3b82f6" />
+      </ChartRoot>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 25. Temperature Anomaly — Gradient Threshold Area
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function TemperatureAnomalyChart() {
+  const data = useMemo(() => generateTemperatureAnomalyData(24, 951), [])
+
+  const formatMonth = useCallback(
+    (i: number, total: number) => {
+      const monthIdx = Math.floor((i / Math.max(1, total - 1)) * 24)
+      const months = ['Jan', 'Apr', 'Jul', 'Oct', 'Jan', 'Apr', 'Jul', 'Oct']
+      return months[Math.floor(monthIdx / 3)] ?? ''
+    },
+    [],
+  )
+
+  return (
+    <ChartCard title="Temperature anomaly" subtitle="ChartArea + thresholdY — split fill above/below 30-year average baseline">
+      <ChartRoot data={data} height={280} yDomain={[5, 25]} padding={{ right: 48 }}>
+        <ChartArea
+          gradientColor="#22c55e"
+          opacityFrom={0.18}
+          opacityTo={0.02}
+          thresholdY={15}
+          negativeColor="#ef4444"
+        />
+        <ChartLine className="fill-none stroke-[var(--n1150)] stroke-[1.5]" />
+        <ChartAxisX labelCount={8} format={formatMonth} />
+        <ChartAxisY tickCount={5} format={(v) => `${v.toFixed(0)}°C`} />
+        <ChartCrosshair dotColor="var(--n1150)" />
+      </ChartRoot>
+      {/* Legend */}
+      <div className="ml-12 mt-2 flex gap-5">
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-[2px] bg-emerald-500" />
+          <span className="font-sans text-[10px] tracking-wide text-text-muted">Above average</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-[2px] bg-red-500" />
+          <span className="font-sans text-[10px] tracking-wide text-text-muted">Below average</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="inline-block h-[1px] w-3 border-t-[1px] border-dashed border-[var(--n600)]" />
+          <span className="font-sans text-[10px] tracking-wide text-text-muted">30-year average</span>
+        </div>
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -2540,6 +2752,11 @@ export default function DemoPage() {
           <TreemapChart />
           <FunnelChart />
           <BoxPlotChart />
+          <ActivityHeatmapChart />
+          <ContributionChart />
+          <SparklineTable />
+          <ProductTimelineChart />
+          <TemperatureAnomalyChart />
         </div>
       </div>
     </main>

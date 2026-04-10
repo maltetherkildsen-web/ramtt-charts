@@ -598,3 +598,161 @@ export function generateResponseTimeData(): ResponseTimeBox[] {
     { label: 'Auth', min: 20, q1: 65, median: 95, q3: 140, max: 280, outliers: [350] },
   ]
 }
+
+// ─── 21. Activity Heatmap ───
+
+export interface HeatmapCell {
+  row: number
+  col: number
+  value: number
+}
+
+/**
+ * 7 rows (Mon–Sun) × 24 columns (00:00–23:00) activity intensity.
+ * Pattern: high during work hours on weekdays, moderate evenings, low nights.
+ */
+export function generateActivityHeatmap(): {
+  cells: HeatmapCell[]
+  rowLabels: string[]
+  colLabels: string[]
+} {
+  const rng = createRng(900)
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const hours = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
+  const cells: HeatmapCell[] = []
+
+  for (let row = 0; row < 7; row++) {
+    const isWeekend = row >= 5
+    for (let col = 0; col < 24; col++) {
+      let base: number
+      if (col >= 0 && col < 6) {
+        // Night: very low
+        base = 5 + rng() * 10
+      } else if (col >= 6 && col < 9) {
+        // Morning ramp
+        base = isWeekend ? 10 + rng() * 20 : 20 + rng() * 30
+      } else if (col >= 9 && col < 17) {
+        // Work hours: high on weekdays
+        base = isWeekend ? 15 + rng() * 25 : 50 + rng() * 50
+      } else if (col >= 17 && col < 21) {
+        // Evening
+        base = isWeekend ? 30 + rng() * 40 : 30 + rng() * 35
+      } else {
+        // Late evening
+        base = isWeekend ? 20 + rng() * 30 : 15 + rng() * 20
+      }
+      cells.push({ row, col, value: Math.round(base) })
+    }
+  }
+
+  return { cells, rowLabels: days, colLabels: hours }
+}
+
+// ─── 22. Contribution (Calendar Heatmap) ───
+
+export interface CalendarDay {
+  date: string
+  value: number
+}
+
+/**
+ * 365 days of "contribution" data.
+ * Weekdays more active than weekends, with streaks and gaps.
+ */
+export function generateContributionData(days = 365, seed = 901): CalendarDay[] {
+  const rng = createRng(seed)
+  const data: CalendarDay[] = []
+  const endDate = new Date(Date.UTC(2026, 3, 10)) // April 10, 2026
+  const startDate = new Date(endDate)
+  startDate.setUTCDate(startDate.getUTCDate() - days + 1)
+
+  const cursor = new Date(startDate)
+  for (let i = 0; i < days; i++) {
+    const dow = cursor.getUTCDay()
+    const isWeekend = dow === 0 || dow === 6
+
+    // Base activity
+    let base = isWeekend ? 1 + rng() * 4 : 3 + rng() * 8
+
+    // Productive bursts (15% chance)
+    if (rng() < 0.15) base += 5 + rng() * 10
+
+    // Vacation gaps (5% chance of zero)
+    if (rng() < 0.05) base = 0
+
+    const y = cursor.getUTCFullYear()
+    const m = String(cursor.getUTCMonth() + 1).padStart(2, '0')
+    const d = String(cursor.getUTCDate()).padStart(2, '0')
+
+    data.push({
+      date: `${y}-${m}-${d}`,
+      value: Math.round(Math.max(0, base)),
+    })
+    cursor.setUTCDate(cursor.getUTCDate() + 1)
+  }
+
+  return data
+}
+
+// ─── 23. Portfolio (Sparkline Table) ───
+
+export interface PortfolioStock {
+  ticker: string
+  name: string
+  price: number
+  change: number
+  volume: string
+  sparkline: number[]
+}
+
+/**
+ * 8 stocks with price, change, volume, and 30-point sparkline data.
+ */
+export function generatePortfolioData(): PortfolioStock[] {
+  return [
+    { ticker: 'AAPL', name: 'Apple Inc.', price: 198.42, change: 1.2, volume: '52.3M', sparkline: generateSparklineData('up', 801) },
+    { ticker: 'GOOGL', name: 'Alphabet', price: 178.15, change: -0.4, volume: '28.1M', sparkline: generateSparklineData('down', 802) },
+    { ticker: 'TSLA', name: 'Tesla', price: 245.80, change: 3.1, volume: '89.7M', sparkline: generateSparklineData('volatile', 803) },
+    { ticker: 'MSFT', name: 'Microsoft', price: 442.57, change: 0.8, volume: '31.2M', sparkline: generateSparklineData('up', 804) },
+    { ticker: 'AMZN', name: 'Amazon', price: 192.30, change: -1.5, volume: '45.8M', sparkline: generateSparklineData('down', 805) },
+    { ticker: 'NVDA', name: 'NVIDIA', price: 875.40, change: 2.4, volume: '67.4M', sparkline: generateSparklineData('up', 806) },
+    { ticker: 'META', name: 'Meta', price: 512.18, change: -0.2, volume: '22.9M', sparkline: generateSparklineData('flat', 807) },
+    { ticker: 'BRK.B', name: 'Berkshire', price: 428.90, change: 0.1, volume: '8.4M', sparkline: generateSparklineData('flat', 808) },
+  ]
+}
+
+// ─── 24. Product Timeline (Annotation) ───
+
+/**
+ * 12 months of revenue data with an S-curve growth pattern.
+ */
+export function generateProductTimelineData(months = 12, seed = 940): number[] {
+  const rng = createRng(seed)
+  const data: number[] = []
+  for (let i = 0; i < months; i++) {
+    const t = i / Math.max(1, months - 1)
+    // S-curve from 25K to 95K
+    const base = 25000 + 70000 * (t * t * (3 - 2 * t))
+    data.push(Math.round(base + (rng() - 0.5) * 5000))
+  }
+  return data
+}
+
+// ─── 25. Temperature Anomaly (Gradient Threshold Area) ───
+
+/**
+ * 24 months of temperature data fluctuating around a 15°C baseline.
+ * Creates a nice wave crossing the threshold multiple times.
+ */
+export function generateTemperatureAnomalyData(months = 24, seed = 951): number[] {
+  const rng = createRng(seed)
+  const data: number[] = []
+  for (let i = 0; i < months; i++) {
+    const t = i / Math.max(1, months - 1)
+    // Sinusoidal wave around 15°C with 2 full cycles
+    const base = 15 + 6 * Math.sin(t * 4 * Math.PI)
+    const noise = normalRandom(rng) * 1.5
+    data.push(Math.round((base + noise) * 10) / 10)
+  }
+  return data
+}
