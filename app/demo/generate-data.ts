@@ -266,6 +266,9 @@ export function generateProfitLossData(): ProfitLoss[] {
 
 // ─── 10. Budget Allocation ───
 
+// (11. Scatter and 12. Quarterly Revenue are below Budget)
+
+
 export interface BudgetItem {
   category: string
   value: number
@@ -283,5 +286,315 @@ export function generateBudgetData(): BudgetItem[] {
     { category: 'Operations', value: 120000, color: '#8b5cf6' },
     { category: 'Support', value: 85000, color: '#ef4444' },
     { category: 'Other', value: 45000, color: '#A8A49A' },
+  ]
+}
+
+// ─── 11. Scatter Data ───
+
+export interface ScatterPoint {
+  x: number
+  y: number
+  size: number
+  group: 'A' | 'B' | 'C'
+}
+
+/**
+ * Correlated x/y scatter data with 3 clusters for bubble chart.
+ */
+export function generateScatterData(n = 80, seed = 601): ScatterPoint[] {
+  const rng = createRng(seed)
+  const points: ScatterPoint[] = []
+
+  // Cluster A: strong positive correlation, top-right
+  const clusterACount = Math.floor(n * 0.4)
+  for (let i = 0; i < clusterACount; i++) {
+    const x = 50 + normalRandom(rng) * 15
+    const y = 0.8 * x + 10 + normalRandom(rng) * 8
+    const size = 10 + rng() * 40
+    points.push({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+      size,
+      group: 'A',
+    })
+  }
+
+  // Cluster B: moderate correlation, middle
+  const clusterBCount = Math.floor(n * 0.35)
+  for (let i = 0; i < clusterBCount; i++) {
+    const x = 30 + normalRandom(rng) * 12
+    const y = 0.5 * x + 20 + normalRandom(rng) * 10
+    const size = 10 + rng() * 40
+    points.push({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+      size,
+      group: 'B',
+    })
+  }
+
+  // Cluster C: weak/negative correlation, bottom-right
+  const clusterCCount = n - clusterACount - clusterBCount
+  for (let i = 0; i < clusterCCount; i++) {
+    const x = 65 + normalRandom(rng) * 14
+    const y = -0.3 * x + 50 + normalRandom(rng) * 12
+    const size = 10 + rng() * 40
+    points.push({
+      x: Math.max(0, Math.min(100, x)),
+      y: Math.max(0, Math.min(100, y)),
+      size,
+      group: 'C',
+    })
+  }
+
+  return points
+}
+
+// ─── 12. Quarterly Revenue by Region ───
+
+export interface QuarterlyRevenue {
+  quarter: string
+  north: number
+  south: number
+  east: number
+  west: number
+}
+
+/**
+ * 4 quarters × 4 regions for stacked bar chart.
+ */
+export function generateQuarterlyRevenueData(): QuarterlyRevenue[] {
+  return [
+    { quarter: 'Q1', north: 45, south: 32, east: 28, west: 19 },
+    { quarter: 'Q2', north: 52, south: 38, east: 31, west: 22 },
+    { quarter: 'Q3', north: 48, south: 41, east: 35, west: 25 },
+    { quarter: 'Q4', north: 61, south: 44, east: 38, west: 28 },
+  ]
+}
+
+// ─── 13. OHLC Candlestick Data ───
+
+export interface OHLCPoint {
+  open: number
+  high: number
+  low: number
+  close: number
+  day: number
+}
+
+/**
+ * 60 trading days of OHLC data starting at ~$100.
+ */
+export function generateOHLCData(days = 60, seed = 701): OHLCPoint[] {
+  const rng = createRng(seed)
+  const data: OHLCPoint[] = []
+  let prevClose = 100
+
+  for (let i = 0; i < days; i++) {
+    // Gap open: prev close ± small amount
+    const open = prevClose + (rng() - 0.5) * 2
+    // Intraday range
+    const range = 1.5 + rng() * 4
+    const mid = open + (rng() - 0.48) * 3 // slight upward bias
+    const high = mid + range * (0.3 + rng() * 0.7)
+    const low = mid - range * (0.3 + rng() * 0.7)
+    // Close within high/low range
+    const close = low + rng() * (high - low)
+
+    data.push({
+      open: Math.round(open * 100) / 100,
+      high: Math.round(high * 100) / 100,
+      low: Math.round(low * 100) / 100,
+      close: Math.round(close * 100) / 100,
+      day: i,
+    })
+    prevClose = close
+  }
+
+  return data
+}
+
+// ─── 14. Cash Flow Waterfall Data ───
+
+export interface CashFlowItem {
+  label: string
+  value: number
+  type: 'increase' | 'decrease' | 'total'
+}
+
+/**
+ * Cash flow waterfall data with increases, decreases, and a net total.
+ */
+export function generateCashFlowData(): CashFlowItem[] {
+  return [
+    { label: 'Revenue', value: 420, type: 'increase' },
+    { label: 'Services', value: 180, type: 'increase' },
+    { label: 'COGS', value: -280, type: 'decrease' },
+    { label: 'Salaries', value: -150, type: 'decrease' },
+    { label: 'Marketing', value: -60, type: 'decrease' },
+    { label: 'Rent', value: -35, type: 'decrease' },
+    { label: 'Net', value: 0, type: 'total' },
+  ]
+}
+
+// ─── 15. Athlete Profile (Radar) ───
+
+export interface AthleteProfile {
+  axes: { label: string; max: number }[]
+  series: { values: number[]; color: string; label: string }[]
+}
+
+/**
+ * Two radar series: current vs 6 months ago across 6 athlete dimensions.
+ */
+export function generateAthleteProfile(): AthleteProfile {
+  return {
+    axes: [
+      { label: 'Power', max: 100 },
+      { label: 'Endurance', max: 100 },
+      { label: 'Speed', max: 100 },
+      { label: 'Recovery', max: 100 },
+      { label: 'Technique', max: 100 },
+      { label: 'Mental', max: 100 },
+    ],
+    series: [
+      { values: [85, 72, 68, 55, 78, 82], color: '#3b82f6', label: 'Current' },
+      { values: [70, 65, 75, 60, 70, 70], color: '#a8a49a', label: '6 months ago' },
+    ],
+  }
+}
+
+// ─── 16. Goal Progress (Radial Bar) ───
+
+export interface GoalProgress {
+  label: string
+  value: number
+  max: number
+  color: string
+}
+
+/**
+ * Apple Watch-style ring data: Move, Exercise, Stand.
+ */
+export function generateGoalProgress(): GoalProgress[] {
+  return [
+    { label: 'Move', value: 420, max: 500, color: '#ef4444' },
+    { label: 'Exercise', value: 28, max: 30, color: '#22c55e' },
+    { label: 'Stand', value: 10, max: 12, color: '#3b82f6' },
+  ]
+}
+
+// ─── 17. Browser Market Share (Percent Area) ───
+
+export interface BrowserShare {
+  month: number
+  chrome: number
+  safari: number
+  firefox: number
+  edge: number
+  other: number
+}
+
+/**
+ * 36 months of browser market share, normalized to 100%.
+ */
+export function generateBrowserShareData(months = 36): BrowserShare[] {
+  const rng = createRng(888)
+  const data: BrowserShare[] = []
+
+  for (let i = 0; i < months; i++) {
+    const t = i / Math.max(1, months - 1)
+    // Chrome: dominant but slowly declining
+    const rawChrome = 62 - 6 * t + normalRandom(rng) * 1.5
+    // Safari: growing
+    const rawSafari = 18 + 5 * t + normalRandom(rng) * 1.2
+    // Firefox: declining
+    const rawFirefox = 8 - 2 * t + normalRandom(rng) * 0.8
+    // Edge: growing slowly
+    const rawEdge = 5 + 3 * t + normalRandom(rng) * 0.6
+    // Other: small
+    const rawOther = 7 + normalRandom(rng) * 0.5
+
+    // Normalize to 100%
+    const total = rawChrome + rawSafari + rawFirefox + rawEdge + rawOther
+    data.push({
+      month: i,
+      chrome: (rawChrome / total) * 100,
+      safari: (rawSafari / total) * 100,
+      firefox: (rawFirefox / total) * 100,
+      edge: (rawEdge / total) * 100,
+      other: (rawOther / total) * 100,
+    })
+  }
+
+  return data
+}
+
+// ─── 18. Disk Usage (Treemap) ───
+
+export interface DiskUsageItem {
+  label: string
+  value: number
+  color: string
+}
+
+/**
+ * Disk usage breakdown for treemap.
+ */
+export function generateDiskUsageData(): DiskUsageItem[] {
+  return [
+    { label: 'Photos', value: 42, color: '#3b82f6' },
+    { label: 'Videos', value: 28, color: '#ef4444' },
+    { label: 'Apps', value: 18, color: '#22c55e' },
+    { label: 'System', value: 12, color: '#6b7280' },
+    { label: 'Documents', value: 8, color: '#f59e0b' },
+    { label: 'Music', value: 6, color: '#8b5cf6' },
+    { label: 'Other', value: 4, color: '#64748b' },
+  ]
+}
+
+// ─── 19. Sales Pipeline (Funnel) ───
+
+export interface SalesPipelineItem {
+  label: string
+  value: number
+  color: string
+}
+
+/**
+ * Sales funnel stages from leads to closed deals.
+ */
+export function generateSalesPipeline(): SalesPipelineItem[] {
+  return [
+    { label: 'Leads', value: 1000, color: '#3b82f6' },
+    { label: 'Qualified', value: 720, color: '#22c55e' },
+    { label: 'Proposal', value: 410, color: '#f59e0b' },
+    { label: 'Negotiation', value: 230, color: '#8b5cf6' },
+    { label: 'Closed', value: 120, color: '#ef4444' },
+  ]
+}
+
+// ─── 20. Response Time Distribution (Box Plot) ───
+
+export interface ResponseTimeBox {
+  label: string
+  min: number
+  q1: number
+  median: number
+  q3: number
+  max: number
+  outliers?: number[]
+}
+
+/**
+ * Response time box-and-whisker data for 5 services.
+ */
+export function generateResponseTimeData(): ResponseTimeBox[] {
+  return [
+    { label: 'API', min: 12, q1: 45, median: 72, q3: 120, max: 250, outliers: [380, 420] },
+    { label: 'DB', min: 5, q1: 18, median: 35, q3: 68, max: 150, outliers: [210] },
+    { label: 'Cache', min: 1, q1: 3, median: 5, q3: 8, max: 15 },
+    { label: 'CDN', min: 8, q1: 22, median: 38, q3: 55, max: 95 },
+    { label: 'Auth', min: 20, q1: 65, median: 95, q3: 140, max: 280, outliers: [350] },
   ]
 }

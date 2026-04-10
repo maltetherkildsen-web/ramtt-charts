@@ -40,6 +40,8 @@ export interface ChartBarProps {
    * returns a CSS colour string. When set, overrides className fill.
    */
   colorFn?: (value: number, index: number) => string
+  /** Custom baseline for each bar (for stacking). Default: 0 / domain min. */
+  y0Accessor?: (d: number, i: number) => number
   /** Index of a bar to highlight (e.g. from hover). */
   highlightIndex?: number | null
   /** Tailwind classes for highlighted bar. */
@@ -55,6 +57,7 @@ export function ChartBar({
   gap = 1,
   radius = 0,
   colorFn,
+  y0Accessor,
   highlightIndex,
   highlightClassName,
   className,
@@ -72,10 +75,11 @@ export function ChartBar({
     const barWidth = Math.max(0.5, totalWidth / len - gap)
     const halfBar = barWidth / 2
 
-    // Baseline: if domain includes 0, use 0; otherwise use domain min
+    // Baseline: if y0Accessor provided, use it per-bar.
+    // Otherwise: if domain includes 0, use 0; else use domain min.
     const [dMin, dMax] = scaleY.domain
     const hasZero = dMin <= 0 && dMax >= 0
-    const baselineY = hasZero ? scaleY(0) : chartHeight
+    const defaultBaselineY = hasZero ? scaleY(0) : chartHeight
 
     const result: {
       x: number
@@ -89,6 +93,7 @@ export function ChartBar({
     for (let i = 0; i < len; i++) {
       const cx = scaleX(i)
       const vy = scaleY(data[i])
+      const baselineY = y0Accessor ? scaleY(y0Accessor(data[i], i)) : defaultBaselineY
 
       // For positive values: bar from baseline up to value
       // For negative values: bar from value down to baseline
@@ -107,7 +112,7 @@ export function ChartBar({
     }
 
     return result
-  }, [data, scaleX, scaleY, chartHeight, gap])
+  }, [data, scaleX, scaleY, chartHeight, gap, y0Accessor])
 
   if (bars.length === 0) return null
 
