@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules
+# @ramtt/ui — System Rules (18 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -82,5 +82,14 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - NEVER cursor-pointer
 
 ## Shadows
-- No box-shadow on cards or static elements
-- Shadows only on floating elements (modals, dropdowns, tooltips)
+- No box-shadow on any component — RAMTT is flat
+- Modal uses `::backdrop` with blur, not shadow
+- Dropdown and Toast rely on border/color contrast for separation
+
+## Components (18)
+
+### Wave 1 — Display & Input (12)
+Button, Badge, ToggleGroup, Card, DataRow, DataTable, Input, Select, MetricCard, SettingsCard, ProgressBar, SectionHeader
+
+### Wave 2 — Interaction Layer (6)
+Modal, Toast (ToastProvider + useToast), Dropdown, Tabs, Skeleton, Switch

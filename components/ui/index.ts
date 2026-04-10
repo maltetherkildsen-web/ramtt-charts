@@ -1,6 +1,6 @@
 // components/ui/index.ts — PUBLIC API of @ramtt/ui
 
-// ─── Components ───
+// ─── Components (Wave 1 — Display & Input) ───
 export { Button } from './Button';
 export { Badge } from './Badge';
 export { ToggleGroup } from './ToggleGroup';
@@ -14,11 +14,19 @@ export { SettingsCard } from './SettingsCard';
 export { ProgressBar } from './ProgressBar';
 export { SectionHeader } from './SectionHeader';
 
+// ─── Components (Wave 2 — Interaction Layer) ───
+export { Modal } from './Modal';
+export { ToastProvider, useToast } from './Toast';
+export { Dropdown } from './Dropdown';
+export { Tabs } from './Tabs';
+export { Skeleton } from './Skeleton';
+export { Switch } from './Switch';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
 export { HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, FOCUS_RING_THICK, TRANSITION } from '@/lib/ui';
-export { LAYOUT } from '@/lib/ui';
+export { LAYOUT, MODAL_WIDTH, TOAST_MAX_VISIBLE, TOAST_DEFAULT_DURATION, DROPDOWN_ITEM, SWITCH_TRACK, SWITCH_THUMB } from '@/lib/ui';
 
 // ─── Types ───
 export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';

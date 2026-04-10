@@ -132,6 +132,30 @@ export const ACTIVE_UNDERLINE = 'border-b-2 border-[var(--n1150)]'; // tab navig
 export const FOCUS_RING = 'focus-visible:outline focus-visible:outline-1 focus-visible:outline-[var(--n1050)] focus-visible:outline-offset-2';
 export const FOCUS_RING_THICK = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--n1050)] focus-visible:outline-offset-2';
 
+// ─── Modal ───
+export const MODAL_WIDTH = {
+  sm: 'max-w-[400px]',
+  md: 'max-w-[520px]',
+  lg: 'max-w-[640px]',
+} as const;
+
+// ─── Toast ───
+export const TOAST_MAX_VISIBLE = 3;
+export const TOAST_DEFAULT_DURATION = 4000;
+
+// ─── Dropdown ───
+export const DROPDOWN_ITEM = cn(
+  'px-2.5 py-1.5',
+  RADIUS.sm,
+  SIZE_TEXT.md,
+  WEIGHT.normal,
+  'text-[var(--n1150)]',
+);
+
+// ─── Switch ───
+export const SWITCH_TRACK = { width: 36, height: 20, radius: 10 } as const;
+export const SWITCH_THUMB = { size: 16, inset: 2 } as const;
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {

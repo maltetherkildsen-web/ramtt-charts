@@ -27,6 +27,13 @@ import {
   ProgressBar,
   Input,
   Select,
+  Modal,
+  ToastProvider,
+  useToast,
+  Dropdown,
+  Tabs,
+  Skeleton,
+  Switch,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -524,42 +531,350 @@ function FormsDemo() {
   )
 }
 
+// ─── 13. Overlay & Feedback ───
+
+function OverlayFeedbackDemo() {
+  const [modalOpen, setModalOpen] = useState(false)
+  const toast = useToast()
+
+  return (
+    <DemoSection title="Overlay & Feedback">
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" onClick={() => setModalOpen(true)}>Open modal</Button>
+          <Button variant="ghost" onClick={() => toast({ message: 'Settings saved' })}>Default toast</Button>
+          <Button variant="ghost" onClick={() => toast({ message: 'Session uploaded', variant: 'success' })}>Success</Button>
+          <Button variant="ghost" onClick={() => toast({ message: 'Upload failed', variant: 'error' })}>Error</Button>
+          <Button variant="ghost" onClick={() => toast({ message: 'FTP seems unusually high', variant: 'warning' })}>Warning</Button>
+          <Button
+            variant="ghost"
+            onClick={() =>
+              toast({
+                message: 'Session deleted',
+                variant: 'default',
+                action: { label: 'Undo', onClick: () => toast({ message: 'Session restored', variant: 'success' }) },
+              })
+            }
+          >
+            Toast with action
+          </Button>
+        </div>
+
+        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+          <Modal.Header>
+            <Modal.Title>Upload FIT file</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+              Drag a .fit file here or click to browse. The session will be parsed and added to your training log.
+            </p>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="ghost" onClick={() => setModalOpen(false)}>Cancel</Button>
+            <Button onClick={() => { setModalOpen(false); toast({ message: 'File uploaded', variant: 'success' }) }}>Upload</Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 14. Dropdown ───
+
+function DropdownDemo() {
+  return (
+    <DemoSection title="Dropdown">
+      <div className="flex items-center gap-6">
+        <Dropdown>
+          <Dropdown.Trigger>
+            <Button variant="outline" size="sm">More actions</Button>
+          </Dropdown.Trigger>
+          <Dropdown.Content>
+            <Dropdown.Item onClick={() => {}}>Edit session</Dropdown.Item>
+            <Dropdown.Item onClick={() => {}}>Duplicate</Dropdown.Item>
+            <Dropdown.Item onClick={() => {}}>Export as CSV</Dropdown.Item>
+            <Dropdown.Separator />
+            <Dropdown.Item onClick={() => {}} variant="danger">Delete</Dropdown.Item>
+          </Dropdown.Content>
+        </Dropdown>
+
+        <Dropdown>
+          <Dropdown.Trigger>
+            <Button variant="outline" size="sm">Right-aligned</Button>
+          </Dropdown.Trigger>
+          <Dropdown.Content align="end">
+            <Dropdown.Item onClick={() => {}}>Profile</Dropdown.Item>
+            <Dropdown.Item onClick={() => {}}>Settings</Dropdown.Item>
+            <Dropdown.Separator />
+            <Dropdown.Item onClick={() => {}}>Sign out</Dropdown.Item>
+          </Dropdown.Content>
+        </Dropdown>
+
+        <Dropdown>
+          <Dropdown.Trigger>
+            <Button variant="ghost" size="icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><circle cx="4" cy="8" r="1.25"/><circle cx="8" cy="8" r="1.25"/><circle cx="12" cy="8" r="1.25"/></svg>
+            </Button>
+          </Dropdown.Trigger>
+          <Dropdown.Content>
+            <Dropdown.Item
+              icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M11.5 2.5l2 2-9 9H2.5v-2l9-9z" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              onClick={() => {}}
+            >
+              Edit
+            </Dropdown.Item>
+            <Dropdown.Item
+              icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25"/><path d="M9 6h5v5a2 2 0 01-2 2H9V6z" stroke="currentColor" strokeWidth="1.25"/></svg>}
+              onClick={() => {}}
+            >
+              Copy link
+            </Dropdown.Item>
+            <Dropdown.Separator />
+            <Dropdown.Item
+              icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M6.5 4V3h3v1M5 4v8.5a1 1 0 001 1h4a1 1 0 001-1V4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+              onClick={() => {}}
+              variant="danger"
+            >
+              Delete
+            </Dropdown.Item>
+          </Dropdown.Content>
+        </Dropdown>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 15. Tabs & Toggle ───
+
+function TabsDemo() {
+  const [underlineTab, setUnderlineTab] = useState('overview')
+  const [pillTab, setPillTab] = useState('day')
+  const [toggleVal, setToggleVal] = useState('overview')
+
+  return (
+    <DemoSection title="Tabs & Toggle">
+      <div className="space-y-6">
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Underline tabs (with panels)</p>
+          <Tabs value={underlineTab} onChange={setUnderlineTab}>
+            <Tabs.List>
+              <Tabs.Tab value="overview">Overview</Tabs.Tab>
+              <Tabs.Tab value="analytics">Analytics</Tabs.Tab>
+              <Tabs.Tab value="settings">Settings</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value="overview">
+              <Card padding="sm">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                  Overview panel content. Session summary, key metrics, and recent activity.
+                </p>
+              </Card>
+            </Tabs.Panel>
+            <Tabs.Panel value="analytics">
+              <Card padding="sm">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                  Analytics panel content. Charts, trends, and performance data.
+                </p>
+              </Card>
+            </Tabs.Panel>
+            <Tabs.Panel value="settings">
+              <Card padding="sm">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                  Settings panel content. Thresholds, zones, and preferences.
+                </p>
+              </Card>
+            </Tabs.Panel>
+          </Tabs>
+        </div>
+
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Pill tabs (with panels)</p>
+          <Tabs value={pillTab} onChange={setPillTab} variant="pill">
+            <Tabs.List>
+              <Tabs.Tab value="day">Day</Tabs.Tab>
+              <Tabs.Tab value="week">Week</Tabs.Tab>
+              <Tabs.Tab value="month">Month</Tabs.Tab>
+            </Tabs.List>
+            <Tabs.Panel value="day">
+              <Card padding="sm">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                  Daily view — showing today's training data.
+                </p>
+              </Card>
+            </Tabs.Panel>
+            <Tabs.Panel value="week">
+              <Card padding="sm">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                  Weekly view — aggregated metrics for the current week.
+                </p>
+              </Card>
+            </Tabs.Panel>
+            <Tabs.Panel value="month">
+              <Card padding="sm">
+                <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                  Monthly view — training volume and progression.
+                </p>
+              </Card>
+            </Tabs.Panel>
+          </Tabs>
+        </div>
+
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>ToggleGroup underline (no panels — compare with Tabs above)</p>
+          <ToggleGroup
+            value={toggleVal}
+            onChange={(v) => setToggleVal(v as string)}
+            variant="underline"
+            options={[
+              { value: 'overview', label: 'Overview' },
+              { value: 'analytics', label: 'Analytics' },
+              { value: 'settings', label: 'Settings' },
+            ]}
+          />
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 16. Loading States ───
+
+function LoadingStatesDemo() {
+  return (
+    <DemoSection title="Loading States">
+      <div className="space-y-6">
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>MetricCard skeleton</p>
+          <Card>
+            <div className="flex flex-col gap-2 py-1">
+              <Skeleton width={80} height={12} />
+              <Skeleton width={120} height={24} />
+              <Skeleton width={60} height={12} />
+            </div>
+          </Card>
+        </div>
+
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>DataTable skeleton</p>
+          <Card>
+            <div className="flex items-center gap-4 py-2 border-b-[0.5px] border-b-[var(--n200)]">
+              <Skeleton width={100} height={12} />
+              <Skeleton width={60} height={12} />
+              <Skeleton width={80} height={12} />
+              <Skeleton width={60} height={12} />
+            </div>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-4 py-2.5">
+                <Skeleton width={100} height={14} />
+                <Skeleton width={60} height={14} />
+                <Skeleton width={80} height={14} />
+                <Skeleton width={60} height={14} />
+              </div>
+            ))}
+          </Card>
+        </div>
+
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Shape variations</p>
+          <div className="flex items-center gap-4">
+            <Skeleton width={140} height={14} />
+            <Skeleton width={80} height={28} radius="md" />
+            <Skeleton width={40} height={40} radius="full" />
+            <Skeleton width={200} height={60} radius="lg" />
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 17. Switches ───
+
+function SwitchesDemo() {
+  const [autoSync, setAutoSync] = useState(true)
+  const [notifications, setNotifications] = useState(false)
+  const [analytics, setAnalytics] = useState(true)
+  const [standalone, setStandalone] = useState(false)
+
+  return (
+    <DemoSection title="Switches">
+      <Card>
+        <div className="flex flex-col gap-4">
+          <Switch
+            checked={autoSync}
+            onChange={setAutoSync}
+            label="Auto-sync"
+            description="Automatically sync sessions from connected devices"
+          />
+          <Switch
+            checked={notifications}
+            onChange={setNotifications}
+            label="Push notifications"
+            description="Enable push for training alerts and reminders"
+          />
+          <Switch
+            checked={analytics}
+            onChange={setAnalytics}
+            label="Advanced analytics"
+            description="Enable power duration curve and performance modeling"
+          />
+          <Switch
+            checked={true}
+            onChange={() => {}}
+            label="Always on"
+            disabled
+          />
+          <div>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Standalone (no label)</p>
+            <Switch checked={standalone} onChange={setStandalone} />
+          </div>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 export default function UIDemo() {
   return (
-    <main className="min-h-screen bg-[var(--bg)]">
-      <div className={cn(LAYOUT.maxWidth, 'mx-auto', LAYOUT.pagePadding, 'py-12')}>
-        {/* Header */}
-        <header className="mb-10">
-          <h1 className={cn(FONT.label, WEIGHT.medium, 'text-[20px] text-[var(--n1150)] tracking-normal normal-case')}>
-            @ramtt/ui
-          </h1>
-          <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-            Minimal, opinionated UI components with RAMTT design tokens baked in.
-            Zero dependencies. Satoshi for everything — labels, numbers, body text.
-            Every border at 0.5px. Sentence case labels. Tabular nums for data.
-          </p>
-        </header>
+    <ToastProvider>
+      <main className="min-h-screen bg-[var(--bg)]">
+        <div className={cn(LAYOUT.maxWidth, 'mx-auto', LAYOUT.pagePadding, 'py-12')}>
+          {/* Header */}
+          <header className="mb-10">
+            <h1 className={cn(FONT.label, WEIGHT.medium, 'text-[20px] text-[var(--n1150)] tracking-normal normal-case')}>
+              @ramtt/ui
+            </h1>
+            <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
+              18 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              Every border at 0.5px. Sentence case labels. Tabular nums for data.
+            </p>
+          </header>
 
-        {/* All sections in a single consistent column */}
-        <div className={LAYOUT.sectionGap}>
-          <MetricsStripDemo />
-          <CompactMetricsDemo />
-          <ToggleGroupDemo />
-          <DataRowDemo />
-          <SettingsDemo />
-          <WhiteLiftDemo />
-          <DataTableDemo />
-          <BadgesDemo />
-          <ButtonsDemo />
-          <ProgressDemo />
-          <InteractionStatesDemo />
-          <FormsDemo />
+          {/* All sections in a single consistent column */}
+          <div className={LAYOUT.sectionGap}>
+            <MetricsStripDemo />
+            <CompactMetricsDemo />
+            <ToggleGroupDemo />
+            <DataRowDemo />
+            <SettingsDemo />
+            <WhiteLiftDemo />
+            <DataTableDemo />
+            <BadgesDemo />
+            <ButtonsDemo />
+            <ProgressDemo />
+            <InteractionStatesDemo />
+            <FormsDemo />
+            <OverlayFeedbackDemo />
+            <DropdownDemo />
+            <TabsDemo />
+            <LoadingStatesDemo />
+            <SwitchesDemo />
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+    </ToastProvider>
   )
 }

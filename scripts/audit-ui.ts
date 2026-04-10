@@ -84,7 +84,9 @@ function auditComponent(path: string, content: string) {
   const basename = path.split('/').pop() || '';
   if (!content.includes('forwardRef') &&
       (basename.includes('Button') || basename.includes('Input') ||
-       basename.includes('Select') || basename.includes('Toggle'))) {
+       basename.includes('Select') || basename.includes('Toggle') ||
+       basename.includes('Switch') || basename.includes('Modal') ||
+       basename.includes('Dropdown') || basename.includes('Tabs'))) {
     WARNINGS.push(`${path}: Interactive component without forwardRef`);
   }
 
@@ -227,7 +229,7 @@ if (existsSync(chartDir)) {
 // ── Phase 4: lib/ui.ts integrity ──
 console.log('Phase 4: lib/ui.ts integrity');
 const uiTs = readFileSync(join(ROOT, 'lib/ui.ts'), 'utf-8');
-const requiredExports = ['WEIGHT', 'FONT', 'RADIUS', 'BORDER', 'TRANSITION', 'LABEL_STYLE', 'VALUE_STYLE', 'MUTED_STYLE', 'UNIT_STYLE', 'BODY_STYLE', 'QUIET_STYLE', 'HOVER_SAND', 'ACTIVE_SAND', 'ACTIVE_BLACK', 'WHITE_LIFT', 'ACTIVE_UNDERLINE', 'FOCUS_RING', 'LAYOUT', 'SIZE_HEIGHTS', 'SIZE_TEXT', 'SIZE_PADDING_X'];
+const requiredExports = ['WEIGHT', 'FONT', 'RADIUS', 'BORDER', 'TRANSITION', 'LABEL_STYLE', 'VALUE_STYLE', 'MUTED_STYLE', 'UNIT_STYLE', 'BODY_STYLE', 'QUIET_STYLE', 'HOVER_SAND', 'ACTIVE_SAND', 'ACTIVE_BLACK', 'WHITE_LIFT', 'ACTIVE_UNDERLINE', 'FOCUS_RING', 'LAYOUT', 'SIZE_HEIGHTS', 'SIZE_TEXT', 'SIZE_PADDING_X', 'MODAL_WIDTH', 'TOAST_MAX_VISIBLE', 'TOAST_DEFAULT_DURATION', 'DROPDOWN_ITEM', 'SWITCH_TRACK', 'SWITCH_THUMB'];
 for (const exp of requiredExports) {
   if (!uiTs.includes(`export const ${exp}`)) {
     ERRORS.push(`lib/ui.ts: Missing export: ${exp}`);
