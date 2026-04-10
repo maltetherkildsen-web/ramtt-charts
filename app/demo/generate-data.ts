@@ -91,6 +91,8 @@ export function generateTemperatureData(
 
 // ─── 4. IoT Sensors ───
 
+// (new generators are below IoT section)
+
 /**
  * 1000 points over 24 hours — temperature, humidity, and barometric
  * pressure with realistic cross-correlations.
@@ -126,4 +128,160 @@ export function generateSensorData(points = 1000): {
   }
 
   return { temperature, humidity, pressure }
+}
+
+// ─── 5. Sparkline Data ───
+
+/**
+ * 30 data points simulating a KPI trend (one per day).
+ * Trend: 'up' | 'down' | 'flat' | 'volatile'
+ */
+export function generateSparklineData(
+  trend: 'up' | 'down' | 'flat' | 'volatile',
+  seed: number,
+  points = 30,
+): number[] {
+  const rng = createRng(seed)
+  const data: number[] = [100]
+
+  const drift =
+    trend === 'up' ? 0.8 :
+    trend === 'down' ? -0.6 :
+    trend === 'flat' ? 0.05 :
+    0
+
+  const noise =
+    trend === 'volatile' ? 5 : 1.5
+
+  for (let i = 1; i < points; i++) {
+    const change = drift + normalRandom(rng) * noise
+    data.push(data[i - 1] + change)
+  }
+
+  return data
+}
+
+// ─── 6. Monthly Sales ───
+
+export interface MonthlySale {
+  month: string
+  value: number
+}
+
+/**
+ * 12 months of sales figures with a growth curve and seasonal dip.
+ */
+export function generateMonthlySales(): MonthlySale[] {
+  const rng = createRng(456)
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+  return months.map((month, i) => {
+    const t = i / 11
+    // Growth curve with summer dip (Jul/Aug)
+    const base = 35000 + 30000 * t
+    const seasonal = (i >= 5 && i <= 7) ? -8000 : (i >= 10 ? 12000 : 0)
+    const noise = (rng() - 0.5) * 6000
+    return { month, value: Math.round(base + seasonal + noise) }
+  })
+}
+
+// ─── 7. Revenue & Growth Rate ───
+
+export interface RevenueGrowth {
+  month: string
+  revenue: number
+  growth: number
+}
+
+/**
+ * 12 months of revenue with a corresponding growth rate percentage.
+ */
+export function generateRevenueGrowthData(): RevenueGrowth[] {
+  const rng = createRng(789)
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+  let prevRevenue = 38000
+  return months.map((month, i) => {
+    const growth = 3 + 8 * Math.sin((i / 11) * Math.PI) + normalRandom(rng) * 2
+    const revenue = prevRevenue * (1 + Math.max(0.5, growth) / 100)
+    prevRevenue = revenue
+    return {
+      month,
+      revenue: Math.round(revenue),
+      growth: Math.round(growth * 10) / 10,
+    }
+  })
+}
+
+// ─── 8. Market Share ───
+
+export interface MarketShare {
+  month: number
+  companyA: number
+  companyB: number
+  companyC: number
+  companyD: number
+}
+
+/**
+ * 60 months (5 years) of market share data for 4 companies.
+ * Each row is normalized to sum to 100%.
+ */
+export function generateMarketShareData(): MarketShare[] {
+  const rng = createRng(321)
+
+  return Array.from({ length: 60 }, (_, i) => {
+    const rawA = 38 + normalRandom(rng) * 2 - i * 0.12
+    const rawB = 24 + normalRandom(rng) * 1.5 + i * 0.15
+    const rawC = 20 + normalRandom(rng) * 1.8
+    const rawD = 18 + normalRandom(rng) * 1.2 + i * 0.05
+
+    // Normalize to 100%
+    const total = rawA + rawB + rawC + rawD
+    return {
+      month: i,
+      companyA: (rawA / total) * 100,
+      companyB: (rawB / total) * 100,
+      companyC: (rawC / total) * 100,
+      companyD: (rawD / total) * 100,
+    }
+  })
+}
+
+// ─── 9. Profit & Loss ───
+
+export interface ProfitLoss {
+  month: string
+  value: number
+}
+
+/**
+ * 12 months of P&L data crossing zero mid-year.
+ */
+export function generateProfitLossData(): ProfitLoss[] {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const values = [-12000, -8000, -3000, 2000, 8000, 15000, 12000, 18000, 22000, -5000, 4000, 28000]
+  return months.map((month, i) => ({ month, value: values[i] }))
+}
+
+// ─── 10. Budget Allocation ───
+
+export interface BudgetItem {
+  category: string
+  value: number
+  color: string
+}
+
+/**
+ * Budget allocation data for a donut chart.
+ */
+export function generateBudgetData(): BudgetItem[] {
+  return [
+    { category: 'Engineering', value: 450000, color: '#3b82f6' },
+    { category: 'Marketing', value: 280000, color: '#22c55e' },
+    { category: 'Sales', value: 190000, color: '#f59e0b' },
+    { category: 'Operations', value: 120000, color: '#8b5cf6' },
+    { category: 'Support', value: 85000, color: '#ef4444' },
+    { category: 'Other', value: 45000, color: '#A8A49A' },
+  ]
 }

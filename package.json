@@ -7,7 +7,9 @@
     "dev": "rm -rf .next && next dev --port 5000",
     "build": "next build",
     "lint": "next lint",
-    "audit:ui": "npx tsx scripts/audit-ui.ts"
+    "audit": "npx tsx scripts/audit.ts",
+    "audit:ui": "npx tsx scripts/audit.ts --scope ui",
+    "audit:charts": "npx tsx scripts/audit.ts --scope charts"
   },
   "keywords": [],
   "author": "",

@@ -39,6 +39,8 @@ export interface ChartRootProps {
   padding?: Partial<ChartPadding>
   yPadding?: number
   yDomain?: readonly [number, number]
+  /** Override x-axis domain. Default: [0, data.length - 1]. Use [-0.5, N-0.5] for band/bar positioning. */
+  xDomain?: readonly [number, number]
   /** Multiplier for downsampling target (target = chartWidth × factor). Lower = smoother. Default 0.3. */
   decimationFactor?: number
   className?: string
@@ -54,6 +56,7 @@ export function ChartRoot({
   padding: paddingOverride,
   yPadding = 0.05,
   yDomain: yDomainProp,
+  xDomain: xDomainProp,
   decimationFactor = 0.3,
   className,
   svgClassName,
@@ -92,10 +95,10 @@ export function ChartRoot({
   const chartWidth = Math.max(0, width - padding.left - padding.right)
   const chartHeight = Math.max(0, height - padding.top - padding.bottom)
 
-  const scaleX = useMemo(
-    () => scaleLinear([0, Math.max(1, data.length - 1)], [0, chartWidth]),
-    [data.length, chartWidth],
-  )
+  const scaleX = useMemo(() => {
+    const d = xDomainProp ?? [0, Math.max(1, data.length - 1)]
+    return scaleLinear([d[0], d[1]], [0, chartWidth])
+  }, [xDomainProp, data.length, chartWidth])
 
   const yDomain = useMemo(() => {
     if (yDomainProp) return yDomainProp

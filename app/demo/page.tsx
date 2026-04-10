@@ -1,12 +1,13 @@
 'use client'
 
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useRef } from 'react'
 import { WEIGHT, RADIUS } from '@/lib/ui'
 
 // ─── Chart primitives ───
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
 import { ChartArea } from '@/components/charts/primitives/ChartArea'
+import { ChartBar } from '@/components/charts/primitives/ChartBar'
 import { ChartCrosshair } from '@/components/charts/primitives/ChartCrosshair'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
@@ -16,6 +17,12 @@ import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
 import { CrosshairTimeLabel } from '@/components/charts/primitives/CrosshairTimeLabel'
+import { useChart } from '@/components/charts/primitives/chart-context'
+
+// ─── Math utilities ───
+import { stackSeries } from '@/lib/charts/utils/stack'
+import { scaleLinear } from '@/lib/charts/scales/linear'
+import { arcPath, pieLayout } from '@/lib/charts/paths/arc'
 
 // ─── Data generators ───
 import {
@@ -23,6 +30,12 @@ import {
   generateRevenueData,
   generateTemperatureData,
   generateSensorData,
+  generateSparklineData,
+  generateMonthlySales,
+  generateRevenueGrowthData,
+  generateMarketShareData,
+  generateProfitLossData,
+  generateBudgetData,
 } from './generate-data'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -321,6 +334,974 @@ function IoTCharts({ data }: { data: SensorData }) {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 5. Sparkline Strip — "Key Metrics"
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const SPARKLINE_METRICS = [
+  { label: 'Revenue', value: '$142K', delta: '+12.4%', positive: true, trend: 'up' as const, seed: 501 },
+  { label: 'Users', value: '8,421', delta: '+24.1%', positive: true, trend: 'up' as const, seed: 502 },
+  { label: 'Conversion', value: '3.2%', delta: '+0.3%', positive: true, trend: 'flat' as const, seed: 503 },
+  { label: 'Churn', value: '1.8%', delta: '-0.4%', positive: false, trend: 'down' as const, seed: 504 },
+  { label: 'MRR', value: '€89K', delta: '+8.7%', positive: true, trend: 'up' as const, seed: 505 },
+]
+
+function SparklineStrip() {
+  return (
+    <section>
+      <h2 className={`mb-1 text-[22px] ${WEIGHT.strong} tracking-tight text-(--n1150)`}>
+        Key Metrics
+      </h2>
+      <p className="mb-4 font-sans text-[11px] font-[450] text-(--n600)">
+        ChartRoot + ChartLine + ChartArea at micro dimensions — sparkline pattern
+      </p>
+      <div className="flex gap-4 overflow-x-auto">
+        {SPARKLINE_METRICS.map((m) => (
+          <SparklineCard key={m.label} {...m} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function SparklineCard({
+  label,
+  value,
+  delta,
+  positive,
+  trend,
+  seed,
+}: {
+  label: string
+  value: string
+  delta: string
+  positive: boolean
+  trend: 'up' | 'down' | 'flat' | 'volatile'
+  seed: number
+}) {
+  const data = useMemo(() => generateSparklineData(trend, seed), [trend, seed])
+  const color = positive ? '#22c55e' : '#ef4444'
+
+  return (
+    <div className={`min-w-[160px] flex-1 ${RADIUS.lg} border-[0.5px] border-(--n400) bg-(--n50) p-4`}>
+      <span
+        className="text-[11px] font-[550] text-(--n600)"
+        style={{ fontFamily: 'var(--font-sans)' }}
+      >
+        {label}
+      </span>
+      <div className="mt-1 flex items-baseline gap-2">
+        <span
+          className="text-[20px] font-[550] text-(--n1150)"
+          style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}
+        >
+          {value}
+        </span>
+        <span
+          className="text-[12px] font-[450]"
+          style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums', color }}
+        >
+          {delta}
+        </span>
+      </div>
+      <div className="mt-2" style={{ '--spark-color': color } as React.CSSProperties}>
+        <ChartRoot data={data} height={40} padding={{ top: 4, right: 0, bottom: 4, left: 0 }}>
+          <ChartArea gradientColor={color} opacityFrom={0.12} opacityTo={0.005} />
+          <ChartLine className="fill-none stroke-[1.5] stroke-(--spark-color)" />
+        </ChartRoot>
+      </div>
+    </div>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 6. Monthly Sales — Bar Chart with spotlight hover
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function MonthlySalesChart() {
+  const salesData = useMemo(() => generateMonthlySales(), [])
+  const values = useMemo(() => salesData.map((d) => d.value), [salesData])
+
+  return (
+    <ChartCard title="Monthly Sales" subtitle="ChartBar + bar highlight — spotlight pattern with value labels">
+      <ChartRoot
+        data={values}
+        height={280}
+        yDomain={[0, Math.max(...values) * 1.12]}
+        xDomain={[-0.5, values.length - 0.5]}
+        padding={{ right: 16 }}
+      >
+        <BarHoverInner
+          values={values}
+          labels={salesData.map((d) => d.month)}
+          formatValue={(v) => `$${(v / 1000).toFixed(0)}k`}
+          barClassName="fill-blue-500"
+          pillColor="var(--n1150)"
+          pillTextColor="var(--n50)"
+        />
+      </ChartRoot>
+    </ChartCard>
+  )
+}
+
+/**
+ * Shared inner component for bar charts with spotlight hover.
+ * Zero re-renders on mouse move — all DOM manipulation via refs + rAF.
+ */
+function BarHoverInner({
+  values,
+  labels,
+  formatValue,
+  barClassName = 'fill-blue-500',
+  barColorFn,
+  pillColor = 'var(--n1150)',
+  pillTextColor = 'var(--n50)',
+  pillColorFn,
+}: {
+  values: number[]
+  labels: string[]
+  formatValue: (v: number) => string
+  barClassName?: string
+  barColorFn?: (v: number, i: number) => string
+  pillColor?: string
+  pillTextColor?: string
+  pillColorFn?: (v: number) => { bg: string; text: string }
+}) {
+  const { scaleX, scaleY, chartWidth, chartHeight } = useChart()
+  const barGroupRef = useRef<SVGGElement>(null)
+  const labelRef = useRef<SVGGElement>(null)
+  const activeIdx = useRef(-1)
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const localX = (e.clientX - rect.left) * (chartWidth / rect.width)
+    const idx = Math.min(values.length - 1, Math.max(0, Math.round(scaleX.inverse(localX))))
+    if (idx === activeIdx.current) return
+    activeIdx.current = idx
+
+    requestAnimationFrame(() => {
+      // Spotlight: hovered bar full, others faded
+      const rects = barGroupRef.current?.querySelectorAll('rect')
+      rects?.forEach((bar, i) => {
+        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+      })
+
+      // Position value label
+      const g = labelRef.current
+      if (!g) return
+      const text = g.querySelector('text') as SVGTextElement
+      const bg = g.querySelector('rect') as SVGRectElement
+      const arrow = g.querySelector('polygon') as SVGPolygonElement
+
+      text.textContent = formatValue(values[idx])
+
+      // Pill color per bar value
+      const colors = pillColorFn ? pillColorFn(values[idx]) : { bg: pillColor, text: pillTextColor }
+      bg.setAttribute('fill', colors.bg)
+      text.setAttribute('fill', colors.text)
+      arrow.setAttribute('fill', colors.bg)
+
+      const cx = scaleX(idx)
+      const vy = scaleY(values[idx])
+      const isNeg = values[idx] < 0
+      const zeroY = scaleY(0)
+
+      // Position: above bar for positive, below bar for negative
+      const labelY = isNeg ? Math.max(vy, zeroY) + 10 : vy - 10
+      g.setAttribute('transform', `translate(${cx.toFixed(1)},${labelY.toFixed(1)})`)
+
+      const bbox = text.getBBox()
+      const px = 7, py = 3
+      bg.setAttribute('x', (bbox.x - px).toFixed(1))
+      bg.setAttribute('y', (bbox.y - py).toFixed(1))
+      bg.setAttribute('width', (bbox.width + px * 2).toFixed(1))
+      bg.setAttribute('height', (bbox.height + py * 2).toFixed(1))
+      bg.setAttribute('rx', '4')
+
+      // Arrow: points toward the bar
+      if (isNeg) {
+        const ay = bbox.y - py
+        arrow.setAttribute('points', `-3.5,${ay.toFixed(1)} 3.5,${ay.toFixed(1)} 0,${(ay - 4).toFixed(1)}`)
+      } else {
+        const ay = bbox.y + bbox.height + py
+        arrow.setAttribute('points', `-3.5,${ay.toFixed(1)} 3.5,${ay.toFixed(1)} 0,${(ay + 4).toFixed(1)}`)
+      }
+
+      g.style.opacity = '1'
+    })
+  }, [values, scaleX, scaleY, chartWidth, formatValue, pillColor, pillTextColor, pillColorFn])
+
+  const handlePointerLeave = useCallback(() => {
+    activeIdx.current = -1
+    requestAnimationFrame(() => {
+      barGroupRef.current?.querySelectorAll('rect').forEach((bar) => {
+        ;(bar as SVGRectElement).style.opacity = '1'
+      })
+      if (labelRef.current) labelRef.current.style.opacity = '0'
+    })
+  }, [])
+
+  return (
+    <>
+      <g ref={barGroupRef}>
+        <ChartBar
+          className={barClassName}
+          colorFn={barColorFn}
+          radius={3}
+          gap={16}
+        />
+      </g>
+      <ChartAxisY tickCount={4} format={(v) => formatValue(v)} />
+      <ChartAxisX
+        labelCount={labels.length}
+        format={(i) => labels[i] ?? ''}
+        tickValues={labels.map((_, i) => i)}
+      />
+      {/* Value label pill — hidden by default */}
+      <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
+        <rect rx={4} fill={pillColor} />
+        <text
+          textAnchor="middle"
+          fill={pillTextColor}
+          fontSize={12}
+          dy="0.35em"
+          style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }}
+        />
+        <polygon fill={pillColor} />
+      </g>
+      {/* Invisible overlay for pointer events */}
+      <rect
+        x={0}
+        y={0}
+        width={chartWidth}
+        height={chartHeight}
+        fill="transparent"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      />
+    </>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 7. Revenue & Growth Rate — Composed (Bar + Line, Dual Y-Axis)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function ComposedChart() {
+  const composedData = useMemo(() => generateRevenueGrowthData(), [])
+  const revenues = useMemo(() => composedData.map((d) => d.revenue), [composedData])
+  const growthValues = useMemo(() => composedData.map((d) => d.growth), [composedData])
+  const growthDomain: [number, number] = useMemo(() => {
+    const max = Math.max(...growthValues)
+    return [0, Math.ceil(max / 5) * 5 + 5]
+  }, [growthValues])
+
+  return (
+    <ChartCard title="Revenue & Growth Rate" subtitle="ChartBar + ChartLine dual Y-axis — bar highlight + line dot">
+      <ChartRoot
+        data={revenues}
+        height={300}
+        yDomain={[0, Math.max(...revenues) * 1.15]}
+        xDomain={[-0.5, revenues.length - 0.5]}
+        padding={{ right: 56 }}
+      >
+        <ComposedInner
+          revenues={revenues}
+          growthValues={growthValues}
+          growthDomain={growthDomain}
+          labels={composedData.map((d) => d.month)}
+        />
+      </ChartRoot>
+      {/* Legend */}
+      <div className="ml-12 mt-2 flex gap-5">
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-[2px] bg-blue-500/70" />
+          <span className="font-sans text-[12px] text-(--n800)">Revenue (left axis)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-0.5 w-3 rounded-full bg-emerald-500" />
+          <span className="font-sans text-[12px] text-(--n800)">Growth rate (right axis)</span>
+        </div>
+      </div>
+    </ChartCard>
+  )
+}
+
+function ComposedInner({
+  revenues,
+  growthValues,
+  growthDomain,
+  labels,
+}: {
+  revenues: number[]
+  growthValues: number[]
+  growthDomain: [number, number]
+  labels: string[]
+}) {
+  const { scaleX, scaleY, chartWidth, chartHeight } = useChart()
+  const barGroupRef = useRef<SVGGElement>(null)
+  const lineDotRef = useRef<SVGCircleElement>(null)
+  const labelRef = useRef<SVGGElement>(null)
+  const activeIdx = useRef(-1)
+
+  const growthScaleY = useMemo(
+    () => scaleLinear([growthDomain[0], growthDomain[1]], [chartHeight, 0]),
+    [growthDomain, chartHeight],
+  )
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const localX = (e.clientX - rect.left) * (chartWidth / rect.width)
+    const raw = scaleX.inverse(localX)
+    const idx = Math.min(revenues.length - 1, Math.max(0, Math.round(raw)))
+    if (!isFinite(idx) || idx < 0 || idx >= revenues.length) return
+    if (idx === activeIdx.current) return
+    activeIdx.current = idx
+
+    const rev = revenues[idx]
+    const growth = growthValues[idx]
+    if (rev === undefined || growth === undefined) return
+
+    requestAnimationFrame(() => {
+      // Spotlight bars
+      barGroupRef.current?.querySelectorAll('rect').forEach((bar, i) => {
+        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+      })
+
+      const cx = scaleX(idx)
+      const barTopY = scaleY(rev)
+      const dotY = growthScaleY(growth)
+
+      // Line dot
+      if (lineDotRef.current) {
+        lineDotRef.current.setAttribute('cx', cx.toFixed(1))
+        lineDotRef.current.setAttribute('cy', dotY.toFixed(1))
+        lineDotRef.current.style.opacity = '1'
+      }
+
+      // Combined pill: revenue + growth in one dark pill above bar
+      const g = labelRef.current
+      if (g) {
+        const texts = g.querySelectorAll('text')
+        const bg = g.querySelector('rect') as SVGRectElement
+        const revText = texts[0] as SVGTextElement
+        const growthText = texts[1] as SVGTextElement
+
+        revText.textContent = `$${(rev / 1000).toFixed(0)}k`
+        growthText.textContent = `${growth.toFixed(1)}%`
+
+        g.setAttribute('transform', `translate(${cx.toFixed(1)},${(barTopY - 12).toFixed(1)})`)
+
+        const bbox1 = revText.getBBox()
+        const bbox2 = growthText.getBBox()
+        const w = Math.max(bbox1.width, bbox2.width) + 16
+        const h = bbox1.height + bbox2.height + 10
+        bg.setAttribute('x', (-w / 2).toFixed(1))
+        bg.setAttribute('y', (-h).toFixed(1))
+        bg.setAttribute('width', w.toFixed(1))
+        bg.setAttribute('height', h.toFixed(1))
+        bg.setAttribute('rx', '4')
+
+        revText.setAttribute('y', (-h + bbox1.height + 3).toFixed(1))
+        growthText.setAttribute('y', (-h + bbox1.height + bbox2.height + 7).toFixed(1))
+
+        g.style.opacity = '1'
+      }
+    })
+  }, [revenues, growthValues, scaleX, scaleY, growthScaleY, chartWidth])
+
+  const handlePointerLeave = useCallback(() => {
+    activeIdx.current = -1
+    requestAnimationFrame(() => {
+      barGroupRef.current?.querySelectorAll('rect').forEach((bar) => {
+        ;(bar as SVGRectElement).style.opacity = '1'
+      })
+      if (labelRef.current) labelRef.current.style.opacity = '0'
+      if (lineDotRef.current) lineDotRef.current.style.opacity = '0'
+    })
+  }, [])
+
+  return (
+    <>
+      <g ref={barGroupRef}>
+        <ChartBar className="fill-blue-500/70" radius={3} gap={16} />
+      </g>
+      <ChartLine
+        data={growthValues}
+        yDomain={growthDomain}
+        className="fill-none stroke-emerald-500 stroke-2"
+      />
+      <ChartAxisY tickCount={4} format={(v) => `$${(v / 1000).toFixed(0)}k`} />
+      <ChartAxisY
+        position="right"
+        domain={growthDomain}
+        tickCount={4}
+        format={(v) => `${v.toFixed(0)}%`}
+      />
+      <ChartAxisX
+        labelCount={labels.length}
+        format={(i) => labels[i] ?? ''}
+        tickValues={labels.map((_, i) => i)}
+      />
+      {/* Combined value pill — always two-line: revenue (white) + growth (green) */}
+      <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
+        <rect fill="var(--n1150)" />
+        <text textAnchor="middle" fill="var(--n50)" fontSize={12}
+          style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }} />
+        <text textAnchor="middle" fill="#22c55e" fontSize={11}
+          style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums' }} />
+      </g>
+      {/* Line dot */}
+      <circle ref={lineDotRef} r={4} fill="white" stroke="#22c55e" strokeWidth={2}
+        style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
+      {/* Invisible overlay */}
+      <rect x={0} y={0} width={chartWidth} height={chartHeight}
+        fill="transparent" onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} />
+    </>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 8. Market Share — Stacked Area with crosshair + segment highlight
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const MARKET_COLORS = [
+  { name: 'Acme Corp', color: '#3b82f6', className: 'bg-blue-500' },
+  { name: 'Globex', color: '#22c55e', className: 'bg-emerald-500' },
+  { name: 'Initech', color: '#f59e0b', className: 'bg-amber-500' },
+  { name: 'Umbrella', color: '#8b5cf6', className: 'bg-purple-500' },
+]
+
+function MarketShareChart() {
+  const rawData = useMemo(() => generateMarketShareData(), [])
+
+  const accessors = [
+    (d: any) => d.companyA,
+    (d: any) => d.companyB,
+    (d: any) => d.companyC,
+    (d: any) => d.companyD,
+  ]
+
+  const stacked = useMemo(() => stackSeries(rawData, accessors), [rawData])
+  const indices = useMemo(() => rawData.map(() => 100), [rawData])
+  const legendRefs = useRef<(HTMLSpanElement | null)[]>([])
+
+  return (
+    <ChartCard title="Market Share" subtitle="ChartArea + stackSeries — crosshair with segment highlight">
+      <ChartRoot data={indices} height={320} yDomain={[0, 100]} padding={{ right: 16 }}>
+        <MarketShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
+      </ChartRoot>
+      {/* Legend */}
+      <div className="ml-12 mt-2 flex gap-5">
+        {MARKET_COLORS.map((c, i) => (
+          <div key={c.name} className="flex items-center gap-2">
+            <span className={`inline-block h-2 w-2 rounded-[2px] ${c.className}`} />
+            <span
+              ref={(el) => { legendRefs.current[i] = el }}
+              className="font-sans text-[12px] text-(--n800)"
+              style={{ transition: 'opacity 150ms, font-weight 150ms' }}
+            >
+              {c.name}
+            </span>
+          </div>
+        ))}
+      </div>
+    </ChartCard>
+  )
+}
+
+function MarketShareInner({
+  stacked,
+  indices,
+  legendRefs,
+}: {
+  stacked: { y0: number; y1: number }[][]
+  indices: number[]
+  legendRefs: React.RefObject<(HTMLSpanElement | null)[]>
+}) {
+  const { scaleX, scaleY, chartWidth, chartHeight } = useChart()
+  const areaRefs = useRef<(SVGGElement | null)[]>([])
+  const crosshairRef = useRef<SVGLineElement>(null)
+  const dotRef = useRef<SVGCircleElement>(null)
+  const segLabelRef = useRef<SVGGElement>(null)
+  const activeSeg = useRef(-1)
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const ratioX = chartWidth / rect.width
+    const ratioY = chartHeight / rect.height
+    const localX = (e.clientX - rect.left) * ratioX
+    const localY = (e.clientY - rect.top) * ratioY
+    const dataIdx = Math.min(indices.length - 1, Math.max(0, Math.round(scaleX.inverse(localX))))
+    const yValue = scaleY.inverse(localY)
+
+    // Find which segment the cursor y falls into
+    let segIdx = -1
+    for (let s = 0; s < stacked.length; s++) {
+      const seg = stacked[s][dataIdx]
+      if (yValue >= seg.y0 && yValue <= seg.y1) {
+        segIdx = s
+        break
+      }
+    }
+    if (segIdx === -1) {
+      if (yValue <= 0) segIdx = 0
+      else segIdx = stacked.length - 1
+    }
+
+    requestAnimationFrame(() => {
+      // Crosshair line
+      const px = scaleX(dataIdx)
+      if (crosshairRef.current) {
+        crosshairRef.current.setAttribute('x1', px.toFixed(1))
+        crosshairRef.current.setAttribute('x2', px.toFixed(1))
+        crosshairRef.current.style.opacity = '1'
+      }
+
+      // Dot on y1 edge of hovered segment
+      if (dotRef.current && segIdx >= 0) {
+        const dotY = scaleY(stacked[segIdx][dataIdx].y1)
+        dotRef.current.setAttribute('cx', px.toFixed(1))
+        dotRef.current.setAttribute('cy', dotY.toFixed(1))
+        dotRef.current.setAttribute('fill', MARKET_COLORS[segIdx].color)
+        dotRef.current.style.opacity = '1'
+      }
+
+      // Highlight: hovered segment full, others faded
+      areaRefs.current.forEach((g, i) => {
+        if (g) {
+          g.style.opacity = i === segIdx ? '1' : '0.2'
+          g.style.transition = 'opacity 150ms'
+        }
+      })
+
+      // Legend sync
+      legendRefs.current?.forEach((el, i) => {
+        if (!el) return
+        el.style.fontWeight = i === segIdx ? '550' : '400'
+        el.style.opacity = i === segIdx ? '1' : '0.5'
+      })
+
+      // Segment label
+      const gl = segLabelRef.current
+      if (gl && segIdx >= 0) {
+        const text = gl.querySelector('text') as SVGTextElement
+        const bg = gl.querySelector('rect') as SVGRectElement
+        const val = (stacked[segIdx][dataIdx].y1 - stacked[segIdx][dataIdx].y0).toFixed(1)
+        text.textContent = `${MARKET_COLORS[segIdx].name}: ${val}%`
+        const midY = scaleY((stacked[segIdx][dataIdx].y0 + stacked[segIdx][dataIdx].y1) / 2)
+        gl.setAttribute('transform', `translate(${(px + 10).toFixed(1)},${midY.toFixed(1)})`)
+        const bbox = text.getBBox()
+        bg.setAttribute('x', (bbox.x - 6).toFixed(1))
+        bg.setAttribute('y', (bbox.y - 3).toFixed(1))
+        bg.setAttribute('width', (bbox.width + 12).toFixed(1))
+        bg.setAttribute('height', (bbox.height + 6).toFixed(1))
+        bg.setAttribute('rx', '4')
+        bg.setAttribute('fill', MARKET_COLORS[segIdx].color)
+        gl.style.opacity = '1'
+      }
+
+      activeSeg.current = segIdx
+    })
+  }, [stacked, indices, scaleX, scaleY, chartWidth, chartHeight, legendRefs])
+
+  const handlePointerLeave = useCallback(() => {
+    activeSeg.current = -1
+    requestAnimationFrame(() => {
+      areaRefs.current.forEach((g) => {
+        if (g) { g.style.opacity = '1'; g.style.transition = 'opacity 150ms' }
+      })
+      legendRefs.current?.forEach((el) => {
+        if (!el) return
+        el.style.fontWeight = '400'
+        el.style.opacity = '1'
+      })
+      if (crosshairRef.current) crosshairRef.current.style.opacity = '0'
+      if (dotRef.current) dotRef.current.style.opacity = '0'
+      if (segLabelRef.current) segLabelRef.current.style.opacity = '0'
+    })
+  }, [legendRefs])
+
+  return (
+    <>
+      {/* Render bottom-to-top */}
+      {[...stacked].reverse().map((series, reverseIdx) => {
+        const originalIdx = stacked.length - 1 - reverseIdx
+        return (
+          <g key={originalIdx} ref={(el) => { areaRefs.current[originalIdx] = el }}
+            style={{ transition: 'opacity 150ms' }}>
+            <ChartArea
+              data={indices}
+              gradientColor={MARKET_COLORS[originalIdx].color}
+              opacityFrom={0.7}
+              opacityTo={0.7}
+              y0Accessor={(_, i) => series[i].y0}
+              yAccessor={(_, i) => series[i].y1}
+            />
+          </g>
+        )
+      })}
+      <ChartAxisY tickCount={4} format={(v) => `${v.toFixed(0)}%`} />
+      <ChartAxisX labelCount={5} format={(i) => `Y${Math.floor(i / 12) + 1}`} />
+      {/* Crosshair line */}
+      <line ref={crosshairRef} x1={0} y1={0} x2={0} y2={chartHeight}
+        stroke="#71717a" strokeWidth={0.5} shapeRendering="crispEdges"
+        style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
+      {/* Crosshair dot */}
+      <circle ref={dotRef} r={5} fill="#3b82f6" stroke="white" strokeWidth={2}
+        style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
+      {/* Segment label */}
+      <g ref={segLabelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
+        <rect fill="#3b82f6" />
+        <text textAnchor="start" fill="white" fontSize={11} dy="0.35em"
+          style={{ fontFamily: 'var(--font-sans)', fontWeight: 500 }} />
+      </g>
+      {/* Invisible overlay */}
+      <rect x={0} y={0} width={chartWidth} height={chartHeight}
+        fill="transparent" onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} />
+    </>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 9. Profit & Loss — Negative Values with spotlight hover
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function ProfitLossChart() {
+  const plData = useMemo(() => generateProfitLossData(), [])
+  const values = useMemo(() => plData.map((d) => d.value), [plData])
+
+  return (
+    <ChartCard title="Profit & Loss" subtitle="ChartBar + colorFn — positive/negative with colored value labels">
+      <ChartRoot
+        data={values}
+        height={280}
+        xDomain={[-0.5, values.length - 0.5]}
+        padding={{ right: 16 }}
+      >
+        <ProfitLossInner values={values} labels={plData.map((d) => d.month)} />
+      </ChartRoot>
+      {/* Legend */}
+      <div className="ml-12 mt-2 flex gap-5">
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-[2px] bg-emerald-500" />
+          <span className="font-sans text-[12px] text-(--n800)">Profit</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-[2px] bg-red-500" />
+          <span className="font-sans text-[12px] text-(--n800)">Loss</span>
+        </div>
+      </div>
+    </ChartCard>
+  )
+}
+
+function ProfitLossInner({ values, labels }: { values: number[]; labels: string[] }) {
+  const { scaleX, scaleY, chartWidth, chartHeight } = useChart()
+  const barGroupRef = useRef<SVGGElement>(null)
+  const labelRef = useRef<SVGGElement>(null)
+  const activeIdx = useRef(-1)
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const localX = (e.clientX - rect.left) * (chartWidth / rect.width)
+    const idx = Math.min(values.length - 1, Math.max(0, Math.round(scaleX.inverse(localX))))
+    if (idx === activeIdx.current) return
+    activeIdx.current = idx
+
+    requestAnimationFrame(() => {
+      barGroupRef.current?.querySelectorAll('rect').forEach((bar, i) => {
+        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+      })
+
+      const g = labelRef.current
+      if (!g) return
+      const text = g.querySelector('text') as SVGTextElement
+      const bg = g.querySelector('rect') as SVGRectElement
+      const arrow = g.querySelector('polygon') as SVGPolygonElement
+
+      const v = values[idx]
+      const abs = Math.abs(v)
+      text.textContent = v < 0 ? `-$${(abs / 1000).toFixed(0)}k` : `$${(abs / 1000).toFixed(0)}k`
+
+      const isNeg = v < 0
+      const pillBg = isNeg ? '#ef4444' : '#22c55e'
+      bg.setAttribute('fill', pillBg)
+      arrow.setAttribute('fill', pillBg)
+      text.setAttribute('fill', 'white')
+
+      const cx = scaleX(idx)
+      const vy = scaleY(v)
+      const zeroY = scaleY(0)
+      const labelY = isNeg ? Math.max(vy, zeroY) + 10 : Math.min(vy, zeroY) - 10
+      g.setAttribute('transform', `translate(${cx.toFixed(1)},${labelY.toFixed(1)})`)
+
+      const bbox = text.getBBox()
+      const px = 7, py = 3
+      bg.setAttribute('x', (bbox.x - px).toFixed(1))
+      bg.setAttribute('y', (bbox.y - py).toFixed(1))
+      bg.setAttribute('width', (bbox.width + px * 2).toFixed(1))
+      bg.setAttribute('height', (bbox.height + py * 2).toFixed(1))
+      bg.setAttribute('rx', '4')
+
+      if (isNeg) {
+        const ay = bbox.y - py
+        arrow.setAttribute('points', `-3.5,${ay.toFixed(1)} 3.5,${ay.toFixed(1)} 0,${(ay - 4).toFixed(1)}`)
+      } else {
+        const ay = bbox.y + bbox.height + py
+        arrow.setAttribute('points', `-3.5,${ay.toFixed(1)} 3.5,${ay.toFixed(1)} 0,${(ay + 4).toFixed(1)}`)
+      }
+      g.style.opacity = '1'
+    })
+  }, [values, scaleX, scaleY, chartWidth])
+
+  const handlePointerLeave = useCallback(() => {
+    activeIdx.current = -1
+    requestAnimationFrame(() => {
+      barGroupRef.current?.querySelectorAll('rect').forEach((bar) => {
+        ;(bar as SVGRectElement).style.opacity = '1'
+      })
+      if (labelRef.current) labelRef.current.style.opacity = '0'
+    })
+  }, [])
+
+  return (
+    <>
+      <g ref={barGroupRef}>
+        <ChartBar radius={3} gap={16} colorFn={(v) => (v >= 0 ? '#22c55e' : '#ef4444')} />
+      </g>
+      {/* Solid zero line */}
+      <line
+        x1={0} y1={scaleY(0)} x2={chartWidth} y2={scaleY(0)}
+        stroke="var(--n600)" strokeWidth={1} shapeRendering="crispEdges"
+      />
+      <ChartAxisY
+        tickCount={5}
+        format={(v) => {
+          const abs = Math.abs(v)
+          const f = abs >= 1000 ? `${(abs / 1000).toFixed(0)}k` : `${abs}`
+          return v < 0 ? `-$${f}` : `$${f}`
+        }}
+      />
+      <ChartAxisX
+        labelCount={labels.length}
+        format={(i) => labels[i] ?? ''}
+        tickValues={labels.map((_, i) => i)}
+      />
+      {/* Value label pill */}
+      <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
+        <rect rx={4} fill="#22c55e" />
+        <text textAnchor="middle" fill="white" fontSize={12} dy="0.35em"
+          style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }} />
+        <polygon fill="#22c55e" />
+      </g>
+      {/* Invisible overlay */}
+      <rect x={0} y={0} width={chartWidth} height={chartHeight}
+        fill="transparent" onPointerMove={handlePointerMove} onPointerLeave={handlePointerLeave} />
+    </>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 10. Budget Allocation — Donut with ref-based hover + legend sync
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function BudgetDonutChart() {
+  const budgetData = useMemo(() => generateBudgetData(), [])
+  const total = useMemo(() => budgetData.reduce((s, d) => s + d.value, 0), [budgetData])
+  const totalFormatted = `$${(total / 1_000_000).toFixed(2)}M`
+
+  const padRad = (1.5 * Math.PI) / 180
+  const slices = useMemo(() => pieLayout(budgetData, (d) => d.value, padRad), [budgetData, padRad])
+
+  const size = 220
+  const outerR = size / 2 - 6
+  const innerR = outerR * 0.65
+  const cx = size / 2
+  const cy = size / 2
+
+  // Refs for zero-rerender hover
+  const pathRefs = useRef<(SVGPathElement | null)[]>([])
+  const legendRefs = useRef<(HTMLDivElement | null)[]>([])
+  const centerNameRef = useRef<SVGTextElement>(null)
+  const centerValueRef = useRef<SVGTextElement>(null)
+
+  // Single overlay approach: atan2 calculates which segment the pointer is in.
+  // No per-path events = no gaps = no race conditions.
+  const rafId = useRef<number>(0)
+  const currentIdx = useRef<number>(-1)
+  const overlayRef = useRef<SVGCircleElement>(null)
+
+  /** Find segment index from angle. Returns -1 if in the donut hole. */
+  const segmentFromPointer = useCallback((px: number, py: number): number => {
+    const dx = px - cx
+    const dy = py - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    if (dist < innerR || dist > outerR + 8) return -1 // in hole or outside
+
+    // Convert to angle: 0 = top (12 o'clock), clockwise
+    let angle = Math.atan2(dx, -dy)
+    if (angle < 0) angle += 2 * Math.PI
+
+    for (let i = 0; i < slices.length; i++) {
+      if (angle >= slices[i].startAngle && angle <= slices[i].endAngle) return i
+    }
+    return -1
+  }, [slices, cx, cy, innerR, outerR])
+
+  const applyHighlight = useCallback((target: number) => {
+    if (target === currentIdx.current) return
+    currentIdx.current = target
+
+    pathRefs.current.forEach((p, i) => {
+      if (!p) return
+      if (target === -1) {
+        p.style.transform = 'translate(0, 0)'
+        p.style.opacity = '1'
+      } else if (i === target) {
+        const mid = (slices[i].startAngle + slices[i].endAngle) / 2
+        p.style.transform = `translate(${(Math.sin(mid) * 6).toFixed(1)}px, ${(-Math.cos(mid) * 6).toFixed(1)}px)`
+        p.style.opacity = '1'
+      } else {
+        p.style.transform = 'translate(0, 0)'
+        p.style.opacity = '0.5'
+      }
+    })
+
+    legendRefs.current.forEach((el, i) => {
+      if (el) el.style.opacity = target === -1 || i === target ? '1' : '0.5'
+    })
+
+    if (target === -1) {
+      if (centerNameRef.current) centerNameRef.current.textContent = 'Total budget'
+      if (centerValueRef.current) centerValueRef.current.textContent = totalFormatted
+    } else {
+      if (centerNameRef.current) centerNameRef.current.textContent = budgetData[target].category
+      if (centerValueRef.current) {
+        const pct = slices[target].percentage.toFixed(1)
+        centerValueRef.current.textContent = `$${(budgetData[target].value / 1000).toFixed(0)}K · ${pct}%`
+      }
+    }
+  }, [budgetData, slices, totalFormatted])
+
+  const handleDonutPointerMove = useCallback((e: React.PointerEvent) => {
+    const svg = overlayRef.current?.ownerSVGElement
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const px = (e.clientX - rect.left) * (size / rect.width)
+    const py = (e.clientY - rect.top) * (size / rect.height)
+    const idx = segmentFromPointer(px, py)
+
+    cancelAnimationFrame(rafId.current)
+    rafId.current = requestAnimationFrame(() => applyHighlight(idx))
+  }, [segmentFromPointer, applyHighlight, size])
+
+  const handleDonutPointerLeave = useCallback(() => {
+    cancelAnimationFrame(rafId.current)
+    rafId.current = requestAnimationFrame(() => applyHighlight(-1))
+  }, [applyHighlight])
+
+  // Legend hover → highlight segment (bidirectional sync)
+  const handleLegendEnter = useCallback((idx: number) => {
+    cancelAnimationFrame(rafId.current)
+    rafId.current = requestAnimationFrame(() => applyHighlight(idx))
+  }, [applyHighlight])
+
+  const handleLegendLeave = useCallback(() => {
+    cancelAnimationFrame(rafId.current)
+    rafId.current = requestAnimationFrame(() => applyHighlight(-1))
+  }, [applyHighlight])
+
+  return (
+    <ChartCard title="Budget Allocation" subtitle="Donut chart — arcPath + pieLayout, segment hover with legend sync">
+      <div className="flex items-center gap-10">
+        {/* Donut SVG — fully ref-based, zero state on hover */}
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} shapeRendering="geometricPrecision">
+          {/* Segments — no pointer events, overlay handles hover */}
+          {slices.map((slice, i) => {
+            const d = arcPath(cx, cy, innerR, outerR, slice.startAngle, slice.endAngle)
+            return (
+              <path
+                key={i}
+                ref={(el) => { pathRefs.current[i] = el }}
+                d={d}
+                fill={budgetData[i].color}
+                style={{
+                  transformOrigin: `${cx}px ${cy}px`,
+                  transition: 'transform 200ms ease-out, opacity 200ms',
+                  pointerEvents: 'none',
+                }}
+              />
+            )
+          })}
+          {/* Center text */}
+          <text
+            ref={centerNameRef}
+            x={cx}
+            y={cy - 6}
+            textAnchor="middle"
+            className="fill-(--n600) text-[9px]"
+            style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, pointerEvents: 'none' }}
+          >
+            Total budget
+          </text>
+          <text
+            ref={centerValueRef}
+            x={cx}
+            y={cy + 12}
+            textAnchor="middle"
+            className="fill-(--n1150) text-[18px]"
+            style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums', pointerEvents: 'none' }}
+          >
+            {totalFormatted}
+          </text>
+          {/* Invisible circle overlay — captures ALL pointer events, atan2 detects segment */}
+          <circle
+            ref={overlayRef}
+            cx={cx}
+            cy={cy}
+            r={outerR + 4}
+            fill="transparent"
+            onPointerMove={handleDonutPointerMove}
+            onPointerLeave={handleDonutPointerLeave}
+          />
+        </svg>
+
+        {/* Legend — syncs with donut hover */}
+        <div className="flex flex-col gap-2.5">
+          {budgetData.map((item, i) => {
+            const pct = ((item.value / total) * 100).toFixed(1)
+            return (
+              <div
+                key={item.category}
+                ref={(el) => { legendRefs.current[i] = el }}
+                className="flex items-center gap-2.5"
+                style={{ transition: 'opacity 200ms' }}
+                onPointerEnter={() => handleLegendEnter(i)}
+                onPointerLeave={() => handleLegendLeave()}
+              >
+                <span
+                  className="inline-block h-2 w-2 rounded-[2px]"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="w-24 font-sans text-[13px] text-(--n1150)">
+                  {item.category}
+                </span>
+                <span
+                  className="text-[13px] text-(--n600)"
+                  style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}
+                >
+                  {pct}%
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -346,6 +1327,12 @@ export default function DemoPage() {
           <RevenueChart />
           <TemperatureChart />
           <IoTDashboard />
+          <SparklineStrip />
+          <MonthlySalesChart />
+          <ComposedChart />
+          <MarketShareChart />
+          <ProfitLossChart />
+          <BudgetDonutChart />
         </div>
       </div>
     </main>
