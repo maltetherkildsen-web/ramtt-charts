@@ -303,30 +303,61 @@ function SettingsDemo() {
 
 function WhiteLiftDemo() {
   return (
-    <DemoSection title="White-Lift Cards (on sand background)">
-      <div className="grid grid-cols-2 gap-4">
-        {[
-          { title: 'Design Workspace', desc: 'Updated 12 days ago' },
-          { title: 'ramtt-charts', desc: 'Updated 1 day ago' },
-          { title: 'RAMTT', desc: 'Evidensbaseret sportsernæring.' },
-          { title: 'Coaching', desc: 'Planlægning af træning til mine atleter.' },
-        ].map((p) => (
-          <div
-            key={p.title}
-            className={cn(
-              'bg-transparent transition-colors duration-150 hover:bg-white py-4 px-[18px]',
-              BORDER.default,
-              RADIUS.lg,
-            )}
-          >
-            <div className={cn(FONT.body, WEIGHT.medium, 'text-[13px] text-[var(--n1150)]')}>
-              {p.title}
-            </div>
-            <div className={cn(MUTED_STYLE, 'mt-1 text-[11px]')}>
-              {p.desc}
-            </div>
+    <DemoSection title="Cards — White-Lift & Tinted">
+      <div className="space-y-6">
+        {/* White-lift cards */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>White-lift (hover to see)</p>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { title: 'Design Workspace', desc: 'Updated 12 days ago' },
+              { title: 'ramtt-charts', desc: 'Updated 1 day ago' },
+              { title: 'RAMTT', desc: 'Evidensbaseret sportsernæring.' },
+              { title: 'Coaching', desc: 'Planlægning af træning til mine atleter.' },
+            ].map((p) => (
+              <div
+                key={p.title}
+                className={cn(
+                  'bg-transparent transition-colors duration-150 hover:bg-white py-4 px-[18px]',
+                  BORDER.default,
+                  RADIUS.lg,
+                )}
+              >
+                <div className={cn(FONT.body, WEIGHT.medium, 'text-[13px] text-[var(--n1150)]')}>
+                  {p.title}
+                </div>
+                <div className={cn(MUTED_STYLE, 'mt-1 text-[11px]')}>
+                  {p.desc}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Tinted cards */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Tinted cards (subtle semantic coloring)</p>
+          <div className="grid grid-cols-3 gap-4">
+            <Card tint="positive">
+              <Card.Header><Card.Title>Recovery</Card.Title></Card.Header>
+              <Card.Body>
+                <p className={cn(MUTED_STYLE, 'text-[12px]')}>All markers green. Ready for intensity.</p>
+              </Card.Body>
+            </Card>
+            <Card tint="warning">
+              <Card.Header><Card.Title>Fuel status</Card.Title></Card.Header>
+              <Card.Body>
+                <p className={cn(MUTED_STYLE, 'text-[12px]')}>Glycogen partially depleted. Consider intake.</p>
+              </Card.Body>
+            </Card>
+            <Card tint="info">
+              <Card.Header><Card.Title>New insight</Card.Title></Card.Header>
+              <Card.Body>
+                <p className={cn(MUTED_STYLE, 'text-[12px]')}>Your FTP increased 3W in the last 14 days.</p>
+              </Card.Body>
+            </Card>
+          </div>
+        </div>
       </div>
     </DemoSection>
   )
@@ -380,9 +411,9 @@ function BadgesDemo() {
         <div className="flex flex-wrap items-center gap-3">
           <Badge color="positive">Safe</Badge>
           <Badge color="negative">Critical</Badge>
-          <Badge color="warning">Build</Badge>
-          <Badge color="info">New</Badge>
-          <Badge>Default</Badge>
+          <Badge variant="outline" color="warning">Build</Badge>
+          <Badge variant="outline" color="info">New</Badge>
+          <Badge variant="outline">Default</Badge>
 
           <Badge variant="outline" color="positive">+7.55%</Badge>
           <Badge variant="outline" color="negative">-0.07%</Badge>
@@ -392,7 +423,7 @@ function BadgesDemo() {
           <Badge color="#22c55e" size="md">Z2</Badge>
           <Badge color="#eab308" size="md">Z3</Badge>
 
-          <Badge size="md" color="info">Medium</Badge>
+          <Badge size="md" variant="outline" color="info">Medium</Badge>
           <Badge size="md" variant="outline" color="positive">Optimal</Badge>
         </div>
       </Card>
@@ -410,10 +441,10 @@ function ButtonsDemo() {
           <Button>Mark all read</Button>
           <Button variant="outline">Query transcripts</Button>
           <Button variant="ghost">Dismiss</Button>
-          <Button variant="outline" size="sm">Small</Button>
-          <Button variant="outline" size="lg">Large</Button>
-          <Button disabled>Disabled</Button>
-          <Button variant="outline" disabled>Disabled outline</Button>
+          <Button variant="outline" size="sm">Small outline</Button>
+          <Button variant="outline" size="lg">Large outline</Button>
+          <Button variant="ghost" size="sm">Small ghost</Button>
+          <Button variant="outline" disabled>Disabled</Button>
           <Button variant="ghost" size="icon">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M8 2v12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
           </Button>
@@ -1269,28 +1300,55 @@ function TagsDemo() {
 
 // ─── 25. Gauges & Scores ───
 
+const GAUGE_THRESHOLDS = [
+  { value: 30, color: 'var(--negative)' },
+  { value: 60, color: 'var(--warning)' },
+  { value: 100, color: 'var(--positive)' },
+]
+
 function GaugesDemo() {
   return (
     <DemoSection title="Gauges & Scores">
-      <Card>
-        <div className="flex items-end gap-8 justify-center py-4">
-          <Gauge value={42} max={100} label="Injury risk" color="warning" size="sm" />
-          <Gauge value={86} max={100} label="Glycogen" unit="%" color="positive" size="md" />
-          <Gauge value={73} max={100} label="Readiness" size="md" />
-          <Gauge
-            value={62}
-            max={100}
-            label="Fuel coverage"
-            unit="%"
-            size="lg"
-            thresholds={[
-              { value: 30, color: 'var(--negative)' },
-              { value: 60, color: 'var(--warning)' },
-              { value: 100, color: 'var(--positive)' },
-            ]}
-          />
+      <div className="space-y-6">
+        {/* Variant A — Arc (refined semicircle) */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-3')}>Variant A — Arc (refined semicircle)</p>
+          <Card>
+            <div className="flex items-end gap-8 justify-center py-4">
+              <Gauge variant="arc" value={42} max={100} label="Injury risk" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="arc" value={86} max={100} label="Glycogen" unit="%" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="arc" value={73} max={100} label="Readiness" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="arc" value={62} max={100} label="Fuel cov." unit="%" thresholds={GAUGE_THRESHOLDS} />
+            </div>
+          </Card>
         </div>
-      </Card>
+
+        {/* Variant B — Ring (full circle) */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-3')}>Variant B — Ring (full circle)</p>
+          <Card>
+            <div className="flex items-center gap-8 justify-center py-4">
+              <Gauge variant="ring" value={42} max={100} label="Injury risk" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="ring" value={86} max={100} label="Glycogen" unit="%" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="ring" value={73} max={100} label="Readiness" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="ring" value={62} max={100} label="Fuel cov." unit="%" thresholds={GAUGE_THRESHOLDS} />
+            </div>
+          </Card>
+        </div>
+
+        {/* Variant C — Bar (horizontal) */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-3')}>Variant C — Bar (horizontal)</p>
+          <Card>
+            <div className="flex flex-col gap-4 py-2">
+              <Gauge variant="bar" value={42} max={100} label="Injury risk" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="bar" value={86} max={100} label="Glycogen" unit="%" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="bar" value={73} max={100} label="Readiness" thresholds={GAUGE_THRESHOLDS} />
+              <Gauge variant="bar" value={62} max={100} label="Fuel coverage" unit="%" thresholds={GAUGE_THRESHOLDS} />
+            </div>
+          </Card>
+        </div>
+      </div>
     </DemoSection>
   )
 }
@@ -1497,19 +1555,45 @@ function MiscDemo() {
           <Pagination page={currentPage} totalPages={24} onChange={setCurrentPage} />
         </div>
 
-        {/* Alerts */}
+        {/* Alerts — Variant A: Tinted background */}
         <div className="flex flex-col gap-2">
-          <p className={cn(MUTED_STYLE, 'text-[12px]')}>Alerts</p>
-          <Alert>Your FTP was updated to 285W based on today's session.</Alert>
-          <Alert variant="info">3 new signals require attention.</Alert>
-          <Alert variant="warning" action={{ label: 'Review', onClick: () => {} }}>
+          <p className={cn(LABEL_STYLE, 'mb-1')}>Variant A — Tinted background</p>
+          <Alert appearance="tinted" severity="success">Your FTP was updated to 285W based on today's session.</Alert>
+          <Alert appearance="tinted" severity="info">3 new signals require attention.</Alert>
+          <Alert appearance="tinted" severity="warning" action={{ label: 'Review', onClick: () => {} }}>
             Your injury risk score has increased to 72.
           </Alert>
-          <Alert variant="error" title="Sync failed">
+          <Alert appearance="tinted" severity="error" title="Sync failed">
+            Could not connect to Strava. Check your integration settings.
+          </Alert>
+        </div>
+
+        {/* Alerts — Variant B: Dot indicator */}
+        <div className="flex flex-col gap-2">
+          <p className={cn(LABEL_STYLE, 'mb-1')}>Variant B — Dot indicator</p>
+          <Alert appearance="dot" severity="success">Your FTP was updated to 285W based on today's session.</Alert>
+          <Alert appearance="dot" severity="info">3 new signals require attention.</Alert>
+          <Alert appearance="dot" severity="warning" action={{ label: 'Review', onClick: () => {} }}>
+            Your injury risk score has increased to 72.
+          </Alert>
+          <Alert appearance="dot" severity="error" title="Sync failed">
+            Could not connect to Strava. Check your integration settings.
+          </Alert>
+        </div>
+
+        {/* Alerts — Variant C: Top-edge accent */}
+        <div className="flex flex-col gap-2">
+          <p className={cn(LABEL_STYLE, 'mb-1')}>Variant C — Top-edge accent</p>
+          <Alert appearance="accent" severity="success">Your FTP was updated to 285W based on today's session.</Alert>
+          <Alert appearance="accent" severity="info">3 new signals require attention.</Alert>
+          <Alert appearance="accent" severity="warning" action={{ label: 'Review', onClick: () => {} }}>
+            Your injury risk score has increased to 72.
+          </Alert>
+          <Alert appearance="accent" severity="error" title="Sync failed">
             Could not connect to Strava. Check your integration settings.
           </Alert>
           {showAlert && (
-            <Alert variant="success" onDismiss={() => setShowAlert(false)}>
+            <Alert appearance="tinted" severity="success" onDismiss={() => setShowAlert(false)}>
               Session uploaded successfully.
             </Alert>
           )}
@@ -1928,9 +2012,9 @@ function StatusIndicatorsDemo() {
           </div>
         </div>
 
-        {/* StatusIndicator — size lg (container with left-border accent) */}
+        {/* StatusIndicator — size lg (tinted background container) */}
         <div>
-          <p className={cn(LABEL_STYLE, 'mb-2')}>StatusIndicator — lg (container)</p>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>StatusIndicator — lg (tinted container)</p>
           <div className="flex gap-3">
             <StatusIndicator status="good" size="lg" label="Race readiness" value="All systems nominal" />
             <StatusIndicator status="warning" size="lg" label="Recovery" value="Moderate fatigue detected" />

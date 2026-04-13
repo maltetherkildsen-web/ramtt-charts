@@ -15,6 +15,22 @@ const STATUS_COLORS: Record<string, string> = {
   unknown: 'var(--n400)',
 }
 
+const STATUS_TINT_BG: Record<string, string> = {
+  good: 'var(--positive-soft)',
+  warning: 'var(--warning-soft)',
+  critical: 'var(--negative-soft)',
+  neutral: 'var(--n200)',
+  unknown: 'var(--n200)',
+}
+
+const STATUS_TINT_BORDER: Record<string, string> = {
+  good: 'rgba(132, 204, 22, 0.2)',
+  warning: 'rgba(245, 158, 11, 0.2)',
+  critical: 'rgba(244, 63, 94, 0.2)',
+  neutral: 'var(--n400)',
+  unknown: 'var(--n400)',
+}
+
 // ─── Types ───
 
 export interface StatusIndicatorProps {
@@ -23,7 +39,7 @@ export interface StatusIndicatorProps {
   label?: string
   /** Secondary text describing the status */
   value?: string
-  /** sm = inline dot+label, md = default, lg = container with left-border accent */
+  /** sm = inline dot+label, md = default, lg = tinted container */
   size?: 'sm' | 'md' | 'lg'
   className?: string
 }
@@ -67,18 +83,22 @@ const StatusIndicator = forwardRef<HTMLDivElement, StatusIndicatorProps>(
       )
     }
 
-    // ── Size lg: prominent — container with left-border accent ──
+    // ── Size lg: prominent — tinted background container ──
+    const tintBg = STATUS_TINT_BG[status] ?? 'var(--n200)'
+    const tintBorder = STATUS_TINT_BORDER[status] ?? 'var(--n400)'
+
     return (
       <div
         ref={ref}
         className={cn(
-          'bg-[var(--n50)]',
-          'border-[0.5px] border-[var(--n400)]',
           'rounded-[8px]',
           'px-3.5 py-2.5',
           className,
         )}
-        style={{ borderLeftWidth: 3, borderLeftColor: color }}
+        style={{
+          backgroundColor: tintBg,
+          border: `0.5px solid ${tintBorder}`,
+        }}
       >
         <div className="flex items-start gap-2">
           <ColorDot color={color} size="md" className="mt-[5px]" />

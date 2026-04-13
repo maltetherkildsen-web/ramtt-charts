@@ -4,8 +4,11 @@
 import { forwardRef, type ReactNode } from 'react'
 import { cn, RADIUS, BORDER, FONT, TRANSITION, WHITE_LIFT, WEIGHT } from '@/lib/ui'
 
+export type CardTint = 'positive' | 'negative' | 'warning' | 'info' | 'accent-purple' | 'accent-red'
+
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   padding?: 'none' | 'sm' | 'md' | 'lg'
+  tint?: CardTint
 }
 
 const paddingMap = {
@@ -15,12 +18,21 @@ const paddingMap = {
   lg: 'p-5',
 }
 
+const TINT_BG: Record<CardTint, string> = {
+  positive: 'color-mix(in srgb, var(--positive-soft) 30%, var(--n50) 70%)',
+  negative: 'color-mix(in srgb, var(--negative-soft) 30%, var(--n50) 70%)',
+  warning: 'color-mix(in srgb, var(--warning-soft) 30%, var(--n50) 70%)',
+  info: 'color-mix(in srgb, var(--info-soft) 30%, var(--n50) 70%)',
+  'accent-purple': 'color-mix(in srgb, var(--accent-light) 40%, var(--n50) 60%)',
+  'accent-red': 'color-mix(in srgb, var(--negative-soft) 20%, var(--n50) 80%)',
+}
+
 const CardRoot = forwardRef<HTMLDivElement, CardProps>(
-  ({ padding = 'md', className, children, onClick, ...props }, ref) => (
+  ({ padding = 'md', tint, className, children, onClick, style, ...props }, ref) => (
     <div
       ref={ref}
       className={cn(
-        'bg-[var(--n50)]',
+        !tint && 'bg-[var(--n50)]',
         BORDER.default,
         RADIUS.lg,
         paddingMap[padding],
@@ -28,6 +40,7 @@ const CardRoot = forwardRef<HTMLDivElement, CardProps>(
         className
       )}
       onClick={onClick}
+      style={tint ? { backgroundColor: TINT_BG[tint], ...style } : style}
       {...props}
     >
       {children}

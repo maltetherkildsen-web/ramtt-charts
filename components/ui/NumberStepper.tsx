@@ -11,7 +11,6 @@ import {
   TRANSITION,
   FOCUS_RING,
   LABEL_STYLE,
-  STEPPER_BUTTON_WIDTH,
   STEPPER_REPEAT_DELAY,
   STEPPER_REPEAT_INTERVAL,
 } from '@/lib/ui'
@@ -143,17 +142,6 @@ const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(
       [disabled, editing, doStep, step],
     )
 
-    // Button shared style
-    const btnBase = cn(
-      'flex items-center justify-center shrink-0',
-      'bg-[var(--n200)]',
-      'text-[var(--n800)]',
-      'text-[16px]',
-      WEIGHT.normal,
-      TRANSITION.background,
-      'select-none',
-    )
-
     return (
       <div ref={ref} className={cn('flex flex-col', className)}>
         {label && (
@@ -176,25 +164,28 @@ const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(
             'rounded-[5px]',
             'h-8',
             'bg-[var(--n50)]',
-            'overflow-hidden',
             FOCUS_RING,
             disabled && 'opacity-50',
           )}
         >
-          {/* Decrement button */}
+          {/* Decrement button — ghost style, no border, no bg */}
           <button
             type="button"
             tabIndex={-1}
             aria-label="Decrease"
             disabled={disabled || atMin}
             className={cn(
-              btnBase,
-              'border-r-[0.5px] border-r-[var(--n400)]',
+              'flex items-center justify-center shrink-0',
               'rounded-l-[4px]',
-              !disabled && !atMin && 'hover:bg-[var(--n400)] hover:text-[var(--n1150)]',
+              'text-[var(--n600)]',
+              'text-[15px]',
+              WEIGHT.normal,
+              TRANSITION.background,
+              'select-none',
+              !disabled && !atMin && 'hover:bg-[var(--n200)] hover:text-[var(--n1150)]',
               (disabled || atMin) && 'text-[var(--n400)] pointer-events-none',
             )}
-            style={{ width: STEPPER_BUTTON_WIDTH }}
+            style={{ width: 28, height: '100%' }}
             onClick={() => !atMin && doStep(-step)}
             onMouseDown={() => !atMin && !disabled && startRepeat(-step)}
             onMouseUp={stopRepeat}
@@ -236,12 +227,7 @@ const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(
               >
                 {value}
                 {unit && (
-                  <span
-                    className={cn(
-                      WEIGHT.book,
-                      'text-[var(--n800)] ml-0.5',
-                    )}
-                  >
+                  <span className={cn(WEIGHT.book, 'text-[var(--n800)]')}>
                     {unit}
                   </span>
                 )}
@@ -249,20 +235,24 @@ const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(
             )}
           </div>
 
-          {/* Increment button */}
+          {/* Increment button — ghost style, no border, no bg */}
           <button
             type="button"
             tabIndex={-1}
             aria-label="Increase"
             disabled={disabled || atMax}
             className={cn(
-              btnBase,
-              'border-l-[0.5px] border-l-[var(--n400)]',
+              'flex items-center justify-center shrink-0',
               'rounded-r-[4px]',
-              !disabled && !atMax && 'hover:bg-[var(--n400)] hover:text-[var(--n1150)]',
+              'text-[var(--n600)]',
+              'text-[15px]',
+              WEIGHT.normal,
+              TRANSITION.background,
+              'select-none',
+              !disabled && !atMax && 'hover:bg-[var(--n200)] hover:text-[var(--n1150)]',
               (disabled || atMax) && 'text-[var(--n400)] pointer-events-none',
             )}
-            style={{ width: STEPPER_BUTTON_WIDTH }}
+            style={{ width: 28, height: '100%' }}
             onClick={() => !atMax && doStep(step)}
             onMouseDown={() => !atMax && !disabled && startRepeat(step)}
             onMouseUp={stopRepeat}

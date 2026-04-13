@@ -121,8 +121,10 @@ body {
 }
 
 /* ─── Focus ring — keyboard only ─── */
+/* Components use FOCUS_RING / FOCUS_RING_THICK utilities from lib/ui.ts.
+   The global rule below is a fallback for native elements without those classes. */
 :focus-visible {
-  outline: 1px solid var(--n1050);
+  outline: 2px solid var(--n1050);
   outline-offset: 2px;
 }
 :focus:not(:focus-visible) {
@@ -331,13 +333,34 @@ dialog[open] {
   to { transform: translateY(0); }
 }
 
-/* ─── ScrollArea: hide native scrollbar ─── */
+/* ─── Scrollbar — thin, transparent track, Claude-style ─── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--n400);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--n600);
+}
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--n400) transparent;
+}
+
+/* ─── ScrollArea: hide native scrollbar (custom thumb rendered via JS) ─── */
 .ramtt-scroll-viewport {
-  scrollbar-width: none;  /* Firefox */
-  -ms-overflow-style: none;  /* IE/Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 .ramtt-scroll-viewport::-webkit-scrollbar {
-  display: none;  /* Chrome/Safari */
+  display: none;
 }
 
 /* ─── HRBeat animation ─── */

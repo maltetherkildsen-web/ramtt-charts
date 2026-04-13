@@ -226,7 +226,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               className="w-full rounded-full opacity-0"
               style={{
                 background: 'var(--n400)',
-                transition: 'opacity 150ms, background-color 150ms',
+                transition: 'opacity 300ms, background-color 150ms',
                 width: SCROLLBAR_WIDTH,
               }}
               onPointerDown={(e) => onPointerDown('v', e)}
@@ -256,7 +256,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               className="h-full rounded-full opacity-0"
               style={{
                 background: 'var(--n400)',
-                transition: 'opacity 150ms, background-color 150ms',
+                transition: 'opacity 300ms, background-color 150ms',
                 height: SCROLLBAR_WIDTH,
               }}
               onPointerDown={(e) => onPointerDown('h', e)}
