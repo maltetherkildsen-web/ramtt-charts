@@ -76,6 +76,12 @@ import {
   WidgetCard,
   WidgetPicker,
   DashboardGrid,
+  Stat,
+  ComparisonCard,
+  TimelineStrip,
+  RangeSlider,
+  FormField,
+  NotificationBadge,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2349,6 +2355,255 @@ function WidgetSystemDemo() {
   )
 }
 
+// ─── Wave 8A: Stat & Comparison ───
+
+function StatComparisonDemo() {
+  return (
+    <DemoSection title="Stat & Comparison">
+      <div className="space-y-6">
+        {/* Stat formats */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Stat — format types</p>
+          <div className="flex flex-wrap items-baseline gap-6">
+            <Stat value={267} unit="W" />
+            <Stat value={5320} format="time" />
+            <Stat value={0.952} format="percent" />
+            <Stat value={42350} format="compact" />
+          </div>
+        </div>
+
+        {/* Stat with delta */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Stat — with delta</p>
+          <div className="flex flex-wrap items-baseline gap-6">
+            <Stat value={285} unit="W" delta={12} deltaColor="positive" />
+            <Stat value={267} unit="W" delta={-18} deltaColor="negative" />
+            <Stat value={155} unit="BPM" delta={0} deltaColor="default" />
+          </div>
+        </div>
+
+        {/* Stat with inline label */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Stat — with label</p>
+          <div className="flex flex-wrap items-baseline gap-6">
+            <Stat value={267} unit="W" label="Avg power" />
+            <Stat value={155} unit="BPM" label="Avg HR" />
+          </div>
+        </div>
+
+        {/* Stat sizes */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Stat — sizes</p>
+          <div className="flex flex-wrap items-baseline gap-6">
+            <Stat value={267} unit="W" size="sm" />
+            <Stat value={267} unit="W" size="md" />
+            <Stat value={267} unit="W" size="lg" />
+          </div>
+        </div>
+
+        {/* Stat with precision */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Stat — precision</p>
+          <div className="flex flex-wrap items-baseline gap-6">
+            <Stat value={267.842} precision={0} unit="W" />
+            <Stat value={3.9584} precision={2} unit="W/kg" />
+          </div>
+        </div>
+
+        {/* ComparisonCard — 2 columns */}
+        <ComparisonCard
+          title="FTP progression"
+          columns={[
+            { label: 'Current', highlight: true },
+            { label: '3 months ago' },
+          ]}
+          rows={[
+            { label: 'FTP', values: ['285 W', '267 W'], delta: '+18 W', deltaColor: 'positive' },
+            { label: 'W/kg', values: ['3.96', '3.71'], delta: '+0.25', deltaColor: 'positive' },
+            { label: 'CP', values: ['278 W', '261 W'], delta: '+17 W', deltaColor: 'positive' },
+            { label: 'Reserve', values: ['22.4 kJ', '18.1 kJ'], delta: '+4.3 kJ', deltaColor: 'positive' },
+          ]}
+        />
+
+        {/* ComparisonCard — 3 columns */}
+        <ComparisonCard
+          title="Course progression"
+          subtitle="Alpe d'Huez"
+          columns={[
+            { label: '12. apr 2026', highlight: true },
+            { label: '3. feb 2026' },
+            { label: '15. nov 2025' },
+          ]}
+          rows={[
+            { label: 'Time', values: ['48:12', '51:34', '53:08'] },
+            { label: 'Avg power', values: ['312 W', '289 W', '275 W'] },
+            { label: 'CHO/h', values: ['92 g', '68 g', '45 g'] },
+            { label: 'Fuel score', values: ['87', '62', '41'] },
+          ]}
+        />
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── Wave 8A: Timeline & Range ───
+
+function TimelineRangeDemo() {
+  const [powerRange, setPowerRange] = useState<[number, number]>([200, 350])
+  const [zoneRange, setZoneRange] = useState<[number, number]>([30, 70])
+
+  return (
+    <DemoSection title="Timeline & Range">
+      <div className="space-y-6">
+        {/* Race nutrition timeline */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>TimelineStrip — race nutrition (300 min)</p>
+          <TimelineStrip
+            startLabel="Start"
+            endLabel="Finish"
+            duration={300}
+            unit="min"
+            markers={[
+              { position: 0, label: 'Gel 1', color: 'var(--zone-3, #e8b020)' },
+              { position: 45, label: 'Gel 2', color: 'var(--zone-4, #e36b30)' },
+              { position: 90, label: 'Gel 3', color: 'var(--zone-4, #e36b30)' },
+              { position: 120, label: 'Caffeine', color: 'var(--info)' },
+              { position: 135, label: 'Gel 4', color: 'var(--zone-5, #e83b52)' },
+              { position: 180, label: 'Gel 5', color: 'var(--zone-5, #e83b52)' },
+            ]}
+          />
+        </div>
+
+        {/* Race week timeline */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>TimelineStrip — race week with zones</p>
+          <TimelineStrip
+            startLabel="D-7"
+            endLabel="Race"
+            duration={8}
+            unit="days"
+            markers={[
+              { position: 0, label: 'Normal eating', color: 'var(--n600)', span: 4 },
+              { position: 5, label: 'Carb load', color: 'var(--warning)', span: 2 },
+              { position: 7, label: 'Race day', color: 'var(--negative)', span: 1 },
+            ]}
+            zones={[
+              { start: 0, end: 4, color: 'var(--n200)', label: 'Normal' },
+              { start: 5, end: 7, color: 'var(--warning-soft)', label: 'Loading' },
+              { start: 7, end: 8, color: 'var(--negative-soft)', label: 'Race' },
+            ]}
+          />
+        </div>
+
+        {/* RangeSlider — power range */}
+        <RangeSlider
+          min={0}
+          max={500}
+          value={powerRange}
+          onChange={setPowerRange}
+          step={5}
+          label="Power range"
+          unit="W"
+        />
+
+        {/* RangeSlider — with marks */}
+        <RangeSlider
+          min={0}
+          max={100}
+          value={zoneRange}
+          onChange={setZoneRange}
+          marks={[
+            { value: 0, label: '0%' },
+            { value: 55, label: 'Z2' },
+            { value: 75, label: 'Z3' },
+            { value: 90, label: 'Z4' },
+            { value: 100, label: 'Z5' },
+          ]}
+          label="Zone range"
+          unit="%"
+        />
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── Wave 8A: Form & Notification ───
+
+function FormNotificationDemo() {
+  const [ftp, setFtp] = useState('285')
+  const [sport, setSport] = useState('cycling')
+  const [weight, setWeight] = useState('200')
+
+  return (
+    <DemoSection title="Form & Notification">
+      <div className="space-y-6">
+        {/* FormField examples */}
+        <div className="max-w-[360px]">
+          <FormField label="FTP" required description="Your functional threshold power">
+            <Input
+              type="number"
+              value={ftp}
+              onChange={(e) => setFtp(e.target.value)}
+              unit="W"
+            />
+          </FormField>
+
+          <FormField label="Primary sport">
+            <Select
+              value={sport}
+              onChange={(v) => setSport(v)}
+              options={[
+                { value: 'cycling', label: 'Cycling' },
+                { value: 'running', label: 'Running' },
+                { value: 'triathlon', label: 'Triathlon' },
+              ]}
+            />
+          </FormField>
+
+          <FormField label="Weight" error="Weight must be between 40-150 kg">
+            <Input
+              type="number"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              unit="kg"
+            />
+          </FormField>
+        </div>
+
+        {/* NotificationBadge */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-3')}>NotificationBadge</p>
+          <div className="flex items-center gap-8">
+            <NotificationBadge count={3}>
+              <div className={cn('w-8 h-8 rounded-[5px] bg-[var(--n200)] flex items-center justify-center', FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
+                S
+              </div>
+            </NotificationBadge>
+
+            <NotificationBadge count={142}>
+              <div className={cn('w-8 h-8 rounded-[5px] bg-[var(--n200)] flex items-center justify-center', FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
+                M
+              </div>
+            </NotificationBadge>
+
+            <NotificationBadge dot>
+              <div className={cn('w-8 h-8 rounded-[5px] bg-[var(--n200)] flex items-center justify-center', FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
+                N
+              </div>
+            </NotificationBadge>
+
+            <NotificationBadge count={0}>
+              <div className={cn('w-8 h-8 rounded-[5px] bg-[var(--n200)] flex items-center justify-center', FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
+                I
+              </div>
+            </NotificationBadge>
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2364,7 +2619,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              60 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              66 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -2409,6 +2664,9 @@ export default function UIDemo() {
             <RatingTimeDemo />
             <StepFlowDemo />
             <WidgetSystemDemo />
+            <StatComparisonDemo />
+            <TimelineRangeDemo />
+            <FormNotificationDemo />
           </div>
         </div>
       </main>

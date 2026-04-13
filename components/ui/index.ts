@@ -81,6 +81,14 @@ export { WidgetCard } from './WidgetCard';
 export { WidgetPicker } from './WidgetPicker';
 export { DashboardGrid } from './DashboardGrid';
 
+// ─── Components (Wave 8A — Display + Interaction) ───
+export { Stat } from './Stat';
+export { ComparisonCard } from './ComparisonCard';
+export { TimelineStrip } from './TimelineStrip';
+export { RangeSlider } from './RangeSlider';
+export { FormField } from './FormField';
+export { NotificationBadge } from './NotificationBadge';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
@@ -93,6 +101,8 @@ export { SEPARATOR_DEFAULT, SEPARATOR_SUBTLE, SCROLLBAR_WIDTH, SCROLLBAR_THUMB_M
 export { DOT_SIZES, STEPPER_BUTTON_WIDTH, STEPPER_REPEAT_DELAY, STEPPER_REPEAT_INTERVAL } from '@/lib/ui';
 export { STEP_DOT_SIZE, STEP_DOT_COMPLETED, STEP_DOT_UPCOMING, RATING_SEGMENT_SIZE } from '@/lib/ui';
 export { WIDGET_ICON_SIZE, WIDGET_ICON_COLOR, WIDGET_ICON_HOVER, GRID_COLUMNS, GRID_ROW_HEIGHT, GRID_GAP } from '@/lib/ui';
+export { STAT_SIZES, BADGE_NOTIFY_SIZE, BADGE_NOTIFY_DOT, BADGE_NOTIFY_MAX } from '@/lib/ui';
+export { formatTime, formatPercent, formatCompact } from '@/lib/ui';
 
 // ─── Types ───
 export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';

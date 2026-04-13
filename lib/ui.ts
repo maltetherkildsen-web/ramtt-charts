@@ -235,6 +235,41 @@ export const GRID_COLUMNS = 12
 export const GRID_ROW_HEIGHT = 80
 export const GRID_GAP = 16
 
+// ─── Stat ───
+export const STAT_SIZES = {
+  sm: { value: 'text-[12px]', unit: 'text-[10px]' },
+  md: { value: 'text-[14px]', unit: 'text-[12px]' },
+  lg: { value: 'text-[20px]', unit: 'text-[16px]' },
+} as const
+
+// ─── NotificationBadge ───
+export const BADGE_NOTIFY_SIZE = 16
+export const BADGE_NOTIFY_DOT = 8
+export const BADGE_NOTIFY_MAX = 99
+
+// ─── Format Utilities ───
+
+/** Format seconds to h:mm:ss or m:ss. 5280 → "1:28:00", 88 → "1:28" */
+export function formatTime(seconds: number): string {
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = Math.floor(seconds % 60)
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+/** Format ratio to percent. 0.952 → "95.2%", 1.0 → "100.0%" */
+export function formatPercent(ratio: number, precision = 1): string {
+  return `${(ratio * 100).toFixed(precision)}%`
+}
+
+/** Format large numbers compactly. 42350 → "42.4k", 1200000 → "1.2M" */
+export function formatCompact(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`
+  return String(n)
+}
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {
