@@ -10,6 +10,7 @@
     "audit": "npx tsx scripts/audit.ts",
     "audit:ui": "npx tsx scripts/audit.ts --scope ui",
     "audit:charts": "npx tsx scripts/audit.ts --scope charts",
+    "audit:icons": "npx tsx scripts/audit-icons.ts",
     "build:charts": "cd packages/charts && npx tsup",
     "build:ui": "cd packages/ui && npx tsup",
     "build:packages": "npm run build:charts && npm run build:ui"
