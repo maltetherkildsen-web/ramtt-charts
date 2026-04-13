@@ -7,151 +7,132 @@
  * ChartRadar — polygon radar / spider chart primitive.
  *
  * Self-contained: renders its own `<svg>`, does NOT use ChartRoot.
- * Each axis radiates from the center. Data series are plotted as
- * filled polygons connecting points at the appropriate distance.
+ * Dimensions radiate from center. Data series are filled polygons.
  *
  * Usage:
  *   <ChartRadar
- *     axes={[{ label: 'Power', max: 100 }, ...]}
- *     series={[{ values: [85, 72, ...], color: '#3b82f6', label: 'Current' }]}
+ *     dimensions={['Power', 'Endurance', 'Speed', 'Recovery']}
+ *     series={[
+ *       { label: 'Current', values: [85, 72, 68, 55], className: 'stroke-[var(--n1150)] fill-[var(--n1150)]/15' },
+ *     ]}
  *   />
  */
 
 import { useMemo } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/ui'
+import { radarPoints, radarPath, radarGridPoints } from '@/lib/charts/paths/radar'
 
-// ─── Props ───
-
-export interface RadarAxis {
-  label: string
-  max: number
-}
+// ─── Types ───
 
 export interface RadarSeries {
-  values: number[]
-  color: string
   label: string
+  values: number[] // One per dimension. 0-100 scale.
+  className?: string // Tailwind for stroke + fill
+  dashed?: boolean // stroke-dasharray for comparison series
 }
 
 export interface ChartRadarProps {
-  /** Array of axis definitions. */
-  axes: RadarAxis[]
-  /** One or more data series. */
-  series: RadarSeries[]
-  /** Size in pixels. Default 300. */
-  size?: number
-  /** Number of concentric grid rings. Default 4. */
-  rings?: number
-  /** Tailwind classes on the wrapper. */
+  dimensions: string[] // Axis labels
+  series: RadarSeries[] // 1-3 data series
+  size?: number // Width & height in px. Default: 280
+  rings?: number // Number of concentric grid rings. Default: 5
+  showValues?: boolean // Show numeric values at each axis tip
   className?: string
 }
 
 // ─── Helpers ───
 
-/** Compute (x, y) on the radar for a given axis index, fraction, and radius. */
-function polarPoint(
-  cx: number,
-  cy: number,
-  axisIndex: number,
-  totalAxes: number,
-  fraction: number,
-  radius: number,
-): { x: number; y: number } {
-  const angle = (2 * Math.PI * axisIndex) / totalAxes - Math.PI / 2
-  const r = fraction * radius
-  return {
-    x: cx + r * Math.cos(angle),
-    y: cy + r * Math.sin(angle),
-  }
+/** Determine text-anchor based on angle position */
+function textAnchor(angle: number): 'start' | 'middle' | 'end' {
+  const cos = Math.cos(angle)
+  if (cos > 0.3) return 'start'
+  if (cos < -0.3) return 'end'
+  return 'middle'
 }
 
-/** Build a polygon `points` string for a ring/series at a given set of fractions. */
-function polygonPoints(
-  cx: number,
-  cy: number,
-  fractions: number[],
-  totalAxes: number,
-  radius: number,
-): string {
-  return fractions
-    .map((f, i) => {
-      const p = polarPoint(cx, cy, i, totalAxes, f, radius)
-      return `${p.x.toFixed(2)},${p.y.toFixed(2)}`
-    })
-    .join(' ')
+/** Determine dominant-baseline based on angle position */
+function dominantBaseline(angle: number): 'auto' | 'hanging' | 'central' {
+  const sin = Math.sin(angle)
+  if (sin < -0.5) return 'auto' // top labels
+  if (sin > 0.5) return 'hanging' // bottom labels
+  return 'central'
+}
+
+// ─── Extract color from className (for legend swatch) ───
+
+function extractStrokeColor(className?: string): string {
+  if (!className) return 'var(--n1150)'
+  // Match stroke-[...] or stroke-blue-500 etc.
+  const varMatch = className.match(/stroke-\[([^\]]+)\]/)
+  if (varMatch) return varMatch[1]
+  // Fallback: try to find Tailwind color class
+  return 'var(--n1150)'
 }
 
 // ─── Component ───
 
 export function ChartRadar({
-  axes,
+  dimensions,
   series,
-  size = 300,
-  rings = 4,
+  size = 280,
+  rings = 5,
+  showValues = false,
   className,
 }: ChartRadarProps) {
   const cx = size / 2
   const cy = size / 2
-  const labelPad = 28
-  const radius = size / 2 - labelPad
-  const n = axes.length
+  const padding = 40
+  const maxRadius = size / 2 - padding
+  const n = dimensions.length
 
-  // Grid rings
-  const gridRings = useMemo(() => {
+  // Grid ring polygons
+  const gridPaths = useMemo(() => {
     const result: string[] = []
     for (let r = 1; r <= rings; r++) {
-      const frac = r / rings
-      const uniformFractions = axes.map(() => frac)
-      result.push(polygonPoints(cx, cy, uniformFractions, n, radius))
+      const ringRadius = (r / rings) * maxRadius
+      const pts = radarGridPoints(n, cx, cy, ringRadius)
+      result.push(radarPath(pts))
     }
     return result
-  }, [axes, rings, cx, cy, radius, n])
+  }, [rings, maxRadius, n, cx, cy])
 
-  // Axis lines
-  const axisLines = useMemo(() => {
-    return axes.map((_, i) => {
-      const p = polarPoint(cx, cy, i, n, 1, radius)
-      return { x2: p.x, y2: p.y }
-    })
-  }, [axes, cx, cy, n, radius])
+  // Axis endpoint coordinates
+  const axisEnds = useMemo(() => {
+    return radarGridPoints(n, cx, cy, maxRadius)
+  }, [n, cx, cy, maxRadius])
 
-  // Axis labels
-  const axisLabels = useMemo(() => {
-    return axes.map((axis, i) => {
-      const p = polarPoint(cx, cy, i, n, 1, radius + 14)
-      // Anchor based on position
-      const angle = (2 * Math.PI * i) / n - Math.PI / 2
-      const cos = Math.cos(angle)
-      let anchor: 'start' | 'middle' | 'end' = 'middle'
-      if (cos > 0.3) anchor = 'start'
-      else if (cos < -0.3) anchor = 'end'
-      return { ...p, label: axis.label, anchor }
-    })
-  }, [axes, cx, cy, n, radius])
+  // Label positions (slightly beyond maxRadius)
+  const labelPositions = useMemo(() => {
+    const labelRadius = maxRadius + 14
+    return radarPoints(new Array(n).fill(100), 100, cx, cy, labelRadius)
+  }, [n, cx, cy, maxRadius])
 
-  // Series polygons + dots
+  // Series paths + dot positions
   const seriesData = useMemo(() => {
     return series.map((s) => {
-      const fractions = s.values.map((v, i) => Math.min(1, v / axes[i].max))
-      const points = polygonPoints(cx, cy, fractions, n, radius)
-      const dots = fractions.map((f, i) => polarPoint(cx, cy, i, n, f, radius))
-      return { points, dots, color: s.color }
+      const pts = radarPoints(s.values, 100, cx, cy, maxRadius)
+      const d = radarPath(pts)
+      return { d, dots: pts, series: s }
     })
-  }, [series, axes, cx, cy, n, radius])
+  }, [series, cx, cy, maxRadius])
+
+  // Legend height
+  const legendHeight = series.length > 1 ? 28 : 0
+  const totalHeight = size + legendHeight
 
   return (
     <svg
       width={size}
-      height={size}
-      viewBox={`0 0 ${size} ${size}`}
+      height={totalHeight}
+      viewBox={`0 0 ${size} ${totalHeight}`}
       className={cn(className)}
       shapeRendering="geometricPrecision"
     >
       {/* Grid rings */}
-      {gridRings.map((pts, i) => (
-        <polygon
-          key={i}
-          points={pts}
+      {gridPaths.map((d, i) => (
+        <path
+          key={`ring-${i}`}
+          d={d}
           fill="none"
           stroke="var(--n200)"
           strokeWidth={0.5}
@@ -159,60 +140,125 @@ export function ChartRadar({
       ))}
 
       {/* Axis lines */}
-      {axisLines.map((line, i) => (
+      {axisEnds.map(([x, y], i) => (
         <line
-          key={i}
+          key={`axis-${i}`}
           x1={cx}
           y1={cy}
-          x2={line.x2}
-          y2={line.y2}
+          x2={x}
+          y2={y}
           stroke="var(--n200)"
           strokeWidth={0.5}
         />
       ))}
 
-      {/* Axis labels */}
-      {axisLabels.map((lbl) => (
-        <text
-          key={lbl.label}
-          x={lbl.x}
-          y={lbl.y}
-          textAnchor={lbl.anchor}
-          dominantBaseline="central"
-          fill="var(--n600)"
-          fontSize={11}
-          style={{ fontFamily: 'var(--font-sans)', fontWeight: 400 }}
-        >
-          {lbl.label}
-        </text>
-      ))}
+      {/* Dimension labels */}
+      {labelPositions.map(([x, y], i) => {
+        const angle = (Math.PI * 2 * i) / n - Math.PI / 2
+        return (
+          <text
+            key={`label-${i}`}
+            x={x}
+            y={y}
+            textAnchor={textAnchor(angle)}
+            dominantBaseline={dominantBaseline(angle)}
+            fill="var(--n600)"
+            fontSize={11}
+            style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+          >
+            {dimensions[i]}
+          </text>
+        )
+      })}
+
+      {/* Values at tips */}
+      {showValues && seriesData.length > 0 && (
+        <>
+          {seriesData[0].series.values.map((val, i) => {
+            const angle = (Math.PI * 2 * i) / n - Math.PI / 2
+            const valRadius = maxRadius + 26
+            const x = cx + valRadius * Math.cos(angle)
+            const y = cy + valRadius * Math.sin(angle)
+            return (
+              <text
+                key={`val-${i}`}
+                x={x}
+                y={y + 10}
+                textAnchor={textAnchor(angle)}
+                fill="var(--n800)"
+                fontSize={10}
+                style={{
+                  fontFamily: "'Satoshi', sans-serif",
+                  fontWeight: 550,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {val}
+              </text>
+            )
+          })}
+        </>
+      )}
 
       {/* Series polygons */}
-      {seriesData.map((s, i) => (
-        <polygon
-          key={i}
-          points={s.points}
-          fill={s.color}
-          fillOpacity={0.15}
-          stroke={s.color}
+      {seriesData.map(({ d, series: s }, i) => (
+        <path
+          key={`series-${i}`}
+          d={d}
+          className={s.className}
           strokeWidth={1.5}
           strokeLinejoin="round"
+          strokeDasharray={s.dashed ? '4 4' : undefined}
         />
       ))}
 
       {/* Series dots */}
-      {seriesData.map((s, si) =>
-        s.dots.map((d, di) => (
+      {seriesData.map(({ dots, series: s }, si) =>
+        dots.map(([dx, dy], di) => (
           <circle
-            key={`${si}-${di}`}
-            cx={d.x}
-            cy={d.y}
+            key={`dot-${si}-${di}`}
+            cx={dx}
+            cy={dy}
             r={3}
-            fill={s.color}
+            className={s.className?.replace(/fill-[^\s]+/g, '') ?? ''}
+            fill={extractStrokeColor(s.className)}
             stroke="white"
             strokeWidth={1.5}
           />
         )),
+      )}
+
+      {/* Legend (when multiple series) */}
+      {series.length > 1 && (
+        <g transform={`translate(${cx}, ${size + 6})`}>
+          {series.map((s, i) => {
+            const totalWidth = series.length * 100
+            const offsetX = -totalWidth / 2 + i * 100
+            const color = extractStrokeColor(s.className)
+            return (
+              <g key={`legend-${i}`} transform={`translate(${offsetX}, 0)`}>
+                <line
+                  x1={0}
+                  y1={6}
+                  x2={12}
+                  y2={6}
+                  stroke={color}
+                  strokeWidth={2}
+                  strokeDasharray={s.dashed ? '4 3' : undefined}
+                />
+                <text
+                  x={16}
+                  y={10}
+                  fill="var(--n800)"
+                  fontSize={12}
+                  style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+                >
+                  {s.label}
+                </text>
+              </g>
+            )
+          })}
+        </g>
       )}
     </svg>
   )

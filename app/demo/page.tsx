@@ -63,6 +63,7 @@ import {
   generateSalesPipeline,
   generateResponseTimeData,
   generateActivityHeatmap,
+  generateSeasonMap,
   generateContributionData,
   generatePortfolioData,
   generateProductTimelineData,
@@ -2046,27 +2047,14 @@ function RadarChart() {
   const profile = useMemo(() => generateAthleteProfile(), [])
 
   return (
-    <ChartCard title="Athlete Profile" subtitle="ChartRadar — polygon on polar axes, multi-series comparison">
-      <div className="flex items-center gap-8">
-        <ChartRadar
-          axes={profile.axes}
-          series={profile.series}
-          size={300}
-          rings={4}
-        />
-        {/* Legend */}
-        <div className="flex flex-col gap-2.5">
-          {profile.series.map((s) => (
-            <div key={s.label} className="flex items-center gap-2">
-              <span
-                className="inline-block h-[2px] w-3 rounded-full"
-                style={{ backgroundColor: s.color }}
-              />
-              <span className="font-sans text-[12px] text-(--n800)">{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+    <ChartCard title="Athlete DNA" subtitle="ChartRadar — 8-dimension polygon, multi-series with dashed comparison, built-in legend">
+      <ChartRadar
+        dimensions={profile.dimensions}
+        series={profile.series}
+        size={320}
+        rings={5}
+        showValues
+      />
     </ChartCard>
   )
 }
@@ -2513,23 +2501,50 @@ function BoxPlotInner({ boxData }: { boxData: ResponseTimeBox[] }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ActivityHeatmapChart() {
-  const { cells, rowLabels, colLabels } = useMemo(() => generateActivityHeatmap(), [])
+  const { data, yLabels, xLabels } = useMemo(() => generateActivityHeatmap(), [])
 
   return (
-    <ChartCard title="Activity by hour & day" subtitle="ChartHeatmap + colorInterpolate — cell hover with tooltip">
+    <ChartCard title="Activity by hour & day" subtitle="ChartHeatmap — data[][] matrix, value-based colorScale, hover tooltip">
       <ChartHeatmap
-        cells={cells}
-        rowLabels={rowLabels}
-        colLabels={colLabels}
-        colorStops={[
+        data={data}
+        yLabels={yLabels}
+        xLabels={xLabels}
+        colorScale={[
           { value: 0, color: '#EBE9E3' },
           { value: 25, color: '#bfdbfe' },
           { value: 50, color: '#3b82f6' },
           { value: 75, color: '#1d4ed8' },
           { value: 100, color: '#1e3a5f' },
         ]}
-        gap={2}
-        radius={2}
+        cellGap={2}
+        cellRadius={2}
+      />
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Season Map — ChartHeatmap with warm color scale + null cells
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function SeasonMapChart() {
+  const { data, yLabels, xLabels } = useMemo(() => generateSeasonMap(), [])
+
+  return (
+    <ChartCard title="Season map" subtitle="ChartHeatmap — 52 weeks × 7 days, warm scale, null rest days as grey">
+      <ChartHeatmap
+        data={data}
+        yLabels={yLabels}
+        xLabels={xLabels}
+        colorScale={[
+          { value: 0, color: '#EBE9E3' },
+          { value: 50, color: '#fde68a' },
+          { value: 100, color: '#f97316' },
+          { value: 150, color: '#dc2626' },
+        ]}
+        cellSize={14}
+        cellGap={2}
+        cellRadius={2}
       />
     </ChartCard>
   )
@@ -2753,6 +2768,7 @@ export default function DemoPage() {
           <FunnelChart />
           <BoxPlotChart />
           <ActivityHeatmapChart />
+          <SeasonMapChart />
           <ContributionChart />
           <SparklineTable />
           <ProductTimelineChart />

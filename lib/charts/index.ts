@@ -33,3 +33,10 @@ export type { WaterfallItem, WaterfallBar } from './utils/waterfall'
 export { treemapLayout } from './utils/treemap'
 export type { TreemapItem, TreemapRect } from './utils/treemap'
 export { interpolateColor, hexToRgb, rgbToHex } from './utils/colorInterpolate'
+
+// Radar geometry
+export { radarPoints, radarPath, radarGridPoints } from './paths/radar'
+
+// Color scale (value-based interpolation for heatmaps)
+export { interpolateColorScale, parseHexColor, isLightColor } from './utils/colorScale'
+export type { ColorStop } from './utils/colorScale'

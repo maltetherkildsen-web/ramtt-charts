@@ -2,7 +2,7 @@
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
 import { describe, it, expect } from 'vitest'
-import { interpolateColor, hexToRgb, rgbToHex } from '../../../lib/charts/utils/colorInterpolate'
+import { interpolateColorScale, parseHexColor, isLightColor } from '../../../lib/charts/utils/colorScale'
 
 describe('ChartHeatmap', () => {
   it('module file exists at expected path', async () => {
@@ -12,27 +12,31 @@ describe('ChartHeatmap', () => {
     expect(fs.existsSync(filePath)).toBe(true)
   })
 
-  it('color interpolation produces valid hex for heatmap cells', () => {
+  it('color scale interpolation produces valid hex for heatmap cells', () => {
     const stops = [
-      { at: 0, color: '#EBE9E3' },
-      { at: 0.25, color: '#bfdbfe' },
-      { at: 0.5, color: '#3b82f6' },
-      { at: 0.75, color: '#1d4ed8' },
-      { at: 1, color: '#1e3a5f' },
+      { value: 0, color: '#EBE9E3' },
+      { value: 50, color: '#fde68a' },
+      { value: 100, color: '#f97316' },
+      { value: 150, color: '#dc2626' },
     ]
-    // Each result should be a valid 7-char hex
-    for (let v = 0; v <= 1; v += 0.1) {
-      const color = interpolateColor(v, stops)
+    for (let v = 0; v <= 150; v += 10) {
+      const color = interpolateColorScale(v, stops)
       expect(color).toMatch(/^#[0-9a-fA-F]{6}$/)
     }
   })
 
   it('heatmap color scale endpoints match', () => {
     const stops = [
-      { at: 0, color: '#EBE9E3' },
-      { at: 1, color: '#1e3a5f' },
+      { value: 0, color: '#ebe9e3' },
+      { value: 100, color: '#dc2626' },
     ]
-    expect(interpolateColor(0, stops).toLowerCase()).toBe('#ebe9e3')
-    expect(interpolateColor(1, stops).toLowerCase()).toBe('#1e3a5f')
+    expect(interpolateColorScale(0, stops).toLowerCase()).toBe('#ebe9e3')
+    expect(interpolateColorScale(100, stops).toLowerCase()).toBe('#dc2626')
+  })
+
+  it('isLightColor determines text contrast correctly', () => {
+    expect(isLightColor('#fde68a')).toBe(true)  // Light yellow → needs dark text
+    expect(isLightColor('#dc2626')).toBe(false)  // Red → needs light text
+    expect(isLightColor('#EBE9E3')).toBe(true)  // Light sand → needs dark text
   })
 })

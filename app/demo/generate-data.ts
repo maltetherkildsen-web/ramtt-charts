@@ -440,26 +440,19 @@ export function generateCashFlowData(): CashFlowItem[] {
 // ─── 15. Athlete Profile (Radar) ───
 
 export interface AthleteProfile {
-  axes: { label: string; max: number }[]
-  series: { values: number[]; color: string; label: string }[]
+  dimensions: string[]
+  series: { label: string; values: number[]; className?: string; dashed?: boolean }[]
 }
 
 /**
- * Two radar series: current vs 6 months ago across 6 athlete dimensions.
+ * Two radar series: current vs best-ever across 8 athlete dimensions.
  */
 export function generateAthleteProfile(): AthleteProfile {
   return {
-    axes: [
-      { label: 'Power', max: 100 },
-      { label: 'Endurance', max: 100 },
-      { label: 'Speed', max: 100 },
-      { label: 'Recovery', max: 100 },
-      { label: 'Technique', max: 100 },
-      { label: 'Mental', max: 100 },
-    ],
+    dimensions: ['Explosive', 'Anaerobic', 'VO2max', 'Threshold', 'Endurance', 'Durability', 'Fuel Efficiency', 'Race Execution'],
     series: [
-      { values: [85, 72, 68, 55, 78, 82], color: '#3b82f6', label: 'Current' },
-      { values: [70, 65, 75, 60, 70, 70], color: '#a8a49a', label: '6 months ago' },
+      { label: 'Current', values: [72, 85, 90, 88, 76, 65, 75, 68], className: 'stroke-[var(--n1150)] fill-[var(--n1150)]/15' },
+      { label: 'Best ever', values: [80, 88, 92, 90, 82, 78, 80, 74], className: 'stroke-[var(--n600)] fill-[var(--n600)]/10', dashed: true },
     ],
   }
 }
@@ -610,42 +603,75 @@ export interface HeatmapCell {
 /**
  * 7 rows (Mon–Sun) × 24 columns (00:00–23:00) activity intensity.
  * Pattern: high during work hours on weekdays, moderate evenings, low nights.
+ * Returns data[][] matrix format for the new ChartHeatmap API.
  */
 export function generateActivityHeatmap(): {
-  cells: HeatmapCell[]
-  rowLabels: string[]
-  colLabels: string[]
+  data: (number | null)[][]
+  yLabels: string[]
+  xLabels: string[]
 } {
   const rng = createRng(900)
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
   const hours = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, '0')}:00`)
-  const cells: HeatmapCell[] = []
+  const data: (number | null)[][] = []
 
   for (let row = 0; row < 7; row++) {
     const isWeekend = row >= 5
+    const rowData: (number | null)[] = []
     for (let col = 0; col < 24; col++) {
       let base: number
       if (col >= 0 && col < 6) {
-        // Night: very low
         base = 5 + rng() * 10
       } else if (col >= 6 && col < 9) {
-        // Morning ramp
         base = isWeekend ? 10 + rng() * 20 : 20 + rng() * 30
       } else if (col >= 9 && col < 17) {
-        // Work hours: high on weekdays
         base = isWeekend ? 15 + rng() * 25 : 50 + rng() * 50
       } else if (col >= 17 && col < 21) {
-        // Evening
         base = isWeekend ? 30 + rng() * 40 : 30 + rng() * 35
       } else {
-        // Late evening
         base = isWeekend ? 20 + rng() * 30 : 15 + rng() * 20
       }
-      cells.push({ row, col, value: Math.round(base) })
+      rowData.push(Math.round(base))
     }
+    data.push(rowData)
   }
 
-  return { cells, rowLabels: days, colLabels: hours }
+  return { data, yLabels: days, xLabels: hours }
+}
+
+/**
+ * Season map: 7 days × 52 weeks of training load (TSS-like).
+ * Seasonal wave with rest days as null.
+ */
+export function generateSeasonMap(): {
+  data: (number | null)[][]
+  yLabels: string[]
+  xLabels: string[]
+} {
+  const rng = createRng(950)
+  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  const xLabels = Array.from({ length: 52 }, (_, w) =>
+    (w + 1) % 4 === 0 ? `W${w + 1}` : '',
+  )
+  const data: (number | null)[][] = []
+
+  for (let day = 0; day < 7; day++) {
+    const rowData: (number | null)[] = []
+    for (let week = 0; week < 52; week++) {
+      // Rest days on weekends
+      if (day >= 5 && rng() > 0.3) {
+        rowData.push(null)
+        continue
+      }
+      // Seasonal wave: peak in summer, low in winter
+      const seasonal = 1 + Math.sin((week / 52) * Math.PI * 2 - Math.PI / 2) * 0.5
+      const base = Math.floor(rng() * 150 * seasonal)
+      rowData.push(base)
+    }
+    data.push(rowData)
+  }
+
+  return { data, yLabels: days, xLabels }
 }
 
 // ─── 22. Contribution (Calendar Heatmap) ───

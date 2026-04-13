@@ -14,101 +14,93 @@
  */
 
 import { useMemo, useRef, useCallback, useId } from 'react'
-import { cn } from '@/lib/utils'
-import { interpolateColor } from '@/lib/charts/utils/colorInterpolate'
+import { cn } from '@/lib/ui'
+import {
+  interpolateColorScale,
+  isLightColor,
+  type ColorStop,
+} from '@/lib/charts/utils/colorScale'
 
 // ─── Types ───
 
-export interface HeatmapCell {
-  row: number
-  col: number
-  value: number
-}
-
 export interface ChartHeatmapProps {
-  /** Grid of values — array of { row, col, value }. */
-  cells: HeatmapCell[]
+  /** Grid of values — rows × columns. null = no data (grey cell). */
+  data: (number | null)[][]
+  /** Column labels (x-axis). Empty string = skip label. */
+  xLabels?: string[]
   /** Row labels (y-axis). */
-  rowLabels: string[]
-  /** Column labels (x-axis). */
-  colLabels: string[]
-  /** Two-color gradient: [minColor, maxColor]. */
-  colorRange?: [string, string]
-  /** Multi-stop color scale — takes precedence over colorRange. */
-  colorStops?: { value: number; color: string }[]
-  /** Cell size in px. Default: auto-calculated. */
+  yLabels?: string[]
+  /** Color scale stops with raw data values. Min 2 stops. */
+  colorScale: ColorStop[]
+  /** Cell size in px. Default: 14. */
   cellSize?: number
   /** Gap between cells in px. Default: 2. */
-  gap?: number
-  /** Border radius on cells. Default: 2. */
-  radius?: number
-  /** Show value text inside cells. Default: false. */
+  cellGap?: number
+  /** Border radius per cell. Default: 2. */
+  cellRadius?: number
+  /** Show numeric value in each cell. Default: false. */
   showValues?: boolean
+  /** Called on cell hover. */
+  onCellHover?: (row: number, col: number, value: number | null) => void
+  /** Called on cell click. */
+  onCellClick?: (row: number, col: number, value: number | null) => void
   className?: string
 }
 
 // ─── Component ───
 
 export function ChartHeatmap({
-  cells,
-  rowLabels,
-  colLabels,
-  colorRange,
-  colorStops,
-  cellSize: cellSizeProp,
-  gap = 2,
-  radius = 2,
+  data,
+  xLabels,
+  yLabels,
+  colorScale,
+  cellSize: cs = 14,
+  cellGap: gap = 2,
+  cellRadius: radius = 2,
   showValues = false,
+  onCellHover,
+  onCellClick,
   className,
 }: ChartHeatmapProps) {
   const gradId = useId()
 
-  // Compute value range
-  const [minVal, maxVal] = useMemo(() => {
-    let lo = Infinity
-    let hi = -Infinity
-    for (const c of cells) {
-      if (c.value < lo) lo = c.value
-      if (c.value > hi) hi = c.value
-    }
-    return [lo === Infinity ? 0 : lo, hi === -Infinity ? 1 : hi]
-  }, [cells])
+  const rows = data.length
+  const cols = rows > 0 ? Math.max(...data.map((r) => r.length)) : 0
 
-  // Build color stops for interpolation
-  const stops = useMemo(() => {
-    if (colorStops) {
-      const range = maxVal - minVal || 1
-      return colorStops.map((s) => ({ at: (s.value - minVal) / range, color: s.color }))
-    }
-    const [c0, c1] = colorRange ?? ['#EBE9E3', '#1e3a5f']
-    return [
-      { at: 0, color: c0 },
-      { at: 1, color: c1 },
-    ]
-  }, [colorStops, colorRange, minVal, maxVal])
-
-  // Layout
-  const rows = rowLabels.length
-  const cols = colLabels.length
-  const labelLeft = 36
-  const labelBottom = 20
+  // Layout measurements
+  const yLabelWidth = yLabels ? 48 : 0
+  const xLabelHeight = xLabels ? 18 : 0
   const legendHeight = 28
 
-  const cs = cellSizeProp ?? Math.max(8, Math.min(28, Math.floor((880 - labelLeft) / cols) - gap))
-  const gridW = cols * (cs + gap) - gap
-  const gridH = rows * (cs + gap) - gap
-  const svgW = labelLeft + gridW + 4
-  const svgH = gridH + labelBottom + legendHeight + 8
+  const gridW = cols * (cs + gap) - (cols > 0 ? gap : 0)
+  const gridH = rows * (cs + gap) - (rows > 0 ? gap : 0)
+  const svgW = yLabelWidth + gridW + 4
+  const svgH = xLabelHeight + gridH + legendHeight + 8
 
-  // Build lookup for fast cell access
-  const cellMap = useMemo(() => {
-    const m = new Map<string, number>()
-    for (const c of cells) m.set(`${c.row},${c.col}`, c.value)
-    return m
-  }, [cells])
+  // Precompute cell colors
+  const cellColors = useMemo(() => {
+    return data.map((row) =>
+      row.map((val) => {
+        if (val === null) return '#E8E5DC' // --n400 equivalent for null
+        return interpolateColorScale(val, colorScale)
+      }),
+    )
+  }, [data, colorScale])
+
+  // Color scale min/max for legend
+  const scaleMin = colorScale.length > 0 ? colorScale[0].value : 0
+  const scaleMax = colorScale.length > 0 ? colorScale[colorScale.length - 1].value : 100
+
+  // Gradient stops for legend (normalized 0-1)
+  const legendStops = useMemo(() => {
+    const range = scaleMax - scaleMin || 1
+    return colorScale.map((s) => ({
+      offset: ((s.value - scaleMin) / range) * 100,
+      color: s.color,
+    }))
+  }, [colorScale, scaleMin, scaleMax])
 
   // Refs for zero-rerender hover
-  const cellRefs = useRef<(SVGRectElement | null)[]>([])
   const ringRef = useRef<SVGRectElement | null>(null)
   const tooltipGroupRef = useRef<SVGGElement | null>(null)
   const tooltipBgRef = useRef<SVGRectElement | null>(null)
@@ -117,9 +109,13 @@ export function ChartHeatmap({
   const rafId = useRef(0)
 
   const showTooltip = useCallback(
-    (col: number, row: number, cx: number, cy: number) => {
-      const val = cellMap.get(`${row},${col}`)
-      const label = `${rowLabels[row]}, ${colLabels[col]}: ${val ?? 0}`
+    (col: number, row: number, cellX: number, cellY: number) => {
+      const val = data[row]?.[col]
+      const rowLabel = yLabels?.[row] ?? `Row ${row}`
+      const colLabel = xLabels?.[col] ?? `Col ${col}`
+      const label = val !== null && val !== undefined
+        ? `${rowLabel}, ${colLabel}: ${val}`
+        : `${rowLabel}, ${colLabel}: —`
       if (!tooltipGroupRef.current || !tooltipBgRef.current || !tooltipTextRef.current) return
 
       tooltipTextRef.current.textContent = label
@@ -127,11 +123,10 @@ export function ChartHeatmap({
       const pw = bbox.width + 12
       const ph = bbox.height + 8
 
-      // Position above cursor, flip if too high
-      let tx = cx - pw / 2
-      let ty = cy - ph - 8
-      if (ty < 0) ty = cy + cs + 4
-      if (tx < labelLeft) tx = labelLeft
+      let tx = cellX - pw / 2
+      let ty = cellY - ph - 8
+      if (ty < 0) ty = cellY + cs + 4
+      if (tx < yLabelWidth) tx = yLabelWidth
       if (tx + pw > svgW) tx = svgW - pw
 
       tooltipBgRef.current.setAttribute('x', tx.toFixed(1))
@@ -142,7 +137,7 @@ export function ChartHeatmap({
       tooltipTextRef.current.setAttribute('y', (ty + ph / 2 + bbox.height / 2 - 2).toFixed(1))
       tooltipGroupRef.current.style.opacity = '1'
     },
-    [cellMap, rowLabels, colLabels, cs, svgW, labelLeft],
+    [data, yLabels, xLabels, cs, svgW, yLabelWidth],
   )
 
   const handlePointerMove = useCallback(
@@ -154,11 +149,10 @@ export function ChartHeatmap({
       pt.y = e.clientY
       const local = pt.matrixTransform(svg.getScreenCTM()!.inverse())
 
-      const col = Math.floor((local.x - labelLeft) / (cs + gap))
-      const row = Math.floor(local.y / (cs + gap))
+      const col = Math.floor((local.x - yLabelWidth) / (cs + gap))
+      const row = Math.floor((local.y - xLabelHeight) / (cs + gap))
 
       if (col < 0 || col >= cols || row < 0 || row >= rows) {
-        // Outside grid
         cancelAnimationFrame(rafId.current)
         rafId.current = requestAnimationFrame(() => {
           if (ringRef.current) ringRef.current.style.opacity = '0'
@@ -172,25 +166,25 @@ export function ChartHeatmap({
       if (idx === currentCell.current) return
       currentCell.current = idx
 
+      onCellHover?.(row, col, data[row]?.[col] ?? null)
+
       cancelAnimationFrame(rafId.current)
       rafId.current = requestAnimationFrame(() => {
-        // Position ring
         if (ringRef.current) {
-          const rx = labelLeft + col * (cs + gap) - 1
-          const ry = row * (cs + gap) - 1
+          const rx = yLabelWidth + col * (cs + gap) - 1
+          const ry = xLabelHeight + row * (cs + gap) - 1
           ringRef.current.setAttribute('x', rx.toFixed(1))
           ringRef.current.setAttribute('y', ry.toFixed(1))
           ringRef.current.setAttribute('width', (cs + 2).toFixed(1))
           ringRef.current.setAttribute('height', (cs + 2).toFixed(1))
           ringRef.current.style.opacity = '1'
         }
-        // Tooltip
-        const cx = labelLeft + col * (cs + gap) + cs / 2
-        const cy = row * (cs + gap)
-        showTooltip(col, row, cx, cy)
+        const cellCx = yLabelWidth + col * (cs + gap) + cs / 2
+        const cellCy = xLabelHeight + row * (cs + gap)
+        showTooltip(col, row, cellCx, cellCy)
       })
     },
-    [cols, rows, cs, gap, labelLeft, showTooltip],
+    [cols, rows, cs, gap, yLabelWidth, xLabelHeight, showTooltip, onCellHover, data],
   )
 
   const handlePointerLeave = useCallback(() => {
@@ -202,6 +196,26 @@ export function ChartHeatmap({
     })
   }, [])
 
+  const handleClick = useCallback(
+    (e: React.PointerEvent<SVGRectElement>) => {
+      if (!onCellClick) return
+      const svg = e.currentTarget.ownerSVGElement
+      if (!svg) return
+      const pt = svg.createSVGPoint()
+      pt.x = e.clientX
+      pt.y = e.clientY
+      const local = pt.matrixTransform(svg.getScreenCTM()!.inverse())
+
+      const col = Math.floor((local.x - yLabelWidth) / (cs + gap))
+      const row = Math.floor((local.y - xLabelHeight) / (cs + gap))
+
+      if (col >= 0 && col < cols && row >= 0 && row < rows) {
+        onCellClick(row, col, data[row]?.[col] ?? null)
+      }
+    },
+    [onCellClick, yLabelWidth, xLabelHeight, cs, gap, cols, rows, data],
+  )
+
   return (
     <svg
       width={svgW}
@@ -210,35 +224,33 @@ export function ChartHeatmap({
       className={cn(className)}
       shapeRendering="crispEdges"
     >
-      {/* Row labels */}
-      {rowLabels.map((label, r) => (
+      {/* Y labels (row) */}
+      {yLabels?.map((label, r) => (
         <text
           key={`rl-${r}`}
-          x={labelLeft - 6}
-          y={r * (cs + gap) + cs / 2 + 4}
+          x={yLabelWidth - 6}
+          y={xLabelHeight + r * (cs + gap) + cs / 2 + 4}
           textAnchor="end"
-          fontSize={9}
-          fill="var(--n600)"
-          style={{ fontFamily: 'var(--font-sans)', fontWeight: 400 }}
+          fontSize={11}
+          fill="var(--n800)"
+          style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
         >
           {label}
         </text>
       ))}
 
-      {/* Column labels */}
-      {colLabels.map((label, c) => {
-        // Only show every Nth label if too dense
-        const skip = cols > 24 ? 2 : 1
-        if (c % skip !== 0) return null
+      {/* X labels (column) */}
+      {xLabels?.map((label, c) => {
+        if (!label) return null
         return (
           <text
             key={`cl-${c}`}
-            x={labelLeft + c * (cs + gap) + cs / 2}
-            y={gridH + 14}
+            x={yLabelWidth + c * (cs + gap) + cs / 2}
+            y={xLabelHeight - 5}
             textAnchor="middle"
-            fontSize={9}
+            fontSize={10}
             fill="var(--n600)"
-            style={{ fontFamily: 'var(--font-sans)', fontWeight: 400 }}
+            style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 450 }}
           >
             {label}
           </text>
@@ -246,47 +258,42 @@ export function ChartHeatmap({
       })}
 
       {/* Cells */}
-      {Array.from({ length: rows }, (_, r) =>
-        Array.from({ length: cols }, (_, c) => {
-          const val = cellMap.get(`${r},${c}`) ?? 0
-          const norm = maxVal === minVal ? 0 : (val - minVal) / (maxVal - minVal)
-          const fill = interpolateColor(norm, stops)
-          const idx = r * cols + c
-
-          return (
-            <rect
-              key={`${r}-${c}`}
-              ref={(el) => { cellRefs.current[idx] = el }}
-              x={labelLeft + c * (cs + gap)}
-              y={r * (cs + gap)}
-              width={cs}
-              height={cs}
-              rx={radius}
-              ry={radius}
-              fill={fill}
-            />
-          )
-        }),
+      {data.map((row, r) =>
+        row.map((val, c) => (
+          <rect
+            key={`${r}-${c}`}
+            x={yLabelWidth + c * (cs + gap)}
+            y={xLabelHeight + r * (cs + gap)}
+            width={cs}
+            height={cs}
+            rx={radius}
+            ry={radius}
+            fill={cellColors[r]?.[c] ?? '#E8E5DC'}
+          />
+        )),
       )}
 
       {/* Value text (optional) */}
       {showValues &&
         cs >= 20 &&
-        Array.from({ length: rows }, (_, r) =>
-          Array.from({ length: cols }, (_, c) => {
-            const val = cellMap.get(`${r},${c}`) ?? 0
+        data.map((row, r) =>
+          row.map((val, c) => {
+            if (val === null) return null
+            const cellColor = cellColors[r]?.[c] ?? '#E8E5DC'
+            const textColor = isLightColor(cellColor)
+              ? 'var(--n1150)'
+              : 'var(--n50)'
             return (
               <text
                 key={`v-${r}-${c}`}
-                x={labelLeft + c * (cs + gap) + cs / 2}
-                y={r * (cs + gap) + cs / 2 + 3}
+                x={yLabelWidth + c * (cs + gap) + cs / 2}
+                y={xLabelHeight + r * (cs + gap) + cs / 2 + 3}
                 textAnchor="middle"
-                fontSize={8}
-                fill="var(--n1150)"
-                fillOpacity={0.7}
+                fontSize={cs * 0.4}
+                fill={textColor}
                 style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontWeight: 450,
+                  fontFamily: "'Satoshi', sans-serif",
+                  fontWeight: 550,
                   fontVariantNumeric: 'tabular-nums',
                   pointerEvents: 'none',
                 }}
@@ -325,54 +332,55 @@ export function ChartHeatmap({
           textAnchor="middle"
           fill="var(--n50)"
           fontSize={10}
-          style={{ fontFamily: 'var(--font-sans)', fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}
+          style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}
         />
       </g>
 
       {/* Invisible overlay for pointer events */}
       <rect
-        x={labelLeft}
-        y={0}
+        x={yLabelWidth}
+        y={xLabelHeight}
         width={gridW}
         height={gridH}
         fill="transparent"
         onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
+        onClick={handleClick as unknown as React.MouseEventHandler}
       />
 
-      {/* Color legend */}
+      {/* Color scale legend */}
       <defs>
         <linearGradient id={gradId} x1="0" y1="0" x2="1" y2="0">
-          {stops.map((s, i) => (
-            <stop key={i} offset={`${s.at * 100}%`} stopColor={s.color} />
+          {legendStops.map((s, i) => (
+            <stop key={i} offset={`${s.offset}%`} stopColor={s.color} />
           ))}
         </linearGradient>
       </defs>
       <text
-        x={labelLeft}
-        y={gridH + labelBottom + 18}
+        x={yLabelWidth}
+        y={xLabelHeight + gridH + 18}
         fontSize={9}
         fill="var(--n600)"
-        style={{ fontFamily: 'var(--font-sans)', fontWeight: 400 }}
+        style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
       >
-        Low
+        {scaleMin}
       </text>
       <rect
-        x={labelLeft + 24}
-        y={gridH + labelBottom + 10}
-        width={160}
+        x={yLabelWidth + 28}
+        y={xLabelHeight + gridH + 10}
+        width={120}
         height={8}
-        rx={2}
+        rx={4}
         fill={`url(#${gradId})`}
       />
       <text
-        x={labelLeft + 190}
-        y={gridH + labelBottom + 18}
+        x={yLabelWidth + 154}
+        y={xLabelHeight + gridH + 18}
         fontSize={9}
         fill="var(--n600)"
-        style={{ fontFamily: 'var(--font-sans)', fontWeight: 400 }}
+        style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
       >
-        High
+        {scaleMax}
       </text>
     </svg>
   )
