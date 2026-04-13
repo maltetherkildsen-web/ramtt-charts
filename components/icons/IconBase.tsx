@@ -2,14 +2,10 @@
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
 import { forwardRef, type ReactNode } from 'react'
+import type { IconProps } from './types'
 
-export interface IconProps {
-  size?: number
-  color?: string
-  className?: string
-  'aria-label'?: string
-  'aria-hidden'?: boolean
-}
+export type { IconProps } from './types'
+export type { IconDuoProps } from './types'
 
 export const IconBase = forwardRef<SVGSVGElement, IconProps & { children: ReactNode }>(
   ({ size = 16, color = 'currentColor', className, children, ...props }, ref) => (

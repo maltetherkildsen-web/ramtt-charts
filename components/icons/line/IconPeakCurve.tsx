@@ -1,0 +1,12 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
+import { forwardRef } from 'react'
+import { IconBase, type IconProps } from '../IconBase'
+
+export const IconPeakCurve = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
+  <IconBase ref={ref} {...props}>
+    <path d="M3 18C3 18 4 4 6 4C8 4 9 12 11 14C13 16 15 17 18 17.5C20 17.8 21 18 21 18" />
+  </IconBase>
+))
+IconPeakCurve.displayName = 'IconPeakCurve'

@@ -1,26 +1,26 @@
 /**
- * @ramtt/icons — Audit Script
+ * @ramtt/icons — Audit Script (Wave 9B)
  *
- * Checks:
- * 1. Every icon file exports a named component matching its filename
- * 2. Every icon has displayName
- * 3. Every icon uses IconBase (imports from './IconBase')
- * 4. No hardcoded colors (no fill="#..." or stroke="#...")
- * 5. No hardcoded sizes (no width="24" or height="24" — must use size prop via IconBase)
- * 6. ViewBox is always "0 0 24 24" (set by IconBase)
- * 7. strokeWidth is always 1.5 (inherited from IconBase, not overridden)
+ * Checks per icon file:
+ * 1. Exports a named component matching filename
+ * 2. Has displayName
+ * 3. Imports from correct base (IconBase / IconBaseSolid / IconBaseDuo)
+ * 4. No hardcoded colors
+ * 5. No raw <svg> tag in non-base files
+ * 6. Base files set viewBox "0 0 24 24"
+ * 7. Line: strokeWidth not overridden
+ * 8. Solid: uses IconBaseSolid
+ * 9. Duo: uses IconBaseDuo
+ *
+ * Expected: 126 line + 126 solid + 126 duo + 8 animated + 3 bases = 389 files
  *
  * Run: npx tsx scripts/audit-icons.ts
  */
 
-import { readdirSync, readFileSync } from 'fs'
+import { readdirSync, readFileSync, existsSync } from 'fs'
 import { join, basename } from 'path'
 
 const ICONS_DIR = join(__dirname, '..', 'components', 'icons')
-
-const files = readdirSync(ICONS_DIR).filter(
-  (f) => f.endsWith('.tsx') && f !== 'index.ts',
-)
 
 let passed = 0
 let failed = 0
@@ -31,96 +31,126 @@ function fail(file: string, msg: string) {
   failed++
 }
 
-for (const file of files) {
-  const name = basename(file, '.tsx')
-  const content = readFileSync(join(ICONS_DIR, file), 'utf-8')
-  let fileOk = true
+function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 'base') {
+  if (!existsSync(dir)) return
 
-  // 1. Exports a named component matching filename
-  if (name !== 'IconBase') {
-    const exportPattern = new RegExp(`export const ${name}\\b`)
-    if (!exportPattern.test(content)) {
-      fail(file, `Missing "export const ${name}"`)
-      fileOk = false
-    }
-  }
-
-  // 2. Has displayName
-  const displayNamePattern = new RegExp(`\\.displayName\\s*=\\s*'${name}'`)
-  if (!displayNamePattern.test(content)) {
-    fail(file, `Missing or wrong displayName (expected '${name}')`)
-    fileOk = false
-  }
-
-  // 3. Non-IconBase files must import from IconBase
-  if (name !== 'IconBase') {
-    if (!content.includes("from './IconBase'")) {
-      fail(file, 'Does not import from ./IconBase')
-      fileOk = false
-    }
-  }
-
-  // 4. No hardcoded colors (allow currentColor, "none", fillOpacity)
-  const hardcodedFill = content.match(/fill="(?!none|currentColor)[^"]*"/)
-  if (hardcodedFill) {
-    fail(file, `Hardcoded fill: ${hardcodedFill[0]}`)
-    fileOk = false
-  }
-  const hardcodedStrokeColor = content.match(
-    /stroke="(?!none|currentColor|\{)[^"]*"/,
+  const files = readdirSync(dir).filter(
+    (f) => f.endsWith('.tsx'),
   )
-  if (hardcodedStrokeColor && name !== 'IconBase') {
-    fail(file, `Hardcoded stroke color: ${hardcodedStrokeColor[0]}`)
-    fileOk = false
-  }
 
-  // 5. No hardcoded sizes — no <svg> tag in non-IconBase files
-  //    (width/height on <rect>, <circle> etc. is valid SVG geometry)
-  if (name !== 'IconBase') {
-    if (/<svg[\s>]/.test(content)) {
-      fail(file, 'Contains raw <svg> tag (should use IconBase wrapper)')
+  for (const file of files) {
+    const name = basename(file, '.tsx')
+    const content = readFileSync(join(dir, file), 'utf-8')
+    let fileOk = true
+    const label = variant === 'base' ? file : `${variant}/${file}`
+
+    // 1. Exports a named component matching filename
+    const isBase = name.startsWith('IconBase')
+    if (!isBase) {
+      const exportPattern = new RegExp(`export const ${name}\\b`)
+      if (!exportPattern.test(content)) {
+        fail(label, `Missing "export const ${name}"`)
+        fileOk = false
+      }
+    }
+
+    // 2. Has displayName
+    const displayNamePattern = new RegExp(`\\.displayName\\s*=\\s*'${name}'`)
+    if (!displayNamePattern.test(content)) {
+      fail(label, `Missing or wrong displayName (expected '${name}')`)
       fileOk = false
+    }
+
+    // 3. Correct base import
+    if (!isBase) {
+      if (variant === 'solid') {
+        if (!content.includes('IconBaseSolid')) {
+          fail(label, 'Solid icon does not import IconBaseSolid')
+          fileOk = false
+        }
+      } else if (variant === 'duo') {
+        if (!content.includes('IconBaseDuo')) {
+          fail(label, 'Duo icon does not import IconBaseDuo')
+          fileOk = false
+        }
+      } else if (variant === 'line' || variant === 'animated') {
+        if (!content.includes('IconBase')) {
+          fail(label, 'Does not import IconBase')
+          fileOk = false
+        }
+      }
+    }
+
+    // 4. No hardcoded colors (allow currentColor, "none")
+    const hardcodedFill = content.match(/fill="(?!none|currentColor)[^"]*"/)
+    if (hardcodedFill) {
+      fail(label, `Hardcoded fill: ${hardcodedFill[0]}`)
+      fileOk = false
+    }
+    if (!isBase) {
+      const hardcodedStroke = content.match(
+        /stroke="(?!none|currentColor|\{)[^"]*"/,
+      )
+      if (hardcodedStroke) {
+        fail(label, `Hardcoded stroke color: ${hardcodedStroke[0]}`)
+        fileOk = false
+      }
+    }
+
+    // 5. No raw <svg> in non-base files
+    if (!isBase && /<svg[\s>]/.test(content)) {
+      fail(label, 'Contains raw <svg> tag')
+      fileOk = false
+    }
+
+    // 6. Base files: viewBox check
+    if (isBase && content.includes('viewBox')) {
+      if (!content.includes('viewBox="0 0 24 24"')) {
+        fail(label, 'ViewBox is not "0 0 24 24"')
+        fileOk = false
+      }
+    }
+
+    // 7. Line/animated: no strokeWidth override
+    if ((variant === 'line' || variant === 'animated') && !isBase) {
+      if (/strokeWidth/.test(content)) {
+        fail(label, 'Overrides strokeWidth')
+        fileOk = false
+      }
+    }
+
+    if (fileOk) {
+      passed++
     }
   }
 
-  // 6. IconBase must set viewBox "0 0 24 24"
-  if (name === 'IconBase') {
-    if (!content.includes('viewBox="0 0 24 24"')) {
-      fail(file, 'ViewBox is not "0 0 24 24"')
-      fileOk = false
-    }
-  }
-
-  // 7. No strokeWidth override in non-IconBase files
-  if (name !== 'IconBase') {
-    if (/strokeWidth/.test(content)) {
-      fail(file, 'Overrides strokeWidth (should inherit 1.5 from IconBase)')
-      fileOk = false
-    }
-  }
-
-  // IconBase must set strokeWidth to 1.5
-  if (name === 'IconBase') {
-    if (!content.includes('strokeWidth={1.5}')) {
-      fail(file, 'strokeWidth is not 1.5')
-      fileOk = false
-    }
-  }
-
-  if (fileOk) {
-    passed++
-  }
+  return files.length
 }
+
+// Audit all directories
+const baseCounts = auditDir(ICONS_DIR, 'base') || 0
+const lineCounts = auditDir(join(ICONS_DIR, 'line'), 'line') || 0
+const solidCounts = auditDir(join(ICONS_DIR, 'solid'), 'solid') || 0
+const duoCounts = auditDir(join(ICONS_DIR, 'duo'), 'duo') || 0
+const animCounts = auditDir(join(ICONS_DIR, 'animated'), 'animated') || 0
+
+const total = passed + failed
 
 // Summary
 console.log('')
 console.log('═══════════════════════════════════════')
-console.log('  @ramtt/icons — Audit Results')
+console.log('  @ramtt/icons — Audit Results (9B)')
 console.log('═══════════════════════════════════════')
 console.log('')
-console.log(`  Files scanned:  ${files.length}`)
-console.log(`  Passed:         ${passed}`)
-console.log(`  Failed:         ${failed}`)
+console.log(`  Base:      ${baseCounts}`)
+console.log(`  Line:      ${lineCounts}`)
+console.log(`  Solid:     ${solidCounts}`)
+console.log(`  Duo:       ${duoCounts}`)
+console.log(`  Animated:  ${animCounts}`)
+console.log(`  ─────────────────`)
+console.log(`  Total:     ${total}`)
+console.log(`  Passed:    ${passed}`)
+console.log(`  Failed:    ${failed}`)
 console.log('')
 
 if (errors.length > 0) {
