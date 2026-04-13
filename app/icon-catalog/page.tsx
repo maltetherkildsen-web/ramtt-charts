@@ -99,6 +99,7 @@ function IconCell({
 
   return (
     <button
+      data-icon-cell
       onClick={onClick}
       className={cn(
         'flex flex-col items-center justify-center gap-1.5',
@@ -144,7 +145,7 @@ function DetailPanel({
   const jsxStr = `<${meta.name} size={20} />`
 
   return (
-    <div className={cn(
+    <div data-detail-panel className={cn(
       'col-span-full',
       'border-[0.5px] border-[var(--n400)] rounded-[12px] bg-white p-5',
       'flex gap-6 items-start',
@@ -165,7 +166,16 @@ function DetailPanel({
         <div>
           <div className="flex items-center justify-between">
             <h3 className={cn(FONT.body, 'text-[16px] font-[550] text-[var(--n1150)]')}>{meta.name}</h3>
-            <button onClick={onClose} className={cn('text-[var(--n600)] hover:text-[var(--n1150)]', TRANSITION.colors, 'text-[18px]')}>
+            <button
+              onClick={onClose}
+              className={cn(
+                'flex items-center justify-center',
+                'min-w-[32px] min-h-[32px] rounded-[6px]',
+                'text-[var(--n600)] hover:text-[var(--n1150)] hover:bg-[var(--n200)]',
+                TRANSITION.colors,
+                'text-[18px] leading-none',
+              )}
+            >
               &times;
             </button>
           </div>
@@ -752,6 +762,18 @@ function CatalogContent() {
     return () => window.removeEventListener('keydown', handleKey)
   }, [])
 
+  // Click outside detail panel → close
+  useEffect(() => {
+    if (!selectedIcon) return
+    function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement
+      if (target.closest('[data-detail-panel]') || target.closest('[data-icon-cell]')) return
+      setSelectedIcon(null)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [selectedIcon])
+
   // Filter icons
   const filtered = useMemo(() => {
     let items = ICON_CATALOG
@@ -792,7 +814,7 @@ function CatalogContent() {
   )
 
   return (
-    <div className="min-h-screen bg-[var(--bg)]" style={{ padding: '40px 32px' }}>
+    <div className="bg-[var(--bg)]" style={{ padding: '40px 32px 40px' }}>
       <div className="max-w-[1000px] mx-auto">
 
         {/* ── Header ── */}
@@ -999,7 +1021,7 @@ function CatalogContent() {
         <ReactiveSection />
 
         {/* ── Footer ── */}
-        <div className="mt-16 pb-8 text-center">
+        <div className="mt-12 pb-2 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
             @ramtt/icons · 126 × 3 + 8 + 12 + 11 + 30 = 439 components · Zero dependencies
           </p>
