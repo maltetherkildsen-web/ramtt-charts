@@ -1,19 +1,20 @@
 /**
- * @ramtt/icons — Audit Script (Wave 9D)
+ * @ramtt/icons — Audit Script (Wave 9E)
  *
  * Checks per icon file:
  * 1. Exports a named component matching filename
  * 2. Has displayName
- * 3. Imports from correct base (IconBase / IconBaseSolid / IconBaseDuo)
- * 4. No hardcoded colors (context icons may use CSS variables in thresholds)
+ * 3. Imports from correct base (IconBase / IconBaseSolid / IconBaseDuo / MorphBase)
+ * 4. No hardcoded colors (context/morph icons may use CSS variables)
  * 5. No raw <svg> tag in non-base files
  * 6. Base files set viewBox "0 0 24 24"
  * 7. Line: strokeWidth not overridden
  * 8. Solid: uses IconBaseSolid
  * 9. Duo: uses IconBaseDuo
- * 10. Context: imports IconBase, no hardcoded colors (CSS vars allowed)
+ * 10. Context: imports IconBase, CSS vars allowed
+ * 11. Morph: imports MorphBase, CSS vars allowed
  *
- * Expected: 126 line + 126 solid + 126 duo + 8 animated + 12 context + 3 bases = 401 files
+ * Expected: 126 line + 126 solid + 126 duo + 8 animated + 12 context + 11 morph + 3 bases = 412 files
  * (context/thresholds.ts is a utility, not an icon — counted separately)
  *
  * Run: npx tsx scripts/audit-icons.ts
@@ -33,7 +34,7 @@ function fail(file: string, msg: string) {
   failed++
 }
 
-function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 'base' | 'context') {
+function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 'base' | 'context' | 'morph') {
   if (!existsSync(dir)) return
 
   const files = readdirSync(dir).filter(
@@ -47,7 +48,7 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
     const label = variant === 'base' ? file : `${variant}/${file}`
 
     // 1. Exports a named component matching filename
-    const isBase = name.startsWith('IconBase')
+    const isBase = name.startsWith('IconBase') || name === 'MorphBase'
     if (!isBase) {
       const exportPattern = new RegExp(`export const ${name}\\b`)
       if (!exportPattern.test(content)) {
@@ -75,6 +76,11 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
           fail(label, 'Duo icon does not import IconBaseDuo')
           fileOk = false
         }
+      } else if (variant === 'morph') {
+        if (!content.includes('MorphBase') && !content.includes('IconBase')) {
+          fail(label, 'Does not import MorphBase or IconBase')
+          fileOk = false
+        }
       } else if (variant === 'line' || variant === 'animated' || variant === 'context') {
         if (!content.includes('IconBase')) {
           fail(label, 'Does not import IconBase')
@@ -93,8 +99,8 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
       fileOk = false
     }
     if (!isBase) {
-      // Context icons may use stroke="var(--...)" for tracks
-      const strokeRegex = variant === 'context'
+      // Context/morph icons may use stroke="var(--...)" for tracks
+      const strokeRegex = variant === 'context' || variant === 'morph'
         ? /stroke="(?!none|currentColor|var\(--|\{)[^"]*"/
         : /stroke="(?!none|currentColor|\{)[^"]*"/
       const hardcodedStroke = content.match(strokeRegex)
@@ -141,13 +147,14 @@ const solidCounts = auditDir(join(ICONS_DIR, 'solid'), 'solid') || 0
 const duoCounts = auditDir(join(ICONS_DIR, 'duo'), 'duo') || 0
 const animCounts = auditDir(join(ICONS_DIR, 'animated'), 'animated') || 0
 const contextCounts = auditDir(join(ICONS_DIR, 'context'), 'context') || 0
+const morphCounts = auditDir(join(ICONS_DIR, 'morph'), 'morph') || 0
 
 const total = passed + failed
 
 // Summary
 console.log('')
 console.log('═══════════════════════════════════════')
-console.log('  @ramtt/icons — Audit Results (9D)')
+console.log('  @ramtt/icons — Audit Results (9E)')
 console.log('═══════════════════════════════════════')
 console.log('')
 console.log(`  Base:      ${baseCounts}`)
@@ -156,6 +163,7 @@ console.log(`  Solid:     ${solidCounts}`)
 console.log(`  Duo:       ${duoCounts}`)
 console.log(`  Animated:  ${animCounts}`)
 console.log(`  Context:   ${contextCounts}`)
+console.log(`  Morph:     ${morphCounts}`)
 console.log(`  ─────────────────`)
 console.log(`  Total:     ${total}`)
 console.log(`  Passed:    ${passed}`)

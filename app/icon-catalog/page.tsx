@@ -14,6 +14,7 @@ import * as SolidIcons from '@/components/icons/solid'
 import * as DuoIcons from '@/components/icons/duo'
 import * as AnimatedIcons from '@/components/icons/animated'
 import * as ContextIcons from '@/components/icons/context'
+import * as MorphIcons from '@/components/icons/morph'
 
 type Variant = 'line' | 'solid' | 'duo'
 
@@ -423,6 +424,141 @@ function ContextAwareSection() {
   )
 }
 
+// ─── Morphing Transitions Section ───
+
+type NavIconKey = 'today' | 'calendar' | 'analytics' | 'fuel' | 'settings'
+
+interface MorphEntry {
+  name: string
+  stateA: string
+  stateB: string
+  render: (size: number, state: string, duration: number) => ReactNode
+}
+
+const STATE_MORPHS: MorphEntry[] = [
+  { name: 'PlayPause', stateA: 'play', stateB: 'pause', render: (s, st, d) => <MorphIcons.IconMorphPlayPause size={s} state={st as 'play' | 'pause'} duration={d} /> },
+  { name: 'MenuClose', stateA: 'menu', stateB: 'close', render: (s, st, d) => <MorphIcons.IconMorphMenuClose size={s} state={st as 'menu' | 'close'} duration={d} /> },
+  { name: 'EyeToggle', stateA: 'eye', stateB: 'eyeOff', render: (s, st, d) => <MorphIcons.IconMorphEyeToggle size={s} state={st as 'eye' | 'eyeOff'} duration={d} /> },
+  { name: 'ChevronArrow', stateA: 'chevron', stateB: 'arrow', render: (s, st, d) => <MorphIcons.IconMorphChevronArrow size={s} state={st as 'chevron' | 'arrow'} duration={d} /> },
+  { name: 'PlusMinus', stateA: 'plus', stateB: 'minus', render: (s, st, d) => <MorphIcons.IconMorphPlusMinus size={s} state={st as 'plus' | 'minus'} duration={d} /> },
+  { name: 'CheckX', stateA: 'check', stateB: 'x', render: (s, st, d) => <MorphIcons.IconMorphCheckX size={s} state={st as 'check' | 'x'} duration={d} /> },
+  { name: 'SortAscDesc', stateA: 'asc', stateB: 'desc', render: (s, st, d) => <MorphIcons.IconMorphSortAscDesc size={s} state={st as 'asc' | 'desc'} duration={d} /> },
+  { name: 'ExpandCollapse', stateA: 'expand', stateB: 'collapse', render: (s, st, d) => <MorphIcons.IconMorphExpandCollapse size={s} state={st as 'expand' | 'collapse'} duration={d} /> },
+  { name: 'LockUnlock', stateA: 'locked', stateB: 'unlocked', render: (s, st, d) => <MorphIcons.IconMorphLockUnlock size={s} state={st as 'locked' | 'unlocked'} duration={d} /> },
+  { name: 'ThumbUpDown', stateA: 'up', stateB: 'down', render: (s, st, d) => <MorphIcons.IconMorphThumbUpDown size={s} state={st as 'up' | 'down'} duration={d} /> },
+]
+
+const NAV_ICONS: NavIconKey[] = ['today', 'calendar', 'analytics', 'fuel', 'settings']
+
+function MorphingSection() {
+  const [morphSpeed, setMorphSpeed] = useState(250)
+  const [morphStates, setMorphStates] = useState<Record<string, boolean>>({})
+  const [navVariants, setNavVariants] = useState<Record<NavIconKey, 'line' | 'solid'>>({
+    today: 'line', calendar: 'line', analytics: 'line', fuel: 'line', settings: 'line',
+  })
+
+  function toggleMorph(name: string) {
+    setMorphStates((prev) => ({ ...prev, [name]: !prev[name] }))
+  }
+
+  function toggleNav(icon: NavIconKey) {
+    setNavVariants((prev) => ({ ...prev, [icon]: prev[icon] === 'line' ? 'solid' : 'line' }))
+  }
+
+  return (
+    <div className="mt-12">
+      <SectionHeader action={<Badge>11</Badge>}>
+        Morphing Transitions
+      </SectionHeader>
+      <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] mt-1 mb-4')}>
+        Click each icon to toggle its state. Smooth CSS path transitions between states.
+      </p>
+
+      {/* Speed slider */}
+      <div className="max-w-[280px] mb-5">
+        <Slider value={morphSpeed} onChange={setMorphSpeed} min={100} max={500} step={50} label="Morph speed" unit="ms" />
+      </div>
+
+      {/* State morphs grid */}
+      <div
+        className="grid gap-2"
+        style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}
+      >
+        {STATE_MORPHS.map(({ name, stateA, stateB, render }) => {
+          const toggled = !!morphStates[name]
+          const currentState = toggled ? stateB : stateA
+          return (
+            <button
+              key={name}
+              onClick={() => toggleMorph(name)}
+              className={cn(
+                'flex flex-col items-center justify-center gap-2 p-3',
+                'border-[0.5px] rounded-[8px]',
+                'bg-[var(--n50)] border-[var(--n200)]',
+                'hover:bg-[var(--n200)] hover:border-[var(--n400)]',
+                TRANSITION.background,
+              )}
+              style={{ height: 96 }}
+            >
+              {render(24, currentState, morphSpeed)}
+              <span className={cn(FONT.body, 'text-[10px] font-[400] text-[var(--n600)]')}>
+                {stateA} / {stateB}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Variant morphs */}
+      <div className="mt-6">
+        <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>SIDEBAR VARIANT MORPH</p>
+        <div className="flex gap-3">
+          {NAV_ICONS.map((icon) => (
+            <button
+              key={icon}
+              onClick={() => toggleNav(icon)}
+              className={cn(
+                'flex flex-col items-center justify-center gap-1.5 p-3',
+                'border-[0.5px] rounded-[8px]',
+                'bg-[var(--n50)] border-[var(--n200)]',
+                'hover:bg-[var(--n200)] hover:border-[var(--n400)]',
+                TRANSITION.background,
+              )}
+              style={{ width: 72, height: 72 }}
+            >
+              <MorphIcons.IconMorphVariant size={24} icon={icon} variant={navVariants[icon]} duration={morphSpeed} />
+              <span className={cn(FONT.body, 'text-[10px] font-[400] text-[var(--n600)] capitalize')}>
+                {icon}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Size comparison */}
+      <div className="mt-6">
+        <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>SIZE COMPARISON — PLAY/PAUSE</p>
+        <div className="flex items-end gap-5">
+          {[16, 20, 24, 32].map((s) => (
+            <button
+              key={s}
+              onClick={() => toggleMorph('hero')}
+              className="flex flex-col items-center gap-1"
+            >
+              <MorphIcons.IconMorphPlayPause
+                size={s}
+                state={morphStates['hero'] ? 'pause' : 'play'}
+                duration={morphSpeed}
+              />
+              <span className={cn(FONT.body, 'text-[10px] text-[var(--n600)] tabular-nums')}>{s}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Page Content (inside ToastProvider) ───
 
 function CatalogContent() {
@@ -691,10 +827,13 @@ function CatalogContent() {
         {/* ── Context-Aware Section ── */}
         <ContextAwareSection />
 
+        {/* ── Morphing Transitions Section ── */}
+        <MorphingSection />
+
         {/* ── Footer ── */}
         <div className="mt-16 pb-8 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
-            @ramtt/icons · 126 × 3 + 8 + 12 = 398 components · Zero dependencies
+            @ramtt/icons · 126 × 3 + 8 + 12 + 11 = 409 components · Zero dependencies
           </p>
         </div>
       </div>
