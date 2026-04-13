@@ -64,7 +64,7 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 ## Accessibility
 - forwardRef on all components (required on interactive, recommended on all)
 - displayName on all components
-- FOCUS_RING (1px) on all interactive elements, FOCUS_RING_THICK (2px) on Input fields
+- FOCUS_RING on all interactive elements (box-shadow: 0 0 0 2px, Figma technique)
 - Semantic HTML: `<button>`, `<table>`, `<th>`, `<h2>`, `<dl>` where appropriate
 - ARIA roles: radiogroup, tablist, toolbar, listbox, progressbar where appropriate
 - Keyboard navigation: arrow keys in groups, Escape to close, Enter/Space to activate
@@ -82,7 +82,8 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - NEVER cursor-pointer
 
 ## Shadows
-- No box-shadow on any component — RAMTT is flat
+- No box-shadow for decoration or elevation — RAMTT is flat
+- box-shadow is ONLY used for focus rings (`0 0 0 2px` technique) and validation rings. This is the Figma-calibrated approach.
 - Modal uses `::backdrop` with blur, not shadow
 - Dropdown and Toast rely on border/color contrast for separation
 

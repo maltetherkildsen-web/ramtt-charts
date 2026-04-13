@@ -120,18 +120,25 @@ body {
   color: var(--n50);
 }
 
-/* ─── Focus ring — keyboard only ─── */
-/* Components use FOCUS_RING / FOCUS_RING_THICK utilities from lib/ui.ts.
-   The global rule below is a fallback for native elements without those classes. */
+/* ─── Focus ring — box-shadow technique (Figma-style) ─── */
+/* Components use FOCUS_RING constant from lib/ui.ts.
+   Global fallback for native elements without those classes. */
 :focus-visible {
-  outline: 2px solid var(--n1050);
-  outline-offset: 2px;
+  box-shadow: 0 0 0 2px var(--n1050);
+  outline: none;
 }
 :focus:not(:focus-visible) {
   outline: none;
+  box-shadow: none;
 }
 /* Chart containers with tabindex need keyboard focus for zoom/pan but should NOT show a ring */
 [tabindex="0"]:focus-visible {
+  box-shadow: none;
+  outline: none;
+}
+/* Utility class for CSS-only contexts */
+.ramtt-focus-ring:focus-visible {
+  box-shadow: 0 0 0 2px var(--n1050);
   outline: none;
 }
 

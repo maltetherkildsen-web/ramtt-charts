@@ -129,14 +129,15 @@ export const ACTIVE_BLACK = 'bg-[var(--n1150)] text-[var(--n50)]'; // primary CT
 export const WHITE_LIFT = 'hover:bg-white';                   // cards on sand background
 export const ACTIVE_UNDERLINE = 'border-b-2 border-[var(--n1150)]'; // tab navigation
 
-// ─── Focus ───
-// Visible on keyboard only. Uses :focus-visible, not :focus.
-// Single color: --n1050 (#383633). Clean 2px ring via box-shadow (sanctioned exception).
-// No ring-offset — sits directly on the element edge, matching the red validation ring.
-// One style for everything: inputs, buttons, toggles, selects.
-export const FOCUS_RING = 'focus-visible:ring-2 focus-visible:ring-[var(--n1050)] focus-visible:outline-none';
+// ─── Focus ring ───
+// Uses box-shadow technique (Figma's approach).
+// box-shadow: 0 0 0 2px follows border-radius perfectly, no double-layer.
+// Color: --n1050 (#383633). ONLY on :focus-visible (keyboard, not mouse).
+export const FOCUS_RING = 'focus-visible:shadow-[0_0_0_2px_var(--n1050)] focus-visible:outline-none';
 /** @deprecated Use FOCUS_RING — one ring style for everything */
-export const FOCUS_RING_THICK = 'focus-visible:ring-2 focus-visible:ring-[var(--n1050)] focus-visible:outline-none';
+export const FOCUS_RING_THICK = FOCUS_RING;
+/** For compound inputs where the CONTAINER needs the ring when a child is focused */
+export const FOCUS_WITHIN_RING = 'focus-within:shadow-[0_0_0_2px_var(--n1050)]';
 
 // ─── Modal ───
 export const MODAL_WIDTH = {
