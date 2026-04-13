@@ -4,6 +4,9 @@
    Import once in root layout.
    ═══════════════════════════════════════════════════════════════════ */
 
+/* ─── Icon Reactions (Wave 9F) ─── */
+@import '../icons/reactive/reactions.css';
+
 /* ─── Font Loading ─── */
 
 /* Satoshi (body text, UI copy) — variable: weight axis */

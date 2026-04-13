@@ -15,6 +15,7 @@ import * as DuoIcons from '@/components/icons/duo'
 import * as AnimatedIcons from '@/components/icons/animated'
 import * as ContextIcons from '@/components/icons/context'
 import * as MorphIcons from '@/components/icons/morph'
+import * as ReactiveIcons from '@/components/icons/reactive'
 
 type Variant = 'line' | 'solid' | 'duo'
 
@@ -559,6 +560,170 @@ function MorphingSection() {
   )
 }
 
+// ─── Hover Reactions Section ───
+
+const REACTIVE_GROUPS = [
+  {
+    type: 'Ring',
+    icons: [
+      { name: 'Bell', Comp: ReactiveIcons.IconReactiveBell },
+      { name: 'AlertTriangle', Comp: ReactiveIcons.IconReactiveAlertTriangle },
+      { name: 'Bookmark', Comp: ReactiveIcons.IconReactiveBookmark },
+    ],
+  },
+  {
+    type: 'Bounce',
+    icons: [
+      { name: 'Download', Comp: ReactiveIcons.IconReactiveDownload },
+      { name: 'Upload', Comp: ReactiveIcons.IconReactiveUpload },
+      { name: 'ChevronDown', Comp: ReactiveIcons.IconReactiveChevronDown },
+      { name: 'ChevronUp', Comp: ReactiveIcons.IconReactiveChevronUp },
+      { name: 'ArrowRight', Comp: ReactiveIcons.IconReactiveArrowRight },
+      { name: 'ArrowLeft', Comp: ReactiveIcons.IconReactiveArrowLeft },
+    ],
+  },
+  {
+    type: 'Zoom',
+    icons: [
+      { name: 'Search', Comp: ReactiveIcons.IconReactiveSearch },
+      { name: 'Expand', Comp: ReactiveIcons.IconReactiveExpand },
+      { name: 'Image', Comp: ReactiveIcons.IconReactiveImage },
+      { name: 'Eye', Comp: ReactiveIcons.IconReactiveEye },
+    ],
+  },
+  {
+    type: 'Lift',
+    icons: [
+      { name: 'Trash', Comp: ReactiveIcons.IconReactiveTrash },
+      { name: 'Copy', Comp: ReactiveIcons.IconReactiveCopy },
+      { name: 'File', Comp: ReactiveIcons.IconReactiveFile },
+      { name: 'CreditCard', Comp: ReactiveIcons.IconReactiveCreditCard },
+    ],
+  },
+  {
+    type: 'Spin',
+    icons: [
+      { name: 'Refresh', Comp: ReactiveIcons.IconReactiveRefresh },
+      { name: 'Settings', Comp: ReactiveIcons.IconReactiveSettings },
+      { name: 'Star', Comp: ReactiveIcons.IconReactiveStar },
+    ],
+  },
+  {
+    type: 'Pulse',
+    icons: [
+      { name: 'Heart', Comp: ReactiveIcons.IconReactiveHeart },
+      { name: 'Notification', Comp: ReactiveIcons.IconReactiveNotification },
+      { name: 'Mic', Comp: ReactiveIcons.IconReactiveMic },
+    ],
+  },
+  {
+    type: 'Shake',
+    icons: [
+      { name: 'Lock', Comp: ReactiveIcons.IconReactiveLock },
+      { name: 'AlertCircle', Comp: ReactiveIcons.IconReactiveAlertCircle },
+    ],
+  },
+  {
+    type: 'Custom',
+    icons: [
+      { name: 'Mail', Comp: ReactiveIcons.IconReactiveMail },
+      { name: 'Send', Comp: ReactiveIcons.IconReactiveSend },
+      { name: 'Edit', Comp: ReactiveIcons.IconReactiveEdit },
+      { name: 'Link', Comp: ReactiveIcons.IconReactiveLink },
+      { name: 'ExternalLink', Comp: ReactiveIcons.IconReactiveExternalLink },
+    ],
+  },
+]
+
+function ReactiveSection() {
+  const [reactiveEnabled, setReactiveEnabled] = useState(true)
+  const [slowMotion, setSlowMotion] = useState(false)
+
+  return (
+    <div className="mt-12">
+      <SectionHeader action={<Badge>30</Badge>}>
+        Hover Reactions
+      </SectionHeader>
+      <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] mt-1 mb-4')}>
+        Hover over each icon to see its reaction. CSS-only, plays once per hover.
+      </p>
+
+      {/* Controls */}
+      <div className="flex items-center gap-4 mb-5">
+        <button
+          onClick={() => setReactiveEnabled(!reactiveEnabled)}
+          className={cn(
+            'px-3 py-1 rounded-full text-[12px]',
+            FONT.body, WEIGHT.book, TRANSITION.background,
+            reactiveEnabled
+              ? 'bg-[var(--n1150)] text-[var(--n50)]'
+              : 'bg-[var(--n200)] text-[var(--n800)] hover:bg-[var(--n400)]',
+          )}
+        >
+          Reactions {reactiveEnabled ? 'on' : 'off'}
+        </button>
+        <button
+          onClick={() => setSlowMotion(!slowMotion)}
+          className={cn(
+            'px-3 py-1 rounded-full text-[12px]',
+            FONT.body, WEIGHT.book, TRANSITION.background,
+            slowMotion
+              ? 'bg-[var(--n1150)] text-[var(--n50)]'
+              : 'bg-[var(--n200)] text-[var(--n800)] hover:bg-[var(--n400)]',
+          )}
+        >
+          Slow motion {slowMotion ? 'on' : 'off'}
+        </button>
+      </div>
+
+      {/* Grouped icons */}
+      <div className={cn('space-y-5', slowMotion && 'ramtt-slow-motion')}>
+        {REACTIVE_GROUPS.map(({ type, icons }) => (
+          <div key={type}>
+            <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>{type.toUpperCase()}</p>
+            <div
+              className="grid gap-2"
+              style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(88px, 1fr))' }}
+            >
+              {icons.map(({ name, Comp }) => (
+                <div
+                  key={name}
+                  className={cn(
+                    'flex flex-col items-center justify-center gap-1.5',
+                    'border-[0.5px] rounded-[8px]',
+                    'bg-[var(--n50)] border-[var(--n200)]',
+                    'hover:bg-[var(--n200)] hover:border-[var(--n400)]',
+                    TRANSITION.background,
+                  )}
+                  style={{ height: 88 }}
+                >
+                  <Comp size={24} reactive={reactiveEnabled} />
+                  <span className={cn(FONT.body, 'text-[10px] font-[400] text-[var(--n600)] max-w-[76px] truncate')}>
+                    {name}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Size comparison */}
+      <div className="mt-6">
+        <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>SIZE COMPARISON — TRASH</p>
+        <div className="flex items-end gap-5">
+          {[14, 16, 20, 24, 32].map((s) => (
+            <div key={s} className="flex flex-col items-center gap-1">
+              <ReactiveIcons.IconReactiveTrash size={s} reactive={reactiveEnabled} />
+              <span className={cn(FONT.body, 'text-[10px] text-[var(--n600)] tabular-nums')}>{s}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ─── Page Content (inside ToastProvider) ───
 
 function CatalogContent() {
@@ -830,10 +995,13 @@ function CatalogContent() {
         {/* ── Morphing Transitions Section ── */}
         <MorphingSection />
 
+        {/* ── Hover Reactions Section ── */}
+        <ReactiveSection />
+
         {/* ── Footer ── */}
         <div className="mt-16 pb-8 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
-            @ramtt/icons · 126 × 3 + 8 + 12 + 11 = 409 components · Zero dependencies
+            @ramtt/icons · 126 × 3 + 8 + 12 + 11 + 30 = 439 components · Zero dependencies
           </p>
         </div>
       </div>

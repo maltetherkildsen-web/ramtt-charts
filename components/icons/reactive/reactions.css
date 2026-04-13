@@ -1,0 +1,204 @@
+/* ═══════════════════════════════════════════════════════════════════
+   @ramtt/icons — Hover Reactions (Wave 9F)
+   All @keyframes + hover triggers for 30 reactive icons.
+   Imported once in tokens.css.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ─── Ring (decaying pendulum) ─── */
+@keyframes ramtt-ring {
+  0% { transform: rotate(0deg); }
+  15% { transform: rotate(14deg); }
+  30% { transform: rotate(-12deg); }
+  45% { transform: rotate(8deg); }
+  60% { transform: rotate(-5deg); }
+  75% { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* ─── Bounce ─── */
+@keyframes ramtt-bounce-down {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(3px); }
+  50% { transform: translateY(-1px); }
+  70% { transform: translateY(1px); }
+  100% { transform: translateY(0); }
+}
+@keyframes ramtt-bounce-up {
+  0% { transform: translateY(0); }
+  30% { transform: translateY(-3px); }
+  50% { transform: translateY(1px); }
+  70% { transform: translateY(-0.5px); }
+  100% { transform: translateY(0); }
+}
+@keyframes ramtt-bounce-right {
+  0% { transform: translateX(0); }
+  30% { transform: translateX(3px); }
+  50% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+@keyframes ramtt-bounce-left {
+  0% { transform: translateX(0); }
+  30% { transform: translateX(-3px); }
+  50% { transform: translateX(1px); }
+  100% { transform: translateX(0); }
+}
+
+/* ─── Zoom ─── */
+@keyframes ramtt-zoom {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* ─── Lift ─── */
+@keyframes ramtt-lift {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes ramtt-trash-lid {
+  0% { transform: translateY(0) rotate(0deg); }
+  40% { transform: translateY(-2px) rotate(-8deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+
+/* ─── Spin ─── */
+@keyframes ramtt-spin-full {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes ramtt-gear-tick {
+  0% { transform: rotate(0deg); }
+  40% { transform: rotate(45deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes ramtt-star-twinkle {
+  0% { transform: rotate(0deg); }
+  40% { transform: rotate(72deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* ─── Pulse ─── */
+@keyframes ramtt-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: 0.8; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes ramtt-heartbeat-hover {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  45% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+/* ─── Shake ─── */
+@keyframes ramtt-shake {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-3px); }
+  30% { transform: translateX(3px); }
+  45% { transform: translateX(-2px); }
+  60% { transform: translateX(2px); }
+  75% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
+
+/* ─── Custom ─── */
+@keyframes ramtt-mail-open {
+  0% { transform: scaleY(1); }
+  40% { transform: scaleY(0.6); }
+  100% { transform: scaleY(1); }
+}
+@keyframes ramtt-send {
+  0% { transform: translate(0, 0); }
+  40% { transform: translate(3px, -3px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes ramtt-edit-tilt {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(-8deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes ramtt-link-pull {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(2px); }
+  100% { transform: translateX(0); }
+}
+@keyframes ramtt-link-pull-reverse {
+  0% { transform: translateX(0); }
+  40% { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+@keyframes ramtt-external-shoot {
+  0% { transform: translate(0, 0); }
+  40% { transform: translate(2px, -2px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   Hover Triggers
+   Desktop-only: @media (hover: hover) ensures no wasted CSS on touch
+   ═══════════════════════════════════════════════════════════════════ */
+
+@media (hover: hover) {
+
+  /* Ring */
+  .ramtt-reactive-bell:hover .bell-body { transform-origin: 12px 3px; animation: ramtt-ring 500ms ease-out; }
+  .ramtt-reactive-alert-triangle:hover .alert-body { transform-origin: 12px 20px; animation: ramtt-ring 500ms ease-out; }
+  .ramtt-reactive-bookmark:hover .bookmark-body { transform-origin: 8px 3px; animation: ramtt-ring 500ms ease-out; }
+
+  /* Bounce */
+  .ramtt-reactive-download:hover .arrow-group { animation: ramtt-bounce-down 400ms ease-out; }
+  .ramtt-reactive-upload:hover .arrow-group { animation: ramtt-bounce-up 400ms ease-out; }
+  .ramtt-reactive-chevron-down:hover .chevron-body { animation: ramtt-bounce-down 400ms ease-out; }
+  .ramtt-reactive-chevron-up:hover .chevron-body { animation: ramtt-bounce-up 400ms ease-out; }
+  .ramtt-reactive-arrow-right:hover .arrow-body { animation: ramtt-bounce-right 400ms ease-out; }
+  .ramtt-reactive-arrow-left:hover .arrow-body { animation: ramtt-bounce-left 400ms ease-out; }
+
+  /* Zoom */
+  .ramtt-reactive-search:hover .search-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+  .ramtt-reactive-expand:hover .expand-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+  .ramtt-reactive-image:hover .image-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+  .ramtt-reactive-eye:hover .eye-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+
+  /* Lift */
+  .ramtt-reactive-trash:hover .trash-lid { transform-origin: 16px 6px; animation: ramtt-trash-lid 350ms ease-out; }
+  .ramtt-reactive-copy:hover .copy-front { animation: ramtt-lift 350ms ease-out; }
+  .ramtt-reactive-file:hover .file-body { animation: ramtt-lift 350ms ease-out; }
+  .ramtt-reactive-credit-card:hover .card-body { animation: ramtt-lift 350ms ease-out; }
+
+  /* Spin */
+  .ramtt-reactive-refresh:hover .refresh-body { transform-origin: center; animation: ramtt-spin-full 500ms ease-out; }
+  .ramtt-reactive-settings:hover .gear-body { transform-origin: center; animation: ramtt-gear-tick 400ms ease-out; }
+  .ramtt-reactive-star:hover .star-body { transform-origin: center; animation: ramtt-star-twinkle 400ms ease-out; }
+
+  /* Pulse */
+  .ramtt-reactive-heart:hover .heart-body { transform-origin: center; animation: ramtt-heartbeat-hover 400ms ease-out; }
+  .ramtt-reactive-notification:hover .notification-body { transform-origin: center; animation: ramtt-pulse 400ms ease-out; }
+  .ramtt-reactive-mic:hover .mic-body { transform-origin: center; animation: ramtt-pulse 400ms ease-out; }
+
+  /* Shake */
+  .ramtt-reactive-lock:hover .lock-body { animation: ramtt-shake 400ms ease-out; }
+  .ramtt-reactive-alert-circle:hover .alert-circle-body { animation: ramtt-shake 400ms ease-out; }
+
+  /* Custom */
+  .ramtt-reactive-mail:hover .flap { transform-origin: center 5px; animation: ramtt-mail-open 400ms ease-out; }
+  .ramtt-reactive-send:hover .plane { animation: ramtt-send 350ms ease-out; }
+  .ramtt-reactive-edit:hover .pencil-body { transform-origin: 18px 18px; animation: ramtt-edit-tilt 300ms ease-out; }
+  .ramtt-reactive-link:hover .link-right { animation: ramtt-link-pull 350ms ease-out; }
+  .ramtt-reactive-link:hover .link-left { animation: ramtt-link-pull-reverse 350ms ease-out; }
+  .ramtt-reactive-external-link:hover .ext-arrow { animation: ramtt-external-shoot 350ms ease-out; }
+}
+
+/* Slow-motion mode (toggled via parent class) */
+.ramtt-slow-motion .ramtt-reactive:hover *,
+.ramtt-slow-motion .ramtt-reactive:hover {
+  animation-duration: 1200ms !important;
+}
+
+/* ─── Reduced motion: kill all reactions ─── */
+@media (prefers-reduced-motion: reduce) {
+  .ramtt-reactive:hover *,
+  .ramtt-reactive:hover {
+    animation: none !important;
+  }
+}
