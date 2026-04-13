@@ -332,6 +332,12 @@ dialog[open] {
   display: none;  /* Chrome/Safari */
 }
 
+/* ─── ColorDot pulse ─── */
+@keyframes ramtt-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 /* Reduced motion respect */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

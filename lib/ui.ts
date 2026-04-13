@@ -209,6 +209,22 @@ export const SCROLLBAR_THUMB_COLOR = 'var(--n400)'
 export const SCROLLBAR_THUMB_HOVER = 'var(--n600)'
 export const SCROLLBAR_THUMB_ACTIVE = 'var(--n800)'
 
+// ─── ColorDot ───
+export const DOT_SIZES = { sm: 6, md: 8, lg: 10 } as const
+
+// ─── NumberStepper ───
+export const STEPPER_BUTTON_WIDTH = 32
+export const STEPPER_REPEAT_DELAY = 500
+export const STEPPER_REPEAT_INTERVAL = 100
+
+// ─── StepFlow ───
+export const STEP_DOT_SIZE = 8
+export const STEP_DOT_COMPLETED = 'bg-[var(--n1150)]'
+export const STEP_DOT_UPCOMING = 'bg-[var(--n400)]'
+
+// ─── RatingInput ───
+export const RATING_SEGMENT_SIZE = { default: 28, compact: 20 } as const
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {

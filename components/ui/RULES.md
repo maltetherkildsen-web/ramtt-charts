@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules (50 components)
+# @ramtt/ui — System Rules (57 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -105,3 +105,9 @@ Calendar, DatePicker, Popover, Command, Pagination, Drawer, Spinner, Kbd, Alert,
 
 ### Wave 6 — Final Parity (8)
 Separator, Label, Collapsible, InputGroup, ScrollArea, HoverCard, Resizable, ContextMenu
+
+### Wave 7A — Atomic Display + Input (4)
+ColorDot, StatusIndicator, SegmentedBar, NumberStepper
+
+### Wave 7B — Input Patterns (3)
+RatingInput, TimePicker, StepFlow

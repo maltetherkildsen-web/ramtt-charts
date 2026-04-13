@@ -65,6 +65,17 @@ export { HoverCard } from './HoverCard';
 export { Resizable } from './Resizable';
 export { ContextMenu } from './ContextMenu';
 
+// ─── Components (Wave 7A — Atomic Display + Input) ───
+export { ColorDot } from './ColorDot';
+export { StatusIndicator } from './StatusIndicator';
+export { SegmentedBar } from './SegmentedBar';
+export { NumberStepper } from './NumberStepper';
+
+// ─── Components (Wave 7B — Input Patterns) ───
+export { RatingInput } from './RatingInput';
+export { TimePicker } from './TimePicker';
+export { StepFlow } from './StepFlow';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
@@ -74,6 +85,8 @@ export { TOOLTIP_BG, TOOLTIP_TEXT, TOOLTIP_RADIUS, TOOLTIP_PADDING, SLIDER_TRACK
 export { SIDEBAR_WIDTH, SIDEBAR_ITEM_STYLE, SIDEBAR_ITEM_ACTIVE, GAUGE_SIZES } from '@/lib/ui';
 export { CALENDAR_CELL_SIZE, CALENDAR_WEEK_STARTS_ON, PAGE_BUTTON_SIZE, PAGE_BUTTON_ACTIVE, DRAWER_WIDTHS, SPINNER_SIZES } from '@/lib/ui';
 export { SEPARATOR_DEFAULT, SEPARATOR_SUBTLE, SCROLLBAR_WIDTH, SCROLLBAR_THUMB_MIN, SCROLLBAR_THUMB_COLOR, SCROLLBAR_THUMB_HOVER, SCROLLBAR_THUMB_ACTIVE } from '@/lib/ui';
+export { DOT_SIZES, STEPPER_BUTTON_WIDTH, STEPPER_REPEAT_DELAY, STEPPER_REPEAT_INTERVAL } from '@/lib/ui';
+export { STEP_DOT_SIZE, STEP_DOT_COMPLETED, STEP_DOT_UPCOMING, RATING_SEGMENT_SIZE } from '@/lib/ui';
 
 // ─── Types ───
 export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';

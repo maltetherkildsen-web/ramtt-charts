@@ -66,6 +66,13 @@ import {
   HoverCard,
   Resizable,
   ContextMenu,
+  ColorDot,
+  StatusIndicator,
+  SegmentedBar,
+  NumberStepper,
+  RatingInput,
+  TimePicker,
+  StepFlow,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1847,6 +1854,385 @@ function Wave6ComplexDemo() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Wave 7A — Status & Indicators
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function StatusIndicatorsDemo() {
+  return (
+    <DemoSection title="Status & Indicators">
+      <div className="space-y-6">
+        {/* ColorDot — all semantic colors + custom hex, all sizes */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — semantic colors, all sizes</p>
+          <div className="flex items-center gap-4">
+            <ColorDot color="positive" />
+            <ColorDot color="negative" />
+            <ColorDot color="warning" />
+            <ColorDot color="info" />
+            <ColorDot color="#8b5cf6" />
+            <Separator orientation="vertical" className="h-4" />
+            <ColorDot color="negative" size="sm" />
+            <ColorDot color="negative" size="md" />
+            <ColorDot color="negative" size="lg" />
+          </div>
+        </div>
+
+        {/* ColorDot — with labels */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — with labels</p>
+          <div className="flex items-center gap-5">
+            <ColorDot color="positive" label="Compliant" />
+            <ColorDot color="negative" label="Missed" />
+            <ColorDot color="warning" label="Partial" />
+          </div>
+        </div>
+
+        {/* ColorDot — pulse animation */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — pulse (live status)</p>
+          <div className="flex items-center gap-5">
+            <ColorDot color="positive" pulse label="Connected" />
+            <ColorDot color="warning" pulse label="Syncing" />
+            <ColorDot color="negative" pulse label="Disconnected" />
+          </div>
+        </div>
+
+        {/* StatusIndicator — all 5 states */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>StatusIndicator — all states</p>
+          <div className="flex items-center gap-5">
+            <StatusIndicator status="good" label="Good" size="sm" />
+            <StatusIndicator status="warning" label="Warning" size="sm" />
+            <StatusIndicator status="critical" label="Critical" size="sm" />
+            <StatusIndicator status="neutral" label="Neutral" size="sm" />
+            <StatusIndicator status="unknown" label="Unknown" size="sm" />
+          </div>
+        </div>
+
+        {/* StatusIndicator — size md with value */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>StatusIndicator — md with value</p>
+          <div className="flex gap-6">
+            <StatusIndicator status="good" label="Fuel readiness" value="Good to go" />
+            <StatusIndicator status="warning" label="GI status" value="Mild discomfort" />
+            <StatusIndicator status="critical" label="Hydration" value="Below target" />
+          </div>
+        </div>
+
+        {/* StatusIndicator — size lg (container with left-border accent) */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>StatusIndicator — lg (container)</p>
+          <div className="flex gap-3">
+            <StatusIndicator status="good" size="lg" label="Race readiness" value="All systems nominal" />
+            <StatusIndicator status="warning" size="lg" label="Recovery" value="Moderate fatigue detected" />
+            <StatusIndicator status="critical" size="lg" label="Overtraining risk" value="Rest recommended" />
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Wave 7A — Segmented Bar
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function SegmentedBarDemo() {
+  return (
+    <DemoSection title="Segmented Bar">
+      <div className="space-y-6">
+        {/* Zone distribution */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Zone distribution (6 zones)</p>
+          <SegmentedBar
+            segments={[
+              { value: 12, color: 'var(--color-pz-1)', label: 'Z1' },
+              { value: 25, color: 'var(--color-pz-2)', label: 'Z2' },
+              { value: 30, color: 'var(--color-pz-3)', label: 'Z3' },
+              { value: 20, color: 'var(--color-pz-4)', label: 'Z4' },
+              { value: 10, color: 'var(--color-pz-5)', label: 'Z5' },
+              { value: 3, color: 'var(--color-pz-6)', label: 'Z6' },
+            ]}
+            height={8}
+            showLabels
+          />
+        </div>
+
+        {/* Macro breakdown with legend */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Macro breakdown with legend</p>
+          <SegmentedBar
+            segments={[
+              { value: 55, color: '#f97316', label: 'CHO' },
+              { value: 25, color: '#3b82f6', label: 'Protein' },
+              { value: 20, color: '#eab308', label: 'Fat' },
+            ]}
+            legend
+          />
+        </div>
+
+        {/* With showLabels */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>With showLabels (percentages above)</p>
+          <SegmentedBar
+            segments={[
+              { value: 40, color: 'var(--positive)', label: 'Completed' },
+              { value: 35, color: 'var(--warning)', label: 'In progress' },
+              { value: 25, color: 'var(--negative)', label: 'Overdue' },
+            ]}
+            showLabels
+            height={10}
+          />
+        </div>
+
+        {/* Compact inline */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Compact (height=4) for inline use</p>
+          <SegmentedBar
+            segments={[
+              { value: 70, color: 'var(--positive)', label: 'Pass' },
+              { value: 20, color: 'var(--warning)', label: 'Warn' },
+              { value: 10, color: 'var(--negative)', label: 'Fail' },
+            ]}
+            height={4}
+            legend
+          />
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Wave 7A — Number Stepper
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function NumberStepperDemo() {
+  const [cho, setCho] = useState(45)
+  const [ftp, setFtp] = useState(280)
+  const [minVal, setMinVal] = useState(0)
+  const [maxVal, setMaxVal] = useState(200)
+
+  return (
+    <DemoSection title="Number Stepper">
+      <div className="flex flex-wrap gap-6">
+        {/* With label + unit */}
+        <NumberStepper
+          value={cho}
+          onChange={setCho}
+          label="CHO intake"
+          unit="g"
+          min={0}
+          max={200}
+          step={5}
+        />
+
+        {/* At min value */}
+        <NumberStepper
+          value={minVal}
+          onChange={setMinVal}
+          label="At min (0)"
+          unit="g"
+          min={0}
+          max={100}
+          step={5}
+        />
+
+        {/* At max value */}
+        <NumberStepper
+          value={maxVal}
+          onChange={setMaxVal}
+          label="At max (200)"
+          unit="g"
+          min={0}
+          max={200}
+          step={5}
+        />
+
+        {/* FTP with step=1 */}
+        <NumberStepper
+          value={ftp}
+          onChange={setFtp}
+          label="FTP"
+          unit="W"
+          min={100}
+          max={500}
+          step={1}
+        />
+      </div>
+    </DemoSection>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Wave 7B — Rating & Time Input
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function RatingTimeDemo() {
+  const [legs, setLegs] = useState<number | null>(3)
+  const [effort, setEffort] = useState<number | null>(7)
+  const [nullRating, setNullRating] = useState<number | null>(null)
+  const [compactRating, setCompactRating] = useState<number | null>(4)
+  const [time24, setTime24] = useState<string | null>('14:30')
+  const [time15, setTime15] = useState<string | null>('09:00')
+
+  return (
+    <DemoSection title="Rating & Time Input">
+      <div className="space-y-6">
+        {/* RatingInput 1-5 with labels */}
+        <div>
+          <RatingInput
+            value={legs}
+            onChange={setLegs}
+            label="Leg feel"
+            max={5}
+            labels={['Dead', 'Heavy', 'Normal', 'Good', 'Fresh']}
+          />
+        </div>
+
+        {/* RatingInput 1-10 */}
+        <div>
+          <RatingInput
+            value={effort}
+            onChange={setEffort}
+            label="Effort"
+            max={10}
+          />
+        </div>
+
+        {/* RatingInput null state */}
+        <div>
+          <RatingInput
+            value={nullRating}
+            onChange={setNullRating}
+            label="Session quality"
+            max={5}
+          />
+        </div>
+
+        {/* RatingInput compact */}
+        <div className="flex items-center gap-3">
+          <span className={cn(LABEL_STYLE)}>Mood (compact)</span>
+          <RatingInput value={compactRating} onChange={setCompactRating} max={5} compact />
+        </div>
+
+        {/* TimePicker 24h */}
+        <div className="flex gap-6">
+          <TimePicker
+            value={time24}
+            onChange={setTime24}
+            label="Caffeine timing"
+          />
+
+          {/* TimePicker step=15 */}
+          <TimePicker
+            value={time15}
+            onChange={setTime15}
+            label="Session start"
+            step={15}
+          />
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Wave 7B — Step Flow
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function StepFlowDemo() {
+  const [step, setStep] = useState(2) // Start at step 3 (index 2) as brief says
+  const [sleepHours, setSleepHours] = useState<number | null>(4)
+  const [sleepQuality, setSleepQuality] = useState<number | null>(3)
+  const [soreness, setSoreness] = useState<number | null>(2)
+  const [fatigue, setFatigue] = useState<number | null>(3)
+  const [mood, setMood] = useState<number | null>(4)
+  const [stress, setStress] = useState<number | null>(2)
+  const [wakeTime, setWakeTime] = useState<string | null>('06:30')
+  const [hydrated, setHydrated] = useState(false)
+
+  const steps = [
+    {
+      label: 'Sleep',
+      content: (
+        <Card>
+          <Card.Body>
+            <div className="space-y-4">
+              <RatingInput value={sleepHours} onChange={setSleepHours} label="Sleep duration" max={5} labels={['< 5h', '5-6h', '6-7h', '7-8h', '8h+']} />
+              <RatingInput value={sleepQuality} onChange={setSleepQuality} label="Sleep quality" max={5} labels={['Terrible', 'Poor', 'OK', 'Good', 'Great']} />
+              <TimePicker value={wakeTime} onChange={setWakeTime} label="Wake time" />
+            </div>
+          </Card.Body>
+        </Card>
+      ),
+    },
+    {
+      label: 'Body',
+      content: (
+        <Card>
+          <Card.Body>
+            <div className="space-y-4">
+              <RatingInput value={soreness} onChange={setSoreness} label="Soreness" max={5} labels={['None', 'Slight', 'Moderate', 'Sore', 'Very sore']} />
+              <RatingInput value={fatigue} onChange={setFatigue} label="Fatigue" max={5} labels={['Fresh', 'Rested', 'Normal', 'Tired', 'Exhausted']} />
+            </div>
+          </Card.Body>
+        </Card>
+      ),
+    },
+    {
+      label: 'Mind',
+      content: (
+        <Card>
+          <Card.Body>
+            <div className="space-y-4">
+              <RatingInput value={mood} onChange={setMood} label="Mood" max={5} labels={['Low', 'Below avg', 'Neutral', 'Good', 'Great']} />
+              <RatingInput value={stress} onChange={setStress} label="Stress" max={5} labels={['None', 'Low', 'Moderate', 'High', 'Extreme']} />
+            </div>
+          </Card.Body>
+        </Card>
+      ),
+    },
+    {
+      label: 'Fuel',
+      content: (
+        <Card>
+          <Card.Body>
+            <div className="space-y-4">
+              <Switch label="Well hydrated" checked={hydrated} onChange={setHydrated} />
+              <Input label="Breakfast notes" placeholder="What did you eat?" />
+            </div>
+          </Card.Body>
+        </Card>
+      ),
+    },
+    {
+      label: 'Review',
+      content: (
+        <Card>
+          <Card.Body>
+            <p className={cn(FONT.body, WEIGHT.normal, 'text-[13px] text-[var(--n800)]')}>
+              All inputs captured. Review and submit your daily state.
+            </p>
+          </Card.Body>
+        </Card>
+      ),
+    },
+  ]
+
+  return (
+    <DemoSection title="Step Flow">
+      <StepFlow
+        steps={steps}
+        currentStep={step}
+        onStepChange={setStep}
+        onComplete={() => setStep(0)}
+      />
+    </DemoSection>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -1861,7 +2247,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              50 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              57 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -1900,6 +2286,11 @@ export default function UIDemo() {
             <SeparatorsLabelsDemo />
             <CollapsibleScrollDemo />
             <Wave6ComplexDemo />
+            <StatusIndicatorsDemo />
+            <SegmentedBarDemo />
+            <NumberStepperDemo />
+            <RatingTimeDemo />
+            <StepFlowDemo />
           </div>
         </div>
       </main>
