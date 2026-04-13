@@ -131,10 +131,12 @@ export const ACTIVE_UNDERLINE = 'border-b-2 border-[var(--n1150)]'; // tab navig
 
 // ─── Focus ───
 // Visible on keyboard only. Uses :focus-visible, not :focus.
-// Single color: --n1050 (#383633). Clean ring via box-shadow (sanctioned exception).
-// ring-offset uses --bg so the gap between element and ring is invisible on canvas.
-export const FOCUS_RING = 'focus-visible:ring-2 focus-visible:ring-[var(--n1050)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg)] focus-visible:outline-none';
-export const FOCUS_RING_THICK = 'focus-visible:ring-2 focus-visible:ring-[var(--n1050)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] focus-visible:outline-none';
+// Single color: --n1050 (#383633). Clean 2px ring via box-shadow (sanctioned exception).
+// No ring-offset — sits directly on the element edge, matching the red validation ring.
+// One style for everything: inputs, buttons, toggles, selects.
+export const FOCUS_RING = 'focus-visible:ring-2 focus-visible:ring-[var(--n1050)] focus-visible:outline-none';
+/** @deprecated Use FOCUS_RING — one ring style for everything */
+export const FOCUS_RING_THICK = 'focus-visible:ring-2 focus-visible:ring-[var(--n1050)] focus-visible:outline-none';
 
 // ─── Modal ───
 export const MODAL_WIDTH = {

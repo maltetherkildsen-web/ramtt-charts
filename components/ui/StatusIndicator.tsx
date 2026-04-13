@@ -15,48 +15,29 @@ const STATUS_COLORS: Record<string, string> = {
   unknown: 'var(--n400)',
 }
 
-const STATUS_TINT_BG: Record<string, string> = {
-  good: 'var(--positive-soft)',
-  warning: 'var(--warning-soft)',
-  critical: 'var(--negative-soft)',
-  neutral: 'var(--n200)',
-  unknown: 'var(--n200)',
-}
-
-const STATUS_TINT_BORDER: Record<string, string> = {
-  good: 'rgba(132, 204, 22, 0.2)',
-  warning: 'rgba(245, 158, 11, 0.2)',
-  critical: 'rgba(244, 63, 94, 0.2)',
-  neutral: 'var(--n400)',
-  unknown: 'var(--n400)',
-}
-
 // ─── Types ───
 
 export interface StatusIndicatorProps {
   status: 'good' | 'warning' | 'critical' | 'neutral' | 'unknown'
-  /** Primary label */
   label?: string
-  /** Secondary text describing the status */
   value?: string
-  /** sm = inline dot+label, md = default, lg = tinted container */
+  /** sm = inline dot+label, md = default, lg = container */
   size?: 'sm' | 'md' | 'lg'
+  /** lg variant style: dot (default), edge-left, edge-top */
+  appearance?: 'dot' | 'edge-left' | 'edge-top'
   className?: string
 }
 
 // ─── Component ───
 
 const StatusIndicator = forwardRef<HTMLDivElement, StatusIndicatorProps>(
-  ({ status, label, value, size = 'md', className }, ref) => {
+  ({ status, label, value, size = 'md', appearance = 'dot', className }, ref) => {
     const color = STATUS_COLORS[status] ?? 'var(--n400)'
 
     // ── Size sm: inline — just a small dot + label ──
     if (size === 'sm') {
       return (
-        <span
-          ref={ref as React.Ref<HTMLSpanElement>}
-          className={cn('inline-flex items-center', className)}
-        >
+        <span ref={ref as React.Ref<HTMLSpanElement>} className={cn('inline-flex items-center', className)}>
           <ColorDot color={color} size="sm" label={label} />
         </span>
       )
@@ -68,53 +49,58 @@ const StatusIndicator = forwardRef<HTMLDivElement, StatusIndicatorProps>(
         <div ref={ref} className={cn('flex items-start gap-2', className)}>
           <ColorDot color={color} size="md" className="mt-[5px]" />
           <div className="min-w-0">
-            {label && (
-              <div className={cn(FONT.body, 'text-[13px]', WEIGHT.book, 'text-[var(--n1150)]')}>
-                {label}
-              </div>
-            )}
-            {value && (
-              <div className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>
-                {value}
-              </div>
-            )}
+            {label && <div className={cn(FONT.body, 'text-[13px]', WEIGHT.book, 'text-[var(--n1150)]')}>{label}</div>}
+            {value && <div className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>{value}</div>}
           </div>
         </div>
       )
     }
 
-    // ── Size lg: prominent — tinted background container ──
-    const tintBg = STATUS_TINT_BG[status] ?? 'var(--n200)'
-    const tintBorder = STATUS_TINT_BORDER[status] ?? 'var(--n400)'
+    // ── Size lg: container with variant styles ──
 
+    const content = (
+      <div className="flex items-start gap-2">
+        <ColorDot color={color} size="md" className="mt-[5px]" />
+        <div className="min-w-0">
+          {label && <div className={cn(FONT.body, 'text-[13px]', WEIGHT.book, 'text-[var(--n1150)]')}>{label}</div>}
+          {value && <div className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>{value}</div>}
+        </div>
+      </div>
+    )
+
+    // Dot variant (default) — neutral card, dot carries color
+    if (appearance === 'dot') {
+      return (
+        <div
+          ref={ref}
+          className={cn('bg-[var(--n50)] border-[0.5px] border-[var(--n400)] rounded-[8px] px-3.5 py-2.5', className)}
+        >
+          {content}
+        </div>
+      )
+    }
+
+    // Edge-left — 2px colored left border
+    if (appearance === 'edge-left') {
+      return (
+        <div
+          ref={ref}
+          className={cn('bg-[var(--n50)] border-[0.5px] border-[var(--n400)] rounded-[8px] px-3.5 py-2.5', className)}
+          style={{ borderLeftWidth: 2, borderLeftColor: color, borderTopLeftRadius: 6, borderBottomLeftRadius: 6 }}
+        >
+          {content}
+        </div>
+      )
+    }
+
+    // Edge-top — 2px colored top border
     return (
       <div
         ref={ref}
-        className={cn(
-          'rounded-[8px]',
-          'px-3.5 py-2.5',
-          className,
-        )}
-        style={{
-          backgroundColor: tintBg,
-          border: `0.5px solid ${tintBorder}`,
-        }}
+        className={cn('bg-[var(--n50)] border-[0.5px] border-[var(--n400)] rounded-[8px] px-3.5 py-2.5', className)}
+        style={{ borderTopWidth: 2, borderTopColor: color, borderTopLeftRadius: 6, borderTopRightRadius: 6 }}
       >
-        <div className="flex items-start gap-2">
-          <ColorDot color={color} size="md" className="mt-[5px]" />
-          <div className="min-w-0">
-            {label && (
-              <div className={cn(FONT.body, 'text-[13px]', WEIGHT.book, 'text-[var(--n1150)]')}>
-                {label}
-              </div>
-            )}
-            {value && (
-              <div className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)]')}>
-                {value}
-              </div>
-            )}
-          </div>
-        </div>
+        {content}
       </div>
     )
   },

@@ -4,7 +4,8 @@
 'use client'
 
 import { forwardRef, useState, useRef, useEffect, useCallback } from 'react'
-import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui'
+import { createPortal } from 'react-dom'
+import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui'
 import { formatDate } from '@/lib/calendar-utils'
 import { Calendar } from './Calendar'
 
@@ -28,7 +29,12 @@ export interface DatePickerProps {
 const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
   ({ mode = 'single', value, onChange, label, placeholder = 'Pick a date', minDate, maxDate, disabled = false, className }, ref) => {
     const [open, setOpen] = useState(false)
+    const [mounted, setMounted] = useState(false)
     const containerRef = useRef<HTMLDivElement>(null)
+    const [popoverPos, setPopoverPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 })
+
+    // Ensure client-only rendering for portal
+    useEffect(() => { setMounted(true) }, [])
 
     const displayText = (() => {
       if (!value) return ''
@@ -36,13 +42,26 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       return `${formatDate(value.from)} — ${formatDate(value.to)}`
     })()
 
+    // Position popover below button
+    useEffect(() => {
+      if (!open || !containerRef.current) return
+      const rect = containerRef.current.getBoundingClientRect()
+      setPopoverPos({
+        top: rect.bottom + 4 + window.scrollY,
+        left: rect.left + window.scrollX,
+      })
+    }, [open])
+
     // Close on outside click
     useEffect(() => {
       if (!open) return
       function handlePointerDown(e: PointerEvent) {
-        if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-          setOpen(false)
-        }
+        const target = e.target as Node
+        // Check if click is inside the container OR the portal popover
+        if (containerRef.current?.contains(target)) return
+        const popover = document.getElementById('ramtt-datepicker-popover')
+        if (popover?.contains(target)) return
+        setOpen(false)
       }
       document.addEventListener('pointerdown', handlePointerDown)
       return () => document.removeEventListener('pointerdown', handlePointerDown)
@@ -62,7 +81,6 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       (val: Date | DateRange | null) => {
         onChange?.(val)
         if (mode === 'single') setOpen(false)
-        // For range mode, close after both dates are selected
         if (mode === 'range' && val && !(val instanceof Date)) {
           const range = val as DateRange
           if (range.from.getTime() !== range.to.getTime()) setOpen(false)
@@ -70,6 +88,10 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
       },
       [mode, onChange],
     )
+
+    const handleToggle = useCallback(() => {
+      if (!disabled) setOpen(prev => !prev)
+    }, [disabled])
 
     return (
       <div ref={containerRef} className={cn('relative inline-block', disabled && 'opacity-50 pointer-events-none', className)}>
@@ -81,7 +103,7 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
         <button
           ref={ref as React.Ref<HTMLButtonElement>}
           type="button"
-          onClick={() => setOpen(!open)}
+          onClick={handleToggle}
           className={cn(
             'flex items-center justify-between gap-2 w-full bg-white outline-none',
             FONT.body,
@@ -90,7 +112,7 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             RADIUS.md,
             BORDER.default,
             TRANSITION.colors,
-            FOCUS_RING_THICK,
+            FOCUS_RING,
             SIZE_PADDING_X.sm,
             displayText ? cn(WEIGHT.normal, 'text-[var(--n1150)]') : cn(WEIGHT.normal, 'text-[var(--n600)]'),
             'tabular-nums',
@@ -103,16 +125,18 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
           </svg>
         </button>
 
-        {open && (
+        {open && mounted && createPortal(
           <div
+            id="ramtt-datepicker-popover"
             className={cn(
-              'absolute z-50 top-full mt-1 left-0',
+              'fixed z-50',
               'bg-[var(--n50)]',
               BORDER.default,
               'rounded-[8px]',
               'p-3',
               'animate-[ramtt-dropdown-enter_120ms_var(--ease-out-expo)]',
             )}
+            style={{ top: popoverPos.top, left: popoverPos.left }}
           >
             <Calendar
               mode={mode}
@@ -121,7 +145,8 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
               minDate={minDate}
               maxDate={maxDate}
             />
-          </div>
+          </div>,
+          document.body,
         )}
       </div>
     )
