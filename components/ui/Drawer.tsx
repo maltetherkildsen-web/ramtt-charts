@@ -122,7 +122,7 @@ const DrawerRoot = forwardRef<HTMLDialogElement, DrawerProps>(
         ref={dialogRef}
         onClick={handleClick}
         className={cn(
-          'bg-[var(--n50)] flex flex-col',
+          'bg-[var(--n50)]',
           side === 'right' && 'border-l-[0.5px] border-l-[var(--n400)]',
           side === 'left' && 'border-r-[0.5px] border-r-[var(--n400)]',
           side === 'bottom' && 'border-t-[0.5px] border-t-[var(--n400)] rounded-t-[12px]',
@@ -130,7 +130,9 @@ const DrawerRoot = forwardRef<HTMLDialogElement, DrawerProps>(
         )}
         style={positionStyles}
       >
-        {children}
+        <div className="flex flex-col h-full">
+          {children}
+        </div>
       </dialog>
     )
   },
