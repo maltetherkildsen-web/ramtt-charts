@@ -1,18 +1,20 @@
 /**
- * @ramtt/icons — Audit Script (Wave 9B)
+ * @ramtt/icons — Audit Script (Wave 9D)
  *
  * Checks per icon file:
  * 1. Exports a named component matching filename
  * 2. Has displayName
  * 3. Imports from correct base (IconBase / IconBaseSolid / IconBaseDuo)
- * 4. No hardcoded colors
+ * 4. No hardcoded colors (context icons may use CSS variables in thresholds)
  * 5. No raw <svg> tag in non-base files
  * 6. Base files set viewBox "0 0 24 24"
  * 7. Line: strokeWidth not overridden
  * 8. Solid: uses IconBaseSolid
  * 9. Duo: uses IconBaseDuo
+ * 10. Context: imports IconBase, no hardcoded colors (CSS vars allowed)
  *
- * Expected: 126 line + 126 solid + 126 duo + 8 animated + 3 bases = 389 files
+ * Expected: 126 line + 126 solid + 126 duo + 8 animated + 12 context + 3 bases = 401 files
+ * (context/thresholds.ts is a utility, not an icon — counted separately)
  *
  * Run: npx tsx scripts/audit-icons.ts
  */
@@ -31,7 +33,7 @@ function fail(file: string, msg: string) {
   failed++
 }
 
-function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 'base') {
+function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 'base' | 'context') {
   if (!existsSync(dir)) return
 
   const files = readdirSync(dir).filter(
@@ -73,7 +75,7 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
           fail(label, 'Duo icon does not import IconBaseDuo')
           fileOk = false
         }
-      } else if (variant === 'line' || variant === 'animated') {
+      } else if (variant === 'line' || variant === 'animated' || variant === 'context') {
         if (!content.includes('IconBase')) {
           fail(label, 'Does not import IconBase')
           fileOk = false
@@ -81,16 +83,21 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
       }
     }
 
-    // 4. No hardcoded colors (allow currentColor, "none")
-    const hardcodedFill = content.match(/fill="(?!none|currentColor)[^"]*"/)
+    // 4. No hardcoded colors (allow currentColor, "none", and CSS vars in context icons)
+    const fillRegex = variant === 'context'
+      ? /fill="(?!none|currentColor)[^"]*"/  // context: checked below with var() allowance
+      : /fill="(?!none|currentColor)[^"]*"/
+    const hardcodedFill = content.match(fillRegex)
     if (hardcodedFill) {
       fail(label, `Hardcoded fill: ${hardcodedFill[0]}`)
       fileOk = false
     }
     if (!isBase) {
-      const hardcodedStroke = content.match(
-        /stroke="(?!none|currentColor|\{)[^"]*"/,
-      )
+      // Context icons may use stroke="var(--...)" for tracks
+      const strokeRegex = variant === 'context'
+        ? /stroke="(?!none|currentColor|var\(--|\{)[^"]*"/
+        : /stroke="(?!none|currentColor|\{)[^"]*"/
+      const hardcodedStroke = content.match(strokeRegex)
       if (hardcodedStroke) {
         fail(label, `Hardcoded stroke color: ${hardcodedStroke[0]}`)
         fileOk = false
@@ -133,13 +140,14 @@ const lineCounts = auditDir(join(ICONS_DIR, 'line'), 'line') || 0
 const solidCounts = auditDir(join(ICONS_DIR, 'solid'), 'solid') || 0
 const duoCounts = auditDir(join(ICONS_DIR, 'duo'), 'duo') || 0
 const animCounts = auditDir(join(ICONS_DIR, 'animated'), 'animated') || 0
+const contextCounts = auditDir(join(ICONS_DIR, 'context'), 'context') || 0
 
 const total = passed + failed
 
 // Summary
 console.log('')
 console.log('═══════════════════════════════════════')
-console.log('  @ramtt/icons — Audit Results (9B)')
+console.log('  @ramtt/icons — Audit Results (9D)')
 console.log('═══════════════════════════════════════')
 console.log('')
 console.log(`  Base:      ${baseCounts}`)
@@ -147,6 +155,7 @@ console.log(`  Line:      ${lineCounts}`)
 console.log(`  Solid:     ${solidCounts}`)
 console.log(`  Duo:       ${duoCounts}`)
 console.log(`  Animated:  ${animCounts}`)
+console.log(`  Context:   ${contextCounts}`)
 console.log(`  ─────────────────`)
 console.log(`  Total:     ${total}`)
 console.log(`  Passed:    ${passed}`)

@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useMemo, useCallback, type ReactNode, type
 import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, HOVER_SAND, ACTIVE_SAND } from '@/lib/ui'
 import { ICON_CATALOG, ICON_CATEGORIES, type IconMeta } from '@/components/icons/catalog'
 import type { IconProps, IconDuoProps } from '@/components/icons/types'
-import { Input, InputGroup, ToggleGroup, SectionHeader, Tag, Button, EmptyState, Badge, ToastProvider, useToast } from '@/components/ui'
+import { Input, InputGroup, ToggleGroup, SectionHeader, Tag, Button, EmptyState, Badge, ToastProvider, useToast, Slider } from '@/components/ui'
 import { IconSearch } from '@/components/icons/line/IconSearch'
 
 // ─── Dynamic Icon Maps ───
@@ -13,6 +13,7 @@ import * as LineIcons from '@/components/icons/line'
 import * as SolidIcons from '@/components/icons/solid'
 import * as DuoIcons from '@/components/icons/duo'
 import * as AnimatedIcons from '@/components/icons/animated'
+import * as ContextIcons from '@/components/icons/context'
 
 type Variant = 'line' | 'solid' | 'duo'
 
@@ -215,6 +216,207 @@ function DetailPanel({
             <Button variant="ghost" size="sm" onClick={() => copyText(importStr, 'Import')}>Copy import</Button>
             <Button variant="ghost" size="sm" onClick={() => copyText(jsxStr, 'JSX')}>Copy JSX</Button>
           </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Context-Aware Interactive Section ───
+
+type ComplianceStatus = 'compliant' | 'partial' | 'missed' | 'unscheduled' | 'rest'
+const COMPLIANCE_OPTIONS: ComplianceStatus[] = ['compliant', 'partial', 'missed', 'unscheduled', 'rest']
+
+function ContextAwareSection() {
+  const [glycogen, setGlycogen] = useState(73)
+  const [metabolic, setMetabolic] = useState(72)
+  const [neural, setNeural] = useState(85)
+  const [peripheral, setPeripheral] = useState(60)
+  const [battery, setBattery] = useState(45)
+  const [signal, setSignal] = useState(3)
+  const [progress, setProgress] = useState(88)
+  const [zone, setZone] = useState(4)
+  const [bpm, setBpm] = useState(145)
+  const [fuel, setFuel] = useState(62)
+  const [compliance, setCompliance] = useState<ComplianceStatus>('compliant')
+  const [streak, setStreak] = useState(21)
+  const [trend, setTrend] = useState(12)
+  const [formValues] = useState([2, 5, 4, 8, 6, 12, 8])
+
+  return (
+    <div className="mt-12">
+      <SectionHeader action={<Badge>12</Badge>}>
+        Context-Aware
+      </SectionHeader>
+      <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] mt-1 mb-4')}>
+        Icons that render data. Drag the sliders to see them respond in real-time.
+      </p>
+
+      <div className="space-y-3">
+        {/* Row component for consistent layout */}
+        {[
+          {
+            name: 'IconGlycogenLevel',
+            control: <Slider value={glycogen} onChange={setGlycogen} min={0} max={100} label="Value" unit="%" />,
+            icons: (s: number) => <ContextIcons.IconGlycogenLevel size={s} value={glycogen} />,
+          },
+          {
+            name: 'IconBatteryLevel',
+            control: <Slider value={battery} onChange={setBattery} min={0} max={100} label="Value" unit="%" />,
+            icons: (s: number) => <ContextIcons.IconBatteryLevel size={s} value={battery} />,
+          },
+          {
+            name: 'IconProgressRing',
+            control: <Slider value={progress} onChange={setProgress} min={0} max={100} label="Value" unit="%" />,
+            icons: (s: number) => <ContextIcons.IconProgressRing size={s} value={progress} />,
+          },
+          {
+            name: 'IconFuelGauge',
+            control: <Slider value={fuel} onChange={setFuel} min={0} max={100} label="Value" unit="%" />,
+            icons: (s: number) => <ContextIcons.IconFuelGauge size={s} value={fuel} />,
+          },
+          {
+            name: 'IconSignalBars',
+            control: <Slider value={signal} onChange={setSignal} min={0} max={4} label="Bars" unit="/4" />,
+            icons: (s: number) => <ContextIcons.IconSignalBars size={s} bars={signal} />,
+          },
+          {
+            name: 'IconZoneIndicator',
+            control: <Slider value={zone} onChange={setZone} min={1} max={6} label="Zone" unit="" />,
+            icons: (s: number) => <ContextIcons.IconZoneIndicator size={s} zone={zone} />,
+          },
+          {
+            name: 'IconHRBeat',
+            control: <Slider value={bpm} onChange={setBpm} min={40} max={220} label="BPM" unit="bpm" />,
+            icons: (s: number) => <ContextIcons.IconHRBeat size={s} bpm={bpm} />,
+          },
+          {
+            name: 'IconStreakFlame',
+            control: <Slider value={streak} onChange={setStreak} min={1} max={40} label="Days" unit="d" />,
+            icons: (s: number) => <ContextIcons.IconStreakFlame size={s} days={streak} />,
+          },
+          {
+            name: 'IconTrendArrow',
+            control: <Slider value={trend} onChange={setTrend} min={-20} max={20} label="Trend" unit="" />,
+            icons: (s: number) => <ContextIcons.IconTrendArrow size={s} trend={trend} />,
+          },
+          {
+            name: 'IconFormTrend',
+            control: (
+              <span className={cn(FONT.body, 'text-[12px] text-[var(--n600)]')}>
+                values=[{formValues.join(', ')}]
+              </span>
+            ),
+            icons: (s: number) => <ContextIcons.IconFormTrend size={s} values={formValues} />,
+          },
+        ].map(({ name, control, icons }) => (
+          <div
+            key={name}
+            className={cn(
+              'flex items-center gap-4 p-3',
+              'border-[0.5px] border-[var(--n200)] rounded-[8px]',
+              'bg-[var(--n50)]',
+            )}
+          >
+            <span className={cn(FONT.body, 'text-[12px] font-[450] text-[var(--n1050)] w-[160px] shrink-0')}>
+              {name.replace('Icon', '')}
+            </span>
+            <div className="flex-1 min-w-[160px] max-w-[280px]">
+              {control}
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              {[24, 32].map((s) => (
+                <div key={s} className="flex flex-col items-center gap-0.5">
+                  {icons(s)}
+                  <span className={cn(FONT.body, 'text-[9px] text-[var(--n600)] tabular-nums')}>{s}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {/* RegulatorRings — 3 sliders */}
+        <div
+          className={cn(
+            'flex items-center gap-4 p-3',
+            'border-[0.5px] border-[var(--n200)] rounded-[8px]',
+            'bg-[var(--n50)]',
+          )}
+        >
+          <span className={cn(FONT.body, 'text-[12px] font-[450] text-[var(--n1050)] w-[160px] shrink-0')}>
+            RegulatorRings
+          </span>
+          <div className="flex-1 min-w-[160px] max-w-[280px] space-y-1">
+            <Slider value={metabolic} onChange={setMetabolic} min={0} max={100} label="Met" unit="%" />
+            <Slider value={neural} onChange={setNeural} min={0} max={100} label="Neu" unit="%" />
+            <Slider value={peripheral} onChange={setPeripheral} min={0} max={100} label="Per" unit="%" />
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            {[24, 32].map((s) => (
+              <div key={s} className="flex flex-col items-center gap-0.5">
+                <ContextIcons.IconRegulatorRings
+                  size={s}
+                  metabolic={metabolic}
+                  neural={neural}
+                  peripheral={peripheral}
+                />
+                <span className={cn(FONT.body, 'text-[9px] text-[var(--n600)] tabular-nums')}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ComplianceDot — status buttons */}
+        <div
+          className={cn(
+            'flex items-center gap-4 p-3',
+            'border-[0.5px] border-[var(--n200)] rounded-[8px]',
+            'bg-[var(--n50)]',
+          )}
+        >
+          <span className={cn(FONT.body, 'text-[12px] font-[450] text-[var(--n1050)] w-[160px] shrink-0')}>
+            ComplianceDot
+          </span>
+          <div className="flex-1 min-w-[160px] max-w-[280px]">
+            <div className="flex flex-wrap gap-1.5">
+              {COMPLIANCE_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setCompliance(s)}
+                  className={cn(
+                    'px-2 py-0.5 rounded-full text-[11px]',
+                    FONT.body, WEIGHT.book, TRANSITION.background,
+                    compliance === s
+                      ? 'bg-[var(--n1150)] text-[var(--n50)]'
+                      : 'bg-[var(--n200)] text-[var(--n800)] hover:bg-[var(--n400)]',
+                  )}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center gap-3 shrink-0">
+            {[24, 32].map((s) => (
+              <div key={s} className="flex flex-col items-center gap-0.5">
+                <ContextIcons.IconComplianceDot size={s} status={compliance} />
+                <span className={cn(FONT.body, 'text-[9px] text-[var(--n600)] tabular-nums')}>{s}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Size comparison */}
+      <div className="mt-6">
+        <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>SIZE COMPARISON</p>
+        <div className="flex items-end gap-5">
+          {[14, 16, 20, 24, 32].map((s) => (
+            <div key={s} className="flex flex-col items-center gap-1">
+              <ContextIcons.IconGlycogenLevel size={s} value={65} />
+              <span className={cn(FONT.body, 'text-[10px] text-[var(--n600)] tabular-nums')}>{s}</span>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -486,10 +688,13 @@ function CatalogContent() {
           </div>
         </div>
 
+        {/* ── Context-Aware Section ── */}
+        <ContextAwareSection />
+
         {/* ── Footer ── */}
         <div className="mt-16 pb-8 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
-            @ramtt/icons · 126 × 3 + 8 = 386 components · Zero dependencies
+            @ramtt/icons · 126 × 3 + 8 + 12 = 398 components · Zero dependencies
           </p>
         </div>
       </div>

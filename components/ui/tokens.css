@@ -332,6 +332,16 @@ dialog[open] {
   display: none;  /* Chrome/Safari */
 }
 
+/* ─── HRBeat animation ─── */
+@keyframes ramtt-heartbeat {
+  0%, 100% { opacity: 1; }
+  40% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.ramtt-heartbeat {
+  animation: ramtt-heartbeat var(--beat-duration, 1s) ease-in-out infinite;
+}
+
 /* ─── ColorDot pulse ─── */
 @keyframes ramtt-dot-pulse {
   0%, 100% { opacity: 1; }
