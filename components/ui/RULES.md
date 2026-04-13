@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules (57 components)
+# @ramtt/ui — System Rules (60 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -111,3 +111,6 @@ ColorDot, StatusIndicator, SegmentedBar, NumberStepper
 
 ### Wave 7B — Input Patterns (3)
 RatingInput, TimePicker, StepFlow
+
+### Wave 7C — Widget System (3)
+WidgetCard, WidgetPicker, DashboardGrid

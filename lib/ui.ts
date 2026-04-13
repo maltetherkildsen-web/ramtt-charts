@@ -225,6 +225,16 @@ export const STEP_DOT_UPCOMING = 'bg-[var(--n400)]'
 // ─── RatingInput ───
 export const RATING_SEGMENT_SIZE = { default: 28, compact: 20 } as const
 
+// ─── WidgetCard ───
+export const WIDGET_ICON_SIZE = 14
+export const WIDGET_ICON_COLOR = 'text-[var(--n400)]'
+export const WIDGET_ICON_HOVER = 'text-[var(--n800)]'
+
+// ─── DashboardGrid ───
+export const GRID_COLUMNS = 12
+export const GRID_ROW_HEIGHT = 80
+export const GRID_GAP = 16
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {

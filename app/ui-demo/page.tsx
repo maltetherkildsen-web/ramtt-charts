@@ -73,6 +73,9 @@ import {
   RatingInput,
   TimePicker,
   StepFlow,
+  WidgetCard,
+  WidgetPicker,
+  DashboardGrid,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2233,6 +2236,120 @@ function StepFlowDemo() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Wave 7C — Widget System
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function WidgetSystemDemo() {
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [timeRange, setTimeRange] = useState('30d')
+  const [collapsedWidget, setCollapsedWidget] = useState(true)
+  const [installedWidgets, setInstalledWidgets] = useState(['capacity-chart', 'peak-curves', 'zone-distribution'])
+  const [gridLayout, setGridLayout] = useState([
+    { id: 'capacity-chart', x: 0, y: 0, w: 12, h: 4 },
+    { id: 'peak-curves', x: 0, y: 4, w: 6, h: 3 },
+    { id: 'zone-distribution', x: 6, y: 4, w: 6, h: 3 },
+  ])
+
+  return (
+    <DemoSection title="Widget System">
+      <div className="space-y-6">
+        {/* WidgetCard with all action icons */}
+        <WidgetCard
+          title="Durability index"
+          subtitle="CP decay per hour of riding"
+          onSettings={() => {}}
+          onFullscreen={() => {}}
+          onRemove={() => {}}
+          infoHref="#"
+        >
+          <div className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)] py-6 text-center')}>
+            Chart content goes here
+          </div>
+        </WidgetCard>
+
+        {/* WidgetCard with time range selector */}
+        <WidgetCard
+          title="Capacity chart"
+          subtitle="CP/W' progression"
+          timeRange={timeRange}
+          onTimeRangeChange={setTimeRange}
+          timeRangeOptions={['7d', '30d', '90d']}
+        >
+          <div className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)] py-6 text-center')}>
+            Capacity chart for {timeRange}
+          </div>
+        </WidgetCard>
+
+        {/* WidgetCard collapsed */}
+        <WidgetCard
+          title="Peak freshness"
+          subtitle="Best form periods"
+          collapsible
+          collapsed={collapsedWidget}
+          onCollapsedChange={setCollapsedWidget}
+        >
+          <div className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)] py-6 text-center')}>
+            Collapsed content — click title to toggle
+          </div>
+        </WidgetCard>
+
+        {/* WidgetCard loading */}
+        <WidgetCard title="Zone distribution" loading>
+          <div />
+        </WidgetCard>
+
+        {/* WidgetCard with drag handle */}
+        <WidgetCard
+          title="ACWR trend"
+          subtitle="Acute:chronic workload ratio"
+          dragHandle
+        >
+          <div className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)] py-6 text-center')}>
+            Drag handle visible on the left
+          </div>
+        </WidgetCard>
+
+        {/* Add widget button + picker */}
+        <Button variant="outline" onClick={() => setPickerOpen(true)}>
+          Add widget
+        </Button>
+        <WidgetPicker
+          open={pickerOpen}
+          onClose={() => setPickerOpen(false)}
+          onAdd={(id) => {
+            setInstalledWidgets((prev) => [...prev, id])
+          }}
+          installedWidgets={installedWidgets}
+        />
+
+        {/* DashboardGrid demo */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>DashboardGrid — drag handles to rearrange</p>
+          <DashboardGrid
+            layout={gridLayout}
+            onLayoutChange={setGridLayout}
+          >
+            {gridLayout.map((item) => (
+              <DashboardGrid.Item key={item.id} {...item}>
+                <WidgetCard
+                  title={item.id === 'capacity-chart' ? 'Capacity chart' : item.id === 'peak-curves' ? 'Peak curves' : 'Zone distribution'}
+                  dragHandle
+                  className="h-full"
+                >
+                  <div className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n600)] text-center py-4')}>
+                    {item.w}×{item.h} at ({item.x},{item.y})
+                  </div>
+                </WidgetCard>
+              </DashboardGrid.Item>
+            ))}
+          </DashboardGrid>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -2247,7 +2364,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              57 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              60 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -2291,6 +2408,7 @@ export default function UIDemo() {
             <NumberStepperDemo />
             <RatingTimeDemo />
             <StepFlowDemo />
+            <WidgetSystemDemo />
           </div>
         </div>
       </main>
