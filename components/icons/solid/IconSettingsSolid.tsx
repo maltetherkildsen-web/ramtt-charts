@@ -8,16 +8,15 @@ import type { IconProps } from '../types'
 export const IconSettingsSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <circle fill="currentColor" cx="12" cy="12" r="3" />
-    {/* 6 gear teeth — simplified for clarity at small sizes */}
-    <path fill="currentColor" d="M12 2V5" />
-    <path fill="currentColor" d="M12 19V22" />
-    <path fill="currentColor" d="M4.93 4.93L7.05 7.05" />
-    <path fill="currentColor" d="M16.95 16.95L19.07 19.07" />
-    <path fill="currentColor" d="M2 12H5" />
-    <path fill="currentColor" d="M19 12H22" />
-    <path fill="currentColor" d="M4.93 19.07L7.05 16.95" />
-    <path fill="currentColor" d="M16.95 7.05L19.07 4.93" />
-    </IconBaseSolid>
+    <circle cx="12" cy="12" r="4.5"/>
+    <rect x="11" y="1" width="2" height="5" rx="1"/>
+    <rect x="11" y="18" width="2" height="5" rx="1"/>
+    <rect x="1" y="11" width="5" height="2" rx="1"/>
+    <rect x="18" y="11" width="5" height="2" rx="1"/>
+    <rect x="17" y="4" width="2" height="4" rx="1" transform="rotate(45 18 6)"/>
+    <rect x="5" y="16" width="2" height="4" rx="1" transform="rotate(45 6 18)"/>
+    <rect x="5" y="4" width="2" height="4" rx="1" transform="rotate(-45 6 6)"/>
+    <rect x="17" y="16" width="2" height="4" rx="1" transform="rotate(-45 18 18)"/>
+  </IconBaseSolid>
 ))
 IconSettingsSolid.displayName = 'IconSettingsSolid'

@@ -208,7 +208,7 @@ function DetailPanel({
         <div>
           <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-1.5')}>SIZES</p>
           <div className="flex items-end gap-4">
-            {[14, 16, 20, 24, 32].map((s) => (
+            {[14, 16, 20, 24, 28, 32].map((s) => (
               <div key={s} className="flex flex-col items-center gap-1">
                 {Line && <Line size={s} color={color} />}
                 <span className={cn(FONT.body, 'text-[10px] font-[400] text-[var(--n600)] tabular-nums')}>{s}</span>
@@ -423,7 +423,7 @@ function ContextAwareSection() {
       <div className="mt-6">
         <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>SIZE COMPARISON</p>
         <div className="flex items-end gap-5">
-          {[14, 16, 20, 24, 32].map((s) => (
+          {[14, 16, 20, 24, 28, 32].map((s) => (
             <div key={s} className="flex flex-col items-center gap-1">
               <ContextIcons.IconGlycogenLevel size={s} value={65} />
               <span className={cn(FONT.body, 'text-[10px] text-[var(--n600)] tabular-nums')}>{s}</span>
@@ -722,7 +722,7 @@ function ReactiveSection() {
       <div className="mt-6">
         <p className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] mb-2')}>SIZE COMPARISON — TRASH</p>
         <div className="flex items-end gap-5">
-          {[14, 16, 20, 24, 32].map((s) => (
+          {[14, 16, 20, 24, 28, 32].map((s) => (
             <div key={s} className="flex flex-col items-center gap-1">
               <ReactiveIcons.IconReactiveTrash size={s} reactive={reactiveEnabled} />
               <span className={cn(FONT.body, 'text-[10px] text-[var(--n600)] tabular-nums')}>{s}</span>
@@ -857,6 +857,7 @@ function CatalogContent() {
                 { value: '16', label: '16' },
                 { value: '20', label: '20' },
                 { value: '24', label: '24' },
+                { value: '28', label: '28' },
               ]}
               value={String(size)}
               onChange={(v) => setSize(Number(v))}

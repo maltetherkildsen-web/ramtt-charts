@@ -8,10 +8,8 @@ import type { IconProps } from '../types'
 export const IconCollapseSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M4 10H10V4" />
-    <path fill="currentColor" d="M10 10L3 3" />
-    <path fill="currentColor" d="M20 14H14V20" />
-    <path fill="currentColor" d="M14 14L21 21" />
-    </IconBaseSolid>
+    <path d="M4 10h6V4H8v3.17L3.41 2.59 2 4l4.58 4.58L4 10Z"/>
+    <path d="M20 14h-6v6h2v-3.17l4.58 4.58L22 20l-4.58-4.58L20 14Z"/>
+  </IconBaseSolid>
 ))
 IconCollapseSolid.displayName = 'IconCollapseSolid'

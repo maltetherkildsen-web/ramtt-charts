@@ -86,7 +86,7 @@ export default function IconsPage() {
           size="sm"
         />
         <ToggleGroup
-          options={['16', '20', '24']}
+          options={['16', '20', '24', '28']}
           value={String(size)}
           onChange={(v) => setSize(Number(v))}
           size="sm"

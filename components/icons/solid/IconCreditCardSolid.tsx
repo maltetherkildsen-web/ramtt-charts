@@ -8,8 +8,7 @@ import type { IconProps } from '../types'
 export const IconCreditCardSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <rect fill="currentColor" x="2" y="5" width="20" height="14" rx="2" />
-    <path fill="currentColor" d="M2 10H22" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M4 5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H4Zm-2 5h20v-1H2v1Z"/>
+  </IconBaseSolid>
 ))
 IconCreditCardSolid.displayName = 'IconCreditCardSolid'

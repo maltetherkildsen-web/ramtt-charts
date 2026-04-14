@@ -8,12 +8,9 @@ import type { IconProps } from '../types'
 export const IconGelSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Pouch body */}
-    <path fill="currentColor" d="M9 6L7 20C7 20.5 7.5 21 8 21H16C16.5 21 17 20.5 17 20L15 6" />
-    {/* Top seal */}
-    <path fill="currentColor" d="M9 6H15" />
-    {/* Tear tab */}
-    <path fill="currentColor" d="M13 6L14.5 3" />
-    </IconBaseSolid>
+    <path d="M9 6l-2 14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l-2-14H9Z"/>
+    <rect x="8.5" y="5" width="7" height="2" rx="1"/>
+    <rect x="12.5" y="2.6" width="1.5" height="3.8" rx=".75" transform="rotate(-63 13.25 4.5)"/>
+  </IconBaseSolid>
 ))
 IconGelSolid.displayName = 'IconGelSolid'

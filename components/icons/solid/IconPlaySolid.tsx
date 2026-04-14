@@ -8,7 +8,7 @@ import type { IconProps } from '../types'
 export const IconPlaySolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M6 4L20 12L6 20V4Z" />
-    </IconBaseSolid>
+    <path d="M6 4l14 8-14 8V4Z"/>
+  </IconBaseSolid>
 ))
 IconPlaySolid.displayName = 'IconPlaySolid'

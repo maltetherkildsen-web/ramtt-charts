@@ -8,7 +8,7 @@ import type { IconProps } from '../types'
 export const IconHRVSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M3 12C5 12 5 6 7 6C9 6 9 18 11 18C13 18 13 8 15 8C17 8 17 14 19 14C20 14 21 12 21 12" />
-    </IconBaseSolid>
+    <path d="M3 12c2 0 2-6 4-6s2 12 4 12 2-10 4-10 2 2 4 2c1 0 2-2 2-2v2c-1 0-2 2-4 2s-2-2-4-2-2 10-4 10-2-12-4-12-2 6-4 6H3v-2Z"/>
+  </IconBaseSolid>
 ))
 IconHRVSolid.displayName = 'IconHRVSolid'

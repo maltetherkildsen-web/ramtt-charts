@@ -8,15 +8,14 @@ import type { IconDuoProps } from '../types'
 export const IconGlycogenDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
   <IconBaseDuo ref={ref} {...props}>
     {/* Background */}
-    <rect x="2" y="2" width="20" height="20" rx="4" fill={props.accent || 'currentColor'} opacity={0.15} stroke="none" />
+    <rect x="3" y="8" width="16" height="8" rx="2" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-
     {/* Battery body */}
     <rect x="3" y="8" width="16" height="8" rx="2" />
     {/* Terminal nub */}
     <path d="M19 11H21V13H19" />
     {/* Fill level (~60%) */}
     <path d="M6 11H12V13H6Z" fill="currentColor" fillOpacity={0.15} stroke="none" />
-    </IconBaseDuo>
+  </IconBaseDuo>
 ))
 IconGlycogenDuo.displayName = 'IconGlycogenDuo'

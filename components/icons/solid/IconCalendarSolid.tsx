@@ -8,16 +8,9 @@ import type { IconProps } from '../types'
 export const IconCalendarSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <rect fill="currentColor" x="4" y="5" width="16" height="16" rx="2" />
-    <path fill="currentColor" d="M8 2V5" />
-    <path fill="currentColor" d="M16 2V5" />
-    <path fill="currentColor" d="M4 10H20" />
-    {/* Day dots */}
-    <circle fill="currentColor" cx="8.5" cy="14" r="1" />
-    <circle fill="currentColor" cx="12" cy="14" r="1" />
-    <circle fill="currentColor" cx="15.5" cy="14" r="1" />
-    <circle fill="currentColor" cx="8.5" cy="17.5" r="1" />
-    <circle fill="currentColor" cx="12" cy="17.5" r="1" />
-    </IconBaseSolid>
+    <path d="M6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H6Z"/>
+    <rect x="7.25" y="1" width="1.5" height="4" rx=".75"/>
+    <rect x="15.25" y="1" width="1.5" height="4" rx=".75"/>
+  </IconBaseSolid>
 ))
 IconCalendarSolid.displayName = 'IconCalendarSolid'

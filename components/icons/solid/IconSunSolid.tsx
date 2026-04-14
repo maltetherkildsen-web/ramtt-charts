@@ -8,15 +8,15 @@ import type { IconProps } from '../types'
 export const IconSunSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <circle fill="currentColor" cx="12" cy="12" r="4" />
-    <path fill="currentColor" d="M12 2V4" />
-    <path fill="currentColor" d="M12 20V22" />
-    <path fill="currentColor" d="M4.93 4.93L6.34 6.34" />
-    <path fill="currentColor" d="M17.66 17.66L19.07 19.07" />
-    <path fill="currentColor" d="M2 12H4" />
-    <path fill="currentColor" d="M20 12H22" />
-    <path fill="currentColor" d="M4.93 19.07L6.34 17.66" />
-    <path fill="currentColor" d="M17.66 6.34L19.07 4.93" />
-    </IconBaseSolid>
+    <circle cx="12" cy="12" r="5"/>
+    <rect x="11" y="1" width="2" height="4" rx="1"/>
+    <rect x="11" y="19" width="2" height="4" rx="1"/>
+    <rect x="1" y="11" width="4" height="2" rx="1"/>
+    <rect x="19" y="11" width="4" height="2" rx="1"/>
+    <rect x="4.22" y="3.22" width="2" height="4" rx="1" transform="rotate(45 5.22 5.22)"/>
+    <rect x="17.78" y="16.78" width="2" height="4" rx="1" transform="rotate(45 18.78 18.78)"/>
+    <rect x="4.22" y="16.78" width="2" height="4" rx="1" transform="rotate(-45 5.22 18.78)"/>
+    <rect x="17.78" y="3.22" width="2" height="4" rx="1" transform="rotate(-45 18.78 5.22)"/>
+  </IconBaseSolid>
 ))
 IconSunSolid.displayName = 'IconSunSolid'

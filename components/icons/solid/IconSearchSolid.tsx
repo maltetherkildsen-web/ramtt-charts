@@ -8,8 +8,7 @@ import type { IconProps } from '../types'
 export const IconSearchSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <circle fill="currentColor" cx="10.5" cy="10.5" r="6.5" />
-    <path fill="currentColor" d="M15.5 15.5L20 20" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M10.5 4a6.5 6.5 0 1 0 3.82 11.74l3.97 3.97a1 1 0 0 0 1.42-1.42l-3.97-3.97A6.5 6.5 0 0 0 10.5 4Z"/>
+  </IconBaseSolid>
 ))
 IconSearchSolid.displayName = 'IconSearchSolid'

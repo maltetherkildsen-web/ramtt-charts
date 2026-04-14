@@ -8,13 +8,11 @@ import type { IconProps } from '../types'
 export const IconThresholdSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M3 14H7" strokeDasharray="2 2" />
-    <path fill="currentColor" d="M11 14H15" strokeDasharray="2 2" />
-    <path fill="currentColor" d="M19 14H21" strokeDasharray="2 2" />
-    <path fill="currentColor" d="M12 20V14" />
-    <path fill="currentColor" d="M9 17L12 14L15 17" />
-    <path fill="currentColor" d="M12 14V6" />
-    <path fill="currentColor" d="M9 9L12 6L15 9" />
-    </IconBaseSolid>
+    <rect x="3" y="13" width="18" height="2" rx="1"/>
+    <rect x="11" y="13" width="2" height="7" rx="1"/>
+    <path d="M9 16l3-3 3 3H9Z"/>
+    <rect x="11" y="6" width="2" height="7" rx="1"/>
+    <path d="M9 9l3-3 3 3H9Z"/>
+  </IconBaseSolid>
 ))
 IconThresholdSolid.displayName = 'IconThresholdSolid'

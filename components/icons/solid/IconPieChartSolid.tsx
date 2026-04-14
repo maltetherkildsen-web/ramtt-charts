@@ -8,8 +8,8 @@ import type { IconProps } from '../types'
 export const IconPieChartSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M21 12A9 9 0 1 1 12 3V12H21Z" />
-    <path fill="currentColor" d="M21.2 10.2A9 9 0 0 0 13.8 2.8V10.2H21.2Z" />
-    </IconBaseSolid>
+    <path d="M21 12A9 9 0 1 1 12 3v9h9Z"/>
+    <path d="M21.2 10.2A9 9 0 0 0 13.8 2.8v7.4h7.4Z"/>
+  </IconBaseSolid>
 ))
 IconPieChartSolid.displayName = 'IconPieChartSolid'

@@ -8,10 +8,10 @@ import type { IconProps } from '../types'
 export const IconHashSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M4 9H20" />
-    <path fill="currentColor" d="M4 15H20" />
-    <path fill="currentColor" d="M10 3L8 21" />
-    <path fill="currentColor" d="M16 3L14 21" />
-    </IconBaseSolid>
+    <rect x="9" y="2.5" width="2" height="19" rx="1" transform="rotate(10 10 12)"/>
+    <rect x="14" y="2.5" width="2" height="19" rx="1" transform="rotate(10 15 12)"/>
+    <rect x="3" y="8" width="18" height="2" rx="1"/>
+    <rect x="3" y="14" width="18" height="2" rx="1"/>
+  </IconBaseSolid>
 ))
 IconHashSolid.displayName = 'IconHashSolid'

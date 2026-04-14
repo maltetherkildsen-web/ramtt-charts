@@ -8,8 +8,7 @@ import type { IconProps } from '../types'
 export const IconEyeSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M1 12C1 12 5 5 12 5C19 5 23 12 23 12C23 12 19 19 12 19C5 19 1 12 1 12Z" />
-    <circle fill="currentColor" cx="12" cy="12" r="3" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Zm11-3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>
+  </IconBaseSolid>
 ))
 IconEyeSolid.displayName = 'IconEyeSolid'

@@ -8,9 +8,7 @@ import type { IconProps } from '../types'
 export const IconAlertTriangleSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M12 3L2 21H22L12 3Z" />
-    <path fill="currentColor" d="M12 10V14" />
-    <circle fill="currentColor" cx="12" cy="17.5" r="1" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M12 3L2 21h20L12 3Zm-.75 7.5a.75.75 0 0 1 1.5 0V15a.75.75 0 0 1-1.5 0v-4.5ZM12 16.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/>
+  </IconBaseSolid>
 ))
 IconAlertTriangleSolid.displayName = 'IconAlertTriangleSolid'

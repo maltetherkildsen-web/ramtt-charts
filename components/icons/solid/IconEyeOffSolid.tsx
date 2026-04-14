@@ -8,10 +8,7 @@ import type { IconProps } from '../types'
 export const IconEyeOffSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M17.9 17.9C16.2 19.2 14.2 20 12 20C5 20 1 12 1 12C2.2 9.7 4 7.8 6.1 6.4" />
-    <path fill="currentColor" d="M9.9 4.2C10.6 4.1 11.3 4 12 4C19 4 23 12 23 12C22.4 13.1 21.6 14.2 20.7 15.1" />
-    <path fill="currentColor" d="M14.1 14.1A3 3 0 1 1 9.9 9.9" />
-    <path fill="currentColor" d="M1 1L23 23" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M2.1 3.51a1 1 0 0 1 1.4-.02l18 17a1 1 0 1 1-1.38 1.45l-3.06-2.88A11.74 11.74 0 0 1 12 20C5 20 1 12 1 12a18.4 18.4 0 0 1 4.56-5.44L2.08 3.51ZM12 9a3 3 0 0 0-2.83 4L12 9ZM12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19L15.1 9.6A3 3 0 0 0 12 7l-2.1-2A9.1 9.1 0 0 1 12 4Z"/>
+  </IconBaseSolid>
 ))
 IconEyeOffSolid.displayName = 'IconEyeOffSolid'

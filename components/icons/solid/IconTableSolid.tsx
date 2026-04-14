@@ -8,10 +8,7 @@ import type { IconProps } from '../types'
 export const IconTableSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <rect fill="currentColor" x="3" y="3" width="18" height="18" rx="2" />
-    <path fill="currentColor" d="M3 9H21" />
-    <path fill="currentColor" d="M3 15H21" />
-    <path fill="currentColor" d="M9 3V21" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5Zm5 5.5V4H5a1 1 0 0 0-1 1v3.5h6Zm1.5 0V4H19a1 1 0 0 1 1 1v3.5h-8.5ZM4 10v4.5h6V10H4Zm7.5 0v4.5H20V10h-8.5ZM10 16H4v3a1 1 0 0 0 1 1h5v-4Zm1.5 0v4H19a1 1 0 0 0 1-1v-3h-8.5Z"/>
+  </IconBaseSolid>
 ))
 IconTableSolid.displayName = 'IconTableSolid'

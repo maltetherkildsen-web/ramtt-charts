@@ -8,9 +8,9 @@ import type { IconProps } from '../types'
 export const IconUserCheckSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <circle fill="currentColor" cx="10" cy="8" r="4" />
-    <path fill="currentColor" d="M18 21C18 16.6 14.4 13 10 13C5.6 13 2 16.6 2 21" />
-    <path fill="currentColor" d="M17 11L19 13L23 9" />
-    </IconBaseSolid>
+    <circle cx="10" cy="8" r="4.5"/>
+    <path d="M18 21a8 8 0 1 0-16 0h16Z"/>
+    <path d="M16.3 10.3a1 1 0 0 1 1.4 0l1.3 1.3 3.8-3.8a1 1 0 1 1 1.4 1.4l-4.5 4.5a1 1 0 0 1-1.4 0l-2-2a1 1 0 0 1 0-1.4Z"/>
+  </IconBaseSolid>
 ))
 IconUserCheckSolid.displayName = 'IconUserCheckSolid'

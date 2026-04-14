@@ -8,9 +8,8 @@ import type { IconDuoProps } from '../types'
 export const IconGutDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
   <IconBaseDuo ref={ref} {...props}>
     {/* Background */}
-    <rect x="2" y="2" width="20" height="20" rx="4" fill={props.accent || 'currentColor'} opacity={0.15} stroke="none" />
+    <rect x="4" y="3" width="16" height="18" rx="4" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-
     {/* Stomach opening */}
     <path d="M8 3C6 3 4 5 4 7C4 10 7 10 7 13C7 16 4 16 4 19C4 20.5 5.5 21 7 21" />
     {/* Intestinal curve */}
@@ -18,6 +17,6 @@ export const IconGutDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) =
     {/* Cross connections */}
     <path d="M7 7H17" />
     <path d="M7 17H17" />
-    </IconBaseDuo>
+  </IconBaseDuo>
 ))
 IconGutDuo.displayName = 'IconGutDuo'

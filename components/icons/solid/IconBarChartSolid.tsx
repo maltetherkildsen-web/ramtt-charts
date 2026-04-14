@@ -8,9 +8,9 @@ import type { IconProps } from '../types'
 export const IconBarChartSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M6 20V14" />
-    <path fill="currentColor" d="M12 20V4" />
-    <path fill="currentColor" d="M18 20V10" />
-    </IconBaseSolid>
+    <rect x="4.5" y="14" width="3" height="7" rx="1"/>
+    <rect x="10.5" y="4" width="3" height="17" rx="1"/>
+    <rect x="16.5" y="10" width="3" height="11" rx="1"/>
+  </IconBaseSolid>
 ))
 IconBarChartSolid.displayName = 'IconBarChartSolid'

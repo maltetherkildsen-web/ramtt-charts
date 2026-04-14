@@ -8,8 +8,7 @@ import type { IconProps } from '../types'
 export const IconMapPinSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fill="currentColor" d="M12 22C12 22 19 16 19 10C19 6.1 15.9 3 12 3C8.1 3 5 6.1 5 10C5 16 12 22 12 22Z" />
-    <circle fill="currentColor" cx="12" cy="10" r="3" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M12 22s7-6 7-12A7 7 0 0 0 5 10c0 6 7 12 7 12Zm0-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/>
+  </IconBaseSolid>
 ))
 IconMapPinSolid.displayName = 'IconMapPinSolid'

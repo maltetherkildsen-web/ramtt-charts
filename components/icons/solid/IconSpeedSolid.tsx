@@ -8,12 +8,9 @@ import type { IconProps } from '../types'
 export const IconSpeedSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Speedometer arc */}
-    <path fill="currentColor" d="M4 18A9 9 0 0 1 20 18" />
-    {/* Needle pointing upper-right */}
-    <path fill="currentColor" d="M12 18L16 8" />
-    {/* Center pivot dot */}
-    <circle fill="currentColor" cx="12" cy="18" r="1.5" />
-    </IconBaseSolid>
+    <path d="M4 18A9 9 0 0 1 20 18H4Z"/>
+    <path d="M11.2 17.4l3.6-9.4 1.4.6-3.6 9.4Z"/>
+    <circle cx="12" cy="18" r="2.5"/>
+  </IconBaseSolid>
 ))
 IconSpeedSolid.displayName = 'IconSpeedSolid'

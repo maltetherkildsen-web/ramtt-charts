@@ -8,10 +8,7 @@ import type { IconProps } from '../types'
 export const IconFuelSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Outer flame */}
-    <path fill="currentColor" d="M12 2C12 2 6 9 6 14C6 17.3 8.7 20 12 20C15.3 20 18 17.3 18 14C18 9 12 2 12 2Z" />
-    {/* Inner flicker */}
-    <path fill="currentColor" d="M12 11C12 11 9.5 14 9.5 16C9.5 17.4 10.6 18.5 12 18.5C13.4 18.5 14.5 17.4 14.5 16C14.5 14 12 11 12 11Z" />
-    </IconBaseSolid>
+    <path fillRule="evenodd" d="M12 2C12 2 6 9 6 14c0 3.3 2.7 6 6 6s6-2.7 6-6C18 9 12 2 12 2Zm0 9s-2.5 3-2.5 5a2.5 2.5 0 0 0 5 0c0-2-2.5-5-2.5-5Z"/>
+  </IconBaseSolid>
 ))
 IconFuelSolid.displayName = 'IconFuelSolid'

@@ -8,12 +8,11 @@ import type { IconDuoProps } from '../types'
 export const IconAlertCircleDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
   <IconBaseDuo ref={ref} {...props}>
     {/* Background */}
-    <circle cx="12" cy="12" r="10" fill={props.accent || 'currentColor'} opacity={0.15} stroke="none" />
+    <circle cx="12" cy="12" r="9" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-
     <circle cx="12" cy="12" r="9" />
     <path d="M12 8V13" />
     <circle cx="12" cy="16" r="1" fill="currentColor" stroke="none" />
-    </IconBaseDuo>
+  </IconBaseDuo>
 ))
 IconAlertCircleDuo.displayName = 'IconAlertCircleDuo'

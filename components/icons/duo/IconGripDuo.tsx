@@ -8,15 +8,14 @@ import type { IconDuoProps } from '../types'
 export const IconGripDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
   <IconBaseDuo ref={ref} {...props}>
     {/* Background */}
-    <rect x="2" y="2" width="20" height="20" rx="4" fill={props.accent || 'currentColor'} opacity={0.15} stroke="none" />
+    <rect x="6" y="4" width="12" height="16" rx="3" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-
     <circle cx="9" cy="7" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="15" cy="7" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="9" cy="12" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="15" cy="12" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="9" cy="17" r="1.5" fill="currentColor" stroke="none" />
     <circle cx="15" cy="17" r="1.5" fill="currentColor" stroke="none" />
-    </IconBaseDuo>
+  </IconBaseDuo>
 ))
 IconGripDuo.displayName = 'IconGripDuo'
