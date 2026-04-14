@@ -77,25 +77,76 @@ import type { ScatterPoint, OHLCPoint, ResponseTimeBox, PortfolioStock } from '.
 // Shared UI
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+function TrendIcon({ direction }: { direction: 'up' | 'down' | 'flat' }) {
+  if (direction === 'up') return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M2 8L6 4L10 8" stroke="var(--chart-positive)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+  if (direction === 'down') return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M2 4L6 8L10 4" stroke="var(--chart-negative)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  )
+  return (
+    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+      <path d="M2 6H10" stroke="var(--n600)" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  )
+}
+
 function ChartCard({
   title,
-  subtitle,
+  description,
+  components,
+  trend,
+  context,
   children,
 }: {
   title: string
-  subtitle: string
+  description: string
+  components: string
+  trend?: { text: string; direction: 'up' | 'down' | 'flat' }
+  context?: string
   children: React.ReactNode
 }) {
   return (
-    <section className={`${RADIUS.lg} border-[0.5px] border-[var(--n400)] bg-[var(--n50)] p-5`}>
-      <h2 className={`text-[22px] ${WEIGHT.strong} tracking-tight text-[var(--n1150)]`}>
-        {title}
-      </h2>
-      <p className="mt-0.5 font-sans text-[11px] tracking-wide text-text-muted">
-        {subtitle}
-      </p>
-      <div className="mt-4">{children}</div>
-    </section>
+    <div>
+      {/* Component tag above card */}
+      <div className="mb-2 px-1">
+        <span className="text-[11px] font-[400] text-[var(--n600)]">
+          {components}
+        </span>
+      </div>
+      {/* Card */}
+      <section className={`${RADIUS.lg} border-[0.5px] border-[var(--n400)] bg-[var(--n50)] p-5`}>
+        <h2 className="text-[14px] font-[550] text-[var(--n1150)]">
+          {title}
+        </h2>
+        <p className="mt-0.5 text-[12px] font-[450] text-[var(--n600)]" style={{ fontFamily: 'var(--font-sans)' }}>
+          {description}
+        </p>
+        <div className="mt-4">{children}</div>
+        {/* Footer */}
+        {(trend || context) && (
+          <div className="mt-4 border-t border-[var(--n200)] pt-3">
+            {trend && (
+              <div className="flex items-center gap-1.5">
+                <TrendIcon direction={trend.direction} />
+                <span className="text-[12px] font-[450] text-[var(--n800)]" style={{ fontFamily: 'var(--font-sans)' }}>
+                  {trend.text}
+                </span>
+              </div>
+            )}
+            {context && (
+              <div className="mt-0.5 text-[11px] font-[400] text-[var(--n600)]" style={{ fontFamily: 'var(--font-sans)' }}>
+                {context}
+              </div>
+            )}
+          </div>
+        )}
+      </section>
+    </div>
   )
 }
 
@@ -117,7 +168,7 @@ function StockPriceChart() {
   )
 
   return (
-    <ChartCard title="Stock Price" subtitle="ChartRoot + ChartLine + ChartArea + ChartTooltip + Axes">
+    <ChartCard title="Stock Price" description="Showing daily closing price for the last 12 months" components="ChartLine + ChartArea + ChartTooltip + ChartGrid" trend={{ text: 'Dropped 12% since August peak', direction: 'down' }} context="January – December 2024">
       <ChartRoot data={data} height={260} padding={{ right: 16 }}>
         <ChartGrid />
         <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.12} opacityTo={0.005} />
@@ -162,7 +213,7 @@ function RevenueChart() {
   )
 
   return (
-    <ChartCard title="Revenue vs. Costs" subtitle="Two ChartLine + ChartRefLine + Legend">
+    <ChartCard title="Revenue vs. Costs" description="Monthly revenue and operating costs with break-even line" components="ChartLine + ChartRefLine + ChartTooltip + ChartGrid" trend={{ text: 'Revenue exceeding costs since April', direction: 'up' }} context="January – December 2024">
       <ChartRoot data={revenue} height={260} yDomain={[0, yMax * 1.12]} padding={{ right: 72 }}>
         <ChartGrid />
         <ChartLine className="fill-none stroke-[var(--chart-2)] stroke-[1.5]" />
@@ -232,7 +283,7 @@ function TemperatureChart() {
   )
 
   return (
-    <ChartCard title="Server Temperature" subtitle="ChartZoneLine with custom threshold zones">
+    <ChartCard title="Server Temperature" description="CPU temperature with alert thresholds over 24 hours" components="ChartZoneLine + ChartTooltip + ChartGrid" trend={{ text: '3 alert threshold breaches today', direction: 'flat' }} context="Last 24 hours">
       <ChartRoot data={data} height={260} padding={{ right: 56 }}>
         <ChartGrid />
         <ChartZoneLine threshold={100} zones={TEMP_ZONES} className="stroke-[1.5]" />
@@ -285,7 +336,7 @@ function IoTDashboard() {
   const data = useMemo(() => generateSensorData(1000), [])
 
   return (
-    <ChartCard title="IoT Sensor Dashboard" subtitle="ChartSyncProvider + zoom + brush + scrubber — synced across 3 charts">
+    <ChartCard title="IoT Sensor Dashboard" description="Synced temperature, humidity, and pressure readings" components="ChartSyncProvider + ChartLine + ChartGrid" trend={{ text: 'Temperature stable, pressure rising', direction: 'up' }} context="Scroll to zoom · Drag to select · Double-click to reset">
       <ChartSyncProvider dataLength={data.temperature.length}>
         <IoTCharts data={data} />
       </ChartSyncProvider>
@@ -390,11 +441,6 @@ function IoTCharts({ data }: { data: SensorData }) {
 
       {/* ── Scrubber ── */}
       <ChartScrubber data={data.temperature} color="var(--chart-5)" />
-
-      {/* ── Interaction hints ── */}
-      <p className="mt-2 px-1 pl-[52px] font-sans text-[10px] tracking-wide text-text-muted/60">
-        Scroll to zoom &middot; Drag to brush-select &middot; Arrow keys to pan &middot; Double-click to reset
-      </p>
     </div>
   )
 }
@@ -414,11 +460,16 @@ const SPARKLINE_METRICS = [
 function SparklineStrip() {
   return (
     <section>
-      <h2 className={`mb-1 text-[22px] ${WEIGHT.strong} tracking-tight text-(--n1150)`}>
+      <div className="mb-2 px-1">
+        <span className="text-[11px] font-[400] text-[var(--n600)]">
+          ChartLine + ChartArea (sparkline)
+        </span>
+      </div>
+      <h2 className="mb-0.5 text-[14px] font-[550] text-[var(--n1150)]">
         Key Metrics
       </h2>
-      <p className="mb-4 font-sans text-[11px] font-[450] text-(--n600)">
-        ChartRoot + ChartLine + ChartArea at micro dimensions — sparkline pattern
+      <p className="mb-4 text-[12px] font-[450] text-[var(--n600)]" style={{ fontFamily: 'var(--font-sans)' }}>
+        Key business metrics with 30-day trend
       </p>
       <div className="flex gap-4 overflow-x-auto">
         {SPARKLINE_METRICS.map((m) => (
@@ -488,7 +539,7 @@ function MonthlySalesChart() {
   const values = useMemo(() => salesData.map((d) => d.value), [salesData])
 
   return (
-    <ChartCard title="Monthly Sales" subtitle="ChartBar + bar highlight — spotlight pattern with value labels">
+    <ChartCard title="Monthly Sales" description="Total revenue by month for 2024" components="ChartBar + ChartTooltip + ChartGrid" trend={{ text: 'Up 8.3% vs prior year', direction: 'up' }} context="January – December 2024">
       <ChartRoot
         data={values}
         height={280}
@@ -663,7 +714,7 @@ function ComposedChart() {
   }, [growthValues])
 
   return (
-    <ChartCard title="Revenue & Growth Rate" subtitle="ChartBar + ChartLine dual Y-axis — bar highlight + line dot">
+    <ChartCard title="Revenue & Growth Rate" description="Monthly revenue with quarter-over-quarter growth rate" components="ChartBar + ChartLine + ChartGrid" trend={{ text: 'Growth rate accelerating in Q4', direction: 'up' }} context="January – December 2024">
       <ChartRoot
         data={revenues}
         height={300}
@@ -854,7 +905,7 @@ function MarketShareChart() {
   const legendRefs = useRef<(HTMLSpanElement | null)[]>([])
 
   return (
-    <ChartCard title="Market Share" subtitle="ChartArea + stackSeries — crosshair with segment highlight">
+    <ChartCard title="Market Share" description="Market share composition over 5 years" components="ChartArea + stackSeries + ChartGrid" trend={{ text: 'Globex gaining 2.1pp market share', direction: 'up' }} context="2020 – 2024">
       <ChartRoot data={indices} height={320} yDomain={[0, 100]} padding={{ right: 16 }}>
         <ChartGrid />
         <MarketShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
@@ -1040,7 +1091,7 @@ function ProfitLossChart() {
   const values = useMemo(() => plData.map((d) => d.value), [plData])
 
   return (
-    <ChartCard title="Profit & Loss" subtitle="ChartBar + colorFn — positive/negative with colored value labels">
+    <ChartCard title="Profit & Loss" description="Monthly profit and loss for 2024" components="ChartBar + ChartGrid" trend={{ text: '9 of 12 months profitable', direction: 'up' }} context="January – December 2024">
       <ChartRoot
         data={values}
         height={280}
@@ -1282,7 +1333,7 @@ function BudgetDonutChart() {
   }, [applyHighlight])
 
   return (
-    <ChartCard title="Budget Allocation" subtitle="Donut chart — arcPath + pieLayout, segment hover with legend sync">
+    <ChartCard title="Budget Allocation" description="Annual budget distribution by department" components="ChartDonut" trend={{ text: 'Engineering largest at 38.5%', direction: 'flat' }} context="FY 2024 budget">
       <div className="flex items-center gap-10">
         {/* Donut SVG — fully ref-based, zero state on hover */}
         <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} shapeRendering="geometricPrecision">
@@ -1388,7 +1439,7 @@ function ScatterChart() {
   const dummyIndices = useMemo(() => Array.from({ length: data.length }, (_, i) => i), [data])
 
   return (
-    <ChartCard title="Correlation Analysis" subtitle="ChartScatter + nearest2d — bubble size encoding">
+    <ChartCard title="Correlation Analysis" description="Relationship between variable X and Y with group size" components="ChartScatter + ChartGrid" trend={{ text: 'Strong positive correlation (r=0.82)', direction: 'flat' }} context="150 data points">
       <ChartRoot
         data={dummyIndices}
         height={340}
@@ -1578,7 +1629,7 @@ function StackedBarChart() {
   }, [stacked])
 
   return (
-    <ChartCard title="Quarterly Revenue by Region" subtitle="ChartBar + y0Accessor + stackSeries — stacked bar composition">
+    <ChartCard title="Quarterly Revenue by Region" description="Regional revenue breakdown by quarter" components="ChartBar + stackSeries + ChartGrid" trend={{ text: 'Q4 highest at $162M total', direction: 'up' }} context="Q1 – Q4 2024">
       <ChartRoot
         data={regionData[0]}
         height={300}
@@ -1753,7 +1804,7 @@ function CandlestickChart() {
   }, [ohlcData])
 
   return (
-    <ChartCard title="Stock OHLC" subtitle="ChartCandlestick — OHLC with spotlight hover">
+    <ChartCard title="Stock OHLC" description="12-week OHLC candlestick chart" components="ChartCandlestick + ChartGrid" trend={{ text: 'Down 6.2% over 12 weeks', direction: 'down' }} context="12-week period">
       <ChartRoot
         data={indices}
         height={320}
@@ -1900,7 +1951,7 @@ function WaterfallChart() {
   const yMax = useMemo(() => Math.max(...bars.map((b) => b.y1)), [bars])
 
   return (
-    <ChartCard title="Cash Flow" subtitle="waterfallLayout + ChartBar + y0Accessor — floating bars with connectors">
+    <ChartCard title="Cash Flow" description="Revenue to net income waterfall breakdown" components="ChartBar + waterfallLayout + ChartGrid" trend={{ text: 'Net positive $45M after expenses', direction: 'up' }} context="FY 2024">
       <ChartRoot
         data={y1Values}
         height={320}
@@ -2089,7 +2140,7 @@ function RadarChart() {
   const profile = useMemo(() => generateAthleteProfile(), [])
 
   return (
-    <ChartCard title="Athlete DNA" subtitle="ChartRadar — 8-dimension polygon, multi-series with dashed comparison, built-in legend">
+    <ChartCard title="Athlete DNA" description="Multi-dimensional performance profile" components="ChartRadar" trend={{ text: 'VO2max improved 4 points since last test', direction: 'up' }} context="Current vs personal best">
       <ChartRadar
         dimensions={profile.dimensions}
         series={profile.series}
@@ -2109,7 +2160,7 @@ function RadialBarChart() {
   const goals = useMemo(() => generateGoalProgress(), [])
 
   return (
-    <ChartCard title="Goal Progress" subtitle="ChartRadialBar — concentric arcs with arcPath, ring hover">
+    <ChartCard title="Goal Progress" description="Daily activity ring progress" components="ChartRadialBar" trend={{ text: '85% of daily goals complete', direction: 'up' }} context="Today">
       <div className="flex items-center gap-10">
         <ChartRadialBar items={goals} size={240} />
         {/* Legend */}
@@ -2168,7 +2219,7 @@ function BrowserShareChart() {
   const legendRefs = useRef<(HTMLSpanElement | null)[]>([])
 
   return (
-    <ChartCard title="Browser Market Share" subtitle="ChartArea + stackSeries — normalized to 100%, crosshair with segment highlight">
+    <ChartCard title="Browser Market Share" description="Browser usage share over 3 years" components="ChartArea + stackSeries + ChartGrid" trend={{ text: 'Chrome declining, Safari gaining', direction: 'flat' }} context="3-year trend">
       <ChartRoot data={indices} height={320} yDomain={[0, 100]} padding={{ right: 16 }}>
         <ChartGrid />
         <BrowserShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
@@ -2345,7 +2396,7 @@ function TreemapChart() {
   const total = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data])
 
   return (
-    <ChartCard title="Disk Usage" subtitle="ChartTreemap + treemapLayout — squarified rectangles with proportional hover">
+    <ChartCard title="Disk Usage" description="Storage usage by file category" components="ChartTreemap" trend={{ text: '72% storage used, 28GB free', direction: 'flat' }} context="Current snapshot">
       <ChartTreemap data={data} width={860} height={300} />
       {/* Legend */}
       <div className="mt-3 flex flex-wrap gap-4">
@@ -2373,7 +2424,7 @@ function FunnelChart() {
   const data = useMemo(() => generateSalesPipeline(), [])
 
   return (
-    <ChartCard title="Sales Pipeline" subtitle="ChartFunnel — centered bars with conversion rates">
+    <ChartCard title="Sales Pipeline" description="Sales funnel with stage-to-stage conversion" components="ChartFunnel" trend={{ text: '12% overall conversion rate', direction: 'flat' }} context="Current pipeline">
       <ChartFunnel data={data} width={860} height={260} />
     </ChartCard>
   )
@@ -2402,7 +2453,7 @@ function BoxPlotChart() {
   }, [boxData])
 
   return (
-    <ChartCard title="Response Time Distribution" subtitle="ChartBoxPlot — whiskers, Q1-Q3 box, median line, outlier dots">
+    <ChartCard title="Response Time Distribution" description="API endpoint response time distribution" components="ChartBoxPlot + ChartGrid" trend={{ text: 'DB p95 highest at 285ms', direction: 'down' }} context="Last 7 days">
       <ChartRoot
         data={indices}
         height={320}
@@ -2548,7 +2599,7 @@ function ActivityHeatmapChart() {
   const { data, yLabels, xLabels } = useMemo(() => generateActivityHeatmap(), [])
 
   return (
-    <ChartCard title="Activity by hour & day" subtitle="ChartHeatmap — data[][] matrix, value-based colorScale, hover tooltip">
+    <ChartCard title="Activity by hour & day" description="Activity density by hour and day of week" components="ChartHeatmap" trend={{ text: 'Peak activity Tue–Thu 09:00–11:00', direction: 'flat' }} context="Last 4 weeks">
       <ChartHeatmap
         data={data}
         yLabels={yLabels}
@@ -2575,7 +2626,7 @@ function SeasonMapChart() {
   const { data, yLabels, xLabels } = useMemo(() => generateSeasonMap(), [])
 
   return (
-    <ChartCard title="Season map" subtitle="ChartHeatmap — 52 weeks × 7 days, warm scale, null rest days as grey">
+    <ChartCard title="Season map" description="Training load distribution across the year" components="ChartHeatmap" trend={{ text: '247 training days this year', direction: 'up' }} context="Full year">
       <ChartHeatmap
         data={data}
         yLabels={yLabels}
@@ -2602,7 +2653,7 @@ function ContributionChart() {
   const data = useMemo(() => generateContributionData(365, 901), [])
 
   return (
-    <ChartCard title="Contribution graph" subtitle="ChartCalendarHeatmap — 365 days, 5-level quantized color">
+    <ChartCard title="Contribution graph" description="Daily contribution activity over the past year" components="ChartCalendarHeatmap" trend={{ text: '2,511 contributions in the last year', direction: 'up' }} context="Apr 2025 – Apr 2026">
       <ChartCalendarHeatmap
         data={data}
         startDate="2025-04-11"
@@ -2620,7 +2671,7 @@ function SparklineTable() {
   const stocks = useMemo(() => generatePortfolioData(), [])
 
   return (
-    <ChartCard title="Portfolio overview" subtitle="Sparkline inside table cells — ChartRoot + ChartLine at micro dimensions">
+    <ChartCard title="Portfolio overview" description="Major holdings with price and 7-day trend" components="ChartLine (sparkline)" trend={{ text: 'Portfolio up 1.2% today', direction: 'up' }} context="Live">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
@@ -2706,7 +2757,7 @@ function ProductTimelineChart() {
   )
 
   return (
-    <ChartCard title="Product timeline" subtitle="ChartAnnotation — point, line, and range annotations on a revenue chart">
+    <ChartCard title="Product timeline" description="Annual revenue with product milestone annotations" components="ChartLine + ChartAnnotation + ChartTooltip + ChartGrid" trend={{ text: 'Revenue 4.2x since v2.0 launch', direction: 'up' }} context="January – December 2024">
       <ChartRoot data={data} height={300} padding={{ right: 48 }}>
         <ChartGrid />
         <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.1} opacityTo={0.005} />
@@ -2741,7 +2792,7 @@ function TemperatureAnomalyChart() {
   )
 
   return (
-    <ChartCard title="Temperature anomaly" subtitle="ChartArea + thresholdY — split fill above/below 30-year average baseline">
+    <ChartCard title="Temperature anomaly" description="Temperature deviation from 30-year average" components="ChartArea + ChartTooltip + ChartGrid" trend={{ text: '1.8°C above 30-year average', direction: 'up' }} context="2-year period">
       <ChartRoot data={data} height={280} yDomain={[5, 25]} padding={{ right: 48 }}>
         <ChartGrid tickCount={5} />
         <ChartArea
