@@ -18,7 +18,7 @@
  *   />
  */
 
-import { useMemo } from 'react'
+import { useMemo, useRef, useCallback } from 'react'
 import { cn } from '@/lib/ui'
 import { radarPoints, radarPath, radarGridPoints } from '@/lib/charts/paths/radar'
 
@@ -120,7 +120,108 @@ export function ChartRadar({
   const legendHeight = series.length > 1 ? 28 : 0
   const totalHeight = size + legendHeight
 
+  // ─── Hover state (ref-based, zero re-renders) ───
+  const tooltipRef = useRef<HTMLDivElement>(null)
+  const dotGroupRefs = useRef<(SVGGElement | null)[]>([])
+  const axisLineRefs = useRef<(SVGLineElement | null)[]>([])
+  const rafRef = useRef<number>(0)
+  const lastDimIdx = useRef<number>(-1)
+  const wrapperRef = useRef<HTMLDivElement>(null)
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<SVGCircleElement>) => {
+    const svg = e.currentTarget.ownerSVGElement
+    if (!svg) return
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => {
+      const rect = svg.getBoundingClientRect()
+      const mx = (e.clientX - rect.left) * (size / rect.width) - cx
+      const my = (e.clientY - rect.top) * (size / rect.height) - cy
+
+      // Find nearest dimension by angle
+      let angle = Math.atan2(my, mx) + Math.PI / 2
+      if (angle < 0) angle += Math.PI * 2
+      const dimIdx = Math.round((angle / (Math.PI * 2)) * n) % n
+
+      if (dimIdx === lastDimIdx.current) return
+      lastDimIdx.current = dimIdx
+
+      // Highlight axis line
+      axisLineRefs.current.forEach((line, i) => {
+        if (line) {
+          line.setAttribute('stroke', i === dimIdx ? 'var(--n600)' : 'var(--n200)')
+          line.setAttribute('stroke-width', i === dimIdx ? '1' : '0.5')
+        }
+      })
+
+      // Highlight dots on this dimension
+      seriesData.forEach((_, si) => {
+        const g = dotGroupRefs.current[si]
+        if (!g) return
+        const circles = g.querySelectorAll('circle')
+        circles.forEach((circle, di) => {
+          const el = circle as SVGCircleElement
+          el.setAttribute('r', di === dimIdx ? '5' : '3')
+          el.style.opacity = di === dimIdx ? '1' : '0.5'
+        })
+      })
+
+      // Update tooltip
+      const tip = tooltipRef.current
+      if (!tip) return
+
+      let html = `<div style="font-family:var(--font-sans);font-size:11px;font-weight:450;color:var(--n600);margin-bottom:4px">${dimensions[dimIdx]}</div>`
+      for (const s of series) {
+        const val = s.values[dimIdx]
+        const color = extractStrokeColor(s.className)
+        html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">`
+        html += `<span style="display:flex;align-items:center;gap:6px">`
+        html += `<span style="width:6px;height:6px;border-radius:50%;background:${color};flex-shrink:0"></span>`
+        html += `<span style="font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--n800)">${s.label}</span>`
+        html += `</span>`
+        html += `<span style="font-family:var(--font-sans);font-size:12px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--n1150)">${val}</span>`
+        html += `</div>`
+      }
+      tip.innerHTML = html
+
+      // Position tooltip near the hovered axis endpoint
+      const [ax, ay] = axisEnds[dimIdx]
+      const wrapRect = wrapperRef.current?.getBoundingClientRect()
+      const svgRect = svg.getBoundingClientRect()
+      if (wrapRect) {
+        const pixelX = (ax / size) * svgRect.width
+        const inLeftHalf = pixelX < svgRect.width / 2
+        tip.style.left = inLeftHalf ? `${pixelX + 16}px` : `${pixelX - 180 - 16}px`
+        tip.style.top = `${Math.max(8, (ay / totalHeight) * svgRect.height - 20)}px`
+      }
+      tip.style.opacity = '1'
+    })
+  }, [n, cx, cy, size, totalHeight, dimensions, series, seriesData, axisEnds])
+
+  const handlePointerLeave = useCallback(() => {
+    cancelAnimationFrame(rafRef.current)
+    lastDimIdx.current = -1
+    requestAnimationFrame(() => {
+      axisLineRefs.current.forEach((line) => {
+        if (line) {
+          line.setAttribute('stroke', 'var(--n200)')
+          line.setAttribute('stroke-width', '0.5')
+        }
+      })
+      seriesData.forEach((_, si) => {
+        const g = dotGroupRefs.current[si]
+        if (!g) return
+        g.querySelectorAll('circle').forEach((circle) => {
+          const el = circle as SVGCircleElement
+          el.setAttribute('r', '3')
+          el.style.opacity = '1'
+        })
+      })
+      if (tooltipRef.current) tooltipRef.current.style.opacity = '0'
+    })
+  }, [seriesData])
+
   return (
+    <div ref={wrapperRef} style={{ position: 'relative', display: 'inline-block' }}>
     <svg
       width={size}
       height={totalHeight}
@@ -143,12 +244,14 @@ export function ChartRadar({
       {axisEnds.map(([x, y], i) => (
         <line
           key={`axis-${i}`}
+          ref={(el) => { axisLineRefs.current[i] = el }}
           x1={cx}
           y1={cy}
           x2={x}
           y2={y}
           stroke="var(--n200)"
           strokeWidth={0.5}
+          style={{ transition: 'stroke 150ms, stroke-width 150ms' }}
         />
       ))}
 
@@ -213,20 +316,32 @@ export function ChartRadar({
       ))}
 
       {/* Series dots */}
-      {seriesData.map(({ dots, series: s }, si) =>
-        dots.map(([dx, dy], di) => (
-          <circle
-            key={`dot-${si}-${di}`}
-            cx={dx}
-            cy={dy}
-            r={3}
-            className={s.className?.replace(/fill-[^\s]+/g, '') ?? ''}
-            fill={extractStrokeColor(s.className)}
-            stroke="white"
-            strokeWidth={1.5}
-          />
-        )),
-      )}
+      {seriesData.map(({ dots, series: s }, si) => (
+        <g key={`dots-${si}`} ref={(el) => { dotGroupRefs.current[si] = el }}>
+          {dots.map(([dx, dy], di) => (
+            <circle
+              key={`dot-${si}-${di}`}
+              cx={dx}
+              cy={dy}
+              r={3}
+              fill={extractStrokeColor(s.className)}
+              stroke="white"
+              strokeWidth={1.5}
+              style={{ transition: 'r 150ms, opacity 150ms' }}
+            />
+          ))}
+        </g>
+      ))}
+
+      {/* Invisible overlay for pointer capture */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={maxRadius + 14}
+        fill="transparent"
+        onPointerMove={handlePointerMove}
+        onPointerLeave={handlePointerLeave}
+      />
 
       {/* Legend (when multiple series) */}
       {series.length > 1 && (
@@ -261,5 +376,26 @@ export function ChartRadar({
         </g>
       )}
     </svg>
+    {/* HTML tooltip */}
+    <div
+      ref={tooltipRef}
+      style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        opacity: 0,
+        pointerEvents: 'none',
+        zIndex: 50,
+        width: 180,
+        background: 'var(--n50)',
+        border: '0.5px solid var(--n400)',
+        borderRadius: 8,
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+        padding: '8px 12px',
+        willChange: 'left, opacity',
+        transition: 'opacity 100ms ease-out, left 150ms cubic-bezier(0.16,1,0.3,1), top 150ms cubic-bezier(0.16,1,0.3,1)',
+      }}
+    />
+    </div>
   )
 }

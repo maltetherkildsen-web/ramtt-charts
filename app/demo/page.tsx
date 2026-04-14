@@ -9,6 +9,7 @@ import { ChartLine } from '@/components/charts/primitives/ChartLine'
 import { ChartArea } from '@/components/charts/primitives/ChartArea'
 import { ChartBar } from '@/components/charts/primitives/ChartBar'
 import { ChartCrosshair } from '@/components/charts/primitives/ChartCrosshair'
+import { ChartTooltip } from '@/components/charts/primitives/ChartTooltip'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
@@ -115,13 +116,20 @@ function StockPriceChart() {
   )
 
   return (
-    <ChartCard title="Stock Price" subtitle="ChartRoot + ChartLine + ChartArea + ChartCrosshair + Axes">
+    <ChartCard title="Stock Price" subtitle="ChartRoot + ChartLine + ChartArea + ChartTooltip + Axes">
       <ChartRoot data={data} height={260} padding={{ right: 16 }}>
         <ChartArea gradientColor="#3b82f6" opacityFrom={0.12} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
         <ChartAxisX labelCount={6} format={formatMonth} />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
-        <ChartCrosshair dotColor="#3b82f6" />
+        <ChartTooltip
+          dotColor="#3b82f6"
+          labelFn={(i) => {
+            const monthIdx = Math.min(11, Math.floor((i / Math.max(1, data.length - 1)) * 12))
+            return MONTHS[monthIdx]
+          }}
+          formatValue={(v) => `$${v.toFixed(2)}`}
+        />
         <ChartZoomHandler />
       </ChartRoot>
     </ChartCard>
@@ -164,7 +172,14 @@ function RevenueChart() {
           format={formatMonth}
                  />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}k`} />
-        <ChartCrosshair dotColor="#10b981" />
+        <ChartTooltip
+          dotColor="#10b981"
+          labelFn={(i) => MONTHS[i] ?? ''}
+          series={[
+            { label: 'Revenue', color: '#10b981', values: revenue, format: (v) => `$${v.toFixed(0)}k` },
+            { label: 'Costs', color: '#f87171', values: costs, format: (v) => `$${v.toFixed(0)}k` },
+          ]}
+        />
         <ChartZoomHandler />
       </ChartRoot>
       {/* Legend */}
@@ -220,7 +235,18 @@ function TemperatureChart() {
         <ChartRefLine y={75} label="Alert" className="stroke-red-400/60" />
         <ChartAxisX labelCount={6} format={formatHour} />
         <ChartAxisY tickCount={4} format={(v) => `${v.toFixed(0)}°C`} />
-        <ChartCrosshair dotColor="#f59e0b" />
+        <ChartTooltip
+          dotColor="#f59e0b"
+          labelFn={(i) => {
+            const hour = Math.floor((i / Math.max(1, data.length - 1)) * 24)
+            return `${hour.toString().padStart(2, '0')}:00`
+          }}
+          formatValue={(v) => {
+            const temp = v.toFixed(1)
+            const zone = v < 40 ? 'Cool' : v < 60 ? 'Normal' : v < 75 ? 'Warm' : 'Hot'
+            return `${temp}°C · ${zone}`
+          }}
+        />
         <ChartZoomHandler />
       </ChartRoot>
       {/* Zone legend */}
@@ -2669,7 +2695,11 @@ function ProductTimelineChart() {
         <ChartAnnotation annotations={TIMELINE_ANNOTATIONS} />
         <ChartAxisX labelCount={12} format={formatMonth} />
         <ChartAxisY tickCount={4} format={(v) => `$${(v / 1000).toFixed(0)}K`} />
-        <ChartCrosshair dotColor="#3b82f6" />
+        <ChartTooltip
+          dotColor="#3b82f6"
+          labelFn={(i) => MONTHS[i] ?? ''}
+          formatValue={(v) => `$${(v / 1000).toFixed(0)}K`}
+        />
       </ChartRoot>
     </ChartCard>
   )
@@ -2704,7 +2734,19 @@ function TemperatureAnomalyChart() {
         <ChartLine className="fill-none stroke-[var(--n1150)] stroke-[1.5]" />
         <ChartAxisX labelCount={8} format={formatMonth} />
         <ChartAxisY tickCount={5} format={(v) => `${v.toFixed(0)}°C`} />
-        <ChartCrosshair dotColor="var(--n1150)" />
+        <ChartTooltip
+          dotColor="var(--n1150)"
+          labelFn={(i) => {
+            const monthIdx = Math.floor((i / Math.max(1, data.length - 1)) * 24)
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+            return months[monthIdx] ?? ''
+          }}
+          formatValue={(v) => {
+            const deviation = v - 15
+            const sign = deviation >= 0 ? '+' : ''
+            return `${v.toFixed(1)}°C (${sign}${deviation.toFixed(1)}°)`
+          }}
+        />
       </ChartRoot>
       {/* Legend */}
       <div className="ml-12 mt-2 flex gap-5">
