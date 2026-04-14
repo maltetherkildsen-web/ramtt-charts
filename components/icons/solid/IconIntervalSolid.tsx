@@ -8,10 +8,11 @@ import type { IconProps } from '../types'
 export const IconIntervalSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <rect x="4" y="8" width="3.5" height="13" rx="1"/>
-    <rect x="9.25" y="14" width="3.5" height="7" rx="1"/>
-    <rect x="14.5" y="6" width="3.5" height="15" rx="1"/>
-    <rect x="19.75" y="12" width="3.5" height="9" rx="1"/>
+    <rect x="3.5" y="6" width="3" height="14" rx="1.5"/>
+    <rect x="7.5" y="16" width="3" height="4" rx="1.5"/>
+    <rect x="11.5" y="6" width="3" height="14" rx="1.5"/>
+    <rect x="15.5" y="16" width="3" height="4" rx="1.5"/>
+    <rect x="19.5" y="4" width="3" height="16" rx="1.5"/>
   </IconBaseSolid>
 ))
 IconIntervalSolid.displayName = 'IconIntervalSolid'

@@ -9,10 +9,8 @@ export const IconThresholdSolid = forwardRef<SVGSVGElement, IconProps>((props, r
   <IconBaseSolid ref={ref} {...props}>
 
     <rect x="3" y="13" width="18" height="2" rx="1"/>
-    <rect x="11" y="13" width="2" height="7" rx="1"/>
-    <path d="M9 16l3-3 3 3H9Z"/>
-    <rect x="11" y="6" width="2" height="7" rx="1"/>
-    <path d="M9 9l3-3 3 3H9Z"/>
+    <rect x="11" y="6" width="2" height="16" rx="1"/>
+    <path d="M8 10l4-4 4 4H8Z"/>
   </IconBaseSolid>
 ))
 IconThresholdSolid.displayName = 'IconThresholdSolid'

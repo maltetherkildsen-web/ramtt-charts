@@ -6,10 +6,12 @@ import { IconBase, type IconProps } from '../IconBase'
 
 export const IconInterval = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M4 20V8H7V20" />
-    <path d="M9 20V14H12V20" />
-    <path d="M14 20V6H17V20" />
-    <path d="M19 20V12H22V20" />
+
+    <path d="M5 20V6"/>
+    <path d="M9 20v-4"/>
+    <path d="M13 20V6"/>
+    <path d="M17 20v-4"/>
+    <path d="M21 20V4"/>
   </IconBase>
 ))
 IconInterval.displayName = 'IconInterval'

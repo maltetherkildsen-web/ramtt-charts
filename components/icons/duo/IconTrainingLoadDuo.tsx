@@ -8,14 +8,13 @@ import type { IconDuoProps } from '../types'
 export const IconTrainingLoadDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
   <IconBaseDuo ref={ref} {...props}>
     {/* Background */}
-    <rect x="3" y="4" width="19" height="17" rx="2" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
+    <ellipse cx="12" cy="12" rx="8" ry="10" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-    <path d="M5 20V16" />
-    <path d="M9 20V13" />
-    <path d="M13 20V10" />
-    <path d="M17 20V7" />
-    <path d="M21 20V4" />
-    <path d="M3 16L7 13L11 10L15 7L19 4" />
+
+    <path d="M12 4v16"/>
+    <ellipse cx="12" cy="8" rx="5" ry="1.5"/>
+    <ellipse cx="12" cy="13" rx="6" ry="2"/>
+    <ellipse cx="12" cy="18" rx="7" ry="2"/>
   </IconBaseDuo>
 ))
 IconTrainingLoadDuo.displayName = 'IconTrainingLoadDuo'

@@ -6,8 +6,12 @@ import { IconBase, type IconProps } from '../IconBase'
 
 export const IconSodium = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M12 2L20 8V16L12 22L4 16V8L12 2Z" />
-    <path d="M12 8L16 11V15L12 18L8 15V11L12 8Z" />
+
+    <path d="M8 10l-1 10a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l-1-10"/>
+    <path d="M7 7h10v3H7V7Z"/>
+    <circle cx="10" cy="4.5" r=".75" fill="currentColor" stroke="none"/>
+    <circle cx="14" cy="4.5" r=".75" fill="currentColor" stroke="none"/>
+    <circle cx="12" cy="3.5" r=".75" fill="currentColor" stroke="none"/>
   </IconBase>
 ))
 IconSodium.displayName = 'IconSodium'

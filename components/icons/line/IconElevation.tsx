@@ -4,10 +4,10 @@
 import { forwardRef } from 'react'
 import { IconBase, type IconProps } from '../IconBase'
 
-/** Mountain profile — two peaks, a miniature elevation trace. */
 export const IconElevation = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M3 19L7 10L10 14L14 5L18.5 13L21 19" />
+
+    <path d="M2 20l5-9 3 4 5-12 4 8 3 9"/>
   </IconBase>
 ))
 IconElevation.displayName = 'IconElevation'

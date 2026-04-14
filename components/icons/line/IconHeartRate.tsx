@@ -4,10 +4,11 @@
 import { forwardRef } from 'react'
 import { IconBase, type IconProps } from '../IconBase'
 
-/** ECG waveform trace — not a heart shape. Medical, precise. */
 export const IconHeartRate = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M3 12H7L9 12L10 5L12 19L14 8L15 12H21" />
+
+    <path d="M12 6C10 3 6 2.5 4 5s-1.5 6 8 14c9.5-8 9.5-11.5 8-14S14 3 12 6Z"/>
+    <path d="M5 12h3.5l1.5-3 2 6 1.5-3H19"/>
   </IconBase>
 ))
 IconHeartRate.displayName = 'IconHeartRate'

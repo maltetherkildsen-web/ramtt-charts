@@ -10,8 +10,9 @@ export const IconFatDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) =
     {/* Background */}
     <path d="M12 2.69S5 10.69 5 15a7 7 0 0 0 14 0c0-4.31-7-12.31-7-12.31Z" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-    <path d="M12 2.7C12 2.7 5 10.7 5 15C5 18.9 8.1 22 12 22C15.9 22 19 18.9 19 15C19 10.7 12 2.7 12 2.7Z" />
-    <path d="M7 15C9 13 15 13 17 15" />
+
+    <path d="M12 2.69S5 10.69 5 15a7 7 0 0 0 14 0c0-4.31-7-12.31-7-12.31Z"/>
+    <path d="M7 16c1.5-1 3.5 1 5 0s3.5-1 5 0"/>
   </IconBaseDuo>
 ))
 IconFatDuo.displayName = 'IconFatDuo'

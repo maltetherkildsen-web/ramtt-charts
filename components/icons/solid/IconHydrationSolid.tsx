@@ -8,7 +8,9 @@ import type { IconProps } from '../types'
 export const IconHydrationSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path fillRule="evenodd" d="M12 2.69S5 10.69 5 15a7 7 0 0 0 14 0c0-4.31-7-12.31-7-12.31ZM5.5 15.25h13v1.5h-13v-1.5Z"/>
+    <path d="M7 10c0-1 .5-2 2-2h6c1.5 0 2 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10Z"/>
+    <rect x="10" y="5" width="4" height="3" rx="1"/>
+    <rect x="11" y="2" width="2" height="3" rx="1"/>
   </IconBaseSolid>
 ))
 IconHydrationSolid.displayName = 'IconHydrationSolid'

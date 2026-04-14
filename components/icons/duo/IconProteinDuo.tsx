@@ -8,13 +8,13 @@ import type { IconDuoProps } from '../types'
 export const IconProteinDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
   <IconBaseDuo ref={ref} {...props}>
     {/* Background */}
-    <rect x="2" y="8.5" width="20" height="7" rx="3.5" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
+    <rect x="7" y="9" width="10" height="13" rx="2" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-    <circle cx="5" cy="12" r="3" />
-    <circle cx="12" cy="12" r="3" />
-    <circle cx="19" cy="12" r="3" />
-    <path d="M8 12H9" />
-    <path d="M15 12H16" />
+
+    <rect x="7" y="9" width="10" height="13" rx="2"/>
+    <path d="M8 5h8v4H8V5Z"/>
+    <path d="M9 13h6"/>
+    <path d="M9 16h4"/>
   </IconBaseDuo>
 ))
 IconProteinDuo.displayName = 'IconProteinDuo'

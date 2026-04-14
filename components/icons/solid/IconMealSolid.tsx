@@ -10,7 +10,7 @@ export const IconMealSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) =
 
     <circle cx="12" cy="14" r="7.5"/>
     <rect x="5" y="13.25" width="14" height="1.5" rx=".75"/>
-    <path d="M8 6.5C8.5 5.5 10 4 12 4s3.5 1.5 4 2.5c.3.5-.1 1-.6 1H8.6c-.5 0-.9-.5-.6-1Z"/>
+    <path d="M9 5.5c.5-.5 1.5-1.5 3-1.5s2.5 1 3 1.5c.3.3 0 .7-.4.7H9.4c-.4 0-.7-.4-.4-.7Z"/>
   </IconBaseSolid>
 ))
 IconMealSolid.displayName = 'IconMealSolid'

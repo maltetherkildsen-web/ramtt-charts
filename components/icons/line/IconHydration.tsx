@@ -6,8 +6,11 @@ import { IconBase, type IconProps } from '../IconBase'
 
 export const IconHydration = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M12 2.7C12 2.7 5 10.7 5 15C5 18.9 8.1 22 12 22C15.9 22 19 18.9 19 15C19 10.7 12 2.7 12 2.7Z" />
-    <path d="M5.5 16H18.5" />
+
+    <path d="M7 10c0-1 .5-2 2-2h6c1.5 0 2 1 2 2v10a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V10Z"/>
+    <path d="M10 5h4v3h-4V5Z"/>
+    <path d="M11 2h2v3h-2Z"/>
+    <path d="M7 15h10"/>
   </IconBase>
 ))
 IconHydration.displayName = 'IconHydration'

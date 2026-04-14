@@ -4,12 +4,14 @@
 import { forwardRef } from 'react'
 import { IconBase, type IconProps } from '../IconBase'
 
-/** Circular arrow — the pedal stroke cycle. */
 export const IconCadence = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M12 4A8 8 0 1 1 4.5 8.5" />
-    {/* Arrow head at the arc start */}
-    <path d="M4.5 4V8.5H9" />
+
+    <circle cx="12" cy="12" r="7"/>
+    <path d="M12 12l5-4"/>
+    <circle cx="17" cy="8" r="1.5" fill="currentColor" stroke="none"/>
+    <path d="M12 12l-5 4"/>
+    <circle cx="7" cy="16" r="1.5" fill="currentColor" stroke="none"/>
   </IconBase>
 ))
 IconCadence.displayName = 'IconCadence'

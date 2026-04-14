@@ -4,10 +4,10 @@
 import { forwardRef } from 'react'
 import { IconBase, type IconProps } from '../IconBase'
 
-/** Power curve trace — a stylized watt output zigzag, not a lightning bolt. */
 export const IconPower = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M3 16L6 14L8.5 16L11 7L14 14L16.5 10L18.5 12.5L21 8" />
+
+    <path d="M13 2L5 13h5l-2 9 9-11h-5l1-9Z"/>
   </IconBase>
 ))
 IconPower.displayName = 'IconPower'

@@ -10,12 +10,10 @@ export const IconGlycogenDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, r
     {/* Background */}
     <rect x="3" y="8" width="16" height="8" rx="2" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
     {/* Foreground */}
-    {/* Battery body */}
-    <rect x="3" y="8" width="16" height="8" rx="2" />
-    {/* Terminal nub */}
-    <path d="M19 11H21V13H19" />
-    {/* Fill level (~60%) */}
-    <path d="M6 11H12V13H6Z" fill="currentColor" fillOpacity={0.15} stroke="none" />
+
+    <rect x="3" y="8" width="16" height="8" rx="2"/>
+    <path d="M19 11h2v2h-2"/>
+    <rect x="5.5" y="10.5" width="7" height="3" rx=".5" fill="currentColor" fillOpacity={0.15} stroke="none"/>
   </IconBaseDuo>
 ))
 IconGlycogenDuo.displayName = 'IconGlycogenDuo'

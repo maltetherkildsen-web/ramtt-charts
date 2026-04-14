@@ -6,7 +6,8 @@ import { IconBase, type IconProps } from '../IconBase'
 
 export const IconDurability = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBase ref={ref} {...props}>
-    <path d="M3 6C5 6 7 8 10 12C13 16 17 18 21 18" />
+
+    <path d="M12 3L4 7v5c0 5 3.5 9.5 8 11 4.5-1.5 8-6 8-11V7l-8-4Z"/>
   </IconBase>
 ))
 IconDurability.displayName = 'IconDurability'

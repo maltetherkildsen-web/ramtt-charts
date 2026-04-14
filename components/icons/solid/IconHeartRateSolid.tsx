@@ -8,7 +8,7 @@ import type { IconProps } from '../types'
 export const IconHeartRateSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    <path d="M3 13H7l3-8 2 14 2-11 1 4h6v1H14.5l-1.5-5.5-2 11-2-14-2.5 7.5H3v-1Z"/>
+    <path fillRule="evenodd" d="M12 6C10 3 6 2.5 4 5s-1.5 6 8 14c9.5-8 9.5-11.5 8-14S14 3 12 6Zm-5 6h2l1.5-3 2 6 1.5-3H17l-2.5 1H14l-1-3-1.5 4.5-1.5-5L9 12.5H7Z"/>
   </IconBaseSolid>
 ))
 IconHeartRateSolid.displayName = 'IconHeartRateSolid'
