@@ -46,6 +46,13 @@ import { ChartHeatmap } from '@/components/charts/primitives/ChartHeatmap'
 import { ChartCalendarHeatmap } from '@/components/charts/primitives/ChartCalendarHeatmap'
 import { ChartAnnotation, type Annotation } from '@/components/charts/primitives/ChartAnnotation'
 
+// ─── Batch 6 primitives (research) ───
+import { ChartSankey } from '@/components/charts/primitives/ChartSankey'
+import { ChartSunburst } from '@/components/charts/primitives/ChartSunburst'
+import { ChartPyramid } from '@/components/charts/primitives/ChartPyramid'
+import { ChartWaterfall } from '@/components/charts/primitives/ChartWaterfall'
+import { ChartBullet } from '@/components/charts/primitives/ChartBullet'
+
 // ─── Math utilities ───
 import { stackSeries } from '@/lib/charts/utils/stack'
 import { scaleLinear } from '@/lib/charts/scales/linear'
@@ -81,6 +88,11 @@ import {
   generatePortfolioData,
   generateProductTimelineData,
   generateTemperatureAnomalyData,
+  generateSankeyData,
+  generateSunburstData,
+  generatePyramidData,
+  generateEnergyBalanceData,
+  generateBulletMetrics,
 } from './generate-data'
 import type { ScatterPoint, OHLCPoint, ResponseTimeBox, PortfolioStock } from './generate-data'
 
@@ -2931,6 +2943,135 @@ function TemperatureAnomalyChart() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 28. Sankey — Energy Flow
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function SankeyChart() {
+  const data = useMemo(() => generateSankeyData(), [])
+  return (
+    <ChartCard
+      title="Energy Flow"
+      description="kJ intake distributed across training zones to total output"
+      components="ChartSankey"
+    >
+      <ChartSankey
+        data={data}
+        width={880}
+        height={320}
+        nodeWidth={18}
+        nodePadding={12}
+        colors={['#3b82f6', '#22c55e', '#eab308', '#f97316', '#ef4444', '#8b5cf6']}
+      />
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 29. Sunburst — Training Breakdown
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function SunburstChart() {
+  const data = useMemo(() => generateSunburstData(), [])
+  return (
+    <ChartCard
+      title="Training Breakdown"
+      description="Weekly training hours by sport and zone"
+      components="ChartSunburst"
+    >
+      <div className="flex justify-center">
+        <ChartSunburst
+          data={data}
+          size={300}
+          innerRadius={0.25}
+          colors={['#3b82f6', '#22c55e', '#f59e0b', '#8b5cf6', '#ef4444']}
+        />
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 30. Pyramid — Intensity Distribution
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function PyramidChart() {
+  const data = useMemo(() => generatePyramidData(), [])
+  return (
+    <ChartCard
+      title="Intensity Distribution"
+      description="Training time pyramid — base endurance to peak anaerobic"
+      components="ChartPyramid"
+    >
+      <div className="flex justify-center">
+        <ChartPyramid
+          data={data}
+          width={520}
+          height={320}
+          gap={3}
+          neckWidth={0.12}
+        />
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 31. Waterfall — Energy Balance
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function EnergyBalanceChart() {
+  const data = useMemo(() => generateEnergyBalanceData(), [])
+  return (
+    <ChartCard
+      title="Energy Balance"
+      description="Daily kJ flow — food intake vs. training expenditure"
+      components="ChartWaterfall"
+    >
+      <ChartWaterfall
+        data={data}
+        width={880}
+        height={300}
+        positiveClassName="fill-emerald-500"
+        negativeClassName="fill-red-500"
+        totalClassName="fill-blue-500"
+        radius={3}
+        gap={0.35}
+      />
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 32. Bullet Chart Strip — Performance vs. Target
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function BulletChartStrip() {
+  const metrics = useMemo(() => generateBulletMetrics(), [])
+  return (
+    <ChartCard
+      title="Performance vs. Target"
+      description="Compact bullet charts — actual value, target marker, qualitative ranges"
+      components="ChartBullet"
+    >
+      <div className="flex flex-col gap-4">
+        {metrics.map((m) => (
+          <ChartBullet
+            key={m.label}
+            value={m.value}
+            target={m.target}
+            ranges={m.ranges}
+            width={500}
+            height={28}
+            label={m.label}
+            unit={m.unit}
+          />
+        ))}
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -2979,6 +3120,11 @@ export default function DemoPage() {
           <SparklineTable />
           <ProductTimelineChart />
           <TemperatureAnomalyChart />
+          <SankeyChart />
+          <SunburstChart />
+          <PyramidChart />
+          <EnergyBalanceChart />
+          <BulletChartStrip />
         </div>
       </div>
     </main>

@@ -782,3 +782,148 @@ export function generateTemperatureAnomalyData(months = 24, seed = 951): number[
   }
   return data
 }
+
+// ─── 26. Sankey — Energy Flow ───
+
+export function generateSankeyData() {
+  return {
+    nodes: [
+      { id: 'intake', label: 'kJ Intake' },
+      { id: 'z2', label: 'Z2 Endurance' },
+      { id: 'z3', label: 'Z3 Tempo' },
+      { id: 'z4', label: 'Z4 Threshold' },
+      { id: 'z5', label: 'Z5 VO2max' },
+      { id: 'output', label: 'Total Output' },
+    ],
+    links: [
+      { source: 'intake', target: 'z2', value: 820 },
+      { source: 'intake', target: 'z3', value: 380 },
+      { source: 'intake', target: 'z4', value: 210 },
+      { source: 'intake', target: 'z5', value: 90 },
+      { source: 'z2', target: 'output', value: 820 },
+      { source: 'z3', target: 'output', value: 380 },
+      { source: 'z4', target: 'output', value: 210 },
+      { source: 'z5', target: 'output', value: 90 },
+    ],
+  }
+}
+
+// ─── 27. Sunburst — Training Breakdown ───
+
+import type { SunburstNode } from '@/lib/charts/layouts/sunburst'
+
+export function generateSunburstData(): SunburstNode {
+  return {
+    name: 'Training',
+    children: [
+      {
+        name: 'Cycling',
+        children: [
+          { name: 'Z2 Endurance', value: 7 },
+          { name: 'Z3 Tempo', value: 3 },
+          { name: 'Z4 Threshold', value: 2 },
+        ],
+      },
+      {
+        name: 'Running',
+        children: [
+          { name: 'Easy', value: 3 },
+          { name: 'Tempo', value: 1.5 },
+          { name: 'Intervals', value: 0.5 },
+        ],
+      },
+      {
+        name: 'Strength',
+        children: [
+          { name: 'Upper', value: 1.5 },
+          { name: 'Lower', value: 1.5 },
+        ],
+      },
+    ],
+  }
+}
+
+// ─── 28. Pyramid — Intensity Distribution ───
+
+export function generatePyramidData() {
+  return [
+    { label: 'Z1 Recovery', value: 420, color: '#94a3b8' },
+    { label: 'Z2 Endurance', value: 280, color: '#22c55e' },
+    { label: 'Z3 Tempo', value: 120, color: '#eab308' },
+    { label: 'Z4 Threshold', value: 60, color: '#f97316' },
+    { label: 'Z5 VO2max', value: 30, color: '#ef4444' },
+    { label: 'Z6 Anaerobic', value: 10, color: '#dc2626' },
+  ]
+}
+
+// ─── 29. Waterfall — Energy Balance ───
+
+import type { WaterfallItem } from '@/lib/charts/utils/waterfall'
+
+export function generateEnergyBalanceData(): WaterfallItem[] {
+  return [
+    { label: 'Start', value: 2400, type: 'total' },
+    { label: 'Breakfast', value: 600, type: 'increase' },
+    { label: 'Snack', value: 200, type: 'increase' },
+    { label: 'Z2 Ride', value: -1200, type: 'decrease' },
+    { label: 'Lunch', value: 700, type: 'increase' },
+    { label: 'Z4 Run', value: -450, type: 'decrease' },
+    { label: 'Dinner', value: 550, type: 'increase' },
+    { label: 'End', value: 0, type: 'total' },
+  ]
+}
+
+// ─── 30. Bullet — Performance Metrics ───
+
+export function generateBulletMetrics() {
+  return [
+    {
+      label: 'Avg Power',
+      unit: 'W',
+      value: 238,
+      target: 250,
+      ranges: [
+        { to: 200, color: '#fecaca' },
+        { to: 240, color: '#fef3c7' },
+        { to: 280, color: '#d1fae5' },
+        { to: 320, color: '#ecfdf5' },
+      ],
+    },
+    {
+      label: 'Weekly TSS',
+      unit: '',
+      value: 580,
+      target: 650,
+      ranges: [
+        { to: 400, color: '#fecaca' },
+        { to: 550, color: '#fef3c7' },
+        { to: 700, color: '#d1fae5' },
+        { to: 800, color: '#ecfdf5' },
+      ],
+    },
+    {
+      label: 'Avg HR',
+      unit: 'bpm',
+      value: 142,
+      target: 148,
+      ranges: [
+        { to: 120, color: '#ecfdf5' },
+        { to: 145, color: '#d1fae5' },
+        { to: 160, color: '#fef3c7' },
+        { to: 180, color: '#fecaca' },
+      ],
+    },
+    {
+      label: 'CHO/hr',
+      unit: 'g',
+      value: 72,
+      target: 80,
+      ranges: [
+        { to: 40, color: '#fecaca' },
+        { to: 60, color: '#fef3c7' },
+        { to: 80, color: '#d1fae5' },
+        { to: 100, color: '#ecfdf5' },
+      ],
+    },
+  ]
+}
