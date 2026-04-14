@@ -52,4 +52,4 @@ export { clampViewport, pixelToFraction, indicesToFractions, fractionsToIndices 
 
 // Animation
 export { resolveAnimate, EASE_OUT_EXPO, EASE_SPRING } from './utils/animate'
-export type { AnimateConfig, ResolvedAnimate } from './utils/animate'
+export type { AnimateConfig, AnimateMode, ResolvedAnimate } from './utils/animate'

@@ -79,10 +79,11 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, anima
 
   // Animation
   const pathRef = useRef<SVGPathElement>(null)
-  const anim = resolveAnimate(animate, { duration: 1200, delay: 0, easing: EASE_OUT_EXPO })
+  const anim = resolveAnimate(animate, { duration: 1200, delay: 0, easing: EASE_OUT_EXPO, mode: 'draw' })
 
+  // stroke-dasharray draw-in (mode: 'draw')
   useEffect(() => {
-    if (!anim.enabled || !pathRef.current) return
+    if (!anim.enabled || anim.mode !== 'draw' || !pathRef.current) return
     const path = pathRef.current
     const length = path.getTotalLength()
 
@@ -98,7 +99,12 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, anima
       path.style.strokeDashoffset = ''
       path.style.transition = ''
     }
-  }, [d, anim.enabled, anim.duration, anim.delay, anim.easing])
+  }, [d, anim.enabled, anim.mode, anim.duration, anim.delay, anim.easing])
+
+  // Progressive clip-path reveal style (mode: 'progressive')
+  const progressiveStyle = anim.enabled && anim.mode === 'progressive'
+    ? { animation: `ramtt-progressive-reveal ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+    : undefined
 
   if (!d) return null
 
@@ -113,6 +119,7 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, anima
       strokeLinejoin="round"
       strokeLinecap="round"
       vectorEffect="non-scaling-stroke"
+      style={progressiveStyle}
     />
   )
 }

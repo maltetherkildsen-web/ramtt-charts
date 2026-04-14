@@ -927,3 +927,24 @@ export function generateBulletMetrics() {
     },
   ]
 }
+
+// ─── 31. Stock + Volume (Sub-Chart demo) ───
+
+export function generateStockWithVolume(days = 180, seed = 3100) {
+  const rng = createRng(seed)
+  const prices: number[] = []
+  const volumes: number[] = []
+
+  let price = 150
+  for (let i = 0; i < days; i++) {
+    price *= 1 + (rng() - 0.48) * 0.03
+    prices.push(Math.round(price * 100) / 100)
+
+    // Volume: higher on volatile days
+    const volatility = Math.abs(prices[i] - (prices[i - 1] ?? price)) / price
+    const baseVol = 2000000 + rng() * 3000000
+    volumes.push(Math.round(baseVol * (1 + volatility * 20)))
+  }
+
+  return { prices, volumes }
+}

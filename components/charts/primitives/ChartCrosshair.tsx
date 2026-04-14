@@ -17,14 +17,21 @@
 
 import { useRef, useEffect, useCallback, useId } from 'react'
 import { bisectNearest } from '@/lib/charts/utils/bisect'
+import { nearest2d } from '@/lib/charts/utils/nearest2d'
 import { useChart } from './chart-context'
 import { useChartSync } from './ChartSyncProvider'
+
+export type TooltipMode = 'index' | 'nearest' | 'band'
 
 export interface ChartCrosshairProps {
   lineColor?: string
   lineWidth?: number
   dotRadius?: number
   dotColor?: string
+  /** Tooltip detection mode. Default: 'index'. */
+  tooltipMode?: TooltipMode
+  /** Max pixel distance for 'nearest' mode. Default: 50. */
+  maxDistance?: number
   /** Callback fired on each hover frame with the nearest index. */
   onHover?: (index: number | null) => void
 }
@@ -34,9 +41,11 @@ export function ChartCrosshair({
   lineWidth = 0.5,
   dotRadius = 3,
   dotColor = '#16a34a',
+  tooltipMode = 'index',
+  maxDistance = 50,
   onHover,
 }: ChartCrosshairProps) {
-  const { data, scaleX, scaleY, chartHeight, padding, svgRef } = useChart()
+  const { data, scaleX, scaleY, chartWidth, chartHeight, padding, svgRef } = useChart()
   const sync = useChartSync()
   const instanceId = useId()
 
@@ -65,14 +74,19 @@ export function ChartCrosshair({
     const px = scaleX(idx)
     const py = scaleY(data[idx])
 
-    line.setAttribute('display', '')
-    line.setAttribute('x1', String(px))
-    line.setAttribute('x2', String(px))
+    // In 'nearest' mode, hide the vertical crosshair line
+    if (tooltipMode === 'nearest') {
+      line.setAttribute('display', 'none')
+    } else {
+      line.setAttribute('display', '')
+      line.setAttribute('x1', String(px))
+      line.setAttribute('x2', String(px))
+    }
 
     dot.setAttribute('display', '')
     dot.setAttribute('cx', String(px))
     dot.setAttribute('cy', String(py))
-  }, [data, scaleX, scaleY])
+  }, [data, scaleX, scaleY, tooltipMode])
 
   const hide = useCallback(() => {
     lineRef.current?.setAttribute('display', 'none')
@@ -115,8 +129,28 @@ export function ChartCrosshair({
       rafRef.current = requestAnimationFrame(() => {
         const rect = svg.getBoundingClientRect()
         const mx = e.clientX - rect.left - padding.left
+        const my = e.clientY - rect.top - padding.top
 
-        const idx = bisectNearest(pixelXs.current, mx)
+        let idx = -1
+
+        if (tooltipMode === 'nearest') {
+          // 2D nearest point — build pixel coords on the fly
+          const pts = data.map((v, i) => ({ x: scaleX(i), y: scaleY(v) }))
+          const result = nearest2d(pts, mx, my)
+          if (result.index >= 0 && result.distance <= maxDistance) {
+            idx = result.index
+          }
+        } else if (tooltipMode === 'band') {
+          // Band mode — snap to bar that cursor falls within
+          const bandWidth = data.length > 0 ? chartWidth / data.length : 0
+          if (bandWidth > 0) {
+            idx = Math.max(0, Math.min(data.length - 1, Math.floor(mx / bandWidth)))
+          }
+        } else {
+          // Index mode (default) — bisect nearest X
+          idx = bisectNearest(pixelXs.current, mx)
+        }
+
         if (idx < 0 || idx >= data.length) {
           hide()
           sync?.broadcastHover(null, instanceId)
@@ -150,7 +184,7 @@ export function ChartCrosshair({
       svg.removeEventListener('mousemove', handleMove)
       svg.removeEventListener('mouseleave', handleLeave)
     }
-  }, [data, scaleX, scaleY, padding.left, svgRef, hide, showAt, onHover, sync, instanceId])
+  }, [data, scaleX, scaleY, chartWidth, padding.left, padding.top, svgRef, hide, showAt, onHover, sync, instanceId, tooltipMode, maxDistance])
 
   return (
     <g className="pointer-events-none">

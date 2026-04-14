@@ -96,9 +96,11 @@ export function ChartArea({
   }, [sourceData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor, y0Accessor, yAccessor])
 
   // Animation
-  const anim = resolveAnimate(animate, { duration: 800, delay: 200, easing: EASE_OUT_EXPO })
+  const anim = resolveAnimate(animate, { duration: 800, delay: 200, easing: EASE_OUT_EXPO, mode: 'fade' })
   const animStyle = anim.enabled
-    ? { animation: `ramtt-area-reveal ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+    ? anim.mode === 'progressive'
+      ? { animation: `ramtt-progressive-reveal ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+      : { animation: `ramtt-area-reveal ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
     : undefined
 
   // Threshold clip IDs (SSR-safe)

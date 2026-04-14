@@ -57,6 +57,9 @@ import { ChartBullet } from '@/components/charts/primitives/ChartBullet'
 import { ChartNavigator } from '@/components/charts/primitives/ChartNavigator'
 import { ChartPeriodTabs } from '@/components/charts/primitives/ChartPeriodTabs'
 
+// ─── Sub-chart compound ───
+import { ChartWithSubChart } from '@/components/charts/primitives/ChartWithSubChart'
+
 // ─── Math utilities ───
 import { stackSeries } from '@/lib/charts/utils/stack'
 import { scaleLinear } from '@/lib/charts/scales/linear'
@@ -97,6 +100,7 @@ import {
   generatePyramidData,
   generateEnergyBalanceData,
   generateBulletMetrics,
+  generateStockWithVolume,
 } from './generate-data'
 import type { ScatterPoint, OHLCPoint, ResponseTimeBox, PortfolioStock } from './generate-data'
 
@@ -3151,6 +3155,50 @@ function NavigatorDemoInner({ data, sliceSize }: { data: number[]; sliceSize: nu
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 34. Stock + Volume — Sub-Chart Pattern
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function StockVolumeChart() {
+  const { prices, volumes } = useMemo(() => generateStockWithVolume(180), [])
+
+  return (
+    <ChartCard
+      title="Stock + Volume"
+      description="Main price chart with companion volume bars — shared X domain, synced crosshair"
+      components="ChartWithSubChart + ChartLine + ChartBar"
+    >
+      <ChartWithSubChart
+        mainHeight={220}
+        subHeight={60}
+        gap={4}
+        data={prices}
+      >
+        <ChartWithSubChart.Main>
+          <ChartGrid />
+          <ChartArea
+            gradientColor="var(--chart-1)"
+            opacityFrom={0.08}
+            opacityTo={0.005}
+            animate={{ mode: 'progressive', duration: 1500 }}
+          />
+          <ChartLine
+            className="fill-none stroke-[var(--chart-1)] stroke-[1.5]"
+            animate={{ mode: 'progressive', duration: 1500 }}
+          />
+          <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
+          <ChartCrosshair dotColor="var(--chart-1)" />
+        </ChartWithSubChart.Main>
+
+        <ChartWithSubChart.Sub subData={volumes}>
+          <ChartBar className="fill-[var(--n400)]" gap={0.5} radius={1} />
+          <ChartCrosshair dotColor="var(--n600)" tooltipMode="band" />
+        </ChartWithSubChart.Sub>
+      </ChartWithSubChart>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -3205,6 +3253,7 @@ export default function DemoPage() {
           <EnergyBalanceChart />
           <BulletChartStrip />
           <NavigatorDemo />
+          <StockVolumeChart />
         </div>
       </div>
     </main>
