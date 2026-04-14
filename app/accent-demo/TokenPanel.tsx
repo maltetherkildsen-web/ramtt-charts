@@ -20,6 +20,7 @@ const TOKEN_ORDER: (keyof AccentTokens)[] = [
   'pressed',
   'hover',
   'primary',
+  'toggleTrack',
   'text',
   'icon',
   'iconLight',
@@ -47,34 +48,34 @@ export function TokenPanel({ tokens }: TokenPanelProps) {
   return (
     <div
       className={cn(
-        'sticky top-[72px] flex w-[240px] shrink-0 flex-col gap-3 self-start',
+        'sticky top-[72px] flex w-[200px] shrink-0 flex-col gap-3 self-start',
         FONT.body,
       )}
       style={{ height: 'calc(100vh - 72px - 32px)' }}
     >
       {/* Token bars */}
-      <div className={cn('flex flex-col gap-1', RADIUS.lg, 'overflow-hidden')}>
+      <div className={cn('flex flex-col gap-0.5', RADIUS.lg, 'overflow-hidden')}>
         {TOKEN_ORDER.map((key) => {
           const color = tokens[key]
           const textColor = contrastText(color)
           return (
             <div
               key={key}
-              className="flex h-7 items-center justify-between px-2.5"
+              className="flex h-[26px] items-center justify-between px-2"
               style={{
                 backgroundColor: color,
                 transition: 'background-color 150ms',
               }}
             >
               <span
-                className={cn('text-[11px]', WEIGHT.book)}
+                className={cn('text-[10px]', WEIGHT.book)}
                 style={{ color: textColor, transition: 'color 150ms' }}
               >
                 {TOKEN_LABELS[key]}
               </span>
               <span
-                className={cn('text-[10px] tabular-nums', WEIGHT.normal)}
-                style={{ color: textColor, opacity: 0.7, transition: 'color 150ms' }}
+                className={cn('text-[9px] tabular-nums', WEIGHT.normal)}
+                style={{ color: textColor, opacity: 0.65, transition: 'color 150ms' }}
               >
                 {color}
               </span>
@@ -86,10 +87,10 @@ export function TokenPanel({ tokens }: TokenPanelProps) {
       {/* Gradient strip */}
       <div className="flex flex-col gap-1">
         <span className={cn('text-[10px]', WEIGHT.book, 'text-[var(--n600)]')}>
-          Full ramp gradient
+          Full ramp
         </span>
         <div
-          className={cn('h-6 w-full', RADIUS.md)}
+          className={cn('h-5 w-full', RADIUS.md)}
           style={{
             background: `linear-gradient(to right, ${gradientCss})`,
             transition: 'background 150ms',

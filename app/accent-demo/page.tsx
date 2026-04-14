@@ -5,7 +5,7 @@ import { cn, FONT, WEIGHT } from '@/lib/ui'
 import { ACCENTS, DEFAULT_ACCENT_ID, getAccentById, applyAccentTokens, type AccentDefinition } from './accents'
 import { AccentPicker } from './AccentPicker'
 import { TokenPanel } from './TokenPanel'
-import { DemoSections } from './DemoSections'
+import { SettingsReplica } from './SettingsReplica'
 
 /** Read accent ID from URL hash (e.g. #figma-blue) */
 function readHash(): string {
@@ -26,7 +26,6 @@ export default function AccentDemoPage() {
   // Apply CSS custom properties when accent changes
   useEffect(() => {
     applyAccentTokens(accent.tokens)
-    // Update hash without scrolling
     const newHash = `#${accent.id}`
     if (window.location.hash !== newHash) {
       history.replaceState(null, '', newHash)
@@ -67,16 +66,11 @@ export default function AccentDemoPage() {
 
   return (
     <>
-      {/* Inject ::selection override for the accent selection color */}
+      {/* Inject ::selection override */}
       <style>{`
         .accent-selection ::selection {
-          background-color: var(--accent-selection);
-          color: var(--n1150);
-        }
-        /* Override input focus ring to use accent */
-        .accent-input-override input:focus-visible {
-          box-shadow: 0 0 0 2px var(--accent);
-          border-color: var(--accent);
+          background-color: var(--accent-selection) !important;
+          color: var(--n1150) !important;
         }
       `}</style>
 
@@ -87,16 +81,16 @@ export default function AccentDemoPage() {
         {/* Sticky picker bar */}
         <AccentPicker activeId={accentId} onSelect={handleSelect} />
 
-        {/* Content area: Token panel + Demo sections */}
-        <div className="flex gap-8 px-8 pt-6">
+        {/* Content area: Token panel + Settings replica */}
+        <div className="flex gap-6 px-6 pt-5 pb-10">
           <TokenPanel tokens={accent.tokens} />
-          <DemoSections accent={accent} />
+          <SettingsReplica accent={accent} />
         </div>
 
         {/* Footer hint */}
-        <div className="flex justify-center pb-6">
+        <div className="flex justify-center pb-5">
           <span className={cn('text-[11px]', WEIGHT.normal, 'text-[var(--n600)]')}>
-            ← → arrow keys to cycle accents
+            Use arrow keys to cycle accents
           </span>
         </div>
       </div>
