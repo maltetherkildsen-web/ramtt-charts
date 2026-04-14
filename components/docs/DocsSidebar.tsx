@@ -70,6 +70,16 @@ export function DocsSidebar({ className }: { className?: string }) {
           </div>
         ))}
       </div>
+
+      {/* Footer */}
+      <div className="px-4 py-4 border-t-[0.5px] border-t-[var(--n400)]">
+        <p className={cn(FONT.body, 'text-[11px] font-[400] text-[var(--n600)]')}>
+          &copy; 2026 RAMTT
+        </p>
+        <p className={cn(FONT.body, 'text-[11px] font-[400] text-[var(--n600)] mt-0.5')}>
+          MIT / Apache-2.0
+        </p>
+      </div>
     </nav>
   )
 }
