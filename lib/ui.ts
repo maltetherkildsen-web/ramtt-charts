@@ -70,6 +70,11 @@ export const SEMANTIC_COLORS = {
 
 export type SemanticColor = keyof typeof SEMANTIC_COLORS;
 
+// ─── Dark Surface ───
+// Use --n1100 for dark surface backgrounds (code blocks, toasts, dark panels).
+// --n1150 stays for primary text and button fills.
+export const N1100 = 'var(--n1100)';
+
 // ─── Font Classes ───
 // No component should ever hardcode a font-family — use these.
 export const FONT = {
@@ -164,7 +169,7 @@ export const SWITCH_TRACK = { width: 36, height: 20, radius: 10 } as const;
 export const SWITCH_THUMB = { size: 16, inset: 2 } as const;
 
 // ─── Tooltip ───
-export const TOOLTIP_BG = 'bg-[var(--n1150)]';
+export const TOOLTIP_BG = 'bg-[var(--n1100)]';
 export const TOOLTIP_TEXT = 'text-[var(--n50)] text-[12px] font-[400]';
 export const TOOLTIP_RADIUS = 'rounded-[6px]';
 export const TOOLTIP_PADDING = 'px-2 py-1';

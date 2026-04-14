@@ -113,7 +113,7 @@ function ToastItem({ toast, onDismiss }: { toast: ToastEntry; onDismiss: (id: st
       onMouseLeave={startTimer}
       className={cn(
         'flex items-center gap-2.5',
-        'bg-[var(--n1150)] text-[var(--n50)]',
+        'bg-[var(--n1100)] text-[var(--n50)]',
         'rounded-[8px]',
         'px-4 py-2.5',
         'min-w-[280px] max-w-[380px]',

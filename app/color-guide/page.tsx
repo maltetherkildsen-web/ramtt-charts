@@ -1511,7 +1511,7 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>Dark mode zone preview</SectionHeader>
               <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1150)', padding: 20 }}>
+                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1100)', padding: 20 }}>
                   <div className="flex gap-2">
                     {POWER_ZONES_RAMTT.map((z) => (
                       <div key={z.zone} className={cn(RADIUS.sm)} style={{ width: 40, height: 28, backgroundColor: z.hex }} />
@@ -1809,7 +1809,7 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>Dark mode stream colors</SectionHeader>
               <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1150)', padding: 20 }}>
+                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1100)', padding: 20 }}>
                   <div className="flex gap-3">
                     {STREAMS_LIGHT.map((s) => (
                       <div key={s.label} className="flex flex-col items-center gap-1">
@@ -1931,7 +1931,7 @@ export default function ColorGuidePage() {
             <div className="space-y-3">
               <SectionHeader>Capacity chart — dark mode</SectionHeader>
               <Card padding="none">
-                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1150)', padding: 20 }}>
+                <div className={cn(RADIUS.lg, 'overflow-hidden')} style={{ backgroundColor: 'var(--n1100)', padding: 20 }}>
                   <svg width="100%" height="160" viewBox="0 0 600 160" preserveAspectRatio="none" shapeRendering="geometricPrecision">
                     {/* Grid (white 4%) */}
                     {[0, 40, 80, 120, 160].map((y) => (
