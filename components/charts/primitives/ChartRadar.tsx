@@ -160,7 +160,7 @@ export function ChartRadar({
         const circles = g.querySelectorAll('circle')
         circles.forEach((circle, di) => {
           const el = circle as SVGCircleElement
-          el.setAttribute('r', di === dimIdx ? '5' : '3')
+          el.setAttribute('r', di === dimIdx ? '6' : '4')
           el.style.opacity = di === dimIdx ? '1' : '0.5'
         })
       })
@@ -235,8 +235,9 @@ export function ChartRadar({
           key={`ring-${i}`}
           d={d}
           fill="none"
-          stroke="var(--n200)"
+          stroke="var(--n400)"
           strokeWidth={0.5}
+          strokeOpacity={0.3}
         />
       ))}
 
@@ -265,9 +266,9 @@ export function ChartRadar({
             y={y}
             textAnchor={textAnchor(angle)}
             dominantBaseline={dominantBaseline(angle)}
-            fill="var(--n600)"
-            fontSize={11}
-            style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+            fill="var(--n800)"
+            fontSize={12}
+            style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 450 }}
           >
             {dimensions[i]}
           </text>
@@ -323,10 +324,10 @@ export function ChartRadar({
               key={`dot-${si}-${di}`}
               cx={dx}
               cy={dy}
-              r={3}
+              r={4}
               fill={extractStrokeColor(s.className)}
-              stroke="white"
-              strokeWidth={1.5}
+              stroke="var(--n50)"
+              strokeWidth={2}
               style={{ transition: 'r 150ms, opacity 150ms' }}
             />
           ))}

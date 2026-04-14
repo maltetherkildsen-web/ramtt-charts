@@ -35,6 +35,7 @@ export { ChartCalendarHeatmap } from '../../../components/charts/primitives/Char
 export { ChartAnnotation } from '../../../components/charts/primitives/ChartAnnotation'
 export { BrushOverlay } from '../../../components/charts/primitives/BrushOverlay'
 export { ChartPattern } from '../../../components/charts/primitives/ChartPattern'
+export { ChartValueTracker } from '../../../components/charts/primitives/ChartValueTracker'
 
 // ─── Composites ───
 export { ChartToolbar } from '../../../components/charts/composites/ChartToolbar'

@@ -18,6 +18,10 @@ import { ChartToolbar } from '@/components/charts/composites/ChartToolbar'
 
 // ─── Utilities ───
 import { sma } from '@/lib/charts/utils/sma'
+
+// ─── New primitives (Phase 7) ───
+import { ChartValueTracker } from '@/components/charts/primitives/ChartValueTracker'
+import { TrendBadge } from '@/components/ui/TrendBadge'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
@@ -205,7 +209,7 @@ function StockPriceChart() {
         <ChartRoot data={data} height={260} padding={{ right: 16 }}>
           <ChartPattern variant="dots" />
           <ChartGrid />
-          <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.12} opacityTo={0.005} />
+          <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.08} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
           {smaData && (
             <ChartLine data={smaData.filter((v): v is number => v !== null)} className="fill-none stroke-[var(--chart-3)] stroke-[1]" />
@@ -562,7 +566,7 @@ function SparklineCard({
       </div>
       <div className="mt-2" style={{ '--spark-color': color } as React.CSSProperties}>
         <ChartRoot data={data} height={40} padding={{ top: 4, right: 0, bottom: 4, left: 0 }}>
-          <ChartArea gradientColor={color} opacityFrom={0.12} opacityTo={0.005} />
+          <ChartArea gradientColor={color} opacityFrom={0.08} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-[1.5] stroke-(--spark-color)" />
         </ChartRoot>
       </div>
@@ -579,7 +583,13 @@ function MonthlySalesChart() {
   const values = useMemo(() => salesData.map((d) => d.value), [salesData])
 
   return (
-    <ChartCard title="Monthly Sales" description="Total revenue by month for 2024" components="ChartBar + ChartTooltip + ChartGrid" trend={{ text: 'Up 8.3% vs prior year', direction: 'up' }} context="January – December 2024">
+    <ChartCard title="Monthly Sales" description="Total revenue by month for 2024" components="ChartBar + ChartValueTracker + ChartGrid" trend={{ text: 'Up 8.3% vs prior year', direction: 'up' }} context="January – December 2024">
+      {/* TrendBadges showing multi-period trends */}
+      <div className="mb-3 flex gap-2">
+        <TrendBadge period="4w" value={11.6} />
+        <TrendBadge period="13w" value={7.9} />
+        <TrendBadge period="12m" value={-3.4} />
+      </div>
       <ChartRoot
         data={values}
         height={280}
@@ -596,6 +606,7 @@ function MonthlySalesChart() {
           pillColor="var(--n1150)"
           pillTextColor="var(--n50)"
         />
+        <ChartValueTracker formatValue={(v) => `$${(v / 1000).toFixed(0)}k`} />
       </ChartRoot>
     </ChartCard>
   )
@@ -1092,8 +1103,8 @@ function MarketShareInner({
             <ChartArea
               data={indices}
               gradientColor={MARKET_COLORS[originalIdx].color}
-              opacityFrom={0.7}
-              opacityTo={0.7}
+              opacityFrom={0.55}
+              opacityTo={0.55}
               y0Accessor={(_, i) => series[i].y0}
               yAccessor={(_, i) => series[i].y1}
             />
@@ -2399,8 +2410,8 @@ function BrowserShareInner({
             <ChartArea
               data={indices}
               gradientColor={BROWSER_COLORS[originalIdx].color}
-              opacityFrom={0.7}
-              opacityTo={0.7}
+              opacityFrom={0.55}
+              opacityTo={0.55}
               y0Accessor={(_, i) => series[i].y0}
               yAccessor={(_, i) => series[i].y1}
             />
@@ -2706,6 +2717,43 @@ function ContributionChart() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Cohort Retention — ChartHeatmap with triangular data
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+const RETENTION_DATA: (number | null)[][] = [
+  [100, 72, 58, 45, 38, 32, 28],
+  [100, 68, 52, 41, 35, 30, null],
+  [100, 75, 60, 48, 40, null, null],
+  [100, 70, 55, 42, null, null, null],
+  [100, 65, 50, null, null, null, null],
+  [100, 62, null, null, null, null, null],
+  [100, null, null, null, null, null, null],
+]
+const RETENTION_Y = ['Cohort 1', 'Cohort 2', 'Cohort 3', 'Cohort 4', 'Cohort 5', 'Cohort 6', 'Cohort 7']
+const RETENTION_X = ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7']
+
+function CohortRetentionChart() {
+  return (
+    <ChartCard title="Cohort retention" description="Weekly user retention by signup cohort" components="ChartHeatmap (triangular)" trend={{ text: 'Cohort 3 best retention at 60%', direction: 'up' }} context="Last 7 weeks">
+      <ChartHeatmap
+        data={RETENTION_DATA}
+        yLabels={RETENTION_Y}
+        xLabels={RETENTION_X}
+        colorScale={[
+          { value: 0, color: '#EBE9E3' },
+          { value: 30, color: '#bfdbfe' },
+          { value: 50, color: '#60a5fa' },
+          { value: 75, color: '#3b82f6' },
+          { value: 100, color: '#1d4ed8' },
+        ]}
+        cellGap={2}
+        cellRadius={2}
+      />
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // 23. Sparkline Table — Portfolio overview
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -2803,7 +2851,7 @@ function ProductTimelineChart() {
       <ChartRoot data={data} height={300} padding={{ right: 48 }}>
         <ChartPattern />
         <ChartGrid />
-        <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.1} opacityTo={0.005} />
+        <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.08} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
         <ChartAnnotation annotations={TIMELINE_ANNOTATIONS} />
         <ChartAxisX labelCount={12} format={formatMonth} />
@@ -2841,7 +2889,7 @@ function TemperatureAnomalyChart() {
         <ChartGrid tickCount={5} />
         <ChartArea
           gradientColor="var(--chart-positive)"
-          opacityFrom={0.18}
+          opacityFrom={0.10}
           opacityTo={0.02}
           thresholdY={15}
           negativeColor="var(--chart-negative)"
@@ -2927,6 +2975,7 @@ export default function DemoPage() {
           <ActivityHeatmapChart />
           <SeasonMapChart />
           <ContributionChart />
+          <CohortRetentionChart />
           <SparklineTable />
           <ProductTimelineChart />
           <TemperatureAnomalyChart />
