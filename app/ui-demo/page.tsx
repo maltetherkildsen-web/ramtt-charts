@@ -91,6 +91,14 @@ import {
   TodoList,
   HelpSection,
   FieldMapping,
+  DescriptionList,
+  Feed,
+  ActionPanel,
+  GridList,
+  MediaObject,
+  FormLayout,
+  ButtonGroup,
+  AuthLayout,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3054,6 +3062,312 @@ function TodoListDemo() {
   )
 }
 
+// ─── 50. Description list ───
+
+function DescriptionListDemo() {
+  return (
+    <DemoSection title="Description list">
+      <div className="space-y-6">
+        <DescriptionList
+          title="Athlete profile"
+          items={[
+            { label: 'Full name', value: 'Malte Therkildsen' },
+            { label: 'Email', value: 'malte@ramt.dev' },
+            { label: 'FTP', value: '285 W' },
+            { label: 'Weight', value: '73 kg' },
+            { label: 'Primary sport', value: 'Cycling' },
+            { label: 'Member since', value: 'March 2026' },
+          ]}
+        />
+
+        <DescriptionList
+          title="Thresholds"
+          description="Current performance markers"
+          columns={2}
+          items={[
+            { label: 'FTP', value: '285 W', action: <Button variant="ghost" size="sm">Update</Button> },
+            { label: 'LTHR', value: '172 bpm', action: <Button variant="ghost" size="sm">Update</Button> },
+            { label: 'Weight', value: '73 kg' },
+            { label: 'Max HR', value: '195 bpm' },
+          ]}
+        />
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 51. Activity feed ───
+
+function FeedDemo() {
+  return (
+    <DemoSection title="Activity feed">
+      <Card padding="md">
+        <Feed
+          items={[
+            {
+              id: '1',
+              type: 'event',
+              icon: <ColorDot color="positive" size="sm" />,
+              title: 'Session completed',
+              description: 'Tempo ride — 1:28:40, 238W avg',
+              timestamp: '2 hours ago',
+            },
+            {
+              id: '2',
+              type: 'event',
+              icon: <ColorDot color="var(--warning)" size="sm" />,
+              title: 'Signal triggered',
+              description: 'Injury risk increased to 72',
+              timestamp: '5 hours ago',
+              action: <Button variant="ghost" size="sm">Review</Button>,
+            },
+            {
+              id: '3',
+              type: 'comment',
+              author: 'Coach Nielsen',
+              content: 'Great session! Consider adding more Z2 work next week to build aerobic base.',
+              timestamp: 'Yesterday',
+            },
+            {
+              id: '4',
+              type: 'event',
+              icon: <ColorDot color="info" size="sm" />,
+              title: 'FTP updated',
+              description: '280W → 285W based on 20-min test',
+              timestamp: '2 days ago',
+            },
+            {
+              id: '5',
+              type: 'event',
+              title: 'Account created',
+              timestamp: '1 week ago',
+            },
+          ]}
+        />
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 52. Action panels ───
+
+function ActionPanelDemo() {
+  const [autoSync, setAutoSync] = useState(false)
+
+  return (
+    <DemoSection title="Action panels">
+      <Card padding="md">
+        <div className="space-y-2">
+          <ActionPanel
+            description="Changes will take effect immediately."
+            onSave={() => {}}
+            onCancel={() => {}}
+            saveLabel="Save changes"
+          />
+
+          <ActionPanel
+            variant="well"
+            danger
+            onSave={() => {}}
+            saveLabel="Delete account"
+            onCancel={() => {}}
+          >
+            <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+              This will permanently delete your account and all associated data. This action cannot be undone.
+            </p>
+          </ActionPanel>
+
+          <ActionPanel variant="toggle">
+            <Switch checked={autoSync} onChange={setAutoSync} />
+            <div>
+              <p className={cn(FONT.body, 'text-[14px]', WEIGHT.book, 'text-[var(--n1150)]')}>Auto-sync sessions</p>
+              <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>Automatically import new sessions from Strava</p>
+            </div>
+          </ActionPanel>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 53. Grid list ───
+
+function GridListDemo() {
+  return (
+    <DemoSection title="Grid list">
+      <GridList
+        columns={3}
+        items={[
+          { id: '1', title: 'Tempo ride — Mallorca', subtitle: '1:28:40 · 238W avg · 142bpm', meta: '2 days ago', badge: <Badge variant="outline">Z3</Badge> },
+          { id: '2', title: 'Recovery spin', subtitle: '0:45:12 · 142W avg · 118bpm', meta: '3 days ago', badge: <Badge variant="outline">Z1</Badge> },
+          { id: '3', title: 'Threshold intervals', subtitle: '1:12:00 · 272W avg · 165bpm', meta: '5 days ago', badge: <Badge variant="outline">Z4</Badge> },
+          { id: '4', title: 'Long endurance', subtitle: '3:15:00 · 198W avg · 135bpm', meta: '1 week ago', badge: <Badge variant="outline">Z2</Badge> },
+          { id: '5', title: 'VO2max repeats', subtitle: '0:58:30 · 310W avg · 178bpm', meta: '1 week ago', badge: <Badge variant="outline">Z5</Badge> },
+          { id: '6', title: 'Sweet spot blocks', subtitle: '1:30:00 · 256W avg · 155bpm', meta: '2 weeks ago', badge: <Badge variant="outline">Z3</Badge> },
+        ]}
+      />
+    </DemoSection>
+  )
+}
+
+// ─── 54. Media objects ───
+
+function MediaObjectDemo() {
+  return (
+    <DemoSection title="Media objects">
+      <Card padding="md">
+        <div className="space-y-4">
+          <MediaObject
+            icon={
+              <div className="flex items-center justify-center text-[var(--n600)]" style={{ width: 20, height: 20 }}>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 12L8 4l4 8" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              </div>
+            }
+            title="Power zones updated"
+            description="Based on your latest FTP test"
+          />
+
+          <MediaObject
+            avatar=""
+            title="Coach Nielsen"
+            description="Left a comment on your session"
+            timestamp="5 min ago"
+          />
+
+          <MediaObject
+            avatar=""
+            avatarSize="lg"
+            title="Malte Therkildsen"
+            description="malte@ramt.dev · Athlete"
+            action={<Button variant="ghost" size="sm">Edit</Button>}
+          />
+
+          <MediaObject
+            icon={<ColorDot color="positive" size="sm" />}
+            title="Session synced successfully"
+          />
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 55. Form layout ───
+
+function FormLayoutDemo() {
+  const [name, setName] = useState('Malte Therkildsen')
+  const [email, setEmail] = useState('malte@ramt.dev')
+  const [weight, setWeight] = useState('73')
+  const [sport, setSport] = useState('Cycling')
+
+  return (
+    <DemoSection title="Form layout">
+      <Card padding="md">
+        <FormLayout>
+          <FormLayout.Section title="Profile" description="Basic information about you.">
+            <FormLayout.Field label="Full name" required>
+              <Input value={name} onChange={(e) => setName(e.target.value)} />
+            </FormLayout.Field>
+
+            <FormLayout.Field label="Email" description="We'll never share your email.">
+              <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+            </FormLayout.Field>
+
+            <FormLayout.Field label="Weight" error="Must be between 40-150 kg">
+              <Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} unit="kg" />
+            </FormLayout.Field>
+          </FormLayout.Section>
+
+          <FormLayout.Section title="Preferences">
+            <FormLayout.Field label="Primary sport">
+              <Select
+                value={sport}
+                onChange={setSport}
+                options={[
+                  { value: 'Cycling', label: 'Cycling' },
+                  { value: 'Running', label: 'Running' },
+                  { value: 'Triathlon', label: 'Triathlon' },
+                  { value: 'Swimming', label: 'Swimming' },
+                ]}
+              />
+            </FormLayout.Field>
+          </FormLayout.Section>
+
+          <ActionPanel
+            onSave={() => {}}
+            onCancel={() => {}}
+            saveLabel="Save changes"
+          />
+        </FormLayout>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 56. Button groups ───
+
+function ButtonGroupDemo() {
+  return (
+    <DemoSection title="Button groups">
+      <div className="space-y-4">
+        <ButtonGroup>
+          <ButtonGroup.Item>Save</ButtonGroup.Item>
+          <ButtonGroup.Item>Save & close</ButtonGroup.Item>
+        </ButtonGroup>
+
+        <div>
+          <ButtonGroup>
+            <ButtonGroup.Item variant="primary">Save</ButtonGroup.Item>
+            <ButtonGroup.Item>Cancel</ButtonGroup.Item>
+          </ButtonGroup>
+        </div>
+
+        <div>
+          <ButtonGroup size="sm">
+            <ButtonGroup.Item>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7.5L5.5 3H11L8.5 7.5H11L5 12L6.5 7.5H3Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/></svg>
+            </ButtonGroup.Item>
+            <ButtonGroup.Item>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 7.5L8.5 3H3L5.5 7.5H3L9 12L7.5 7.5H11Z" stroke="currentColor" strokeWidth="1" strokeLinejoin="round"/></svg>
+            </ButtonGroup.Item>
+            <ButtonGroup.Item>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="4" stroke="currentColor" strokeWidth="1"/><path d="M7 5v4M5 7h4" stroke="currentColor" strokeWidth="1" strokeLinecap="round"/></svg>
+            </ButtonGroup.Item>
+          </ButtonGroup>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 57. Auth layout ───
+
+function AuthLayoutDemo() {
+  return (
+    <DemoSection title="Auth layout">
+      <Card padding="none">
+        <div style={{ height: 520, overflow: 'hidden' }} className="rounded-[12px]">
+          <AuthLayout title="Sign in to RAMTT" subtitle="Welcome back">
+            <FormLayout.Field label="Email">
+              <Input type="email" placeholder="you@example.com" />
+            </FormLayout.Field>
+            <FormLayout.Field label="Password">
+              <Input type="password" placeholder="Enter password" />
+            </FormLayout.Field>
+            <Button variant="primary" className="w-full">Sign in</Button>
+            <AuthLayout.Divider />
+            <Button variant="outline" className="w-full">Connect with Strava</Button>
+            <AuthLayout.Footer>
+              <span>Don&apos;t have an account? </span>
+              <span className={cn(WEIGHT.strong, 'text-[var(--n1150)]')}>Sign up</span>
+            </AuthLayout.Footer>
+          </AuthLayout>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3069,7 +3383,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              75 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              83 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -3126,6 +3440,14 @@ export default function UIDemo() {
             <HelpSectionDemo />
             <FieldMappingDemo />
             <TodoListDemo />
+            <DescriptionListDemo />
+            <FeedDemo />
+            <ActionPanelDemo />
+            <GridListDemo />
+            <MediaObjectDemo />
+            <FormLayoutDemo />
+            <ButtonGroupDemo />
+            <AuthLayoutDemo />
           </div>
         </div>
       </main>

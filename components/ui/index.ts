@@ -102,6 +102,16 @@ export { TodoList } from './TodoList';
 export { HelpSection } from './HelpSection';
 export { FieldMapping } from './FieldMapping';
 
+// ─── Components (Wave 8D — Layout & Form Patterns) ───
+export { DescriptionList } from './DescriptionList';
+export { Feed } from './Feed';
+export { ActionPanel } from './ActionPanel';
+export { GridList } from './GridList';
+export { MediaObject } from './MediaObject';
+export { FormLayout } from './FormLayout';
+export { ButtonGroup } from './ButtonGroup';
+export { AuthLayout } from './AuthLayout';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
