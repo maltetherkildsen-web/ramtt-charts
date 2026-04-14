@@ -541,7 +541,7 @@ function BarHoverInner({
       // Spotlight: hovered bar full, others faded
       const rects = barGroupRef.current?.querySelectorAll('rect')
       rects?.forEach((bar, i) => {
-        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+        const el = bar as SVGRectElement; el.style.opacity = i === idx ? '1' : '0.3'; el.style.transition = 'opacity 150ms ease-out'
       })
 
       // Position value label
@@ -723,7 +723,7 @@ function ComposedInner({
     requestAnimationFrame(() => {
       // Spotlight bars
       barGroupRef.current?.querySelectorAll('rect').forEach((bar, i) => {
-        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+        const el = bar as SVGRectElement; el.style.opacity = i === idx ? '1' : '0.3'; el.style.transition = 'opacity 150ms ease-out'
       })
 
       const cx = scaleX(idx)
@@ -928,7 +928,7 @@ function MarketShareInner({
       // Highlight: hovered segment full, others faded
       areaRefs.current.forEach((g, i) => {
         if (g) {
-          g.style.opacity = i === segIdx ? '1' : '0.2'
+          g.style.opacity = i === segIdx ? '1' : '0.25'
           g.style.transition = 'opacity 150ms'
         }
       })
@@ -1069,7 +1069,7 @@ function ProfitLossInner({ values, labels }: { values: number[]; labels: string[
 
     requestAnimationFrame(() => {
       barGroupRef.current?.querySelectorAll('rect').forEach((bar, i) => {
-        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+        const el = bar as SVGRectElement; el.style.opacity = i === idx ? '1' : '0.3'; el.style.transition = 'opacity 150ms ease-out'
       })
 
       const g = labelRef.current
@@ -1222,12 +1222,12 @@ function BudgetDonutChart() {
         p.style.opacity = '1'
       } else {
         p.style.transform = 'translate(0, 0)'
-        p.style.opacity = '0.5'
+        p.style.opacity = '0.6'
       }
     })
 
     legendRefs.current.forEach((el, i) => {
-      if (el) el.style.opacity = target === -1 || i === target ? '1' : '0.5'
+      if (el) el.style.opacity = target === -1 || i === target ? '1' : '0.6'
     })
 
     if (target === -1) {
@@ -1286,7 +1286,7 @@ function BudgetDonutChart() {
                 fill={budgetData[i].color}
                 style={{
                   transformOrigin: `${cx}px ${cy}px`,
-                  transition: 'transform 200ms ease-out, opacity 200ms',
+                  transition: 'transform 200ms cubic-bezier(0.16,1,0.3,1), opacity 150ms ease-out',
                   pointerEvents: 'none',
                 }}
               />
@@ -1431,9 +1431,10 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
       const circles = dotsRef.current?.querySelectorAll('circle')
       circles?.forEach((circle, i) => {
         const el = circle as SVGCircleElement
+        el.style.transition = 'opacity 150ms ease-out, transform 150ms ease-out'
         if (i === index) {
           el.style.opacity = '1'
-          el.style.transform = 'scale(1.3)'
+          el.style.transform = 'scale(1.2)'
           el.setAttribute('stroke', 'white')
           el.setAttribute('stroke-width', '2')
         } else {
@@ -1623,7 +1624,7 @@ function StackedBarInner({
         const numQuarters = 4
         rects.forEach((bar, i) => {
           const barQuarter = i % numQuarters
-          ;(bar as SVGRectElement).style.opacity = barQuarter === idx ? '1' : '0.4'
+          ;(bar as SVGRectElement).style.opacity = barQuarter === idx ? '1' : '0.3'
         })
       }
 
@@ -1781,7 +1782,7 @@ function CandlestickInner({ ohlcData }: { ohlcData: OHLCPoint[] }) {
       // Spotlight: hovered candle full, others faded
       const candles = candleGroupRef.current?.querySelectorAll(':scope > g > g')
       candles?.forEach((g, i) => {
-        ;(g as SVGGElement).style.opacity = i === idx ? '1' : '0.4'
+        const el = g as SVGGElement; el.style.opacity = i === idx ? '1' : '0.3'; el.style.transition = 'opacity 150ms ease-out'
       })
 
       // OHLC value pill
@@ -1948,7 +1949,7 @@ function WaterfallInner({ bars }: { bars: ReturnType<typeof waterfallLayout> }) 
 
     requestAnimationFrame(() => {
       barGroupRef.current?.querySelectorAll('rect').forEach((bar, i) => {
-        ;(bar as SVGRectElement).style.opacity = i === idx ? '1' : '0.4'
+        const el = bar as SVGRectElement; el.style.opacity = i === idx ? '1' : '0.3'; el.style.transition = 'opacity 150ms ease-out'
       })
 
       const g = labelRef.current
@@ -2231,7 +2232,7 @@ function BrowserShareInner({
 
       areaRefs.current.forEach((g, i) => {
         if (g) {
-          g.style.opacity = i === segIdx ? '1' : '0.2'
+          g.style.opacity = i === segIdx ? '1' : '0.25'
           g.style.transition = 'opacity 150ms'
         }
       })
@@ -2435,7 +2436,7 @@ function BoxPlotInner({ boxData }: { boxData: ResponseTimeBox[] }) {
       // Spotlight: hovered box full, others faded
       const groups = boxGroupRef.current?.querySelectorAll(':scope > g > g')
       groups?.forEach((g, i) => {
-        ;(g as SVGGElement).style.opacity = i === idx ? '1' : '0.3'
+        const el = g as SVGGElement; el.style.opacity = i === idx ? '1' : '0.3'; el.style.transition = 'opacity 150ms ease-out'
       })
 
       // Value label with all 5 summary values

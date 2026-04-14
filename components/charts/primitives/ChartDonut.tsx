@@ -10,7 +10,7 @@
  * Supports hover highlight (slight outward translation along midpoint angle).
  */
 
-import { useState, useMemo } from 'react'
+import { useMemo, useRef, useCallback } from 'react'
 import { arcPath, pieLayout } from '@/lib/charts/paths/arc'
 
 export interface ChartDonutProps {
@@ -42,7 +42,9 @@ export function ChartDonut({
   centerValue,
   className,
 }: ChartDonutProps) {
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const pathRefs = useRef<(SVGPathElement | null)[]>([])
+  const rafRef = useRef<number>(0)
+  const currentIdx = useRef<number>(-1)
 
   const outerR = size / 2 - 4 // leave room for hover expansion
   const innerR = outerR * innerRadius
@@ -56,6 +58,54 @@ export function ChartDonut({
     [data, valueAccessor, padRad],
   )
 
+  const applyHighlight = useCallback((target: number) => {
+    if (target === currentIdx.current) return
+    currentIdx.current = target
+    pathRefs.current.forEach((p, i) => {
+      if (!p) return
+      if (target === -1) {
+        p.style.transform = 'translate(0,0)'
+        p.style.opacity = '1'
+      } else if (i === target) {
+        const mid = (slices[i].startAngle + slices[i].endAngle) / 2
+        p.style.transform = `translate(${(Math.sin(mid) * 5).toFixed(1)}px,${(-Math.cos(mid) * 5).toFixed(1)}px)`
+        p.style.opacity = '1'
+      } else {
+        p.style.transform = 'translate(0,0)'
+        p.style.opacity = '0.6'
+      }
+    })
+  }, [slices])
+
+  const handleSegmentPointer = useCallback((e: React.PointerEvent<SVGCircleElement>) => {
+    const svg = e.currentTarget.ownerSVGElement
+    if (!svg) return
+    const rect = svg.getBoundingClientRect()
+    const px = (e.clientX - rect.left) * (size / rect.width)
+    const py = (e.clientY - rect.top) * (size / rect.height)
+    const dx = px - cx
+    const dy = py - cy
+    const dist = Math.sqrt(dx * dx + dy * dy)
+    if (dist < innerR || dist > outerR + 8) {
+      cancelAnimationFrame(rafRef.current)
+      rafRef.current = requestAnimationFrame(() => applyHighlight(-1))
+      return
+    }
+    let angle = Math.atan2(dx, -dy)
+    if (angle < 0) angle += 2 * Math.PI
+    let idx = -1
+    for (let i = 0; i < slices.length; i++) {
+      if (angle >= slices[i].startAngle && angle <= slices[i].endAngle) { idx = i; break }
+    }
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => applyHighlight(idx))
+  }, [slices, cx, cy, innerR, outerR, size, applyHighlight])
+
+  const handleSegmentLeave = useCallback(() => {
+    cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(() => applyHighlight(-1))
+  }, [applyHighlight])
+
   return (
     <svg
       width={size}
@@ -66,26 +116,29 @@ export function ChartDonut({
     >
       {slices.map((slice, i) => {
         const d = arcPath(cx, cy, innerR, outerR, slice.startAngle, slice.endAngle)
-        const isHovered = hoveredIndex === i
-
-        // Hover: translate 3px outward along the segment's midpoint angle
-        const midAngle = (slice.startAngle + slice.endAngle) / 2
-        const tx = isHovered ? 3 * Math.sin(midAngle) : 0
-        const ty = isHovered ? -3 * Math.cos(midAngle) : 0
-
         return (
           <path
             key={i}
+            ref={(el) => { pathRefs.current[i] = el }}
             d={d}
             fill={colors[i % colors.length]}
-            opacity={hoveredIndex === null || isHovered ? 1 : 0.7}
-            transform={`translate(${tx.toFixed(1)},${ty.toFixed(1)})`}
-            style={{ transition: 'transform 150ms, opacity 150ms' }}
-            onMouseEnter={() => setHoveredIndex(i)}
-            onMouseLeave={() => setHoveredIndex(null)}
+            style={{
+              transformOrigin: `${cx}px ${cy}px`,
+              transition: 'transform 200ms cubic-bezier(0.16,1,0.3,1), opacity 150ms ease-out',
+              pointerEvents: 'none',
+            }}
           />
         )
       })}
+      {/* Invisible overlay for pointer capture */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={outerR + 4}
+        fill="transparent"
+        onPointerMove={handleSegmentPointer}
+        onPointerLeave={handleSegmentLeave}
+      />
 
       {/* Center text */}
       {centerLabel && (

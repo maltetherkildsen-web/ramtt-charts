@@ -130,6 +130,8 @@ export function ChartTooltip({
   // DOM refs — SVG elements
   const lineRef = useRef<SVGLineElement>(null)
   const svgDotRef = useRef<SVGCircleElement>(null)
+  // Multi-series dots (one per series, only used when series prop is provided)
+  const seriesDotRefs = useRef<(SVGCircleElement | null)[]>([])
 
   // DOM refs — HTML tooltip
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -155,7 +157,6 @@ export function ChartTooltip({
   const showIndicatorAt = useCallback((idx: number) => {
     if (indicator === 'none') return
     const px = scaleX(idx)
-    const py = scaleY(data[idx])
 
     if (indicator === 'line' && lineRef.current) {
       lineRef.current.setAttribute('display', '')
@@ -163,16 +164,35 @@ export function ChartTooltip({
       lineRef.current.setAttribute('x2', String(px))
     }
 
-    if (svgDotRef.current) {
-      svgDotRef.current.setAttribute('display', '')
-      svgDotRef.current.setAttribute('cx', String(px))
-      svgDotRef.current.setAttribute('cy', String(py))
+    if (series && series.length > 0) {
+      // Multi-series: position one dot per series
+      series.forEach((s, i) => {
+        const dot = seriesDotRefs.current[i]
+        if (!dot) return
+        const val = s.values[idx]
+        if (val === undefined) { dot.setAttribute('display', 'none'); return }
+        const py = scaleY(val)
+        dot.setAttribute('display', '')
+        dot.setAttribute('cx', String(px))
+        dot.setAttribute('cy', String(py))
+      })
+      // Hide the single dot
+      svgDotRef.current?.setAttribute('display', 'none')
+    } else {
+      // Single-series: one dot at the data point
+      const py = scaleY(data[idx])
+      if (svgDotRef.current) {
+        svgDotRef.current.setAttribute('display', '')
+        svgDotRef.current.setAttribute('cx', String(px))
+        svgDotRef.current.setAttribute('cy', String(py))
+      }
     }
-  }, [data, scaleX, scaleY, indicator])
+  }, [data, scaleX, scaleY, indicator, series])
 
   const hideIndicator = useCallback(() => {
     lineRef.current?.setAttribute('display', 'none')
     svgDotRef.current?.setAttribute('display', 'none')
+    seriesDotRefs.current.forEach((dot) => dot?.setAttribute('display', 'none'))
   }, [])
 
   // ─── Tooltip content helpers ───
@@ -378,14 +398,29 @@ export function ChartTooltip({
             display="none"
           />
         )}
-        {indicator !== 'none' && (
+        {/* Multi-series dots — one per series, each in the series' color */}
+        {indicator !== 'none' && series && series.length > 0 && series.map((s, i) => (
+          <circle
+            key={i}
+            ref={(el) => { seriesDotRefs.current[i] = el }}
+            cx={0}
+            cy={0}
+            r={4}
+            fill={s.color}
+            stroke="var(--n50)"
+            strokeWidth={2}
+            display="none"
+          />
+        ))}
+        {/* Single-series dot — used when no series prop */}
+        {indicator !== 'none' && (!series || series.length === 0) && (
           <circle
             ref={svgDotRef}
             cx={0}
             cy={0}
-            r={3}
-            fill="white"
-            stroke={dotColor}
+            r={4}
+            fill={dotColor}
+            stroke="var(--n50)"
             strokeWidth={2}
             display="none"
           />
