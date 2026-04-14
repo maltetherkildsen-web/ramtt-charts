@@ -12,7 +12,7 @@
  * 8. Solid: uses IconBaseSolid
  * 9. Duo: uses IconBaseDuo
  *
- * Expected: 126 line + 126 solid + 126 duo + 8 animated + 12 context + 11 morph + 30 reactive + 3 bases = 442 files
+ * Expected: 174 line + 174 solid + 174 duo + 8 animated + 12 context + 11 morph + 30 reactive + 3 bases = 586 files
  *
  * Run: npx tsx scripts/audit-icons.ts
  */

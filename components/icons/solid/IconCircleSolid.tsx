@@ -1,0 +1,13 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
+import { forwardRef } from 'react'
+import { IconBaseSolid } from '../IconBaseSolid'
+import type { IconProps } from '../types'
+
+export const IconCircleSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
+  <IconBaseSolid ref={ref} {...props}>
+    <circle cx="12" cy="12" r="9"/>
+  </IconBaseSolid>
+))
+IconCircleSolid.displayName = 'IconCircleSolid'

@@ -821,7 +821,7 @@ function CatalogContent() {
         <div className="mb-8">
           <h1 className={cn(FONT.body, 'text-[24px] font-[550] text-[var(--n1150)]')}>RAMTT Icons</h1>
           <p className={cn(FONT.body, 'text-[14px] font-[400] text-[var(--n800)] mt-1')}>
-            126 icons · 3 variants · Zero dependencies · Satoshi-calibrated
+            174 icons · 3 variants · Zero dependencies · Satoshi-calibrated
           </p>
         </div>
 
@@ -1024,7 +1024,7 @@ function CatalogContent() {
         {/* ── Footer ── */}
         <div className="mt-12 pb-2 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
-            @ramtt/icons · 126 × 3 + 8 + 12 + 11 + 30 = 439 components · Zero dependencies
+            @ramtt/icons · 174 × 3 + 8 + 12 + 11 + 30 = 583 components · Zero dependencies
           </p>
         </div>
       </div>
