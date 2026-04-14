@@ -248,20 +248,31 @@ export function ChartTooltip({
     const absX = padding.left + crosshairX
     const inLeftHalf = crosshairX < chartWidth / 2
 
+    // ── Horizontal: left/right flip at 50% ──
     let left: number
     if (inLeftHalf) {
       left = absX + GAP
     } else {
       left = absX - GAP - TOOLTIP_WIDTH
     }
-    // Clamp to container edges
     left = Math.max(MIN_EDGE, left)
 
-    const top = padding.top + TOP_OFFSET
+    // ── Vertical: track near the data point ──
+    const dataY = scaleY(data[idx])
+    const tooltipHeight = el.offsetHeight || 48
+    const Y_GAP = 12
+
+    // Default: above the data point
+    let top = padding.top + dataY - tooltipHeight - Y_GAP
+
+    // If clipping the top edge, flip below the data point
+    if (top < MIN_EDGE) {
+      top = padding.top + dataY + Y_GAP
+    }
 
     el.style.left = `${Math.round(left)}px`
     el.style.top = `${Math.round(top)}px`
-  }, [scaleX, chartWidth, padding.left, padding.top])
+  }, [scaleX, scaleY, data, chartWidth, padding.left, padding.top])
 
   // ─── Show/hide tooltip ───
 
@@ -440,17 +451,19 @@ export function ChartTooltip({
             pointerEvents: 'none',
             zIndex: 50,
             width: TOOLTIP_WIDTH,
-            // Surface
-            background: 'var(--n50)',
+            // Surface — semi-transparent with backdrop blur
+            background: 'rgba(253, 252, 250, 0.88)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
             border: '0.5px solid var(--n400)',
             borderRadius: 8,
-            // Shadow — tooltips are the ONE exception to no-shadow rule
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+            // Shadow — lighter because backdrop-blur provides separation
+            boxShadow: '0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.03)',
             // Layout
             padding: '8px 12px',
             // Animation
-            willChange: 'left, opacity',
-            transition: 'opacity 100ms ease-out, left 150ms cubic-bezier(0.16,1,0.3,1)',
+            willChange: 'left, top, opacity',
+            transition: 'opacity 100ms ease-out, left 150ms cubic-bezier(0.16,1,0.3,1), top 150ms cubic-bezier(0.16,1,0.3,1)',
           }}
         >
           {/* Header: label */}
