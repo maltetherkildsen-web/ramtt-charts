@@ -15,6 +15,12 @@ export { IconFuelGauge } from './IconFuelGauge'
 export { IconComplianceDot } from './IconComplianceDot'
 export { IconStreakFlame } from './IconStreakFlame'
 export { IconTrendArrow } from './IconTrendArrow'
+export { IconWeatherCondition } from './IconWeatherCondition'
+export { IconWifiStrength } from './IconWifiStrength'
+export { IconMoodIndicator } from './IconMoodIndicator'
+export { IconTemperatureGauge } from './IconTemperatureGauge'
+export { IconCountdownTimer } from './IconCountdownTimer'
+export { IconCalorieBalance } from './IconCalorieBalance'
 
 // Shared utilities
 export { getThresholdColor, HEALTH_THRESHOLDS, RISK_THRESHOLDS } from './thresholds'

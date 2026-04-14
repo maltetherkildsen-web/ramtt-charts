@@ -1024,7 +1024,7 @@ function CatalogContent() {
         {/* ── Footer ── */}
         <div className="mt-12 pb-2 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
-            @ramtt/icons · 174 × 3 + 8 + 12 + 11 + 30 = 583 components · Zero dependencies
+            @ramtt/icons · 174 × 3 + 20 + 18 + 18 + 31 = 609 components · Zero dependencies
           </p>
         </div>
       </div>
