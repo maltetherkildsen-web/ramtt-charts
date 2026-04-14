@@ -93,6 +93,9 @@ export { NotificationBadge } from './NotificationBadge';
 export { ChartCard } from './ChartCard';
 export { Leaderboard } from './Leaderboard';
 export { MemberList } from './MemberList';
+export { InviteCard } from './InviteCard';
+export { OnboardingLayout } from './OnboardingLayout';
+export { NotificationPreferences } from './NotificationPreferences';
 
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';

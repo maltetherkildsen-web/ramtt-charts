@@ -85,6 +85,9 @@ import {
   ChartCard,
   Leaderboard,
   MemberList,
+  InviteCard,
+  NotificationPreferences,
+  OnboardingLayout,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2772,6 +2775,166 @@ function MemberListDemo() {
   )
 }
 
+// ─── 44. Invite card ───
+
+function InviteCardDemo() {
+  return (
+    <DemoSection title="Invite card">
+      <div className="space-y-4">
+        <InviteCard
+          onInvite={(email, role) => alert(`Invited ${email} as ${role}`)}
+          roles={['Athlete', 'Coach', 'Viewer']}
+          defaultRole="Athlete"
+        />
+
+        <InviteCard
+          onInvite={(emails, role) => alert(`Invited ${Array.isArray(emails) ? emails.join(', ') : emails} as ${role}`)}
+          multiple
+          roles={['Athlete', 'Coach']}
+          title="Invite multiple members"
+          description="Enter comma-separated email addresses."
+        />
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 45. Onboarding ───
+
+function OnboardingDemo() {
+  return (
+    <DemoSection title="Onboarding">
+      <Card padding="md">
+        <OnboardingLayout
+          steps={[
+            {
+              title: 'Welcome',
+              description: "Let's set up your profile",
+              content: (
+                <div className="space-y-3">
+                  <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                    Welcome to RAMTT. This wizard will guide you through initial setup so you can
+                    start tracking your training right away.
+                  </p>
+                </div>
+              ),
+            },
+            {
+              title: 'Thresholds',
+              description: 'Set your FTP and heart rate zones',
+              content: (
+                <div className="space-y-3">
+                  <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                    Enter your current functional threshold power (FTP) and max heart rate to
+                    calibrate your training zones.
+                  </p>
+                </div>
+              ),
+            },
+            {
+              title: 'Integrations',
+              description: 'Connect Strava and your devices',
+              content: (
+                <div className="space-y-3">
+                  <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                    Connect your accounts and devices to automatically sync training sessions.
+                  </p>
+                </div>
+              ),
+            },
+            {
+              title: 'Done',
+              description: "You're all set",
+              content: (
+                <div className="space-y-3">
+                  <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+                    Your profile is ready. Start logging sessions or explore your dashboard.
+                  </p>
+                </div>
+              ),
+              nextLabel: 'Go to dashboard',
+            },
+          ]}
+          onComplete={() => alert('Onboarding complete!')}
+        />
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 46. Notification preferences ───
+
+function NotificationPreferencesDemo() {
+  const [prefs, setPrefs] = useState({
+    session_complete: true,
+    weekly_summary: true,
+    ftp_update: false,
+    injury_risk: true,
+    overtraining: true,
+    coach_message: false,
+  })
+
+  return (
+    <DemoSection title="Notification preferences">
+      <Card padding="md">
+        <NotificationPreferences
+          groups={[
+            {
+              title: 'Training',
+              items: [
+                {
+                  id: 'session_complete',
+                  label: 'Session completed',
+                  description: 'Get notified when a session is synced and analyzed',
+                  enabled: prefs.session_complete,
+                },
+                {
+                  id: 'weekly_summary',
+                  label: 'Weekly summary',
+                  description: 'Receive a weekly training load and progress report',
+                  enabled: prefs.weekly_summary,
+                },
+                {
+                  id: 'ftp_update',
+                  label: 'FTP updates',
+                  description: 'Get notified when your FTP is recalculated',
+                  enabled: prefs.ftp_update,
+                },
+              ],
+            },
+            {
+              title: 'Signals & Alerts',
+              items: [
+                {
+                  id: 'injury_risk',
+                  label: 'Injury risk warning',
+                  description: 'Alert when injury risk score exceeds threshold',
+                  enabled: prefs.injury_risk,
+                },
+                {
+                  id: 'overtraining',
+                  label: 'Overtraining detection',
+                  description: 'Alert when training load indicators suggest overtraining',
+                  enabled: prefs.overtraining,
+                },
+                {
+                  id: 'coach_message',
+                  label: 'Coach messages',
+                  description: 'Receive push notifications for coach feedback',
+                  enabled: prefs.coach_message,
+                  disabled: true,
+                  disabledReason: 'Requires Pro plan',
+                },
+              ],
+            },
+          ]}
+          onChange={(id, enabled) => setPrefs((p) => ({ ...p, [id]: enabled }))}
+        />
+      </Card>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2787,7 +2950,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              69 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              72 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -2838,6 +3001,9 @@ export default function UIDemo() {
             <ChartCardDemo />
             <LeaderboardDemo />
             <MemberListDemo />
+            <InviteCardDemo />
+            <OnboardingDemo />
+            <NotificationPreferencesDemo />
           </div>
         </div>
       </main>
