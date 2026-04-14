@@ -4,7 +4,7 @@
 'use client'
 
 import { forwardRef, useState, useRef, useEffect, useCallback } from 'react'
-import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, HOVER_SAND, FOCUS_RING_THICK, LABEL_STYLE, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui'
+import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, HOVER_SAND, FOCUS_RING_THIN, LABEL_STYLE, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui'
 
 // ─── Types ───
 

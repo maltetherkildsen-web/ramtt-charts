@@ -135,14 +135,20 @@ export const WHITE_LIFT = 'hover:bg-white';                   // cards on sand b
 export const ACTIVE_UNDERLINE = 'border-b-2 border-[var(--n1150)]'; // tab navigation
 
 // ─── Focus ring ───
-// Uses box-shadow technique (Figma's approach).
-// box-shadow: 0 0 0 2px follows border-radius perfectly, no double-layer.
-// Color: --n1050 (#383633). ONLY on :focus-visible (keyboard, not mouse).
-export const FOCUS_RING = 'focus-visible:shadow-[0_0_0_2px_var(--n1050)] focus-visible:outline-none';
-/** @deprecated Use FOCUS_RING — one ring style for everything */
+// Two-tier system: thick ring for buttons/toggles, thin ring for inputs/selects.
+
+/** Thick ring — buttons, toggles, cards, large interactive areas.
+ *  Uses box-shadow with offset: 2px bg gap + 2px --n600 ring.
+ *  Follows border-radius perfectly. ONLY on :focus-visible. */
+export const FOCUS_RING = 'focus-visible:shadow-[0_0_0_2px_var(--bg),0_0_0_4px_var(--n600)] focus-visible:outline-none';
 export const FOCUS_RING_THICK = FOCUS_RING;
+
+/** Thin ring — inputs, selects, textareas, inline controls.
+ *  Subtle border-color shift from --n400 → --n800. No box-shadow. */
+export const FOCUS_RING_THIN = 'focus-visible:border-[var(--n800)] focus-visible:outline-none';
+
 /** For compound inputs where the CONTAINER needs the ring when a child is focused */
-export const FOCUS_WITHIN_RING = 'focus-within:shadow-[0_0_0_2px_var(--n1050)]';
+export const FOCUS_WITHIN_RING = 'focus-within:shadow-[0_0_0_2px_var(--bg),0_0_0_4px_var(--n600)]';
 
 // ─── Modal ───
 export const MODAL_WIDTH = {
@@ -214,9 +220,9 @@ export const SEPARATOR_SUBTLE = 'bg-[var(--n200)]'
 // ─── Scrollbar ───
 export const SCROLLBAR_WIDTH = 6
 export const SCROLLBAR_THUMB_MIN = 30
-export const SCROLLBAR_THUMB_COLOR = 'var(--n400)'
-export const SCROLLBAR_THUMB_HOVER = 'var(--n600)'
-export const SCROLLBAR_THUMB_ACTIVE = 'var(--n800)'
+export const SCROLLBAR_THUMB_COLOR = 'var(--n600)'
+export const SCROLLBAR_THUMB_HOVER = 'var(--n800)'
+export const SCROLLBAR_THUMB_ACTIVE = 'var(--n1050)'
 
 // ─── ColorDot ───
 export const DOT_SIZES = { sm: 6, md: 8, lg: 10 } as const

@@ -113,8 +113,9 @@ function ToastItem({ toast, onDismiss }: { toast: ToastEntry; onDismiss: (id: st
       onMouseLeave={startTimer}
       className={cn(
         'flex items-center gap-2.5',
-        'bg-[var(--n1100)] text-[var(--n50)]',
-        'rounded-[8px]',
+        'bg-[var(--n50)] text-[var(--n1150)]',
+        'border-[0.5px] border-[var(--n400)]',
+        'rounded-[12px]',
         'px-4 py-2.5',
         'min-w-[280px] max-w-[380px]',
         FONT.body,
@@ -140,7 +141,7 @@ function ToastItem({ toast, onDismiss }: { toast: ToastEntry; onDismiss: (id: st
           className={cn(
             'shrink-0 text-[12px]',
             WEIGHT.medium,
-            'text-[var(--n400)] hover:underline',
+            'text-[var(--n800)] hover:underline',
             TRANSITION.opacity,
           )}
         >

@@ -4,7 +4,7 @@
 'use client'
 
 import { forwardRef, useId } from 'react'
-import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE } from '@/lib/ui'
+import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING_THIN, LABEL_STYLE } from '@/lib/ui'
 
 export interface TextareaProps {
   value?: string
@@ -49,7 +49,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             RADIUS.md,
             BORDER.default,
             TRANSITION.colors,
-            FOCUS_RING_THICK,
+            FOCUS_RING_THIN,
             'px-3 py-2',
             'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
           )}

@@ -122,7 +122,6 @@ const TimelineStrip = forwardRef<HTMLDivElement, TimelineStripProps>(
                 width: `${width}%`,
                 height,
                 backgroundColor: zone.color,
-                opacity: 0.5,
                 borderRadius: 2,
               }}
             >

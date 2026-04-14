@@ -2,7 +2,7 @@
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
 import { forwardRef, useId, type InputHTMLAttributes } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THICK, LABEL_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THIN, LABEL_STYLE, UNIT_STYLE, WEIGHT } from '@/lib/ui'
 
 export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string
@@ -34,7 +34,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               RADIUS.md,
               BORDER.default,
               TRANSITION.colors,
-              FOCUS_RING_THICK,
+              FOCUS_RING_THIN,
               WEIGHT.normal, 'text-[var(--n1150)]',
               'tabular-nums',
               'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',

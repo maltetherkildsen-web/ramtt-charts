@@ -9,7 +9,7 @@ import {
   FONT,
   WEIGHT,
   TRANSITION,
-  FOCUS_RING,
+  FOCUS_RING_THIN,
   LABEL_STYLE,
   STEPPER_REPEAT_DELAY,
   STEPPER_REPEAT_INTERVAL,
@@ -164,7 +164,7 @@ const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(
             'rounded-[5px]',
             'h-8',
             'bg-[var(--n50)]',
-            FOCUS_RING,
+            FOCUS_RING_THIN,
             disabled && 'opacity-50',
           )}
         >

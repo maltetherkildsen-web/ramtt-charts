@@ -11,7 +11,7 @@ import {
   RADIUS,
   BORDER,
   TRANSITION,
-  FOCUS_RING_THICK,
+  FOCUS_RING_THIN,
   LABEL_STYLE,
 } from '@/lib/ui'
 
@@ -189,7 +189,7 @@ function TimeField({
         RADIUS.md,
         BORDER.default,
         TRANSITION.colors,
-        FOCUS_RING_THICK,
+        FOCUS_RING_THIN,
         'focus:border-[var(--n800)]',
         disabled && 'opacity-50',
       )}

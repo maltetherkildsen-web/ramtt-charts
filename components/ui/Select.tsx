@@ -4,7 +4,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback, useId, forwardRef } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, WEIGHT } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, FOCUS_RING_THIN, LABEL_STYLE, WEIGHT } from '@/lib/ui'
 
 export interface SelectOption {
   value: string
@@ -151,7 +151,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             RADIUS.md,
             BORDER.default,
             TRANSITION.colors,
-            FOCUS_RING,
+            FOCUS_RING_THIN,
             WEIGHT.normal,
             value ? 'text-[var(--n1150)]' : 'text-[var(--n600)]',
           )}

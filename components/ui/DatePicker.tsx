@@ -5,7 +5,7 @@
 
 import { forwardRef, useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui'
+import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING_THIN, LABEL_STYLE, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui'
 import { formatDate } from '@/lib/calendar-utils'
 import { Calendar } from './Calendar'
 
@@ -112,7 +112,7 @@ const DatePicker = forwardRef<HTMLDivElement, DatePickerProps>(
             RADIUS.md,
             BORDER.default,
             TRANSITION.colors,
-            FOCUS_RING,
+            FOCUS_RING_THIN,
             SIZE_PADDING_X.sm,
             displayText ? cn(WEIGHT.normal, 'text-[var(--n1150)]') : cn(WEIGHT.normal, 'text-[var(--n600)]'),
             'tabular-nums',

@@ -122,11 +122,17 @@ body {
 }
 
 /* ─── Focus ring — box-shadow technique (Figma-style) ─── */
-/* Components use FOCUS_RING constant from lib/ui.ts.
+/* Components use FOCUS_RING / FOCUS_RING_THIN from lib/ui.ts.
    Global fallback for native elements without those classes. */
 :focus-visible {
-  box-shadow: 0 0 0 2px var(--n1050);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--n600);
   outline: none;
+}
+/* Input-like elements use thin ring (border-color only, no shadow) */
+input:focus-visible,
+textarea:focus-visible {
+  box-shadow: none;
+  border-color: var(--n800);
 }
 :focus:not(:focus-visible) {
   outline: none;
@@ -139,7 +145,7 @@ body {
 }
 /* Utility class for CSS-only contexts */
 .ramtt-focus-ring:focus-visible {
-  box-shadow: 0 0 0 2px var(--n1050);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--n600);
   outline: none;
 }
 
@@ -350,16 +356,16 @@ dialog[open] {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--n400);
+  background: var(--n600);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--n600);
+  background: var(--n800);
 }
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--n400) transparent;
+  scrollbar-color: var(--n600) transparent;
 }
 
 /* ─── ScrollArea: hide native scrollbar (custom thumb rendered via JS) ─── */

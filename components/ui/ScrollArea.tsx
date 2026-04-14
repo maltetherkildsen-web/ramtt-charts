@@ -206,6 +206,7 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
             (showV && !showH) && 'overflow-y-auto overflow-x-hidden',
             (showH && !showV) && 'overflow-x-auto overflow-y-hidden',
             (showV && showH) && 'overflow-auto',
+            showV && 'pr-3',
           )}
           onScroll={onScroll}
         >
@@ -225,17 +226,17 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               data-thumb="true"
               className="w-full rounded-full opacity-0"
               style={{
-                background: 'var(--n400)',
+                background: 'var(--n600)',
                 transition: 'opacity 300ms, background-color 150ms',
                 width: SCROLLBAR_WIDTH,
               }}
               onPointerDown={(e) => onPointerDown('v', e)}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--n600)'
+                (e.currentTarget as HTMLElement).style.background = 'var(--n800)'
               }}
               onMouseLeave={(e) => {
                 if (!isDraggingRef.current) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--n400)'
+                  (e.currentTarget as HTMLElement).style.background = 'var(--n600)'
                 }
               }}
             />
@@ -255,17 +256,17 @@ const ScrollArea = forwardRef<HTMLDivElement, ScrollAreaProps>(
               data-thumb="true"
               className="h-full rounded-full opacity-0"
               style={{
-                background: 'var(--n400)',
+                background: 'var(--n600)',
                 transition: 'opacity 300ms, background-color 150ms',
                 height: SCROLLBAR_WIDTH,
               }}
               onPointerDown={(e) => onPointerDown('h', e)}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLElement).style.background = 'var(--n600)'
+                (e.currentTarget as HTMLElement).style.background = 'var(--n800)'
               }}
               onMouseLeave={(e) => {
                 if (!isDraggingRef.current) {
-                  (e.currentTarget as HTMLElement).style.background = 'var(--n400)'
+                  (e.currentTarget as HTMLElement).style.background = 'var(--n600)'
                 }
               }}
             />
