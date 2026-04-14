@@ -34,6 +34,14 @@ export { ChartHeatmap } from '../../../components/charts/primitives/ChartHeatmap
 export { ChartCalendarHeatmap } from '../../../components/charts/primitives/ChartCalendarHeatmap'
 export { ChartAnnotation } from '../../../components/charts/primitives/ChartAnnotation'
 export { BrushOverlay } from '../../../components/charts/primitives/BrushOverlay'
+export { ChartPattern } from '../../../components/charts/primitives/ChartPattern'
+
+// ─── Composites ───
+export { ChartToolbar } from '../../../components/charts/composites/ChartToolbar'
+
+// ─── Math utilities ───
+export { sma } from '../../../lib/charts/utils/sma'
+export { captureChart } from '../../../lib/charts/utils/capture'
 
 // ─── Hooks ───
 export { useChartZoom } from '../../../components/charts/primitives/useChartZoom'

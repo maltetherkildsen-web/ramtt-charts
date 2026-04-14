@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useCallback, useRef } from 'react'
+import { useMemo, useCallback, useRef, useState } from 'react'
 import { WEIGHT, RADIUS } from '@/lib/ui'
 
 // ─── Chart primitives ───
@@ -11,6 +11,13 @@ import { ChartBar } from '@/components/charts/primitives/ChartBar'
 import { ChartCrosshair } from '@/components/charts/primitives/ChartCrosshair'
 import { ChartTooltip } from '@/components/charts/primitives/ChartTooltip'
 import { ChartGrid } from '@/components/charts/primitives/ChartGrid'
+import { ChartPattern } from '@/components/charts/primitives/ChartPattern'
+
+// ─── Composites ───
+import { ChartToolbar } from '@/components/charts/composites/ChartToolbar'
+
+// ─── Utilities ───
+import { sma } from '@/lib/charts/utils/sma'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
@@ -157,7 +164,24 @@ function ChartCard({
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 function StockPriceChart() {
-  const data = useMemo(() => generateStockData(365), [])
+  const fullData = useMemo(() => generateStockData(365), [])
+  const [period, setPeriod] = useState('1Y')
+  const [smaWindow, setSmaWindow] = useState<number | null>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  // Slice data based on period
+  const data = useMemo(() => {
+    const len = fullData.length
+    const slices: Record<string, number> = { '1D': 1, '5D': 5, '1M': 30, '6M': 180, 'YTD': 90, '1Y': 365, '5Y': 365, 'MAX': 365 }
+    const days = slices[period] ?? len
+    return fullData.slice(Math.max(0, len - days))
+  }, [fullData, period])
+
+  // SMA overlay
+  const smaData = useMemo(() => {
+    if (!smaWindow) return null
+    return sma(data, smaWindow)
+  }, [data, smaWindow])
 
   const formatMonth = useCallback(
     (i: number, total: number) => {
@@ -168,23 +192,37 @@ function StockPriceChart() {
   )
 
   return (
-    <ChartCard title="Stock Price" description="Showing daily closing price for the last 12 months" components="ChartLine + ChartArea + ChartTooltip + ChartGrid" trend={{ text: 'Dropped 12% since August peak', direction: 'down' }} context="January – December 2024">
-      <ChartRoot data={data} height={260} padding={{ right: 16 }}>
-        <ChartGrid />
-        <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.12} opacityTo={0.005} />
-        <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
-        <ChartAxisX labelCount={6} format={formatMonth} />
-        <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
-        <ChartTooltip
-          dotColor="var(--chart-1)"
-          labelFn={(i) => {
-            const monthIdx = Math.min(11, Math.floor((i / Math.max(1, data.length - 1)) * 12))
-            return MONTHS[monthIdx]
-          }}
-          formatValue={(v) => `$${v.toFixed(2)}`}
+    <ChartCard title="Stock Price" description="Showing daily closing price for the last 12 months" components="ChartToolbar + ChartLine + ChartArea + ChartTooltip + ChartGrid + ChartPattern" trend={{ text: 'Dropped 12% since August peak', direction: 'down' }} context="January – December 2024">
+      <div ref={cardRef}>
+        <ChartToolbar
+          period={period}
+          onPeriodChange={setPeriod}
+          smaOptions={[5, 10, 25, 50]}
+          smaWindow={smaWindow}
+          onSmaChange={setSmaWindow}
+          fullscreenRef={cardRef}
         />
-        <ChartZoomHandler />
-      </ChartRoot>
+        <ChartRoot data={data} height={260} padding={{ right: 16 }}>
+          <ChartPattern variant="dots" />
+          <ChartGrid />
+          <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.12} opacityTo={0.005} />
+          <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
+          {smaData && (
+            <ChartLine data={smaData.filter((v): v is number => v !== null)} className="fill-none stroke-[var(--chart-3)] stroke-[1]" />
+          )}
+          <ChartAxisX labelCount={6} format={formatMonth} />
+          <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
+          <ChartTooltip
+            dotColor="var(--chart-1)"
+            labelFn={(i) => {
+              const monthIdx = Math.min(11, Math.floor((i / Math.max(1, data.length - 1)) * 12))
+              return MONTHS[monthIdx]
+            }}
+            formatValue={(v) => `$${v.toFixed(2)}`}
+          />
+          <ChartZoomHandler />
+        </ChartRoot>
+      </div>
     </ChartCard>
   )
 }
@@ -215,6 +253,7 @@ function RevenueChart() {
   return (
     <ChartCard title="Revenue vs. Costs" description="Monthly revenue and operating costs with break-even line" components="ChartLine + ChartRefLine + ChartTooltip + ChartGrid" trend={{ text: 'Revenue exceeding costs since April', direction: 'up' }} context="January – December 2024">
       <ChartRoot data={revenue} height={260} yDomain={[0, yMax * 1.12]} padding={{ right: 72 }}>
+        <ChartPattern />
         <ChartGrid />
         <ChartLine className="fill-none stroke-[var(--chart-2)] stroke-[1.5]" />
         <ChartLine data={costs} className="fill-none stroke-[var(--chart-negative)] stroke-[1.5]" />
@@ -285,6 +324,7 @@ function TemperatureChart() {
   return (
     <ChartCard title="Server Temperature" description="CPU temperature with alert thresholds over 24 hours" components="ChartZoneLine + ChartTooltip + ChartGrid" trend={{ text: '3 alert threshold breaches today', direction: 'flat' }} context="Last 24 hours">
       <ChartRoot data={data} height={260} padding={{ right: 56 }}>
+        <ChartPattern />
         <ChartGrid />
         <ChartZoneLine threshold={100} zones={TEMP_ZONES} className="stroke-[1.5]" />
         <ChartRefLine y={75} label="Alert" className="stroke-red-400/60" />
@@ -1447,6 +1487,7 @@ function ScatterChart() {
         yDomain={[0, 100]}
         padding={{ right: 16, left: 48, bottom: 24, top: 8 }}
       >
+        <ChartPattern />
         <ChartGrid horizontal vertical tickCount={5} verticalTickCount={5} />
         <ScatterInner data={data} />
       </ChartRoot>
@@ -1812,6 +1853,7 @@ function CandlestickChart() {
         yDomain={yDomain}
         padding={{ right: 16, left: 48 }}
       >
+        <ChartPattern variant="lines" />
         <ChartGrid />
         <CandlestickInner ohlcData={ohlcData} />
       </ChartRoot>
@@ -2759,6 +2801,7 @@ function ProductTimelineChart() {
   return (
     <ChartCard title="Product timeline" description="Annual revenue with product milestone annotations" components="ChartLine + ChartAnnotation + ChartTooltip + ChartGrid" trend={{ text: 'Revenue 4.2x since v2.0 launch', direction: 'up' }} context="January – December 2024">
       <ChartRoot data={data} height={300} padding={{ right: 48 }}>
+        <ChartPattern />
         <ChartGrid />
         <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.1} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
@@ -2794,6 +2837,7 @@ function TemperatureAnomalyChart() {
   return (
     <ChartCard title="Temperature anomaly" description="Temperature deviation from 30-year average" components="ChartArea + ChartTooltip + ChartGrid" trend={{ text: '1.8°C above 30-year average', direction: 'up' }} context="2-year period">
       <ChartRoot data={data} height={280} yDomain={[5, 25]} padding={{ right: 48 }}>
+        <ChartPattern />
         <ChartGrid tickCount={5} />
         <ChartArea
           gradientColor="var(--chart-positive)"
