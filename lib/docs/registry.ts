@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 // lib/docs/registry.ts — Component documentation registry
 // Generated from actual component files in components/ui/
 

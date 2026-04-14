@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 // lib/docs/navigation.ts — Sidebar navigation structure
 // Generated from actual codebase inventory (83 UI components, ~16 chart types, 126 icons)
 

@@ -1,3 +1,6 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
 import { cn, FONT } from '@/lib/ui'
 import { CHART_DOCS } from '@/lib/docs/chart-registry'
 import Link from 'next/link'
