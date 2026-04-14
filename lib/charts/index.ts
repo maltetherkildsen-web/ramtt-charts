@@ -47,6 +47,9 @@ export type { SankeyNodeInput, SankeyLinkInput, SankeyNode, SankeyLink, SankeyLa
 export { sunburstLayout } from './layouts/sunburst'
 export type { SunburstNode, SunburstArc } from './layouts/sunburst'
 
+// Zoom
+export { clampViewport, pixelToFraction, indicesToFractions, fractionsToIndices } from './utils/zoom'
+
 // Animation
 export { resolveAnimate, EASE_OUT_EXPO, EASE_SPRING } from './utils/animate'
 export type { AnimateConfig, ResolvedAnimate } from './utils/animate'

@@ -56,7 +56,20 @@ export function BrushOverlay({ paddingLeft = 48, paddingRight = 64 }: BrushOverl
     <div
       ref={overlayRef}
       style={{ display: 'none' }}
-      className={`absolute top-0 bottom-0 z-10 pointer-events-none ${SELECTION_SAND}`}
-    />
+      className="absolute top-0 bottom-0 z-10 pointer-events-none"
+    >
+      {/* Selection fill */}
+      <div className={`absolute inset-0 ${SELECTION_SAND}`} />
+      {/* Left edge indicator */}
+      <div
+        className="absolute top-0 bottom-0 left-0 w-[1px]"
+        style={{ backgroundColor: 'var(--n1150)', opacity: 0.4 }}
+      />
+      {/* Right edge indicator */}
+      <div
+        className="absolute top-0 bottom-0 right-0 w-[1px]"
+        style={{ backgroundColor: 'var(--n1150)', opacity: 0.4 }}
+      />
+    </div>
   )
 }

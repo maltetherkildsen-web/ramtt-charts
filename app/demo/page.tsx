@@ -53,6 +53,10 @@ import { ChartPyramid } from '@/components/charts/primitives/ChartPyramid'
 import { ChartWaterfall } from '@/components/charts/primitives/ChartWaterfall'
 import { ChartBullet } from '@/components/charts/primitives/ChartBullet'
 
+// ─── Navigator + Period Tabs ───
+import { ChartNavigator } from '@/components/charts/primitives/ChartNavigator'
+import { ChartPeriodTabs } from '@/components/charts/primitives/ChartPeriodTabs'
+
 // ─── Math utilities ───
 import { stackSeries } from '@/lib/charts/utils/stack'
 import { scaleLinear } from '@/lib/charts/scales/linear'
@@ -3072,6 +3076,81 @@ function BulletChartStrip() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 33. Navigator Mode — Stock-style zoom
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function NavigatorDemo() {
+  const fullData = useMemo(() => generateStockData(365), [])
+  const [period, setPeriod] = useState('ALL')
+
+  // Period tab changes zoom range
+  const periodSlice = useMemo(() => {
+    const len = fullData.length
+    const slices: Record<string, number> = { '1M': 30, '3M': 90, '6M': 180, '1Y': 365, 'ALL': len }
+    return slices[period] ?? len
+  }, [period, fullData.length])
+
+  return (
+    <ChartCard
+      title="Navigator Mode"
+      description="Drag the viewport handles or click to navigate. Period tabs set the range."
+      components="ChartNavigator + ChartPeriodTabs + ChartSyncProvider"
+    >
+      <div className="mb-3">
+        <ChartPeriodTabs
+          periods={['1M', '3M', '6M', '1Y', 'ALL']}
+          selected={period}
+          onChange={setPeriod}
+        />
+      </div>
+      <ChartSyncProvider dataLength={fullData.length} zoomMode="navigator">
+        <NavigatorDemoInner data={fullData} sliceSize={periodSlice} />
+      </ChartSyncProvider>
+    </ChartCard>
+  )
+}
+
+function NavigatorDemoInner({ data, sliceSize }: { data: number[]; sliceSize: number }) {
+  const sync = useChartSync()!
+  const { start, end } = sync.zoom
+
+  // Clamp to period
+  const visibleStart = Math.max(0, data.length - sliceSize)
+  const effectiveStart = Math.max(visibleStart, start)
+  const effectiveEnd = Math.min(data.length - 1, end)
+
+  const visData = useMemo(
+    () => data.slice(effectiveStart, effectiveEnd + 1),
+    [data, effectiveStart, effectiveEnd],
+  )
+
+  const formatX = useCallback(
+    (i: number) => {
+      const fullIdx = effectiveStart + i
+      const day = fullIdx % 30
+      const month = Math.floor(fullIdx / 30)
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      return `${months[month % 12]} ${day + 1}`
+    },
+    [effectiveStart],
+  )
+
+  return (
+    <div>
+      <ChartRoot data={visData} height={240} padding={{ right: 12 }}>
+        <ChartGrid />
+        <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.08} opacityTo={0.005} />
+        <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
+        <ChartAxisX labelCount={6} format={formatX} />
+        <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
+        <ChartCrosshair dotColor="var(--chart-1)" />
+      </ChartRoot>
+      <ChartNavigator data={data} height={48} className="mt-1" />
+    </div>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -3125,6 +3204,7 @@ export default function DemoPage() {
           <PyramidChart />
           <EnergyBalanceChart />
           <BulletChartStrip />
+          <NavigatorDemo />
         </div>
       </div>
     </main>

@@ -34,6 +34,8 @@ export interface BrushState {
   currentFrac: number
 }
 
+export type ZoomMode = 'brush' | 'navigator' | 'none'
+
 export interface ChartSyncContextValue {
   subscribeHover: (cb: HoverCallback) => () => void
   broadcastHover: (index: number | null, sourceId: string, clientY?: number) => void
@@ -41,6 +43,7 @@ export interface ChartSyncContextValue {
   setZoom: (range: ZoomRange | ((prev: ZoomRange) => ZoomRange)) => void
   dataLength: number
   brush: React.RefObject<BrushState>
+  zoomMode: ZoomMode
 }
 
 const SyncContext = createContext<ChartSyncContextValue | null>(null)
@@ -51,10 +54,12 @@ export function useChartSync(): ChartSyncContextValue | null {
 
 export interface ChartSyncProviderProps {
   dataLength: number
+  /** Zoom interaction mode. Default: 'brush'. */
+  zoomMode?: ZoomMode
   children: ReactNode
 }
 
-export function ChartSyncProvider({ dataLength, children }: ChartSyncProviderProps) {
+export function ChartSyncProvider({ dataLength, zoomMode = 'brush', children }: ChartSyncProviderProps) {
   const hoverSubs = useRef(new Set<HoverCallback>())
 
   const subscribeHover = useCallback((cb: HoverCallback) => {
@@ -77,8 +82,9 @@ export function ChartSyncProvider({ dataLength, children }: ChartSyncProviderPro
       setZoom,
       dataLength,
       brush,
+      zoomMode,
     }),
-    [subscribeHover, broadcastHover, zoom, dataLength],
+    [subscribeHover, broadcastHover, zoom, dataLength, zoomMode],
   )
 
   return <SyncContext.Provider value={ctx}>{children}</SyncContext.Provider>

@@ -157,6 +157,7 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       document.removeEventListener('pointermove', handleDocPointerMove)
       document.removeEventListener('pointerup', handleDocPointerUp)
       document.removeEventListener('pointercancel', handleDocPointerCancel)
+      document.removeEventListener('keydown', handleDragKeyDown)
     }
 
     const handleDocPointerUp = (e: PointerEvent) => {
@@ -185,9 +186,20 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       clearBrush()
     }
 
+    // Escape key cancels active brush drag
+    const handleDragKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && dragState.current?.active) {
+        e.preventDefault()
+        removeDragListeners()
+        clearBrush()
+      }
+    }
+
     // ─── Brush: pointerdown on SVG starts drag ───
     const handlePointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return
+      // Skip brush in navigator/none modes
+      if (sync.zoomMode !== 'brush') return
 
       // Release implicit pointer capture the browser sets on the target element.
       // Without this, browser fires pointercancel when the captured <path>/<svg>
@@ -217,6 +229,7 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       document.addEventListener('pointermove', handleDocPointerMove)
       document.addEventListener('pointerup', handleDocPointerUp)
       document.addEventListener('pointercancel', handleDocPointerCancel)
+      document.addEventListener('keydown', handleDragKeyDown)
     }
 
     const handleDblClick = (e: MouseEvent) => {
