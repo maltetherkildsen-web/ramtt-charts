@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules (72 components)
+# @ramtt/ui — System Rules (75 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -87,7 +87,7 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Modal uses `::backdrop` with blur, not shadow
 - Dropdown and Toast rely on border/color contrast for separation
 
-## Components (72)
+## Components (75)
 
 ### Wave 1 — Display & Input (12)
 Button, Badge, ToggleGroup, Card, DataRow, DataTable, Input, Select, MetricCard, SettingsCard, ProgressBar, SectionHeader
@@ -121,3 +121,6 @@ Stat, ComparisonCard, TimelineStrip, RangeSlider, FormField, NotificationBadge
 
 ### Wave 8B — Compound Components (6)
 ChartCard, Leaderboard, MemberList, InviteCard, OnboardingLayout, NotificationPreferences
+
+### Wave 8C — Utility Components (3)
+TodoList, HelpSection, FieldMapping

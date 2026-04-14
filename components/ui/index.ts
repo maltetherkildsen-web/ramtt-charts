@@ -97,6 +97,11 @@ export { InviteCard } from './InviteCard';
 export { OnboardingLayout } from './OnboardingLayout';
 export { NotificationPreferences } from './NotificationPreferences';
 
+// ─── Components (Wave 8C — Utility Components) ───
+export { TodoList } from './TodoList';
+export { HelpSection } from './HelpSection';
+export { FieldMapping } from './FieldMapping';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';

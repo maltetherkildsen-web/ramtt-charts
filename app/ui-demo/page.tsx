@@ -88,6 +88,9 @@ import {
   InviteCard,
   NotificationPreferences,
   OnboardingLayout,
+  TodoList,
+  HelpSection,
+  FieldMapping,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2935,6 +2938,122 @@ function NotificationPreferencesDemo() {
   )
 }
 
+// ─── 47. Help / FAQ ───
+
+function HelpSectionDemo() {
+  return (
+    <DemoSection title="Help / FAQ">
+      <Card padding="md">
+        <HelpSection
+          title="Frequently asked questions"
+          searchable
+          items={[
+            {
+              question: 'How is FTP calculated?',
+              answer: 'FTP is estimated from your best 20-minute power effort, multiplied by 0.95. You can also set it manually in Settings.',
+              category: 'Training',
+            },
+            {
+              question: 'What are training zones?',
+              answer: 'Training zones divide your effort into intensity levels based on FTP or heart rate thresholds. RAMTT uses a 7-zone model for power and a 5-zone model for heart rate.',
+              category: 'Training',
+            },
+            {
+              question: 'What is the CHO zone system?',
+              answer: 'The CHO zone system categorizes your carbohydrate intake targets based on exercise intensity and duration, helping you fuel optimally for each session type.',
+              category: 'Nutrition',
+            },
+            {
+              question: 'How do I log fuel intake?',
+              answer: 'Open any session, tap the nutrition tab, and enter grams of carbohydrate consumed. You can also scan product barcodes for automatic entry.',
+              category: 'Nutrition',
+            },
+            {
+              question: 'How do I connect Strava?',
+              answer: 'Go to Settings, then Integrations, then Strava, and click Connect. You will be redirected to authorize RAMTT to read your activities.',
+              category: 'Integrations',
+            },
+          ]}
+          contactAction={
+            <span>
+              Can&apos;t find an answer?{' '}
+              <span className={cn(WEIGHT.medium, 'text-[var(--n1150)]')}>Contact support</span>
+            </span>
+          }
+        />
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── 48. Field mapping ───
+
+function FieldMappingDemo() {
+  return (
+    <DemoSection title="Field mapping">
+      <FieldMapping
+        title="Map your data"
+        sourceLabel="Strava"
+        targetLabel="RAMTT"
+        mappings={[
+          { source: 'average_watts', target: 'avg_power', status: 'mapped' },
+          { source: 'average_heartrate', target: 'avg_hr', status: 'mapped' },
+          { source: 'max_watts', target: 'peak_power', status: 'mapped' },
+          { source: 'suffer_score', target: null, status: 'unmapped' },
+          { source: null, target: 'normalized_power', status: 'unmapped' },
+        ]}
+        availableTargets={['tss', 'if_factor', 'vi', 'normalized_power']}
+        onMapChange={(source, target) => {}}
+      />
+    </DemoSection>
+  )
+}
+
+// ─── 49. Todo list ───
+
+function TodoListDemo() {
+  const [itemsA, setItemsA] = useState([
+    { id: '1', text: 'Check tire pressure', done: true },
+    { id: '2', text: 'Fill bottles (2x750ml)', done: true },
+    { id: '3', text: 'Prepare gels (4x SiS)', done: false },
+    { id: '4', text: 'Charge head unit', done: false },
+    { id: '5', text: 'Set FTP on device', done: false },
+  ])
+
+  const [itemsB, setItemsB] = useState([
+    { id: '1', text: 'Complete 3 interval sessions', done: true },
+    { id: '2', text: 'Log nutrition for every ride', done: false },
+    { id: '3', text: 'Hit 600 TSS weekly target', done: false },
+  ])
+
+  let nextId = 100
+
+  return (
+    <DemoSection title="Todo list">
+      <div className="grid grid-cols-2 gap-4">
+        <Card padding="md">
+          <TodoList
+            title="Pre-ride checklist"
+            items={itemsA}
+            onToggle={(id) => setItemsA((prev) => prev.map((i) => i.id === id ? { ...i, done: !i.done } : i))}
+            onAdd={(text) => setItemsA((prev) => [...prev, { id: String(++nextId), text, done: false }])}
+            onRemove={(id) => setItemsA((prev) => prev.filter((i) => i.id !== id))}
+          />
+        </Card>
+
+        <Card padding="md">
+          <TodoList
+            title="Weekly goals"
+            items={itemsB}
+            showProgress
+            onToggle={(id) => setItemsB((prev) => prev.map((i) => i.id === id ? { ...i, done: !i.done } : i))}
+          />
+        </Card>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2950,7 +3069,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              72 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              75 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -3004,6 +3123,9 @@ export default function UIDemo() {
             <InviteCardDemo />
             <OnboardingDemo />
             <NotificationPreferencesDemo />
+            <HelpSectionDemo />
+            <FieldMappingDemo />
+            <TodoListDemo />
           </div>
         </div>
       </main>
