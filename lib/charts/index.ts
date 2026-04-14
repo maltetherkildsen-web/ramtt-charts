@@ -40,3 +40,7 @@ export { radarPoints, radarPath, radarGridPoints } from './paths/radar'
 // Color scale (value-based interpolation for heatmaps)
 export { interpolateColorScale, parseHexColor, isLightColor } from './utils/colorScale'
 export type { ColorStop } from './utils/colorScale'
+
+// Animation
+export { resolveAnimate, EASE_OUT_EXPO, EASE_SPRING } from './utils/animate'
+export type { AnimateConfig, ResolvedAnimate } from './utils/animate'

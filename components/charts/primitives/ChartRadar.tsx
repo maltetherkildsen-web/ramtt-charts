@@ -18,9 +18,10 @@
  *   />
  */
 
-import { useMemo, useRef, useCallback } from 'react'
+import { useMemo, useRef, useCallback, useEffect } from 'react'
 import { cn } from '@/lib/ui'
 import { radarPoints, radarPath, radarGridPoints } from '@/lib/charts/paths/radar'
+import { resolveAnimate, EASE_OUT_EXPO, EASE_SPRING, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 // ─── Types ───
 
@@ -38,6 +39,8 @@ export interface ChartRadarProps {
   rings?: number // Number of concentric grid rings. Default: 5
   showValues?: boolean // Show numeric values at each axis tip
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 // ─── Helpers ───
@@ -78,6 +81,7 @@ export function ChartRadar({
   rings = 5,
   showValues = false,
   className,
+  animate = true,
 }: ChartRadarProps) {
   const cx = size / 2
   const cy = size / 2
@@ -119,6 +123,33 @@ export function ChartRadar({
   // Legend height
   const legendHeight = series.length > 1 ? 28 : 0
   const totalHeight = size + legendHeight
+
+  // ─── Entry animation ───
+  const anim = resolveAnimate(animate, { duration: 800, delay: 0, easing: EASE_OUT_EXPO })
+
+  // Center-point path for animation start state
+  const centerPath = useMemo(() => {
+    const pts = radarPoints(new Array(n).fill(0), 100, cx, cy, maxRadius)
+    return radarPath(pts)
+  }, [n, cx, cy, maxRadius])
+
+  const seriesPathRefs = useRef<(SVGPathElement | null)[]>([])
+
+  useEffect(() => {
+    if (!anim.enabled) return
+    seriesPathRefs.current.forEach((path, i) => {
+      if (!path) return
+      const finalD = seriesData[i]?.d
+      if (!finalD) return
+
+      path.setAttribute('d', centerPath)
+      requestAnimationFrame(() => {
+        path.style.transition = `d ${anim.duration}ms ${anim.easing} ${anim.delay}ms, opacity ${anim.duration}ms ${anim.easing} ${anim.delay}ms`
+        path.style.opacity = '1'
+        path.setAttribute('d', finalD)
+      })
+    })
+  }, [anim.enabled, anim.duration, anim.delay, anim.easing, centerPath, seriesData])
 
   // ─── Hover state (ref-based, zero re-renders) ───
   const tooltipRef = useRef<HTMLDivElement>(null)
@@ -308,11 +339,13 @@ export function ChartRadar({
       {seriesData.map(({ d, series: s }, i) => (
         <path
           key={`series-${i}`}
+          ref={(el) => { seriesPathRefs.current[i] = el }}
           d={d}
           className={s.className}
           strokeWidth={1.5}
           strokeLinejoin="round"
           strokeDasharray={s.dashed ? '4 4' : undefined}
+          style={anim.enabled ? { opacity: 0 } : undefined}
         />
       ))}
 
@@ -328,7 +361,15 @@ export function ChartRadar({
               fill={extractStrokeColor(s.className)}
               stroke="var(--n50)"
               strokeWidth={2}
-              style={{ transition: 'r 150ms, opacity 150ms' }}
+              style={{
+                transition: 'r 150ms, opacity 150ms',
+                ...(anim.enabled
+                  ? {
+                      transformOrigin: `${dx}px ${dy}px`,
+                      animation: `ramtt-dot-pop 300ms ${EASE_SPRING} ${anim.delay + anim.duration * 0.6 + di * 40}ms both`,
+                    }
+                  : undefined),
+              }}
             />
           ))}
         </g>

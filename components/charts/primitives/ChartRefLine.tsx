@@ -11,22 +11,30 @@
 
 import { cn } from '@/lib/ui'
 import { useChart } from './chart-context'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 export interface ChartRefLineProps {
   y: number
   label?: string
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
-export function ChartRefLine({ y, label, className }: ChartRefLineProps) {
+export function ChartRefLine({ y, label, className, animate = true }: ChartRefLineProps) {
   const { scaleY, chartWidth } = useChart()
 
   const py = scaleY(y)
 
+  const anim = resolveAnimate(animate, { duration: 400, delay: 400, easing: EASE_OUT_EXPO })
+  const animStyle = anim.enabled
+    ? { animation: `ramtt-axis-fade-x ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+    : undefined
+
   if (!isFinite(py) || py < -2 || py > scaleY(scaleY.domain[0]) + 2) return null
 
   return (
-    <g>
+    <g style={animStyle}>
       <line
         x1={0}
         y1={py}

@@ -15,6 +15,7 @@ import { areaPath } from '@/lib/charts/paths/area'
 import { smoothDecimate } from '@/lib/charts/utils/smooth-decimate'
 import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 export interface ChartAreaProps {
   data?: readonly number[]
@@ -30,6 +31,8 @@ export interface ChartAreaProps {
   thresholdY?: number
   /** Color for area below threshold. Default: '#ef4444'. */
   negativeColor?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 export function ChartArea({
@@ -42,6 +45,7 @@ export function ChartArea({
   yAccessor,
   thresholdY,
   negativeColor = '#ef4444',
+  animate = true,
 }: ChartAreaProps) {
   const { data: ctxData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor } = useChart()
   const sourceData = dataProp ?? ctxData
@@ -91,6 +95,12 @@ export function ChartArea({
     )
   }, [sourceData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor, y0Accessor, yAccessor])
 
+  // Animation
+  const anim = resolveAnimate(animate, { duration: 800, delay: 200, easing: EASE_OUT_EXPO })
+  const animStyle = anim.enabled
+    ? { animation: `ramtt-area-reveal ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+    : undefined
+
   // Threshold clip IDs (SSR-safe)
   const aboveClipId = useId()
   const belowClipId = useId()
@@ -127,6 +137,7 @@ export function ChartArea({
           fill={`url(#${gradId})`}
           clipPath={`url(#${aboveClipId})`}
           className={cn('stroke-none', className)}
+          style={animStyle}
         />
 
         {/* Negative area (below threshold) */}
@@ -135,6 +146,7 @@ export function ChartArea({
           fill={`url(#${negGradId})`}
           clipPath={`url(#${belowClipId})`}
           className={cn('stroke-none', className)}
+          style={animStyle}
         />
 
         {/* Threshold reference line */}
@@ -172,6 +184,7 @@ export function ChartArea({
         d={d}
         fill={`url(#${gradId})`}
         className={cn('stroke-none', className)}
+        style={animStyle}
       />
     </>
   )

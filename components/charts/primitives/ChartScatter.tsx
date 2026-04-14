@@ -26,6 +26,7 @@ import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
 import { scaleLinear } from '@/lib/charts/scales/linear'
+import { resolveAnimate, EASE_SPRING, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 // ─── Props ───
 
@@ -44,6 +45,8 @@ export interface ChartScatterProps {
   className?: string
   /** Per-dot color function. */
   colorFn?: (d: any, i: number) => string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 // ─── Component ───
@@ -56,6 +59,7 @@ export function ChartScatter({
   sizeRange = [3, 16],
   className,
   colorFn,
+  animate = true,
 }: ChartScatterProps) {
   const { data: ctxData, scaleX, scaleY } = useChart()
   const data = dataProp ?? ctxData
@@ -108,6 +112,9 @@ export function ChartScatter({
     return result
   }, [data, scaleX, scaleY, xAccessor, yAccessor, sizeAccessor, sizeRange])
 
+  const anim = resolveAnimate(animate, { duration: 300, delay: 0, easing: EASE_SPRING })
+  const dotStagger = 15
+
   if (dots.length === 0) return null
 
   const defaultClass = cn('fill-blue-500', className)
@@ -124,7 +131,15 @@ export function ChartScatter({
             r={dot.r}
             fill={fill}
             className={fill ? undefined : defaultClass}
-            style={{ transition: 'opacity 150ms, transform 150ms' }}
+            style={{
+              transition: 'opacity 150ms, transform 150ms',
+              ...(anim.enabled
+                ? {
+                    transformOrigin: `${dot.cx}px ${dot.cy}px`,
+                    animation: `ramtt-dot-pop ${anim.duration}ms ${anim.easing} ${anim.delay + dot.index * dotStagger}ms both`,
+                  }
+                : undefined),
+            }}
           />
         )
       })}

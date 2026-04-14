@@ -15,6 +15,7 @@
 
 import { useMemo } from 'react'
 import { useChart } from './chart-context'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 export interface ChartAxisXProps {
   labelCount?: number
@@ -24,6 +25,8 @@ export interface ChartAxisXProps {
   tickValues?: number[]
   /** Explicit font-family for SVG <text>. Default: Satoshi via --font-sans. */
   fontFamily?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 export function ChartAxisX({
@@ -32,6 +35,7 @@ export function ChartAxisX({
   dy = 16,
   tickValues,
   fontFamily = "var(--font-sans)",
+  animate = true,
 }: ChartAxisXProps) {
   const { data, scaleX, chartHeight } = useChart()
 
@@ -65,8 +69,13 @@ export function ChartAxisX({
     return result
   }, [data.length, labelCount, format, tickValues])
 
+  const anim = resolveAnimate(animate, { duration: 400, delay: 300, easing: EASE_OUT_EXPO })
+  const animStyle = anim.enabled
+    ? { animation: `ramtt-axis-fade-x ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+    : undefined
+
   return (
-    <g>
+    <g style={animStyle}>
       {labels.map(({ index, label }) => {
         const px = scaleX(index)
         const py = chartHeight + dy

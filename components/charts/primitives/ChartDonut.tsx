@@ -12,6 +12,7 @@
 
 import { useMemo, useRef, useCallback } from 'react'
 import { arcPath, pieLayout } from '@/lib/charts/paths/arc'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 export interface ChartDonutProps {
   data: readonly any[]
@@ -29,6 +30,8 @@ export interface ChartDonutProps {
   /** Center value (large text). */
   centerValue?: string
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 export function ChartDonut({
@@ -41,6 +44,7 @@ export function ChartDonut({
   centerLabel,
   centerValue,
   className,
+  animate = true,
 }: ChartDonutProps) {
   const pathRefs = useRef<(SVGPathElement | null)[]>([])
   const rafRef = useRef<number>(0)
@@ -106,6 +110,9 @@ export function ChartDonut({
     rafRef.current = requestAnimationFrame(() => applyHighlight(-1))
   }, [applyHighlight])
 
+  const anim = resolveAnimate(animate, { duration: 500, delay: 0, easing: EASE_OUT_EXPO })
+  const segmentStagger = 80
+
   return (
     <svg
       width={size}
@@ -126,6 +133,9 @@ export function ChartDonut({
               transformOrigin: `${cx}px ${cy}px`,
               transition: 'transform 200ms cubic-bezier(0.16,1,0.3,1), opacity 150ms ease-out',
               pointerEvents: 'none',
+              ...(anim.enabled
+                ? { animation: `ramtt-dot-pop ${anim.duration}ms ${anim.easing} ${anim.delay + i * segmentStagger}ms both` }
+                : undefined),
             }}
           />
         )

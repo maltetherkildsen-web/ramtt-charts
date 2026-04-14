@@ -19,11 +19,12 @@
  *   </ChartRoot>
  */
 
-import { useId, useMemo } from 'react'
+import { useId, useMemo, useRef, useEffect } from 'react'
 import { linePath } from '@/lib/charts/paths/line'
 import { smoothDecimate } from '@/lib/charts/utils/smooth-decimate'
 import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 // ─── Zone types ───
 
@@ -73,6 +74,8 @@ export interface ChartZoneLineProps {
    * that comes from the gradient.
    */
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 // ─── Component ───
@@ -82,6 +85,7 @@ export function ChartZoneLine({
   zones = POWER_ZONES,
   threshold,
   className,
+  animate = true,
 }: ChartZoneLineProps) {
   const { data: ctxData, scaleX, scaleY, chartWidth, decimationFactor } = useChart()
   const data = dataProp ?? ctxData
@@ -136,6 +140,29 @@ export function ChartZoneLine({
     return result
   }, [data, threshold, zones])
 
+  // Animation
+  const pathRef = useRef<SVGPathElement>(null)
+  const anim = resolveAnimate(animate, { duration: 1200, delay: 0, easing: EASE_OUT_EXPO })
+
+  useEffect(() => {
+    if (!anim.enabled || !pathRef.current) return
+    const path = pathRef.current
+    const length = path.getTotalLength()
+
+    path.style.strokeDasharray = `${length}`
+    path.style.strokeDashoffset = `${length}`
+    path.getBoundingClientRect()
+
+    path.style.transition = `stroke-dashoffset ${anim.duration}ms ${anim.easing} ${anim.delay}ms`
+    path.style.strokeDashoffset = '0'
+
+    return () => {
+      path.style.strokeDasharray = ''
+      path.style.strokeDashoffset = ''
+      path.style.transition = ''
+    }
+  }, [d, anim.enabled, anim.duration, anim.delay, anim.easing])
+
   if (!d) return null
 
   return (
@@ -148,6 +175,7 @@ export function ChartZoneLine({
         </linearGradient>
       </defs>
       <path
+        ref={pathRef}
         d={d}
         fill="none"
         stroke={`url(#${gradId})`}

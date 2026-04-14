@@ -28,6 +28,7 @@
 import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 // ─── Props ───
 
@@ -51,6 +52,8 @@ export interface ChartBarProps {
   highlightClassName?: string
   /** Tailwind classes applied to each `<rect>` (default fill). */
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 // ─── Component ───
@@ -64,6 +67,7 @@ export function ChartBar({
   highlightIndex,
   highlightClassName,
   className,
+  animate = true,
 }: ChartBarProps) {
   const { data: ctxData, scaleX, scaleY, chartHeight } = useChart()
   const data = dataProp ?? ctxData
@@ -117,6 +121,10 @@ export function ChartBar({
     return result
   }, [data, scaleX, scaleY, chartHeight, gap, y0Accessor])
 
+  // Animation
+  const anim = resolveAnimate(animate, { duration: 600, delay: 0, easing: EASE_OUT_EXPO })
+  const stagger = 40
+
   if (bars.length === 0) return null
 
   // When using colorFn we need individual rects with fill attributes.
@@ -130,6 +138,15 @@ export function ChartBar({
         const isHighlighted = highlightIndex === bar.index
         const fill = colorFn ? colorFn(bar.value, bar.index) : undefined
 
+        // For animation: transform-origin at bar's baseline (bottom edge for positive, top for negative)
+        const baselineY = bar.y + bar.height // bottom of bar is the baseline for grow-up
+        const barAnimStyle = anim.enabled
+          ? {
+              transformOrigin: `${bar.x + bar.width / 2}px ${baselineY}px`,
+              animation: `ramtt-bar-grow ${anim.duration}ms ${anim.easing} ${anim.delay + bar.index * stagger}ms both`,
+            }
+          : undefined
+
         return (
           <rect
             key={bar.index}
@@ -141,6 +158,7 @@ export function ChartBar({
             ry={radius}
             fill={fill}
             className={fill ? undefined : (isHighlighted ? hlClass : defaultClass)}
+            style={barAnimStyle}
           />
         )
       })}

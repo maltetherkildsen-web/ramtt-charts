@@ -20,6 +20,7 @@ import {
   isLightColor,
   type ColorStop,
 } from '@/lib/charts/utils/colorScale'
+import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 // ─── Types ───
 
@@ -45,6 +46,8 @@ export interface ChartHeatmapProps {
   /** Called on cell click. */
   onCellClick?: (row: number, col: number, value: number | null) => void
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 // ─── Component ───
@@ -61,6 +64,7 @@ export function ChartHeatmap({
   onCellHover,
   onCellClick,
   className,
+  animate = true,
 }: ChartHeatmapProps) {
   const gradId = useId()
 
@@ -99,6 +103,10 @@ export function ChartHeatmap({
       color: s.color,
     }))
   }, [colorScale, scaleMin, scaleMax])
+
+  // Animation
+  const anim = resolveAnimate(animate, { duration: 200, delay: 0, easing: EASE_OUT_EXPO })
+  const cellStagger = 20
 
   // Refs for zero-rerender hover
   const ringRef = useRef<SVGRectElement | null>(null)
@@ -269,6 +277,10 @@ export function ChartHeatmap({
             rx={radius}
             ry={radius}
             fill={cellColors[r]?.[c] ?? '#E8E5DC'}
+            style={anim.enabled
+              ? { animation: `ramtt-cell-fade ${anim.duration}ms ${anim.easing} ${anim.delay + (r + c) * cellStagger}ms both` }
+              : undefined
+            }
           />
         )),
       )}

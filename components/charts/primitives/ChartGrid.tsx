@@ -22,6 +22,7 @@ import { useMemo } from 'react'
 import { cn } from '@/lib/utils'
 import { niceTicks } from '@/lib/charts/ticks/nice'
 import { useChart } from './chart-context'
+import { resolveAnimate, type AnimateConfig } from '@/lib/charts/utils/animate'
 
 // ─── Props ───
 
@@ -38,6 +39,8 @@ export interface ChartGridProps {
   strokeDasharray?: string
   /** Additional CSS class for the grid group. */
   className?: string
+  /** Entry animation. Default: true. */
+  animate?: AnimateConfig
 }
 
 // ─── Component ───
@@ -49,6 +52,7 @@ export function ChartGrid({
   verticalTickCount = 6,
   strokeDasharray = '3 3',
   className,
+  animate = true,
 }: ChartGridProps) {
   const { scaleX, scaleY, chartWidth, chartHeight } = useChart()
 
@@ -62,8 +66,13 @@ export function ChartGrid({
     [vertical, scaleX.domain, verticalTickCount],
   )
 
+  const anim = resolveAnimate(animate, { duration: 300, delay: 0, easing: 'linear' })
+  const animStyle = anim.enabled
+    ? { animation: `ramtt-grid-fade ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
+    : undefined
+
   return (
-    <g className={cn(className)}>
+    <g className={cn(className)} style={animStyle}>
       {yTicks.map((t) => {
         const y = scaleY(t)
         if (!isFinite(y)) return null
