@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules (66 components)
+# @ramtt/ui — System Rules (69 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -118,3 +118,6 @@ WidgetCard, WidgetPicker, DashboardGrid
 
 ### Wave 8A — Display + Interaction (6)
 Stat, ComparisonCard, TimelineStrip, RangeSlider, FormField, NotificationBadge
+
+### Wave 8B — Compound Components (3)
+ChartCard, Leaderboard, MemberList

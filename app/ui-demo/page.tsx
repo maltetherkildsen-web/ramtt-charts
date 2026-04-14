@@ -82,6 +82,9 @@ import {
   RangeSlider,
   FormField,
   NotificationBadge,
+  ChartCard,
+  Leaderboard,
+  MemberList,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2664,6 +2667,111 @@ function FormNotificationDemo() {
   )
 }
 
+// ─── 41. Chart card ───
+
+function ChartCardDemo() {
+  const [period, setPeriod] = useState('90D')
+
+  return (
+    <DemoSection title="Chart card">
+      <div className="space-y-4">
+        <ChartCard
+          title="Training load"
+          subtitle="CTL / ATL / TSB over time"
+          periods={['30D', '90D', '1Y']}
+          period={period}
+          onPeriodChange={setPeriod}
+          legend={[
+            { color: '#22c55e', label: 'CTL (Fitness)' },
+            { color: '#f59e0b', label: 'ATL (Fatigue)' },
+            { color: '#3b82f6', label: 'TSB (Form)' },
+          ]}
+        >
+          <div
+            className="bg-[var(--n200)] rounded-[8px] flex items-center justify-center"
+            style={{ height: 200 }}
+          >
+            <span className={cn(FONT.body, 'text-[13px] text-[var(--n600)]')}>Chart placeholder</span>
+          </div>
+        </ChartCard>
+
+        <ChartCard
+          title="Power curve"
+          subtitle="Best efforts across all sessions"
+          metric={{ value: '412 W', label: 'Peak 5min', delta: '+8%', deltaColor: 'positive' }}
+        >
+          <div
+            className="bg-[var(--n200)] rounded-[8px] flex items-center justify-center"
+            style={{ height: 160 }}
+          >
+            <span className={cn(FONT.body, 'text-[13px] text-[var(--n600)]')}>Chart placeholder</span>
+          </div>
+        </ChartCard>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 42. Leaderboard ───
+
+function LeaderboardDemo() {
+  return (
+    <DemoSection title="Leaderboard">
+      <div className="grid grid-cols-2 gap-4">
+        <Card padding="md">
+          <Leaderboard
+            title="Weekly compliance"
+            items={[
+              { rank: 1, label: 'Malte Therkildsen', avatar: '', value: '96%', progress: 96, trend: 'up' },
+              { rank: 2, label: 'Jonas Eriksen', avatar: '', value: '88%', progress: 88, trend: 'down' },
+              { rank: 3, label: 'Ruth Hansen', avatar: '', value: '84%', progress: 84, trend: 'stable' },
+              { rank: 4, label: 'Lars Nielsen', avatar: '', value: '72%', progress: 72, trend: 'down' },
+              { rank: 5, label: 'Niko Berg', avatar: '', value: '68%', progress: 68, trend: 'up' },
+            ]}
+          />
+        </Card>
+
+        <Card padding="md">
+          <Leaderboard
+            title="Zone distribution"
+            showRank={false}
+            items={[
+              { rank: 1, label: 'Z2 Endurance', value: '45min', progress: 75, color: '#22c55e' },
+              { rank: 2, label: 'Z3 Tempo', value: '32min', progress: 53, color: '#eab308' },
+              { rank: 3, label: 'Z4 Threshold', value: '18min', progress: 30, color: '#f97316' },
+              { rank: 4, label: 'Z5 VO2max', value: '8min', progress: 13, color: '#ef4444' },
+              { rank: 5, label: 'Z1 Recovery', value: '5min', progress: 8, color: '#94a3b8' },
+            ]}
+          />
+        </Card>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── 43. Member list ───
+
+function MemberListDemo() {
+  return (
+    <DemoSection title="Member list">
+      <Card padding="md">
+        <MemberList
+          title="Athletes"
+          members={[
+            { id: '1', name: 'Malte Therkildsen', email: 'malte@ramt.dev', role: 'Athlete', status: 'active' },
+            { id: '2', name: 'Ruth Eriksen', email: 'ruth@example.com', role: 'Coach', status: 'active' },
+            { id: '3', name: 'Jonas Hansen', email: 'jonas@example.com', role: 'Athlete', status: 'active' },
+            { id: '4', email: 'lars@example.com', role: 'Athlete', status: 'invited' },
+          ]}
+          onRoleChange={(id, role) => {}}
+          onRemove={(id) => {}}
+          onInvite={() => {}}
+        />
+      </Card>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -2679,7 +2787,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              66 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              69 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -2727,6 +2835,9 @@ export default function UIDemo() {
             <StatComparisonDemo />
             <TimelineRangeDemo />
             <FormNotificationDemo />
+            <ChartCardDemo />
+            <LeaderboardDemo />
+            <MemberListDemo />
           </div>
         </div>
       </main>
