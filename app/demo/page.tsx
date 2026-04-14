@@ -120,12 +120,12 @@ function StockPriceChart() {
     <ChartCard title="Stock Price" subtitle="ChartRoot + ChartLine + ChartArea + ChartTooltip + Axes">
       <ChartRoot data={data} height={260} padding={{ right: 16 }}>
         <ChartGrid />
-        <ChartArea gradientColor="#3b82f6" opacityFrom={0.12} opacityTo={0.005} />
-        <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+        <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.12} opacityTo={0.005} />
+        <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
         <ChartAxisX labelCount={6} format={formatMonth} />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}`} />
         <ChartTooltip
-          dotColor="#3b82f6"
+          dotColor="var(--chart-1)"
           labelFn={(i) => {
             const monthIdx = Math.min(11, Math.floor((i / Math.max(1, data.length - 1)) * 12))
             return MONTHS[monthIdx]
@@ -165,8 +165,8 @@ function RevenueChart() {
     <ChartCard title="Revenue vs. Costs" subtitle="Two ChartLine + ChartRefLine + Legend">
       <ChartRoot data={revenue} height={260} yDomain={[0, yMax * 1.12]} padding={{ right: 72 }}>
         <ChartGrid />
-        <ChartLine className="fill-none stroke-emerald-500 stroke-[1.5]" />
-        <ChartLine data={costs} className="fill-none stroke-red-400 stroke-[1.5]" />
+        <ChartLine className="fill-none stroke-[var(--chart-2)] stroke-[1.5]" />
+        <ChartLine data={costs} className="fill-none stroke-[var(--chart-negative)] stroke-[1.5]" />
         {breakEvenValue !== null && (
           <ChartRefLine y={breakEvenValue} label="Break-even" />
         )}
@@ -176,11 +176,11 @@ function RevenueChart() {
                  />
         <ChartAxisY tickCount={4} format={(v) => `$${v.toFixed(0)}k`} />
         <ChartTooltip
-          dotColor="#10b981"
+          dotColor="var(--chart-2)"
           labelFn={(i) => MONTHS[i] ?? ''}
           series={[
-            { label: 'Revenue', color: '#10b981', values: revenue, format: (v) => `$${v.toFixed(0)}k` },
-            { label: 'Costs', color: '#f87171', values: costs, format: (v) => `$${v.toFixed(0)}k` },
+            { label: 'Revenue', color: 'var(--chart-2)', values: revenue, format: (v) => `$${v.toFixed(0)}k` },
+            { label: 'Costs', color: 'var(--chart-negative)', values: costs, format: (v) => `$${v.toFixed(0)}k` },
           ]}
         />
         <ChartZoomHandler />
@@ -240,7 +240,7 @@ function TemperatureChart() {
         <ChartAxisX labelCount={6} format={formatHour} />
         <ChartAxisY tickCount={4} format={(v) => `${v.toFixed(0)}°C`} />
         <ChartTooltip
-          dotColor="#f59e0b"
+          dotColor="var(--chart-3)"
           labelFn={(i) => {
             const hour = Math.floor((i / Math.max(1, data.length - 1)) * 24)
             return `${hour.toString().padStart(2, '0')}:00`
@@ -359,29 +359,29 @@ function IoTCharts({ data }: { data: SensorData }) {
       {/* ── Temperature (top) ── */}
       <ChartRoot data={visTemp} height={150} padding={chartPad}>
         <ChartGrid />
-        <ChartArea gradientColor="#ef4444" opacityFrom={0.08} opacityTo={0.005} />
-        <ChartLine className="fill-none stroke-red-500 stroke-[1.5]" />
+        <ChartArea gradientColor="var(--chart-5)" opacityFrom={0.08} opacityTo={0.005} />
+        <ChartLine className="fill-none stroke-[var(--chart-5)] stroke-[1.5]" />
         <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}°C`} />
-        <ChartCrosshair dotColor="#ef4444" />
+        <ChartCrosshair dotColor="var(--chart-5)" />
         <ChartZoomHandler />
       </ChartRoot>
 
       {/* ── Humidity (middle) ── */}
       <ChartRoot data={visHum} height={120} padding={chartPad}>
         <ChartGrid />
-        <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+        <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
         <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}%`} />
-        <ChartCrosshair dotColor="#3b82f6" />
+        <ChartCrosshair dotColor="var(--chart-1)" />
         <ChartZoomHandler />
       </ChartRoot>
 
       {/* ── Pressure (bottom — gets X-axis) ── */}
       <ChartRoot data={visPres} height={120} padding={bottomPad}>
         <ChartGrid />
-        <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
+        <ChartLine className="fill-none stroke-[var(--chart-3)] stroke-[1.5]" />
         <ChartAxisX labelCount={6} format={formatX} />
         <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}`} />
-        <ChartCrosshair dotColor="#f59e0b" />
+        <ChartCrosshair dotColor="var(--chart-3)" />
         <ChartZoomHandler />
       </ChartRoot>
 
@@ -389,7 +389,7 @@ function IoTCharts({ data }: { data: SensorData }) {
       <CrosshairTimeLabel format={formatTimeLabel} padLeft={48} padRight={64} />
 
       {/* ── Scrubber ── */}
-      <ChartScrubber data={data.temperature} color="#ef4444" />
+      <ChartScrubber data={data.temperature} color="var(--chart-5)" />
 
       {/* ── Interaction hints ── */}
       <p className="mt-2 px-1 pl-[52px] font-sans text-[10px] tracking-wide text-text-muted/60">
@@ -445,7 +445,7 @@ function SparklineCard({
   seed: number
 }) {
   const data = useMemo(() => generateSparklineData(trend, seed), [trend, seed])
-  const color = positive ? '#22c55e' : '#ef4444'
+  const color = positive ? 'var(--chart-positive)' : 'var(--chart-negative)'
 
   return (
     <div className={`min-w-[160px] flex-1 ${RADIUS.lg} border-[0.5px] border-(--n400) bg-(--n50) p-4`}>
@@ -501,7 +501,7 @@ function MonthlySalesChart() {
           values={values}
           labels={salesData.map((d) => d.month)}
           formatValue={(v) => `$${(v / 1000).toFixed(0)}k`}
-          barClassName="fill-blue-500"
+          barClassName="fill-[var(--chart-1)]"
           pillColor="var(--n1150)"
           pillTextColor="var(--n50)"
         />
@@ -518,7 +518,7 @@ function BarHoverInner({
   values,
   labels,
   formatValue,
-  barClassName = 'fill-blue-500',
+  barClassName = 'fill-[var(--chart-1)]',
   barColorFn,
   pillColor = 'var(--n1150)',
   pillTextColor = 'var(--n50)',
@@ -791,12 +791,12 @@ function ComposedInner({
   return (
     <>
       <g ref={barGroupRef}>
-        <ChartBar className="fill-blue-500/70" radius={3} gap={16} />
+        <ChartBar className="fill-[var(--chart-1)]/70" radius={3} gap={16} />
       </g>
       <ChartLine
         data={growthValues}
         yDomain={growthDomain}
-        className="fill-none stroke-emerald-500 stroke-2"
+        className="fill-none stroke-[var(--chart-2)] stroke-2"
       />
       <ChartAxisY tickCount={4} format={(v) => `$${(v / 1000).toFixed(0)}k`} />
       <ChartAxisY
@@ -815,11 +815,11 @@ function ComposedInner({
         <rect fill="var(--n1150)" />
         <text textAnchor="middle" fill="var(--n50)" fontSize={12}
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }} />
-        <text textAnchor="middle" fill="#22c55e" fontSize={11}
+        <text textAnchor="middle" fill="var(--chart-2)" fontSize={11}
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums' }} />
       </g>
       {/* Line dot */}
-      <circle ref={lineDotRef} r={4} fill="white" stroke="#22c55e" strokeWidth={2}
+      <circle ref={lineDotRef} r={4} fill="white" stroke="var(--chart-2)" strokeWidth={2}
         style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
       {/* Invisible overlay */}
       <rect x={0} y={0} width={chartWidth} height={chartHeight}
@@ -833,10 +833,10 @@ function ComposedInner({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const MARKET_COLORS = [
-  { name: 'Acme Corp', color: '#3b82f6', className: 'bg-blue-500' },
-  { name: 'Globex', color: '#22c55e', className: 'bg-emerald-500' },
-  { name: 'Initech', color: '#f59e0b', className: 'bg-amber-500' },
-  { name: 'Umbrella', color: '#8b5cf6', className: 'bg-purple-500' },
+  { name: 'Acme Corp', color: 'var(--chart-1)', className: 'bg-[var(--chart-1)]' },
+  { name: 'Globex', color: 'var(--chart-2)', className: 'bg-[var(--chart-2)]' },
+  { name: 'Initech', color: 'var(--chart-3)', className: 'bg-[var(--chart-3)]' },
+  { name: 'Umbrella', color: 'var(--chart-4)', className: 'bg-[var(--chart-4)]' },
 ]
 
 function MarketShareChart() {
@@ -1016,11 +1016,11 @@ function MarketShareInner({
         stroke="#71717a" strokeWidth={0.5} shapeRendering="crispEdges"
         style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
       {/* Crosshair dot */}
-      <circle ref={dotRef} r={5} fill="#3b82f6" stroke="white" strokeWidth={2}
+      <circle ref={dotRef} r={5} fill="var(--chart-1)" stroke="white" strokeWidth={2}
         style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
       {/* Segment label */}
       <g ref={segLabelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
-        <rect fill="#3b82f6" />
+        <rect fill="var(--chart-1)" />
         <text textAnchor="start" fill="white" fontSize={11} dy="0.35em"
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 500 }} />
       </g>
@@ -1094,7 +1094,7 @@ function ProfitLossInner({ values, labels }: { values: number[]; labels: string[
       text.textContent = v < 0 ? `-$${(abs / 1000).toFixed(0)}k` : `$${(abs / 1000).toFixed(0)}k`
 
       const isNeg = v < 0
-      const pillBg = isNeg ? '#ef4444' : '#22c55e'
+      const pillBg = isNeg ? 'var(--chart-negative)' : 'var(--chart-positive)'
       bg.setAttribute('fill', pillBg)
       arrow.setAttribute('fill', pillBg)
       text.setAttribute('fill', 'white')
@@ -1137,7 +1137,7 @@ function ProfitLossInner({ values, labels }: { values: number[]; labels: string[
   return (
     <>
       <g ref={barGroupRef}>
-        <ChartBar radius={3} gap={16} colorFn={(v) => (v >= 0 ? '#22c55e' : '#ef4444')} />
+        <ChartBar radius={3} gap={16} colorFn={(v) => (v >= 0 ? 'var(--chart-positive)' : 'var(--chart-negative)')} />
       </g>
       {/* Solid zero line */}
       <line
@@ -1159,10 +1159,10 @@ function ProfitLossInner({ values, labels }: { values: number[]; labels: string[
       />
       {/* Value label pill */}
       <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
-        <rect rx={4} fill="#22c55e" />
+        <rect rx={4} fill="var(--chart-positive)" />
         <text textAnchor="middle" fill="white" fontSize={12} dy="0.35em"
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }} />
-        <polygon fill="#22c55e" />
+        <polygon fill="var(--chart-positive)" />
       </g>
       {/* Invisible overlay */}
       <rect x={0} y={0} width={chartWidth} height={chartHeight}
@@ -1376,9 +1376,9 @@ function BudgetDonutChart() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const SCATTER_COLORS: Record<string, string> = {
-  A: '#3b82f6',
-  B: '#22c55e',
-  C: '#f59e0b',
+  A: 'var(--chart-1)',
+  B: 'var(--chart-2)',
+  C: 'var(--chart-3)',
 }
 
 function ScatterChart() {
@@ -1402,9 +1402,9 @@ function ScatterChart() {
       {/* Legend — circles, not squares */}
       <div className="ml-12 mt-2 flex gap-5">
         {[
-          { label: 'Group A', color: '#3b82f6' },
-          { label: 'Group B', color: '#22c55e' },
-          { label: 'Group C', color: '#f59e0b' },
+          { label: 'Group A', color: 'var(--chart-1)' },
+          { label: 'Group B', color: 'var(--chart-2)' },
+          { label: 'Group C', color: 'var(--chart-3)' },
         ].map((item) => (
           <div key={item.label} className="flex items-center gap-2">
             <span
@@ -1515,7 +1515,7 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
       <ChartAxisY tickCount={5} format={(v) => v.toFixed(0)} />
       {/* Value label pill */}
       <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
-        <rect rx={4} fill="#3b82f6" />
+        <rect rx={4} fill="var(--chart-1)" />
         <text
           textAnchor="middle"
           fill="var(--n50)"
@@ -1543,10 +1543,10 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const REGION_COLORS = [
-  { name: 'West', color: '#f59e0b', className: 'fill-amber-500/80' },
-  { name: 'East', color: '#8b5cf6', className: 'fill-purple-500/80' },
-  { name: 'South', color: '#22c55e', className: 'fill-emerald-500/80' },
-  { name: 'North', color: '#3b82f6', className: 'fill-blue-500/80' },
+  { name: 'West', color: 'var(--chart-3)', className: 'fill-[var(--chart-3)]/75' },
+  { name: 'East', color: 'var(--chart-4)', className: 'fill-[var(--chart-4)]/75' },
+  { name: 'South', color: 'var(--chart-2)', className: 'fill-[var(--chart-2)]/75' },
+  { name: 'North', color: 'var(--chart-1)', className: 'fill-[var(--chart-1)]/75' },
 ]
 
 function StackedBarChart() {
@@ -1980,9 +1980,9 @@ function WaterfallInner({ bars }: { bars: ReturnType<typeof waterfallLayout> }) 
         : `${b.value >= 0 ? '+' : '-'}$${absVal}M`
 
       const pillBg = b.type === 'increase'
-        ? '#22c55e'
+        ? 'var(--chart-positive)'
         : b.type === 'decrease'
-          ? '#ef4444'
+          ? 'var(--chart-negative)'
           : 'var(--n1150)'
 
       bg.setAttribute('fill', pillBg)
@@ -2020,8 +2020,8 @@ function WaterfallInner({ bars }: { bars: ReturnType<typeof waterfallLayout> }) 
 
   const colorFn = useCallback((_v: number, i: number) => {
     const type = bars[i]?.type
-    if (type === 'increase') return '#22c55e'
-    if (type === 'decrease') return '#ef4444'
+    if (type === 'increase') return 'var(--chart-positive)'
+    if (type === 'decrease') return 'var(--chart-negative)'
     return 'var(--n1150)'
   }, [bars])
 
@@ -2057,7 +2057,7 @@ function WaterfallInner({ bars }: { bars: ReturnType<typeof waterfallLayout> }) 
       />
       {/* Value label pill */}
       <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
-        <rect rx={4} fill="#22c55e" />
+        <rect rx={4} fill="var(--chart-positive)" />
         <text
           textAnchor="middle"
           fill="white"
@@ -2065,7 +2065,7 @@ function WaterfallInner({ bars }: { bars: ReturnType<typeof waterfallLayout> }) 
           dy="0.35em"
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }}
         />
-        <polygon fill="#22c55e" />
+        <polygon fill="var(--chart-positive)" />
       </g>
       {/* Invisible overlay */}
       <rect
@@ -2145,10 +2145,10 @@ function RadialBarChart() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const BROWSER_COLORS = [
-  { name: 'Chrome', color: '#3b82f6', className: 'bg-blue-500' },
-  { name: 'Safari', color: '#22c55e', className: 'bg-emerald-500' },
-  { name: 'Firefox', color: '#f59e0b', className: 'bg-amber-500' },
-  { name: 'Edge', color: '#8b5cf6', className: 'bg-purple-500' },
+  { name: 'Chrome', color: 'var(--chart-1)', className: 'bg-[var(--chart-1)]' },
+  { name: 'Safari', color: 'var(--chart-2)', className: 'bg-[var(--chart-2)]' },
+  { name: 'Firefox', color: 'var(--chart-3)', className: 'bg-[var(--chart-3)]' },
+  { name: 'Edge', color: 'var(--chart-4)', className: 'bg-[var(--chart-4)]' },
   { name: 'Other', color: 'var(--n600)', className: 'bg-(--n600)' },
 ]
 
@@ -2321,11 +2321,11 @@ function BrowserShareInner({
         stroke="#71717a" strokeWidth={0.5} shapeRendering="crispEdges"
         style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
       {/* Crosshair dot */}
-      <circle ref={dotRef} r={5} fill="#3b82f6" stroke="white" strokeWidth={2}
+      <circle ref={dotRef} r={5} fill="var(--chart-1)" stroke="white" strokeWidth={2}
         style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }} />
       {/* Segment label */}
       <g ref={segLabelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
-        <rect fill="#3b82f6" />
+        <rect fill="var(--chart-1)" />
         <text textAnchor="start" fill="white" fontSize={11} dy="0.35em"
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 500 }} />
       </g>
@@ -2657,7 +2657,7 @@ function SparklineTable() {
                 </td>
                 <td className="text-right"
                   style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}>
-                  <span className={stock.change >= 0 ? 'font-[500] text-emerald-500' : 'font-[500] text-red-500'}>
+                  <span className={stock.change >= 0 ? 'font-[500] text-[var(--chart-positive)]' : 'font-[500] text-[var(--chart-negative)]'}>
                     {stock.change >= 0 ? '+' : ''}{stock.change.toFixed(1)}%
                   </span>
                 </td>
@@ -2669,7 +2669,7 @@ function SparklineTable() {
                   >
                     <ChartLine
                       className={`fill-none stroke-[1.5] ${
-                        stock.change >= 0 ? 'stroke-emerald-500' : 'stroke-red-500'
+                        stock.change >= 0 ? 'stroke-[var(--chart-positive)]' : 'stroke-[var(--chart-negative)]'
                       }`}
                     />
                   </ChartRoot>
@@ -2692,9 +2692,9 @@ function SparklineTable() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const TIMELINE_ANNOTATIONS: Annotation[] = [
-  { type: 'line', x: 3, label: 'v2.0 launch', color: '#3b82f6' },
-  { type: 'range', x0: 6, x1: 8, label: 'Holiday season', color: '#22c55e' },
-  { type: 'point', x: 10, y: 95000, label: 'ATH: $95K', color: '#f59e0b' },
+  { type: 'line', x: 3, label: 'v2.0 launch', color: 'var(--chart-1)' },
+  { type: 'range', x0: 6, x1: 8, label: 'Holiday season', color: 'var(--chart-2)' },
+  { type: 'point', x: 10, y: 95000, label: 'ATH: $95K', color: 'var(--chart-3)' },
 ]
 
 function ProductTimelineChart() {
@@ -2709,13 +2709,13 @@ function ProductTimelineChart() {
     <ChartCard title="Product timeline" subtitle="ChartAnnotation — point, line, and range annotations on a revenue chart">
       <ChartRoot data={data} height={300} padding={{ right: 48 }}>
         <ChartGrid />
-        <ChartArea gradientColor="#3b82f6" opacityFrom={0.1} opacityTo={0.005} />
-        <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+        <ChartArea gradientColor="var(--chart-1)" opacityFrom={0.1} opacityTo={0.005} />
+        <ChartLine className="fill-none stroke-[var(--chart-1)] stroke-[1.5]" />
         <ChartAnnotation annotations={TIMELINE_ANNOTATIONS} />
         <ChartAxisX labelCount={12} format={formatMonth} />
         <ChartAxisY tickCount={4} format={(v) => `$${(v / 1000).toFixed(0)}K`} />
         <ChartTooltip
-          dotColor="#3b82f6"
+          dotColor="var(--chart-1)"
           labelFn={(i) => MONTHS[i] ?? ''}
           formatValue={(v) => `$${(v / 1000).toFixed(0)}K`}
         />
@@ -2745,11 +2745,11 @@ function TemperatureAnomalyChart() {
       <ChartRoot data={data} height={280} yDomain={[5, 25]} padding={{ right: 48 }}>
         <ChartGrid tickCount={5} />
         <ChartArea
-          gradientColor="#22c55e"
+          gradientColor="var(--chart-positive)"
           opacityFrom={0.18}
           opacityTo={0.02}
           thresholdY={15}
-          negativeColor="#ef4444"
+          negativeColor="var(--chart-negative)"
         />
         <ChartLine className="fill-none stroke-[var(--n1150)] stroke-[1.5]" />
         <ChartAxisX labelCount={8} format={formatMonth} />

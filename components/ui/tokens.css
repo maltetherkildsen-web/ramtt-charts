@@ -107,6 +107,22 @@
   --accent: #4A044E;
   --accent-light: #4A044E12;
   --accent-soft: #4A044E20;
+
+  /* ═══ Chart Palette ═══ */
+  /* 8 colors tuned for warm --bg (#FAF9F5).
+     Works at full saturation (strokes/dots) and 10-15% (area fills). */
+  --chart-1: #4C7FF7;  /* Bright blue — primary, single-series default */
+  --chart-2: #34C77B;  /* Vivid green — secondary, positive values */
+  --chart-3: #F59E42;  /* Warm amber — tertiary, warnings */
+  --chart-4: #A855F7;  /* Purple — fourth series */
+  --chart-5: #F43F5E;  /* Rose — fifth series, negative, alerts */
+  --chart-6: #06B6D4;  /* Cyan — sixth series */
+  --chart-7: #EC4899;  /* Pink — seventh series */
+  --chart-8: #8B5CF6;  /* Violet — eighth series */
+
+  /* Semantic chart pairs */
+  --chart-positive: #34C77B;
+  --chart-negative: #F43F5E;
 }
 
 /* ─── Base typography ─── */
