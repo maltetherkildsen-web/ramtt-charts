@@ -17,6 +17,7 @@ const NEUTRALS = [
   { token: '--n600', hex: '#76726A', label: 'Muted', usage: 'Labels, section headers' },
   { token: '--n800', hex: '#6B6760', label: 'Secondary', usage: 'Descriptions, units, metadata' },
   { token: '--n1050', hex: '#383633', label: 'Strong', usage: 'Focus ring, text selection' },
+  { token: '--n1100', hex: '#2A2826', label: 'Dark surface', usage: 'Code blocks, dark panels' },
   { token: '--n1150', hex: '#131211', label: 'Primary', usage: 'Primary text, active states' },
 ]
 

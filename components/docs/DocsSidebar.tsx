@@ -32,14 +32,19 @@ export function DocsSidebar({ className }: { className?: string }) {
               <div className={cn(
                 FONT.body,
                 'text-[11px] font-[550] text-[var(--n600)]',
-                'px-2 pt-6 pb-1.5',
+                'px-2 pb-1.5',
+                si > 1 ? 'mt-6 pt-6 border-t-[0.5px] border-t-[var(--n200)]' : 'pt-6',
               )}>
                 {section.title}
                 {section.title === 'Components' && (
-                  <span className="ml-1.5 tabular-nums text-[var(--n400)]">{UI_COMPONENTS.length}</span>
+                  <Badge variant="filled" color="default" size="sm" className="ml-1.5 align-middle">
+                    {UI_COMPONENTS.length}
+                  </Badge>
                 )}
                 {section.title === 'Charts' && (
-                  <span className="ml-1.5 tabular-nums text-[var(--n400)]">{CHART_TYPES.length}</span>
+                  <Badge variant="filled" color="default" size="sm" className="ml-1.5 align-middle">
+                    {CHART_TYPES.length}
+                  </Badge>
                 )}
               </div>
             )}
