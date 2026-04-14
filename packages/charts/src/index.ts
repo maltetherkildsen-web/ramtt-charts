@@ -20,6 +20,7 @@ export { ChartScrubber } from '../../../components/charts/primitives/ChartScrubb
 export { ChartIntervalMarkers } from '../../../components/charts/primitives/ChartIntervalMarkers'
 export { ChartFuelLollipop } from '../../../components/charts/primitives/ChartFuelLollipop'
 export { ChartTooltip } from '../../../components/charts/primitives/ChartTooltip'
+export { ChartGrid } from '../../../components/charts/primitives/ChartGrid'
 export { CrosshairTimeLabel } from '../../../components/charts/primitives/CrosshairTimeLabel'
 export { ChartDonut } from '../../../components/charts/primitives/ChartDonut'
 export { ChartScatter } from '../../../components/charts/primitives/ChartScatter'

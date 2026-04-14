@@ -10,6 +10,7 @@ import { ChartArea } from '@/components/charts/primitives/ChartArea'
 import { ChartBar } from '@/components/charts/primitives/ChartBar'
 import { ChartCrosshair } from '@/components/charts/primitives/ChartCrosshair'
 import { ChartTooltip } from '@/components/charts/primitives/ChartTooltip'
+import { ChartGrid } from '@/components/charts/primitives/ChartGrid'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
@@ -118,6 +119,7 @@ function StockPriceChart() {
   return (
     <ChartCard title="Stock Price" subtitle="ChartRoot + ChartLine + ChartArea + ChartTooltip + Axes">
       <ChartRoot data={data} height={260} padding={{ right: 16 }}>
+        <ChartGrid />
         <ChartArea gradientColor="#3b82f6" opacityFrom={0.12} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
         <ChartAxisX labelCount={6} format={formatMonth} />
@@ -162,6 +164,7 @@ function RevenueChart() {
   return (
     <ChartCard title="Revenue vs. Costs" subtitle="Two ChartLine + ChartRefLine + Legend">
       <ChartRoot data={revenue} height={260} yDomain={[0, yMax * 1.12]} padding={{ right: 72 }}>
+        <ChartGrid />
         <ChartLine className="fill-none stroke-emerald-500 stroke-[1.5]" />
         <ChartLine data={costs} className="fill-none stroke-red-400 stroke-[1.5]" />
         {breakEvenValue !== null && (
@@ -231,6 +234,7 @@ function TemperatureChart() {
   return (
     <ChartCard title="Server Temperature" subtitle="ChartZoneLine with custom threshold zones">
       <ChartRoot data={data} height={260} padding={{ right: 56 }}>
+        <ChartGrid />
         <ChartZoneLine threshold={100} zones={TEMP_ZONES} className="stroke-[1.5]" />
         <ChartRefLine y={75} label="Alert" className="stroke-red-400/60" />
         <ChartAxisX labelCount={6} format={formatHour} />
@@ -354,6 +358,7 @@ function IoTCharts({ data }: { data: SensorData }) {
 
       {/* ── Temperature (top) ── */}
       <ChartRoot data={visTemp} height={150} padding={chartPad}>
+        <ChartGrid />
         <ChartArea gradientColor="#ef4444" opacityFrom={0.08} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-red-500 stroke-[1.5]" />
         <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}°C`} />
@@ -363,6 +368,7 @@ function IoTCharts({ data }: { data: SensorData }) {
 
       {/* ── Humidity (middle) ── */}
       <ChartRoot data={visHum} height={120} padding={chartPad}>
+        <ChartGrid />
         <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
         <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}%`} />
         <ChartCrosshair dotColor="#3b82f6" />
@@ -371,6 +377,7 @@ function IoTCharts({ data }: { data: SensorData }) {
 
       {/* ── Pressure (bottom — gets X-axis) ── */}
       <ChartRoot data={visPres} height={120} padding={bottomPad}>
+        <ChartGrid />
         <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
         <ChartAxisX labelCount={6} format={formatX} />
         <ChartAxisY tickCount={3} format={(v) => `${v.toFixed(0)}`} />
@@ -489,6 +496,7 @@ function MonthlySalesChart() {
         xDomain={[-0.5, values.length - 0.5]}
         padding={{ right: 16 }}
       >
+        <ChartGrid />
         <BarHoverInner
           values={values}
           labels={salesData.map((d) => d.month)}
@@ -663,6 +671,7 @@ function ComposedChart() {
         xDomain={[-0.5, revenues.length - 0.5]}
         padding={{ right: 56 }}
       >
+        <ChartGrid />
         <ComposedInner
           revenues={revenues}
           growthValues={growthValues}
@@ -847,6 +856,7 @@ function MarketShareChart() {
   return (
     <ChartCard title="Market Share" subtitle="ChartArea + stackSeries — crosshair with segment highlight">
       <ChartRoot data={indices} height={320} yDomain={[0, 100]} padding={{ right: 16 }}>
+        <ChartGrid />
         <MarketShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
       </ChartRoot>
       {/* Legend */}
@@ -1037,6 +1047,7 @@ function ProfitLossChart() {
         xDomain={[-0.5, values.length - 0.5]}
         padding={{ right: 16 }}
       >
+        <ChartGrid />
         <ProfitLossInner values={values} labels={plData.map((d) => d.month)} />
       </ChartRoot>
       {/* Legend */}
@@ -1385,6 +1396,7 @@ function ScatterChart() {
         yDomain={[0, 100]}
         padding={{ right: 16, left: 48, bottom: 24, top: 8 }}
       >
+        <ChartGrid horizontal vertical tickCount={5} verticalTickCount={5} />
         <ScatterInner data={data} />
       </ChartRoot>
       {/* Legend — circles, not squares */}
@@ -1574,6 +1586,7 @@ function StackedBarChart() {
         xDomain={[-0.5, 3.5]}
         padding={{ right: 16 }}
       >
+        <ChartGrid />
         <StackedBarInner
           rawData={rawData}
           stacked={stacked}
@@ -1748,6 +1761,7 @@ function CandlestickChart() {
         yDomain={yDomain}
         padding={{ right: 16, left: 48 }}
       >
+        <ChartGrid />
         <CandlestickInner ohlcData={ohlcData} />
       </ChartRoot>
       {/* Legend */}
@@ -1894,6 +1908,7 @@ function WaterfallChart() {
         xDomain={[-0.5, bars.length - 0.5]}
         padding={{ right: 16, left: 48 }}
       >
+        <ChartGrid />
         <WaterfallInner bars={bars} />
       </ChartRoot>
       {/* Legend */}
@@ -2155,6 +2170,7 @@ function BrowserShareChart() {
   return (
     <ChartCard title="Browser Market Share" subtitle="ChartArea + stackSeries — normalized to 100%, crosshair with segment highlight">
       <ChartRoot data={indices} height={320} yDomain={[0, 100]} padding={{ right: 16 }}>
+        <ChartGrid />
         <BrowserShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
       </ChartRoot>
       {/* Legend */}
@@ -2394,6 +2410,7 @@ function BoxPlotChart() {
         yDomain={yDomain}
         padding={{ right: 16, left: 48 }}
       >
+        <ChartGrid />
         <BoxPlotInner boxData={boxData} />
       </ChartRoot>
       {/* Legend */}
@@ -2691,6 +2708,7 @@ function ProductTimelineChart() {
   return (
     <ChartCard title="Product timeline" subtitle="ChartAnnotation — point, line, and range annotations on a revenue chart">
       <ChartRoot data={data} height={300} padding={{ right: 48 }}>
+        <ChartGrid />
         <ChartArea gradientColor="#3b82f6" opacityFrom={0.1} opacityTo={0.005} />
         <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
         <ChartAnnotation annotations={TIMELINE_ANNOTATIONS} />
@@ -2725,6 +2743,7 @@ function TemperatureAnomalyChart() {
   return (
     <ChartCard title="Temperature anomaly" subtitle="ChartArea + thresholdY — split fill above/below 30-year average baseline">
       <ChartRoot data={data} height={280} yDomain={[5, 25]} padding={{ right: 48 }}>
+        <ChartGrid tickCount={5} />
         <ChartArea
           gradientColor="#22c55e"
           opacityFrom={0.18}
