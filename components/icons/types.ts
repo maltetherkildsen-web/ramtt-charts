@@ -4,6 +4,7 @@
 export interface IconProps {
   size?: number
   color?: string
+  strokeWidth?: number
   className?: string
   'aria-label'?: string
   'aria-hidden'?: boolean

@@ -12,7 +12,7 @@ export const ReactiveBase = forwardRef<SVGSVGElement, ReactiveIconProps & {
   children: ReactNode
   reactionClass: string
 }>(
-  ({ size = 16, color = 'currentColor', reactive = true, reactionClass, className, children, ...props }, ref) => (
+  ({ size = 16, color = 'currentColor', strokeWidth = 1.5, reactive = true, reactionClass, className, children, ...props }, ref) => (
     <svg
       ref={ref}
       width={size}
@@ -20,7 +20,7 @@ export const ReactiveBase = forwardRef<SVGSVGElement, ReactiveIconProps & {
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth={1.5}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={`${reactive ? `ramtt-reactive ${reactionClass}` : ''}${className ? ` ${className}` : ''}`}

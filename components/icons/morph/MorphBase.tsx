@@ -9,7 +9,7 @@ export interface MorphIconProps extends IconProps {
 }
 
 export const MorphBase = forwardRef<SVGSVGElement, MorphIconProps & { children: ReactNode }>(
-  ({ size = 16, color = 'currentColor', duration = 250, className, children, ...props }, ref) => (
+  ({ size = 16, color = 'currentColor', strokeWidth = 1.5, duration = 250, className, children, ...props }, ref) => (
     <svg
       ref={ref}
       width={size}
@@ -17,7 +17,7 @@ export const MorphBase = forwardRef<SVGSVGElement, MorphIconProps & { children: 
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth={1.5}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}

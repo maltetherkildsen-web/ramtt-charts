@@ -7,7 +7,7 @@ import type { IconProps } from './types'
 export type { IconProps } from './types'
 
 export const IconBaseLight = forwardRef<SVGSVGElement, IconProps & { children: ReactNode }>(
-  ({ size = 18, color = 'currentColor', className, children, ...props }, ref) => (
+  ({ size = 18, color = 'currentColor', strokeWidth = 1.25, className, children, ...props }, ref) => (
     <svg
       ref={ref}
       width={size}
@@ -15,7 +15,7 @@ export const IconBaseLight = forwardRef<SVGSVGElement, IconProps & { children: R
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth={1.25}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}

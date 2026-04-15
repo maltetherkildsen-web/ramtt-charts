@@ -5,7 +5,7 @@ import { forwardRef, type ReactNode } from 'react'
 import type { IconDuoProps } from './types'
 
 export const IconBaseDuo = forwardRef<SVGSVGElement, IconDuoProps & { children: ReactNode }>(
-  ({ size = 16, color = 'currentColor', className, children, ...props }, ref) => (
+  ({ size = 16, color = 'currentColor', strokeWidth = 1.5, className, children, ...props }, ref) => (
     <svg
       ref={ref}
       width={size}
@@ -13,7 +13,7 @@ export const IconBaseDuo = forwardRef<SVGSVGElement, IconDuoProps & { children: 
       viewBox="0 0 24 24"
       fill="none"
       stroke={color}
-      strokeWidth={1.5}
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={className}
