@@ -99,6 +99,11 @@ import {
   FormLayout,
   ButtonGroup,
   AuthLayout,
+  LinkGroup,
+  LinkList,
+  DarkSection,
+  SocialIcons,
+  Footer,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -109,7 +114,7 @@ function DemoSection({ title, children }: { title: string; children: React.React
   return (
     <section>
       <SectionHeader>{title}</SectionHeader>
-      <div className="mt-1.5">{children}</div>
+      <div className="mt-3">{children}</div>
     </section>
   )
 }
@@ -3368,6 +3373,185 @@ function AuthLayoutDemo() {
   )
 }
 
+// ─── Link Group ───
+
+function LinkGroupDemo() {
+  return (
+    <DemoSection title="Link groups">
+      <div className="grid grid-cols-2 gap-8">
+        <Card>
+          <div className="flex gap-10">
+            <LinkGroup
+              title="Product"
+              links={[
+                { label: 'Claude', href: '#' },
+                { label: 'Claude Code', href: '#' },
+                { label: 'API', href: '#' },
+                { label: 'Pricing', href: '#' },
+              ]}
+            />
+            <LinkGroup
+              title="Resources"
+              links={[
+                { label: 'Documentation', href: '#' },
+                { label: 'Research', href: '#' },
+                { label: 'Changelog', href: '#' },
+              ]}
+            />
+            <LinkList
+              links={[
+                { label: 'Dashboard', href: '#', active: true },
+                { label: 'Settings', href: '#' },
+                { label: 'Team', href: '#' },
+                { label: 'Billing', href: '#' },
+              ]}
+            />
+          </div>
+        </Card>
+        <DarkSection className={cn(RADIUS.lg, 'p-3.5')}>
+          <div className="flex gap-10">
+            <LinkGroup
+              dark
+              title="Product"
+              links={[
+                { label: 'Claude', href: '#' },
+                { label: 'Claude Code', href: '#' },
+                { label: 'API', href: '#' },
+                { label: 'Pricing', href: '#' },
+              ]}
+            />
+            <LinkGroup
+              dark
+              title="Resources"
+              links={[
+                { label: 'Documentation', href: '#' },
+                { label: 'Research', href: '#' },
+                { label: 'Changelog', href: '#' },
+              ]}
+            />
+            <LinkList
+              dark
+              links={[
+                { label: 'Dashboard', href: '#', active: true },
+                { label: 'Settings', href: '#' },
+                { label: 'Team', href: '#' },
+                { label: 'Billing', href: '#' },
+              ]}
+            />
+          </div>
+        </DarkSection>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── Dark Surface ───
+
+function DarkSurfaceDemo() {
+  return (
+    <DemoSection title="Dark surface">
+      <DarkSection className={cn(RADIUS.lg, 'p-6')}>
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <span className={cn(WEIGHT.strong, 'text-[14px] text-[var(--dark-text)]')}>Dark surface tokens</span>
+            <span className={cn(WEIGHT.normal, 'text-[13px] text-[var(--dark-muted)]')}>--dark-bg #141413 &middot; --dark-text #FAF9F5 &middot; --dark-muted #B0AEA5</span>
+          </div>
+          <SocialIcons
+            dark
+            links={[
+              { platform: 'github', href: '#' },
+              { platform: 'x', href: '#' },
+              { platform: 'linkedin', href: '#' },
+              { platform: 'strava', href: '#' },
+              { platform: 'youtube', href: '#' },
+            ]}
+          />
+        </div>
+      </DarkSection>
+    </DemoSection>
+  )
+}
+
+// ─── Footer ───
+
+function FooterDemo() {
+  return (
+    <DemoSection title="Footer">
+      <div className={cn(RADIUS.lg, 'overflow-hidden')}>
+        <Footer
+          columns={[
+            {
+              groups: [
+                {
+                  title: 'Product',
+                  links: [
+                    { label: 'Training', href: '#' },
+                    { label: 'Nutrition', href: '#' },
+                    { label: 'Race planning', href: '#' },
+                    { label: 'Analytics', href: '#' },
+                  ],
+                },
+                {
+                  title: 'Plans',
+                  links: [
+                    { label: 'Free', href: '#' },
+                    { label: 'Pro', href: '#' },
+                    { label: 'Team', href: '#' },
+                  ],
+                },
+              ],
+            },
+            {
+              groups: [
+                {
+                  title: 'Resources',
+                  links: [
+                    { label: 'Documentation', href: '#' },
+                    { label: 'Blog', href: '#' },
+                    { label: 'Changelog', href: '#' },
+                    { label: 'Support', href: '#' },
+                  ],
+                },
+              ],
+            },
+            {
+              groups: [
+                {
+                  title: 'Company',
+                  links: [
+                    { label: 'About', href: '#' },
+                    { label: 'Careers', href: '#' },
+                    { label: 'Contact', href: '#' },
+                  ],
+                },
+              ],
+            },
+            {
+              groups: [
+                {
+                  title: 'Legal',
+                  links: [
+                    { label: 'Privacy', href: '#' },
+                    { label: 'Terms', href: '#' },
+                    { label: 'Cookie policy', href: '#' },
+                  ],
+                },
+              ],
+            },
+          ]}
+          social={[
+            { platform: 'linkedin', href: '#' },
+            { platform: 'x', href: '#' },
+            { platform: 'youtube', href: '#' },
+            { platform: 'github', href: '#' },
+            { platform: 'strava', href: '#' },
+          ]}
+        />
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3383,7 +3567,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              83 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              88 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -3448,6 +3632,9 @@ export default function UIDemo() {
             <FormLayoutDemo />
             <ButtonGroupDemo />
             <AuthLayoutDemo />
+            <LinkGroupDemo />
+            <DarkSurfaceDemo />
+            <FooterDemo />
           </div>
         </div>
       </main>

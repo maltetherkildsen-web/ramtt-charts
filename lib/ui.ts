@@ -75,6 +75,17 @@ export type SemanticColor = keyof typeof SEMANTIC_COLORS;
 // --n1150 stays for primary text and button fills.
 export const N1100 = 'var(--n1100)';
 
+// ─── Dark Surface Tokens ───
+// For components on dark backgrounds (footer, overlays, dark bars).
+// NOT dark mode — just dark SURFACES. The system self-inverts: --dark-text = --bg.
+export const DARK = {
+  BG: 'var(--dark-bg)',
+  TEXT: 'var(--dark-text)',
+  MUTED: 'var(--dark-muted)',
+  BORDER: 'var(--dark-border)',
+  HOVER: 'var(--dark-hover)',
+} as const;
+
 // ─── Font Classes ───
 // No component should ever hardcode a font-family — use these.
 export const FONT = {
@@ -292,6 +303,6 @@ export const LAYOUT = {
   maxWidth: 'max-w-[800px]',
   /** Standard horizontal padding */
   pagePadding: 'px-8',
-  /** Standard section gap */
-  sectionGap: 'space-y-10',
+  /** Standard section gap — flex gap for consistent visual spacing (not margin-based) */
+  sectionGap: 'flex flex-col gap-10',
 } as const;

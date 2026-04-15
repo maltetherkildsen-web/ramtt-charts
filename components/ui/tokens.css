@@ -60,6 +60,7 @@
   --n200: #F2F0EA;
   --n400: #E8E5DC;
   --n600: #76726A; /* WCAG AA 4.55:1 on --bg */
+  --n700: #B0AEA5; /* Mid-muted — between n600 and n800. Muted text on dark surfaces */
   --n800: #6B6760;
   --n1050: #383633;
   --n1100: #2A2826;
@@ -123,6 +124,15 @@
   /* Semantic chart pairs */
   --chart-positive: #34C77B;
   --chart-negative: #F43F5E;
+
+  /* ═══ Dark Surface Tokens ═══ */
+  /* For components on dark backgrounds (footer, overlays, dark bars).
+     NOT dark mode — these are for dark SURFACES only. */
+  --dark-bg: #141413;                     /* Near-black with warmth */
+  --dark-text: #FAF9F5;                   /* Primary text on dark — same as --bg (self-inverting) */
+  --dark-muted: #B0AEA5;                  /* Muted text, links, icons on dark — same as --n700 */
+  --dark-border: rgba(250, 249, 245, 0.10); /* Subtle border on dark — sand at 10% */
+  --dark-hover: rgba(250, 249, 245, 0.06);  /* Hover state on dark — sand at 6% */
 }
 
 /* ─── Base typography ─── */

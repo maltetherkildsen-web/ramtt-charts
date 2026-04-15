@@ -40,7 +40,9 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 ## Borders
 - Always 0.5px
 - Use BORDER.default (--n400) or BORDER.subtle (--n200)
-- Never use border widths above 1px
+- Never use border widths above 1px (exception: 2px underline for active tab via ACTIVE_UNDERLINE)
+- Borders MAY be removed entirely where spacing alone creates sufficient separation (e.g., link lists, footer columns)
+- If removing a border, the gap between items should be at least 8px to compensate
 
 ## Colors
 - Primary text: --n1150
@@ -87,7 +89,37 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Modal uses `::backdrop` with blur, not shadow
 - Dropdown and Toast rely on border/color contrast for separation
 
-## Components (83)
+## Vertical Rhythm
+- Section gaps use `gap` (flex/grid), never `margin-bottom`, to ensure consistent visual spacing
+- The standard section gap is `40px` (`gap-10`) via `LAYOUT.sectionGap`
+- Header-to-content gap is `12px` (`mt-3`)
+- Card internal padding is `14px` (if it ever drifts, fix it)
+
+## Link List Typography
+- In link lists (navigation, footer, settings sidebar), heading and link text MAY be the same font size
+- Hierarchy via weight (550 heading vs 400 links) and color (stronger heading vs muted links)
+- This creates perfect vertical alignment — same-size text always lines up
+
+## Link Hover Pattern
+- Standard link hover: `color` transition (150ms via TRANSITION.colors), underline appears on hover
+- `text-underline-offset: 0.25em` — never 0 or auto
+- `text-decoration-thickness: 1px` — never thicker
+- This applies to all text links in all contexts (footer, sidebar, body text, settings)
+
+## Dark Surface Colors
+- Dark backgrounds use `--dark-bg` (#141413), never pure black
+- Text on dark uses `--dark-text` (#FAF9F5), which is the same as `--bg` — the system is self-inverting
+- Muted text on dark uses `--dark-muted` (#B0AEA5 = `--n700`)
+- Borders on dark use `--dark-border` (sand at 10% opacity)
+- NO new color system for dark — just invert the existing warm neutral scale
+- Use `DARK` constants from lib/ui.ts, never hardcode these values
+
+## Letter-Spacing on Small Text
+- Body text (13-14px): no letter-spacing (normal)
+- Small link lists (12px): `-0.02em` (slightly tighter, as in footer/nav)
+- Labels and headers: no letter-spacing
+
+## Components (88)
 
 ### Wave 1 — Display & Input (12)
 Button, Badge, ToggleGroup, Card, DataRow, DataTable, Input, Select, MetricCard, SettingsCard, ProgressBar, SectionHeader
@@ -127,3 +159,6 @@ TodoList, HelpSection, FieldMapping
 
 ### Wave 8D — Layout & Form Patterns (8)
 DescriptionList, Feed, ActionPanel, GridList, MediaObject, FormLayout, ButtonGroup, AuthLayout
+
+### Wave 9 — Dark Surfaces & Footer (5)
+LinkGroup, LinkList, DarkSection, SocialIcons, Footer

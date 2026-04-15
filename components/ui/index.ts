@@ -112,11 +112,18 @@ export { FormLayout } from './FormLayout';
 export { ButtonGroup } from './ButtonGroup';
 export { AuthLayout } from './AuthLayout';
 
+// ─── Components (Wave 9 — Dark Surfaces & Footer) ───
+export { LinkGroup } from './LinkGroup';
+export { LinkList } from './LinkList';
+export { DarkSection } from './DarkSection';
+export { SocialIcons } from './SocialIcons';
+export { Footer } from './Footer';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
 export { HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, FOCUS_RING_THICK, FOCUS_RING_THIN, TRANSITION } from '@/lib/ui';
-export { LAYOUT, MODAL_WIDTH, TOAST_MAX_VISIBLE, TOAST_DEFAULT_DURATION, DROPDOWN_ITEM, SWITCH_TRACK, SWITCH_THUMB } from '@/lib/ui';
+export { LAYOUT, MODAL_WIDTH, TOAST_MAX_VISIBLE, TOAST_DEFAULT_DURATION, DROPDOWN_ITEM, SWITCH_TRACK, SWITCH_THUMB, DARK } from '@/lib/ui';
 export { TOOLTIP_BG, TOOLTIP_TEXT, TOOLTIP_RADIUS, TOOLTIP_PADDING, SLIDER_TRACK_HEIGHT, SLIDER_THUMB_SIZE, AVATAR_SIZES } from '@/lib/ui';
 export { SIDEBAR_WIDTH, SIDEBAR_ITEM_STYLE, SIDEBAR_ITEM_ACTIVE, GAUGE_SIZES } from '@/lib/ui';
 export { CALENDAR_CELL_SIZE, CALENDAR_WEEK_STARTS_ON, PAGE_BUTTON_SIZE, PAGE_BUTTON_ACTIVE, DRAWER_WIDTHS, SPINNER_SIZES } from '@/lib/ui';
