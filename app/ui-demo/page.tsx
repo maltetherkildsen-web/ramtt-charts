@@ -16,6 +16,8 @@ import {
   TRANSITION,
   CATEGORY_COLORS,
   type CategoryType,
+  DOMAIN,
+  type DomainKey,
 } from '@/lib/ui'
 import {
   MetricCard,
@@ -4175,6 +4177,135 @@ function PropertyInspectorDemo() {
   )
 }
 
+// ─── Domain Colors ───
+
+const DOMAIN_TOKEN_KEYS = [
+  'pressed', 'hover', '', 'toggle', 'text', 'icon',
+  'icon-light', 'icon-lightest', 'border', 'selection',
+  'wash', 'badge', 'soft', 'light',
+] as const
+
+function DomainColorsDemo() {
+  const domains: { key: DomainKey; sample: string; unit: string }[] = [
+    { key: 'nutrition', sample: '62g', unit: 'CHO' },
+    { key: 'training', sample: '285W', unit: 'FTP' },
+    { key: 'body', sample: '52ms', unit: 'HRV' },
+  ]
+
+  return (
+    <DemoSection title="Domain Colors">
+      {/* Domain pills */}
+      <div className="flex flex-col gap-6">
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Domain badges</p>
+          <div className="flex items-center gap-2">
+            {domains.map(d => (
+              <Badge key={d.key} color={d.key}>{DOMAIN[d.key].label}</Badge>
+            ))}
+            {domains.map(d => (
+              <Badge key={d.key + '-o'} variant="outline" color={d.key}>{DOMAIN[d.key].label}</Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Badges with values */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Domain badges with values</p>
+          <div className="flex items-center gap-2">
+            {domains.map(d => (
+              <Badge key={d.key} color={d.key}>{d.sample} {d.unit}</Badge>
+            ))}
+          </div>
+        </div>
+
+        {/* Domain cards with left border */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Domain cards (left-border + wash)</p>
+          <div className="grid grid-cols-3 gap-4">
+            {domains.map(d => (
+              <div
+                key={d.key}
+                className={cn(RADIUS.md, 'px-3.5 py-2.5')}
+                style={{
+                  borderLeft: `3px solid var(--domain-${d.key})`,
+                  backgroundColor: `var(--domain-${d.key}-wash)`,
+                  borderRadius: `0 ${4}px ${4}px 0`,
+                }}
+              >
+                <div className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)]')}>
+                  {DOMAIN[d.key].label}
+                </div>
+                <div className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n800)] mt-0.5')}>
+                  {d.sample} {d.unit}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Domain progress bars */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Domain progress bars</p>
+          <Card>
+            <div className="flex flex-col gap-3">
+              <ProgressBar value={78} max={100} color="nutrition" label="78% CHO target" />
+              <ProgressBar value={62} max={100} color="training" label="62% FTP progress" />
+              <ProgressBar value={45} max={100} color="body" label="45% HRV recovery" />
+            </div>
+          </Card>
+        </div>
+
+        {/* Domain status indicators */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Domain status indicators</p>
+          <div className="flex items-center gap-6">
+            <StatusIndicator status="nutrition" label="Nutrition" size="sm" />
+            <StatusIndicator status="training" label="Training" size="sm" />
+            <StatusIndicator status="body" label="Body" size="sm" />
+          </div>
+          <div className="flex items-start gap-4 mt-3">
+            <StatusIndicator status="nutrition" label="Fuelling" value="On target" size="md" />
+            <StatusIndicator status="training" label="Load" value="Optimal" size="md" />
+            <StatusIndicator status="body" label="Recovery" value="Good" size="md" />
+          </div>
+          <div className="flex items-start gap-4 mt-3">
+            <StatusIndicator status="nutrition" label="CHO intake" value="192g of 200g" size="lg" appearance="edge-left" />
+            <StatusIndicator status="training" label="Weekly TSS" value="680 / 750" size="lg" appearance="edge-left" />
+            <StatusIndicator status="body" label="HRV trend" value="+4ms this week" size="lg" appearance="edge-left" />
+          </div>
+        </div>
+
+        {/* Accent ramp strips */}
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Domain token ramps (14 tokens each)</p>
+          <div className="flex flex-col gap-3">
+            {(Object.keys(DOMAIN) as DomainKey[]).map(key => (
+              <div key={key}>
+                <p className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)] mb-1')}>
+                  {DOMAIN[key].label} — {DOMAIN[key].color}
+                </p>
+                <div className="flex h-8 overflow-hidden" style={{ borderRadius: 4 }}>
+                  {DOMAIN_TOKEN_KEYS.map(suffix => {
+                    const varName = suffix ? `--domain-${key}-${suffix}` : `--domain-${key}`
+                    return (
+                      <div
+                        key={varName}
+                        className="flex-1"
+                        style={{ backgroundColor: `var(${varName})` }}
+                        title={varName}
+                      />
+                    )
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ─── Filter Pills with Icons ───
 
 function FilterPillsDemo() {
@@ -4318,6 +4449,7 @@ export default function UIDemo() {
             <LinkGroupDemo />
             <DarkSurfaceDemo />
             <FooterDemo />
+            <DomainColorsDemo />
             <CategoryIconsDemo />
             <ContentCardsDemo />
             <CommandPaletteDemo />

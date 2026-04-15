@@ -5,17 +5,20 @@ import { forwardRef } from 'react'
 import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, WEIGHT } from '@/lib/ui'
 
 const SEMANTIC_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  default:  { bg: 'var(--n200)',          text: 'var(--n1050)',            border: 'var(--n400)' },
-  positive: { bg: 'var(--positive-soft)', text: 'var(--positive-on-soft)', border: 'var(--positive)' },
-  negative: { bg: 'var(--negative-soft)', text: 'var(--negative-on-soft)', border: 'var(--negative)' },
-  warning:  { bg: 'var(--warning-soft)',  text: 'var(--warning-on-soft)',  border: 'var(--warning)' },
-  info:     { bg: 'var(--info-soft)',     text: 'var(--info-on-soft)',     border: 'var(--info)' },
+  default:   { bg: 'var(--n200)',                  text: 'var(--n1050)',                border: 'var(--n400)' },
+  positive:  { bg: 'var(--positive-soft)',         text: 'var(--positive-on-soft)',     border: 'var(--positive)' },
+  negative:  { bg: 'var(--negative-soft)',         text: 'var(--negative-on-soft)',     border: 'var(--negative)' },
+  warning:   { bg: 'var(--warning-soft)',          text: 'var(--warning-on-soft)',      border: 'var(--warning)' },
+  info:      { bg: 'var(--info-soft)',             text: 'var(--info-on-soft)',         border: 'var(--info)' },
+  nutrition: { bg: 'var(--domain-nutrition-badge)', text: 'var(--domain-nutrition-text)', border: 'var(--domain-nutrition-border)' },
+  training:  { bg: 'var(--domain-training-badge)', text: 'var(--domain-training-text)', border: 'var(--domain-training-border)' },
+  body:      { bg: 'var(--domain-body-badge)',     text: 'var(--domain-body-text)',     border: 'var(--domain-body-border)' },
 }
 
 export interface BadgeProps {
   children: React.ReactNode
   variant?: 'filled' | 'outline'
-  color?: 'default' | 'positive' | 'negative' | 'warning' | 'info' | string
+  color?: 'default' | 'positive' | 'negative' | 'warning' | 'info' | 'nutrition' | 'training' | 'body' | string
   size?: 'sm' | 'md'
   className?: string
 }

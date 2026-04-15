@@ -190,7 +190,7 @@ function TimeField({
         BORDER.default,
         TRANSITION.colors,
         FOCUS_RING_THIN,
-        'focus:border-[var(--n800)]',
+        'focus:border-[1.5px] focus:border-[var(--accent)]',
         disabled && 'opacity-50',
       )}
     />

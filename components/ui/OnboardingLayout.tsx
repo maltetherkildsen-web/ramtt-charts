@@ -97,7 +97,7 @@ const OnboardingLayout = forwardRef<HTMLDivElement, OnboardingLayoutProps>(
                   <div className="flex flex-col items-center">
                     <div
                       className={cn(
-                        'rounded-full',
+                        'rounded-[30%]',
                         i <= currentStep ? STEP_DOT_COMPLETED : STEP_DOT_UPCOMING,
                       )}
                       style={{ width: STEP_DOT_SIZE, height: STEP_DOT_SIZE }}

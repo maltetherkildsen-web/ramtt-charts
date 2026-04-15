@@ -51,7 +51,7 @@ const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
             TRANSITION.colors,
             FOCUS_RING_THIN,
             'px-3 py-2',
-            'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
+            'placeholder:text-[var(--n600)] focus:border-[1.5px] focus:border-[var(--accent)]',
           )}
         />
         {showCount && maxLength !== undefined && (

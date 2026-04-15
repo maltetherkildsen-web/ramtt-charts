@@ -34,7 +34,7 @@ const Switch = forwardRef<HTMLButtonElement, SwitchProps>(
           'relative inline-flex shrink-0 items-center rounded-full',
           TRANSITION.background,
           FOCUS_RING,
-          checked ? 'bg-[var(--n1150)]' : 'bg-[var(--n400)]',
+          checked ? 'bg-[var(--accent-toggle)]' : 'bg-[var(--n400)]',
           disabled && 'opacity-50 pointer-events-none',
           className,
         )}

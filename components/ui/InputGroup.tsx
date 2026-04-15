@@ -35,7 +35,7 @@ const InputGroupRoot = forwardRef<HTMLDivElement, InputGroupProps>(
           RADIUS.md,
           'overflow-hidden',
           TRANSITION.colors,
-          'focus-within:border-[var(--n800)]',
+          'focus-within:border-[1.5px] focus-within:border-[var(--accent)]',
           // Remove border/radius from child inputs
           '[&_input]:border-0 [&_input]:rounded-none [&_input]:bg-transparent [&_input]:outline-none',
           // Remove focus ring from inner input (the group border handles focus)

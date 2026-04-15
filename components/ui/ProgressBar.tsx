@@ -9,12 +9,15 @@ const FILL_COLORS: Record<string, string> = {
   positive: 'var(--positive)',
   negative: 'var(--negative)',
   warning: 'var(--warning)',
+  nutrition: 'var(--domain-nutrition)',
+  training: 'var(--domain-training)',
+  body: 'var(--domain-body)',
 }
 
 export interface ProgressBarProps {
   value: number
   max: number
-  color?: 'default' | 'positive' | 'negative' | 'warning' | string
+  color?: 'default' | 'positive' | 'negative' | 'warning' | 'nutrition' | 'training' | 'body' | string
   label?: string
   height?: number
   className?: string

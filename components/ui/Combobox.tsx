@@ -184,7 +184,7 @@ const Combobox = forwardRef<HTMLDivElement, ComboboxProps>(
             BORDER.default,
             RADIUS.md,
             TRANSITION.colors,
-            'focus-within:border-[var(--n800)]',
+            'focus-within:border-[1.5px] focus-within:border-[var(--accent)]',
           )}
           onClick={() => { setOpen(true); inputRef.current?.focus() }}
         >

@@ -2,7 +2,7 @@
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
-import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRANSITION, HOVER_SAND, ACTIVE_BLACK, FOCUS_RING, WEIGHT } from '@/lib/ui'
+import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, TRANSITION, HOVER_SAND, FOCUS_RING, WEIGHT } from '@/lib/ui'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode
@@ -11,9 +11,9 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantStyles = {
-  primary: cn(ACTIVE_BLACK, 'hover:opacity-90 active:opacity-80'),
-  outline: cn('bg-transparent text-[var(--n1050)]', BORDER.default, HOVER_SAND, 'active:bg-[var(--n400)]'),
-  ghost: cn('bg-transparent text-[var(--n800)]', HOVER_SAND, 'active:bg-[var(--n400)]'),
+  primary: 'bg-[var(--accent)] text-[var(--n50)] hover:bg-[var(--accent-hover)] active:bg-[var(--accent-pressed)]',
+  outline: cn('bg-transparent text-[var(--accent-text)] border-[0.5px] border-[var(--accent-border)]', HOVER_SAND, 'active:bg-[var(--n400)]'),
+  ghost: cn('bg-transparent text-[var(--accent-text)]', HOVER_SAND, 'active:bg-[var(--n400)]'),
 }
 
 const sizeStyles = {

@@ -13,12 +13,15 @@ const STATUS_COLORS: Record<string, string> = {
   critical: 'var(--negative)',
   neutral: 'var(--n600)',
   unknown: 'var(--n400)',
+  nutrition: 'var(--domain-nutrition)',
+  training: 'var(--domain-training)',
+  body: 'var(--domain-body)',
 }
 
 // ─── Types ───
 
 export interface StatusIndicatorProps {
-  status: 'good' | 'warning' | 'critical' | 'neutral' | 'unknown'
+  status: 'good' | 'warning' | 'critical' | 'neutral' | 'unknown' | 'nutrition' | 'training' | 'body'
   label?: string
   value?: string
   /** sm = inline dot+label, md = default, lg = container */

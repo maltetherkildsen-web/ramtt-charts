@@ -76,7 +76,7 @@ const Avatar = forwardRef<HTMLDivElement, AvatarProps>(
         {status && (
           <span
             className={cn(
-              'absolute rounded-full border-[2px] border-[var(--n50)]',
+              'absolute rounded-[30%] border-[2px] border-[var(--n50)]',
               STATUS_COLORS[status],
             )}
             style={{

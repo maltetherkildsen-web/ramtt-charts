@@ -202,7 +202,7 @@ const TimelineStrip = forwardRef<HTMLDivElement, TimelineStripProps>(
             >
               {/* Dot */}
               <div
-                className="w-2 h-2 rounded-full transition-transform duration-100 group-hover:scale-[1.2]"
+                className="w-2 h-2 rounded-[30%] transition-transform duration-100 group-hover:scale-[1.2]"
                 style={{ backgroundColor: marker.color }}
               />
               {/* Label */}

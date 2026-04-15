@@ -60,7 +60,7 @@ const NotificationBadge = forwardRef<HTMLSpanElement, NotificationBadgeProps>(
               style={{
                 width: BADGE_NOTIFY_DOT,
                 height: BADGE_NOTIFY_DOT,
-                borderRadius: '50%',
+                borderRadius: '30%',
                 backgroundColor: color,
                 border: '2px solid var(--n50)',
                 animation: animate ? 'ramtt-badge-enter 200ms var(--ease-out-expo)' : undefined,
@@ -78,7 +78,7 @@ const NotificationBadge = forwardRef<HTMLSpanElement, NotificationBadgeProps>(
               style={{
                 minWidth: BADGE_NOTIFY_SIZE,
                 height: BADGE_NOTIFY_SIZE,
-                borderRadius: BADGE_NOTIFY_SIZE / 2,
+                borderRadius: '30%',
                 padding: '0 4px',
                 fontSize: 10,
                 lineHeight: `${BADGE_NOTIFY_SIZE}px`,

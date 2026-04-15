@@ -32,7 +32,7 @@ const TagComponent = forwardRef<HTMLSpanElement, TagProps>(
       >
         {color && (
           <span
-            className="shrink-0 rounded-full"
+            className="shrink-0 rounded-[30%]"
             style={{ width: 6, height: 6, backgroundColor: color }}
           />
         )}
@@ -130,7 +130,7 @@ const TagInput = forwardRef<HTMLDivElement, TagInputProps>(
             BORDER.default,
             RADIUS.md,
             TRANSITION.colors,
-            'focus-within:border-[var(--n800)]',
+            'focus-within:border-[1.5px] focus-within:border-[var(--accent)]',
           )}
           onClick={() => inputRef.current?.focus()}
         >

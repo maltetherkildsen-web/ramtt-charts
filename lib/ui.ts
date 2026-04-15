@@ -59,6 +59,17 @@ export const RADIUS = {
 
 export type Radius = keyof typeof RADIUS;
 
+// ─── Domain Colors ───
+// Three domains: Nutrition, Training, Body. Each has a 14-token ramp in tokens.css.
+// The hex + tw values are for reference/chart use. UI components use var(--domain-*) tokens.
+export const DOMAIN = {
+  nutrition: { color: '#06B6D4', name: 'Cyan 500',    label: 'Nutrition' },
+  training:  { color: '#DB2777', name: 'Pink 600',    label: 'Training' },
+  body:      { color: '#6366F1', name: 'Indigo 500',  label: 'Body' },
+} as const;
+
+export type DomainKey = keyof typeof DOMAIN;
+
 // ─── Semantic Colors ───
 export const SEMANTIC_COLORS = {
   default: '',
@@ -167,8 +178,8 @@ export const FOCUS_RING = 'focus-visible:shadow-[0_0_0_2px_var(--bg),0_0_0_4px_v
 export const FOCUS_RING_THICK = FOCUS_RING;
 
 /** Thin ring — inputs, selects, textareas, inline controls.
- *  Subtle border-color shift from --n400 → --n800. No box-shadow. */
-export const FOCUS_RING_THIN = 'focus-visible:border-[var(--n800)] focus-visible:outline-none';
+ *  1.5px accent border on focus. Visible but not heavy. */
+export const FOCUS_RING_THIN = 'focus-visible:border-[1.5px] focus-visible:border-[var(--accent)] focus-visible:outline-none';
 
 /** For compound inputs where the CONTAINER needs the ring when a child is focused */
 export const FOCUS_WITHIN_RING = 'focus-within:shadow-[0_0_0_2px_var(--bg),0_0_0_4px_var(--n600)]';

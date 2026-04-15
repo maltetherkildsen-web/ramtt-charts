@@ -37,7 +37,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
               FOCUS_RING_THIN,
               WEIGHT.normal, 'text-[var(--n1150)]',
               'tabular-nums',
-              'placeholder:text-[var(--n600)] focus:border-[var(--n800)]',
+              'placeholder:text-[var(--n600)] focus:border-[1.5px] focus:border-[var(--accent)]',
               SIZE_PADDING_X.sm,
               unit && 'pr-8',
             )}

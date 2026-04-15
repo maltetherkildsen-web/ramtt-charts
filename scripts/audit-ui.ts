@@ -42,6 +42,8 @@ const ALLOWED_HEX = new Set([
   '#b0aea5',
   // Category colors
   '#6366f1', '#8b5cf6', '#0891b2', '#ea580c', '#16a34a',
+  // Domain colors (defined in lib/ui.ts DOMAIN constant and tokens.css)
+  '#06b6d4', '#db2777', '#6366f1',
   // White
   '#ffffff', '#fff',
 ]);
@@ -250,7 +252,7 @@ if (existsSync(chartDir)) {
 // ── Phase 4: lib/ui.ts integrity ──
 console.log('Phase 4: lib/ui.ts integrity');
 const uiTs = readFileSync(join(ROOT, 'lib/ui.ts'), 'utf-8');
-const requiredExports = ['WEIGHT', 'FONT', 'RADIUS', 'BORDER', 'TRANSITION', 'LABEL_STYLE', 'VALUE_STYLE', 'MUTED_STYLE', 'UNIT_STYLE', 'BODY_STYLE', 'QUIET_STYLE', 'HOVER_SAND', 'ACTIVE_SAND', 'ACTIVE_BLACK', 'WHITE_LIFT', 'ACTIVE_UNDERLINE', 'FOCUS_RING', 'LAYOUT', 'SIZE_HEIGHTS', 'SIZE_TEXT', 'SIZE_PADDING_X', 'MODAL_WIDTH', 'TOAST_MAX_VISIBLE', 'TOAST_DEFAULT_DURATION', 'DROPDOWN_ITEM', 'SWITCH_TRACK', 'SWITCH_THUMB', 'TOOLTIP_BG', 'TOOLTIP_TEXT', 'TOOLTIP_RADIUS', 'TOOLTIP_PADDING', 'SLIDER_TRACK_HEIGHT', 'SLIDER_THUMB_SIZE', 'AVATAR_SIZES', 'SIDEBAR_WIDTH', 'SIDEBAR_ITEM_STYLE', 'SIDEBAR_ITEM_ACTIVE', 'GAUGE_SIZES', 'CALENDAR_CELL_SIZE', 'CALENDAR_WEEK_STARTS_ON', 'PAGE_BUTTON_SIZE', 'PAGE_BUTTON_ACTIVE', 'DRAWER_WIDTHS', 'SPINNER_SIZES', 'SEPARATOR_DEFAULT', 'SEPARATOR_SUBTLE', 'SCROLLBAR_WIDTH', 'SCROLLBAR_THUMB_MIN', 'SCROLLBAR_THUMB_COLOR', 'SCROLLBAR_THUMB_HOVER', 'SCROLLBAR_THUMB_ACTIVE', 'DOT_SIZES', 'STEPPER_BUTTON_WIDTH', 'STEPPER_REPEAT_DELAY', 'STEPPER_REPEAT_INTERVAL', 'STEP_DOT_SIZE', 'STEP_DOT_COMPLETED', 'STEP_DOT_UPCOMING', 'RATING_SEGMENT_SIZE', 'WIDGET_ICON_SIZE', 'WIDGET_ICON_COLOR', 'WIDGET_ICON_HOVER', 'GRID_COLUMNS', 'GRID_ROW_HEIGHT', 'GRID_GAP', 'STAT_SIZES', 'BADGE_NOTIFY_SIZE', 'BADGE_NOTIFY_DOT', 'BADGE_NOTIFY_MAX', 'DARK', 'CATEGORY_COLORS'];
+const requiredExports = ['WEIGHT', 'FONT', 'RADIUS', 'BORDER', 'TRANSITION', 'LABEL_STYLE', 'VALUE_STYLE', 'MUTED_STYLE', 'UNIT_STYLE', 'BODY_STYLE', 'QUIET_STYLE', 'HOVER_SAND', 'ACTIVE_SAND', 'ACTIVE_BLACK', 'WHITE_LIFT', 'ACTIVE_UNDERLINE', 'FOCUS_RING', 'LAYOUT', 'SIZE_HEIGHTS', 'SIZE_TEXT', 'SIZE_PADDING_X', 'MODAL_WIDTH', 'TOAST_MAX_VISIBLE', 'TOAST_DEFAULT_DURATION', 'DROPDOWN_ITEM', 'SWITCH_TRACK', 'SWITCH_THUMB', 'TOOLTIP_BG', 'TOOLTIP_TEXT', 'TOOLTIP_RADIUS', 'TOOLTIP_PADDING', 'SLIDER_TRACK_HEIGHT', 'SLIDER_THUMB_SIZE', 'AVATAR_SIZES', 'SIDEBAR_WIDTH', 'SIDEBAR_ITEM_STYLE', 'SIDEBAR_ITEM_ACTIVE', 'GAUGE_SIZES', 'CALENDAR_CELL_SIZE', 'CALENDAR_WEEK_STARTS_ON', 'PAGE_BUTTON_SIZE', 'PAGE_BUTTON_ACTIVE', 'DRAWER_WIDTHS', 'SPINNER_SIZES', 'SEPARATOR_DEFAULT', 'SEPARATOR_SUBTLE', 'SCROLLBAR_WIDTH', 'SCROLLBAR_THUMB_MIN', 'SCROLLBAR_THUMB_COLOR', 'SCROLLBAR_THUMB_HOVER', 'SCROLLBAR_THUMB_ACTIVE', 'DOT_SIZES', 'STEPPER_BUTTON_WIDTH', 'STEPPER_REPEAT_DELAY', 'STEPPER_REPEAT_INTERVAL', 'STEP_DOT_SIZE', 'STEP_DOT_COMPLETED', 'STEP_DOT_UPCOMING', 'RATING_SEGMENT_SIZE', 'WIDGET_ICON_SIZE', 'WIDGET_ICON_COLOR', 'WIDGET_ICON_HOVER', 'GRID_COLUMNS', 'GRID_ROW_HEIGHT', 'GRID_GAP', 'STAT_SIZES', 'BADGE_NOTIFY_SIZE', 'BADGE_NOTIFY_DOT', 'BADGE_NOTIFY_MAX', 'DARK', 'CATEGORY_COLORS', 'DOMAIN'];
 for (const exp of requiredExports) {
   if (!uiTs.includes(`export const ${exp}`)) {
     ERRORS.push(`lib/ui.ts: Missing export: ${exp}`);
@@ -261,6 +263,40 @@ for (const fn of requiredFunctions) {
   if (!uiTs.includes(`export function ${fn}`)) {
     ERRORS.push(`lib/ui.ts: Missing export: ${fn}`);
   }
+}
+
+// ── Phase 5: Domain tokens in tokens.css ──
+console.log('Phase 5: Domain tokens');
+const tokensCss = readFileSync(join(ROOT, 'components/ui/tokens.css'), 'utf-8');
+const DOMAIN_KEYS = ['nutrition', 'training', 'body'] as const;
+const TOKEN_SUFFIXES = [
+  '', '-pressed', '-hover', '-toggle', '-text', '-icon',
+  '-icon-light', '-icon-lightest', '-border', '-selection',
+  '-wash', '-badge', '-soft', '-light',
+];
+for (const domain of DOMAIN_KEYS) {
+  for (const suffix of TOKEN_SUFFIXES) {
+    const token = `--domain-${domain}${suffix}`;
+    if (!tokensCss.includes(token)) {
+      ERRORS.push(`tokens.css: Missing domain token: ${token}`);
+    }
+  }
+}
+// Accent aliases
+const ACCENT_SUFFIXES = [
+  '', '-pressed', '-hover', '-toggle', '-text', '-icon',
+  '-icon-light', '-icon-lightest', '-border', '-selection',
+  '-wash', '-badge', '-soft', '-light',
+];
+for (const suffix of ACCENT_SUFFIXES) {
+  const token = `--accent${suffix}`;
+  if (!tokensCss.includes(token)) {
+    ERRORS.push(`tokens.css: Missing accent alias: ${token}`);
+  }
+}
+// Selection uses accent
+if (!tokensCss.includes('var(--accent-selection)')) {
+  ERRORS.push('tokens.css: ::selection should use var(--accent-selection)');
 }
 
 // ═══════════════════════════════════════════════════════════════

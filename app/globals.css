@@ -140,14 +140,7 @@
     --card: var(--color-elevated);
     --border: var(--color-border);
 
-    /* ── Accent ── */
-    --accent: var(--color-accent);
-    --accent-light: #4A044E12;
-    --accent-soft: #4A044E20;
-
-    /* ── Selection ── */
-    --selection-bg: #0F1B3D;
-    --selection-text: #F5E6C8;
+    /* ── Accent — defined in tokens.css (domain ramp system) ── */
 
     /* ── Border opacity layers ── */
     --border-1: rgba(0,0,0,0.06);

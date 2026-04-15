@@ -114,10 +114,73 @@
   --info-soft: #f0f9ff;
   --info-on-soft: #0369a1;
 
-  /* Accent */
-  --accent: #4A044E;
-  --accent-light: #4A044E12;
-  --accent-soft: #4A044E20;
+  /* ═══ Domain Color Ramps ═══ */
+  /* Generated from accents.ts ramp algorithm — 14 tokens per domain */
+
+  /* ── Nutrition (Cyan 500 #06B6D4) ── */
+  --domain-nutrition-pressed: #016273;
+  --domain-nutrition-hover: #03849a;
+  --domain-nutrition: #06B6D4;
+  --domain-nutrition-toggle: #06B6D4;
+  --domain-nutrition-text: #128ca1;
+  --domain-nutrition-icon: #06B6D4;
+  --domain-nutrition-icon-light: #81c6d2;
+  --domain-nutrition-icon-lightest: #c2dce0;
+  --domain-nutrition-border: #cee0e4;
+  --domain-nutrition-selection: #c0dde2;
+  --domain-nutrition-wash: #f0f4f5;
+  --domain-nutrition-badge: #f6f8f8;
+  --domain-nutrition-soft: #06B6D40A;
+  --domain-nutrition-light: #06B6D414;
+
+  /* ── Training (Pink 600 #DB2777) ── */
+  --domain-training-pressed: #891347;
+  --domain-training-hover: #ab1a5a;
+  --domain-training: #DB2777;
+  --domain-training-toggle: #DB2777;
+  --domain-training-text: #691a3d;
+  --domain-training-icon: #aa2560;
+  --domain-training-icon-light: #ce98b0;
+  --domain-training-icon-lightest: #e0ccd5;
+  --domain-training-border: #e1d1d8;
+  --domain-training-selection: #dec4d0;
+  --domain-training-wash: #f4f0f2;
+  --domain-training-badge: #f8f7f7;
+  --domain-training-soft: #DB27770A;
+  --domain-training-light: #DB277714;
+
+  /* ── Body (indigo-500 #6366F1) ── */
+  --domain-body-pressed: #0f13df;
+  --domain-body-hover: #292dee;
+  --domain-body: #6366F1;
+  --domain-body-toggle: #6366F1;
+  --domain-body-text: #1f22b6;
+  --domain-body-icon: #363ae3;
+  --domain-body-icon-light: #b1b2df;
+  --domain-body-icon-lightest: #d7d8e9;
+  --domain-body-border: #cfd0e2;
+  --domain-body-selection: #c2c2e0;
+  --domain-body-wash: #f0f0f4;
+  --domain-body-badge: #f6f6f8;
+  --domain-body-soft: #6366F10A;
+  --domain-body-light: #6366F114;
+
+  /* ═══ App Accent (aliases → nutrition placeholder) ═══ */
+  /* When Ruth picks the final accent, change these 14 pointers. */
+  --accent: var(--domain-nutrition);
+  --accent-pressed: var(--domain-nutrition-pressed);
+  --accent-hover: var(--domain-nutrition-hover);
+  --accent-toggle: var(--domain-nutrition-toggle);
+  --accent-text: var(--domain-nutrition-text);
+  --accent-icon: var(--domain-nutrition-icon);
+  --accent-icon-light: var(--domain-nutrition-icon-light);
+  --accent-icon-lightest: var(--domain-nutrition-icon-lightest);
+  --accent-border: var(--domain-nutrition-border);
+  --accent-selection: var(--domain-nutrition-selection);
+  --accent-wash: var(--domain-nutrition-wash);
+  --accent-badge: var(--domain-nutrition-badge);
+  --accent-soft: var(--domain-nutrition-soft);
+  --accent-light: var(--domain-nutrition-light);
 
   /* ═══ Chart Palette ═══ */
   /* 8 colors tuned for warm --bg (#FAF9F5).
@@ -151,10 +214,10 @@ body {
   font-weight: 450;
 }
 
-/* ─── Text selection — warm, not browser-default blue ─── */
+/* ─── Text selection — accent-tinted ─── */
 ::selection {
-  background-color: var(--n1050);
-  color: var(--n50);
+  background-color: var(--accent-selection);
+  color: var(--n1150);
 }
 
 /* ─── Focus ring — box-shadow technique (Figma-style) ─── */
@@ -164,11 +227,12 @@ body {
   box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--n600);
   outline: none;
 }
-/* Input-like elements use thin ring (border-color only, no shadow) */
+/* Input-like elements use thin ring (1.5px accent border, no shadow) */
 input:focus-visible,
 textarea:focus-visible {
   box-shadow: none;
-  border-color: var(--n800);
+  border-color: var(--accent);
+  border-width: 1.5px;
 }
 :focus:not(:focus-visible) {
   outline: none;

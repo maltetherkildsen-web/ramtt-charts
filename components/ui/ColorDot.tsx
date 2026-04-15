@@ -41,7 +41,7 @@ const ColorDot = forwardRef<HTMLSpanElement, ColorDotProps>(
       >
         <span
           className={cn(
-            'inline-block shrink-0 rounded-full',
+            'inline-block shrink-0 rounded-[30%]',
             pulse && 'ramtt-dot-pulse',
           )}
           style={{
