@@ -211,3 +211,13 @@ export { IconTendonSolid } from './IconTendonSolid'
 export { IconMuscleFiberSolid } from './IconMuscleFiberSolid'
 export { IconRedBloodCellSolid } from './IconRedBloodCellSolid'
 export { IconNerveSolid } from './IconNerveSolid'
+
+// Sport-nutrition expansion
+export { IconWheyProteinSolid } from './IconWheyProteinSolid'
+export { IconCreatineSolid } from './IconCreatineSolid'
+export { IconBeetrootSolid } from './IconBeetrootSolid'
+export { IconIronSupplementSolid } from './IconIronSupplementSolid'
+export { IconVitaminDSolid } from './IconVitaminDSolid'
+export { IconOmega3Solid } from './IconOmega3Solid'
+export { IconProbioticsSolid } from './IconProbioticsSolid'
+export { IconElectrolyteMixSolid } from './IconElectrolyteMixSolid'

@@ -211,3 +211,13 @@ export { IconTendonDuo } from './IconTendonDuo'
 export { IconMuscleFiberDuo } from './IconMuscleFiberDuo'
 export { IconRedBloodCellDuo } from './IconRedBloodCellDuo'
 export { IconNerveDuo } from './IconNerveDuo'
+
+// Sport-nutrition expansion
+export { IconWheyProteinDuo } from './IconWheyProteinDuo'
+export { IconCreatineDuo } from './IconCreatineDuo'
+export { IconBeetrootDuo } from './IconBeetrootDuo'
+export { IconIronSupplementDuo } from './IconIronSupplementDuo'
+export { IconVitaminDDuo } from './IconVitaminDDuo'
+export { IconOmega3Duo } from './IconOmega3Duo'
+export { IconProbioticsDuo } from './IconProbioticsDuo'
+export { IconElectrolyteMixDuo } from './IconElectrolyteMixDuo'

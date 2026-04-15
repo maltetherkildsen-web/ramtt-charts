@@ -212,3 +212,13 @@ export { IconTendon } from './IconTendon'
 export { IconMuscleFiber } from './IconMuscleFiber'
 export { IconRedBloodCell } from './IconRedBloodCell'
 export { IconNerve } from './IconNerve'
+
+// Sport-nutrition expansion
+export { IconWheyProtein } from './IconWheyProtein'
+export { IconCreatine } from './IconCreatine'
+export { IconBeetroot } from './IconBeetroot'
+export { IconIronSupplement } from './IconIronSupplement'
+export { IconVitaminD } from './IconVitaminD'
+export { IconOmega3 } from './IconOmega3'
+export { IconProbiotics } from './IconProbiotics'
+export { IconElectrolyteMix } from './IconElectrolyteMix'
