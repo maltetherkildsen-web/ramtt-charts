@@ -68,7 +68,7 @@ function SettingsSidebar({
             )}
             style={
               isActive
-                ? { backgroundColor: 'var(--n200)', ...accentTransition }
+                ? { backgroundColor: 'var(--accent-wash)', ...accentTransition }
                 : accentTransition
             }
           >
