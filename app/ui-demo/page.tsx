@@ -115,6 +115,18 @@ import {
   PanelSidebar,
   FloatingToolbar,
   FloatingPanel,
+  WorkspaceSwitcher,
+  ActivityHeatmap,
+  QuickSearch,
+  ConversationList,
+  StatsGrid,
+  AppSidebar,
+  ProjectsGrid,
+  ChatInput,
+  MessageActions,
+  WelcomeHero,
+  PromoCard,
+  ActiveTask,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3783,6 +3795,290 @@ function EnhancedDropdownsDemo() {
   )
 }
 
+// ─── Wave 12 — Claude-Inspired Components ───
+
+function generateHeatmapData(): { date: string; value: number }[] {
+  const data: { date: string; value: number }[] = []
+  const now = new Date()
+  for (let i = 0; i < 182; i++) {
+    const d = new Date(now)
+    d.setDate(d.getDate() - i)
+    const iso = d.toISOString().slice(0, 10)
+    // Pseudo-random based on date string hash
+    const hash = iso.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+    const val = hash % 7 === 0 ? 0 : (hash % 5) + (hash % 3)
+    data.push({ date: iso, value: val })
+  }
+  return data
+}
+
+const HEATMAP_DATA = generateHeatmapData()
+
+function Wave12Demo() {
+  const [wsActive, setWsActive] = useState('ramtt')
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [chatValue, setChatValue] = useState('')
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+
+  return (
+    <DemoSection title="Wave 12 — Claude-Inspired">
+      <div className="flex flex-col gap-8">
+
+        {/* WelcomeHero */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>WelcomeHero</p>
+          <Card>
+            <WelcomeHero
+              icon={<span className="text-[28px]">👋</span>}
+              heading="Good morning, Malte"
+              subtitle="How can I help you today?"
+            />
+          </Card>
+        </div>
+
+        {/* StatsGrid */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>StatsGrid</p>
+          <Card padding="none">
+            <StatsGrid
+              items={[
+                { label: 'Weekly TSS', value: 680, unit: 'pts' },
+                { label: 'CTL', value: 92, unit: '' },
+                { label: 'ATL', value: 114, unit: '' },
+                { label: 'Form', value: -22, unit: 'TSB' },
+              ]}
+            />
+          </Card>
+        </div>
+
+        {/* ActivityHeatmap */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ActivityHeatmap (26 weeks)</p>
+          <Card>
+            <ActivityHeatmap
+              data={HEATMAP_DATA}
+              weeks={26}
+              showDayLabels
+              showMonthLabels
+              color="var(--accent)"
+            />
+          </Card>
+        </div>
+
+        {/* WorkspaceSwitcher */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>WorkspaceSwitcher</p>
+          <Card>
+            <div className="flex items-center gap-4">
+              <WorkspaceSwitcher
+                variant="expanded"
+                activeId={wsActive}
+                onSwitch={setWsActive}
+                items={[
+                  { id: 'ramtt', label: 'RAMTT', icon: <span className="text-[14px]">🏃</span> },
+                  { id: 'coaching', label: 'Coaching', icon: <span className="text-[14px]">🎯</span> },
+                  { id: 'research', label: 'Research', icon: <span className="text-[14px]">🔬</span> },
+                ]}
+              />
+            </div>
+          </Card>
+        </div>
+
+        {/* ConversationList */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ConversationList</p>
+          <Card padding="none" className="max-w-[320px]">
+            <ConversationList>
+              <ConversationList.Group label="Pinned">
+                <ConversationList.Item title="Training plan review" subtitle="Let's look at your periodization..." timestamp="2d" pinned active />
+                <ConversationList.Item title="Race nutrition strategy" subtitle="For the 70.3 in June we should..." timestamp="5d" pinned />
+              </ConversationList.Group>
+              <ConversationList.Group label="Recent">
+                <ConversationList.Item title="FTP test analysis" subtitle="Your 20-min power was 295W..." timestamp="1w" unread />
+                <ConversationList.Item title="Recovery protocol" subtitle="Based on your HRV trend..." timestamp="2w" />
+                <ConversationList.Item title="Zone 2 guidance" subtitle="The aerobic base phase..." timestamp="3w" />
+              </ConversationList.Group>
+            </ConversationList>
+          </Card>
+        </div>
+
+        {/* ProjectsGrid */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ProjectsGrid</p>
+          <ProjectsGrid>
+            <ProjectsGrid.Header title="Projects">
+              <Button variant="outline" size="sm">New project</Button>
+            </ProjectsGrid.Header>
+            <ProjectsGrid.Body columns={3}>
+              <ProjectsGrid.Item name="RAMTT" description="Sports nutrition + training platform for endurance athletes." timestamp="Updated 1 day ago" icon={<span>🏃</span>} />
+              <ProjectsGrid.Item name="Coaching Dashboard" description="Real-time athlete monitoring and plan management." timestamp="Updated 3 days ago" icon={<span>🎯</span>} />
+              <ProjectsGrid.Item name="Race Predictor" description="ML-based race time estimation from training data." timestamp="Updated 1 week ago" icon={<span>📊</span>} />
+              <ProjectsGrid.Item name="Nutrition Engine" description="Macro timing and fuelling strategy calculator." timestamp="Updated 2 weeks ago" icon={<span>🍌</span>} />
+              <ProjectsGrid.Item name="Recovery Tracker" description="HRV, sleep, and readiness scoring." timestamp="Updated 3 weeks ago" icon={<span>💤</span>} />
+              <ProjectsGrid.Item name="Design System" description="@ramtt/ui component library and tokens." timestamp="Updated today" icon={<span>🎨</span>} />
+            </ProjectsGrid.Body>
+          </ProjectsGrid>
+        </div>
+
+        {/* PromoCard */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>PromoCard</p>
+          <div className="max-w-[480px]">
+            <PromoCard
+              illustration={<span className="text-[32px]">⚡</span>}
+              badge="New"
+              title="AI Race Predictions"
+              description="Get ML-powered race time estimates based on your training history and current fitness."
+              actionLabel="Try it now"
+              onAction={() => {}}
+              link={{ label: 'Learn more', href: '#' }}
+            />
+          </div>
+        </div>
+
+        {/* ChatInput */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ChatInput</p>
+          <div className="max-w-[560px]">
+            <ChatInput>
+              <ChatInput.TextArea
+                placeholder="Ask about your training..."
+                value={chatValue}
+                onChange={setChatValue}
+                onSubmit={() => setChatValue('')}
+              />
+              <ChatInput.ActionBar>
+                <ChatInput.Action
+                  label="Attach file"
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M13.5 7.5l-5.5 5.5a3.5 3.5 0 01-5-5l5.5-5.5a2.5 2.5 0 013.5 3.5l-5.5 5.5a1.5 1.5 0 01-2-2l5-5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/></svg>}
+                />
+                <ChatInput.Action
+                  label="Voice input"
+                  icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 1.5a2 2 0 012 2v4a2 2 0 01-4 0v-4a2 2 0 012-2z" stroke="currentColor" strokeWidth="1.25"/><path d="M4 7a4 4 0 008 0M8 13v1.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/></svg>}
+                />
+              </ChatInput.ActionBar>
+            </ChatInput>
+          </div>
+        </div>
+
+        {/* MessageActions */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>MessageActions</p>
+          <Card>
+            <div className="flex items-center gap-3">
+              <span className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n800)]')}>Hover a message to see:</span>
+              <MessageActions>
+                <MessageActions.Action
+                  label="Copy"
+                  icon={<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="4" width="8" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.25"/><path d="M10 2H3.5A1.5 1.5 0 002 3.5V10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/></svg>}
+                />
+                <MessageActions.Action
+                  label="Retry"
+                  icon={<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1.5 7a5.5 5.5 0 019.5-3.75M12.5 7a5.5 5.5 0 01-9.5 3.75" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round"/><path d="M10.5 1v2.5H13M3.5 13v-2.5H1" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                />
+                <MessageActions.Action
+                  label="Thumbs up"
+                  icon={<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 6.5V12M4 6.5L6.5 1.5A1 1 0 017.5 1H8a1 1 0 011 1v3h2.5a1 1 0 011 1.1l-.8 5A1 1 0 0110.7 12H4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}
+                />
+              </MessageActions>
+            </div>
+          </Card>
+        </div>
+
+        {/* ActiveTask */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ActiveTask</p>
+          <Card padding="none" className="max-w-[320px]">
+            <ActiveTask label="Active" onClear={() => {}}>
+              <ActiveTask.Item title="Analyzing ride data" timestamp="Started 2 min ago" status="active" />
+              <ActiveTask.Item title="Building nutrition plan" timestamp="Paused" status="paused" />
+              <ActiveTask.Item title="Zone calibration" timestamp="Completed 10 min ago" status="completed" />
+            </ActiveTask>
+          </Card>
+        </div>
+
+        {/* AppSidebar */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>AppSidebar (click header to collapse)</p>
+          <div className={cn(BORDER.default, RADIUS.lg, 'overflow-hidden')} style={{ height: 480 }}>
+            <div className="flex h-full">
+              <AppSidebar collapsed={sidebarCollapsed}>
+                <AppSidebar.Header>
+                  <button
+                    onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                    className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)]')}
+                  >
+                    RAMTT
+                  </button>
+                </AppSidebar.Header>
+                <AppSidebar.Search onClick={() => setSearchOpen(true)} />
+                <AppSidebar.Nav>
+                  <AppSidebar.Section>
+                    <AppSidebar.Item active icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6l6-4 6 4v7a1 1 0 01-1 1H3a1 1 0 01-1-1V6z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/></svg>}>Dashboard</AppSidebar.Item>
+                    <AppSidebar.Item icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.25"/><path d="M2 6h12" stroke="currentColor" strokeWidth="1.25"/></svg>}>Calendar</AppSidebar.Item>
+                    <AppSidebar.Item icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4L8 10.5l3-4L14 10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}>Analytics</AppSidebar.Item>
+                  </AppSidebar.Section>
+                  <AppSidebar.Separator />
+                  <AppSidebar.Section label="Recent">
+                    <AppSidebar.Scroll>
+                      <AppSidebar.Item>Morning ride — Z2 endurance</AppSidebar.Item>
+                      <AppSidebar.Item>FTP test protocol</AppSidebar.Item>
+                      <AppSidebar.Item>Race nutrition plan</AppSidebar.Item>
+                      <AppSidebar.Item>Recovery week review</AppSidebar.Item>
+                    </AppSidebar.Scroll>
+                  </AppSidebar.Section>
+                </AppSidebar.Nav>
+                <AppSidebar.Footer name="Malte T." onSettingsClick={() => {}} />
+              </AppSidebar>
+              <div className="flex-1 flex items-center justify-center bg-[var(--bg)]">
+                <span className={cn(MUTED_STYLE, 'text-[12px]')}>Main content area</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* QuickSearch (modal) */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>QuickSearch</p>
+          <Button variant="outline" size="sm" onClick={() => setSearchOpen(true)}>Open search (⌘K)</Button>
+          <QuickSearch
+            open={searchOpen}
+            onOpenChange={setSearchOpen}
+            placeholder="Search projects, chats, tasks..."
+            groups={[
+              {
+                label: 'Projects',
+                items: [
+                  { id: '1', type: 'project', title: 'RAMTT', metadata: 'Updated today' },
+                  { id: '2', type: 'project', title: 'Coaching Dashboard', metadata: '3 days ago' },
+                  { id: '3', type: 'project', title: 'Race Predictor', metadata: '1 week ago' },
+                ],
+              },
+              {
+                label: 'Conversations',
+                items: [
+                  { id: '4', type: 'chat', title: 'Training plan review' },
+                  { id: '5', type: 'chat', title: 'FTP test analysis' },
+                  { id: '6', type: 'chat', title: 'Zone 2 guidance' },
+                ],
+              },
+              {
+                label: 'Tasks',
+                items: [
+                  { id: '7', type: 'task', title: 'Build nutrition engine' },
+                  { id: '8', type: 'task', title: 'Calibrate HR zones' },
+                ],
+              },
+            ]}
+            onSelect={(item) => { setSearchOpen(false); console.log('Selected:', item) }}
+          />
+        </div>
+
+      </div>
+    </DemoSection>
+  )
+}
+
 // ─── Editor Shell ───
 
 function EditorShellDemo() {
@@ -4596,6 +4892,7 @@ export default function UIDemo() {
             <CommandPaletteDemo />
             <EnhancedDropdownsDemo />
             <FilterPillsDemo />
+            <Wave12Demo />
             <EditorShellDemo />
             <FloatingPanelsDemo />
             <PropertyInspectorDemo />
