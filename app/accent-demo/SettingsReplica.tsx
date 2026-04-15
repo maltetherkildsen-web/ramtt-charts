@@ -62,7 +62,7 @@ function SettingsSidebar({
               'flex items-center px-3 py-2 text-left cursor-default',
               'rounded-[6px]',
               TRANSITION.colors,
-              WEIGHT.normal,
+              WEIGHT.book,
               'text-[var(--n1150)]',
               !isActive && 'hover:bg-[var(--n200)]',
             )}
