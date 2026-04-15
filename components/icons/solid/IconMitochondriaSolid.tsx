@@ -8,13 +8,8 @@ import type { IconProps } from '../types'
 export const IconMitochondriaSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Outer membrane filled */}
-    <ellipse cx="12" cy="12" rx="9" ry="6"/>
-    {/* Cristae cutouts */}
-    <path d="M6 10c2 1 2 3 0 4" stroke="var(--icon-bg, #fff)" strokeWidth="1.5" fill="none"/>
-    <path d="M10 9c2 2 2 4 0 6" stroke="var(--icon-bg, #fff)" strokeWidth="1.5" fill="none"/>
-    <path d="M14 9c2 2 2 4 0 6" stroke="var(--icon-bg, #fff)" strokeWidth="1.5" fill="none"/>
-    <path d="M18 10c-2 1-2 3 0 4" stroke="var(--icon-bg, #fff)" strokeWidth="1.5" fill="none"/>
+    {/* Outer membrane filled with cristae cutouts */}
+    <path fillRule="evenodd" d="M12 6c4.97 0 9 2.69 9 6s-4.03 6-9 6-9-2.69-9-6 4.03-6 9-6ZM6 10c2 1 2 3 0 4m4-5c2 2 2 4 0 6m4-6c2 2 2 4 0 6m4-5c-2 1-2 3 0 4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
   </IconBaseSolid>
 ))
 IconMitochondriaSolid.displayName = 'IconMitochondriaSolid'

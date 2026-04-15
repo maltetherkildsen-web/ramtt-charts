@@ -8,13 +8,8 @@ import type { IconProps } from '../types'
 export const IconO2Solid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Left oxygen atom */}
-    <circle cx="8.5" cy="12" r="5.5"/>
-    {/* Right oxygen atom */}
-    <circle cx="15.5" cy="12" r="5.5"/>
-    {/* Double bond highlights */}
-    <rect x="10.5" y="10" width="3" height="1.2" rx=".4" fill="var(--icon-bg, #fff)"/>
-    <rect x="10.5" y="12.8" width="3" height="1.2" rx=".4" fill="var(--icon-bg, #fff)"/>
+    {/* Two oxygen atoms with double bond knockout */}
+    <path fillRule="evenodd" d="M8.5 6.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11Zm7 0a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM10.5 10a.4.4 0 0 0-.4.4v.4a.4.4 0 0 0 .4.4h3a.4.4 0 0 0 .4-.4v-.4a.4.4 0 0 0-.4-.4h-3Zm-.4 3.2a.4.4 0 0 1 .4-.4h3a.4.4 0 0 1 .4.4v.4a.4.4 0 0 1-.4.4h-3a.4.4 0 0 1-.4-.4v-.4Z"/>
   </IconBaseSolid>
 ))
 IconO2Solid.displayName = 'IconO2Solid'

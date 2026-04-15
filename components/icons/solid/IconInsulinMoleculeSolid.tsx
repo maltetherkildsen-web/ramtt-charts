@@ -8,10 +8,8 @@ import type { IconProps } from '../types'
 export const IconInsulinMoleculeSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Hexamer ring */}
-    <path d="M12 3l7 4v6l-7 4-7-4V7Z"/>
-    {/* Inner trimer — knockout */}
-    <path d="M12 6l4 2.5v4L12 15l-4-2.5v-4Z" fill="var(--icon-bg, #fff)"/>
+    {/* Hexamer ring with inner trimer knockout */}
+    <path fillRule="evenodd" d="M12 3l7 4v6l-7 4-7-4V7Z M12 6l4 2.5v4L12 15l-4-2.5v-4Z"/>
     {/* Central zinc core */}
     <circle cx="12" cy="10.5" r="1.8"/>
     {/* Binding tail */}

@@ -8,10 +8,8 @@ import type { IconProps } from '../types'
 export const IconGlucoseMoleculeSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
 
-    {/* Hexagonal pyranose ring */}
-    <path d="M8 7l4-2 4 2v4l-2 3H10L8 11Z"/>
-    {/* O in ring */}
-    <circle cx="12" cy="5" r="1.2" fill="var(--icon-bg, #fff)"/>
+    {/* Hexagonal pyranose ring with O knockout */}
+    <path fillRule="evenodd" d="M8 7l4-2 4 2v4l-2 3H10L8 11Z M12 6.2a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4Z"/>
     {/* OH groups as dots */}
     <circle cx="4.5" cy="5.5" r="1.5"/>
     <circle cx="19.5" cy="5.5" r="1.5"/>
