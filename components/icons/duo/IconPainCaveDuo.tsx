@@ -1,0 +1,18 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
+import { forwardRef } from 'react'
+import { IconBaseDuo } from '../IconBaseDuo'
+import type { IconDuoProps } from '../types'
+
+export const IconPainCaveDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
+  <IconBaseDuo ref={ref} {...props}>
+    {/* Background */}
+    <g fill={props.accent || "currentColor"} stroke="none" opacity={0.15}>
+      <path d="M3 20c0-8 4-16 9-16s9 8 9 16H3z"/>
+    </g>
+    {/* Foreground */}
+    <path d="M3 20c0-8 4-16 9-16s9 8 9 16"/><path d="M9 17l1.5-3h3L15 17"/><path d="M10 15l3 2"/><path d="M3 20h18"/><path d="M11 8l-.5-.5.5-.5.5.5-.5.5"/><path d="M14 7l-.5-.5.5-.5.5.5-.5.5"/>
+  </IconBaseDuo>
+))
+IconPainCaveDuo.displayName = 'IconPainCaveDuo'
