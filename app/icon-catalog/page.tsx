@@ -261,10 +261,16 @@ function ContextAwareSection() {
   const [streak, setStreak] = useState(21)
   const [trend, setTrend] = useState(12)
   const [formValues] = useState([2, 5, 4, 8, 6, 12, 8])
+  const [gauge, setGauge] = useState(65)
+  const [cadenceOpt, setCadenceOpt] = useState(90)
+  const [periodPhase, setPeriodPhase] = useState(2)
+  const [evenness, setEvenness] = useState(75)
+  const [carboDay, setCarboDay] = useState(2)
+  const [splitValues] = useState([245, 238, 230, 222])
 
   return (
     <div className="mt-12">
-      <SectionHeader action={<Badge>12</Badge>}>
+      <SectionHeader action={<Badge>20</Badge>}>
         Context-Aware
       </SectionHeader>
       <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] mt-1 mb-4')}>
@@ -327,6 +333,58 @@ function ContextAwareSection() {
               </span>
             ),
             icons: (s: number) => <ContextIcons.IconFormTrend size={s} values={formValues} />,
+          },
+          {
+            name: 'IconGaugeContext',
+            control: <Slider value={gauge} onChange={setGauge} min={0} max={100} label="Value" unit="%" />,
+            icons: (s: number) => <ContextIcons.IconGaugeContext size={s} value={gauge} />,
+          },
+          {
+            name: 'IconCadenceOptimalContext',
+            control: <Slider value={cadenceOpt} onChange={setCadenceOpt} min={0} max={200} label="RPM" unit="rpm" />,
+            icons: (s: number) => <ContextIcons.IconCadenceOptimalContext size={s} value={cadenceOpt} zone={[80, 100]} />,
+          },
+          {
+            name: 'IconPeriodizationContext',
+            control: <Slider value={periodPhase} onChange={(v) => setPeriodPhase(v as 1|2|3|4)} min={1} max={4} label="Phase" unit="" />,
+            icons: (s: number) => <ContextIcons.IconPeriodizationContext size={s} phase={periodPhase as 1|2|3|4} />,
+          },
+          {
+            name: 'IconPacingContext',
+            control: <Slider value={evenness} onChange={setEvenness} min={0} max={100} label="Evenness" unit="%" />,
+            icons: (s: number) => <ContextIcons.IconPacingContext size={s} evenness={evenness} />,
+          },
+          {
+            name: 'IconCarboLoadingContext',
+            control: <Slider value={carboDay} onChange={(v) => setCarboDay(v as 1|2|3)} min={1} max={3} label="Day" unit="" />,
+            icons: (s: number) => <ContextIcons.IconCarboLoadingContext size={s} day={carboDay as 1|2|3} />,
+          },
+          {
+            name: 'IconNegativeSplitContext',
+            control: (
+              <span className={cn(FONT.body, 'text-[12px] text-[var(--n600)]')}>
+                splits=[{splitValues.join(', ')}]
+              </span>
+            ),
+            icons: (s: number) => <ContextIcons.IconNegativeSplitContext size={s} splits={splitValues} />,
+          },
+          {
+            name: 'IconPowerProfileContext',
+            control: (
+              <span className={cn(FONT.body, 'text-[12px] text-[var(--n600)]')}>
+                [85, 70, 60, 90, 75]
+              </span>
+            ),
+            icons: (s: number) => <ContextIcons.IconPowerProfileContext size={s} values={[85, 70, 60, 90, 75]} />,
+          },
+          {
+            name: 'IconSleepScoreContext',
+            control: (
+              <span className={cn(FONT.body, 'text-[12px] text-[var(--n600)]')}>
+                stages=[30, 60, 85, 50]
+              </span>
+            ),
+            icons: (s: number) => <ContextIcons.IconSleepScoreContext size={s} stages={[30, 60, 85, 50]} />,
           },
         ].map(({ name, control, icons }) => (
           <div
@@ -464,6 +522,13 @@ const STATE_MORPHS: MorphEntry[] = [
   { name: 'ExpandCollapse', stateA: 'expand', stateB: 'collapse', render: (s, st, d) => <MorphIcons.IconMorphExpandCollapse size={s} state={st as 'expand' | 'collapse'} duration={d} /> },
   { name: 'LockUnlock', stateA: 'locked', stateB: 'unlocked', render: (s, st, d) => <MorphIcons.IconMorphLockUnlock size={s} state={st as 'locked' | 'unlocked'} duration={d} /> },
   { name: 'ThumbUpDown', stateA: 'up', stateB: 'down', render: (s, st, d) => <MorphIcons.IconMorphThumbUpDown size={s} state={st as 'up' | 'down'} duration={d} /> },
+  // Wave 10-12 morphs
+  { name: 'Toggle', stateA: 'off', stateB: 'on', render: (s, st, d) => <MorphIcons.IconMorphToggle size={s} state={st as 'on' | 'off'} duration={d} /> },
+  { name: 'ShieldCheck', stateA: 'shield', stateB: 'checked', render: (s, st, d) => <MorphIcons.IconMorphShieldCheck size={s} state={st as 'shield' | 'checked'} duration={d} /> },
+  { name: 'SunriseSunset', stateA: 'sunrise', stateB: 'sunset', render: (s, st, d) => <MorphIcons.IconMorphSunriseSunset size={s} state={st as 'sunrise' | 'sunset'} duration={d} /> },
+  { name: 'BonkTrophy', stateA: 'bonk', stateB: 'trophy', render: (s, st, d) => <MorphIcons.IconMorphBonkTrophy size={s} state={st as 'bonk' | 'trophy'} duration={d} /> },
+  { name: 'RestActive', stateA: 'rest', stateB: 'active', render: (s, st, d) => <MorphIcons.IconMorphRestActive size={s} state={st as 'rest' | 'active'} duration={d} /> },
+  { name: 'CoffeeBeer', stateA: 'coffee', stateB: 'beer', render: (s, st, d) => <MorphIcons.IconMorphCoffeeBeer size={s} state={st as 'coffee' | 'beer'} duration={d} /> },
 ]
 
 const NAV_ICONS: NavIconKey[] = ['today', 'calendar', 'analytics', 'fuel', 'settings']
@@ -485,7 +550,7 @@ function MorphingSection() {
 
   return (
     <div className="mt-12">
-      <SectionHeader action={<Badge>11</Badge>}>
+      <SectionHeader action={<Badge>17</Badge>}>
         Morphing Transitions
       </SectionHeader>
       <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] mt-1 mb-4')}>
@@ -586,6 +651,9 @@ const REACTIVE_GROUPS = [
       { name: 'Bell', Comp: ReactiveIcons.IconReactiveBell },
       { name: 'AlertTriangle', Comp: ReactiveIcons.IconReactiveAlertTriangle },
       { name: 'Bookmark', Comp: ReactiveIcons.IconReactiveBookmark },
+      { name: 'Beer', Comp: ReactiveIcons.IconReactiveBeer },
+      { name: 'Banana', Comp: ReactiveIcons.IconReactiveBanana },
+      { name: 'Taco', Comp: ReactiveIcons.IconReactiveTaco },
     ],
   },
   {
@@ -597,6 +665,9 @@ const REACTIVE_GROUPS = [
       { name: 'ChevronUp', Comp: ReactiveIcons.IconReactiveChevronUp },
       { name: 'ArrowRight', Comp: ReactiveIcons.IconReactiveArrowRight },
       { name: 'ArrowLeft', Comp: ReactiveIcons.IconReactiveArrowLeft },
+      { name: 'Trophy', Comp: ReactiveIcons.IconReactiveTrophy },
+      { name: 'Running', Comp: ReactiveIcons.IconReactiveRunning },
+      { name: 'Bike', Comp: ReactiveIcons.IconReactiveBike },
     ],
   },
   {
@@ -606,6 +677,9 @@ const REACTIVE_GROUPS = [
       { name: 'Expand', Comp: ReactiveIcons.IconReactiveExpand },
       { name: 'Image', Comp: ReactiveIcons.IconReactiveImage },
       { name: 'Eye', Comp: ReactiveIcons.IconReactiveEye },
+      { name: 'Crown', Comp: ReactiveIcons.IconReactiveCrown },
+      { name: 'Shield', Comp: ReactiveIcons.IconReactiveShield },
+      { name: 'Target', Comp: ReactiveIcons.IconReactiveTarget },
     ],
   },
   {
@@ -615,6 +689,7 @@ const REACTIVE_GROUPS = [
       { name: 'Copy', Comp: ReactiveIcons.IconReactiveCopy },
       { name: 'File', Comp: ReactiveIcons.IconReactiveFile },
       { name: 'CreditCard', Comp: ReactiveIcons.IconReactiveCreditCard },
+      { name: 'Coffee', Comp: ReactiveIcons.IconReactiveCoffee },
     ],
   },
   {
@@ -623,6 +698,7 @@ const REACTIVE_GROUPS = [
       { name: 'Refresh', Comp: ReactiveIcons.IconReactiveRefresh },
       { name: 'Settings', Comp: ReactiveIcons.IconReactiveSettings },
       { name: 'Star', Comp: ReactiveIcons.IconReactiveStar },
+      { name: 'Donut', Comp: ReactiveIcons.IconReactiveDonut },
     ],
   },
   {
@@ -638,6 +714,8 @@ const REACTIVE_GROUPS = [
     icons: [
       { name: 'Lock', Comp: ReactiveIcons.IconReactiveLock },
       { name: 'AlertCircle', Comp: ReactiveIcons.IconReactiveAlertCircle },
+      { name: 'Zap', Comp: ReactiveIcons.IconReactiveZap },
+      { name: 'Dumbbell', Comp: ReactiveIcons.IconReactiveDumbbell },
     ],
   },
   {
@@ -648,6 +726,8 @@ const REACTIVE_GROUPS = [
       { name: 'Edit', Comp: ReactiveIcons.IconReactiveEdit },
       { name: 'Link', Comp: ReactiveIcons.IconReactiveLink },
       { name: 'ExternalLink', Comp: ReactiveIcons.IconReactiveExternalLink },
+      { name: 'Rocket', Comp: ReactiveIcons.IconReactiveRocket },
+      { name: 'PizzaSlice', Comp: ReactiveIcons.IconReactivePizzaSlice },
     ],
   },
 ]
@@ -658,7 +738,7 @@ function ReactiveSection() {
 
   return (
     <div className="mt-12">
-      <SectionHeader action={<Badge>30</Badge>}>
+      <SectionHeader action={<Badge>45</Badge>}>
         Hover Reactions
       </SectionHeader>
       <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] mt-1 mb-4')}>
@@ -828,7 +908,7 @@ function CatalogContent() {
         <div className="mb-8">
           <h1 className={cn(FONT.body, 'text-[24px] font-[550] text-[var(--n1150)]')}>RAMTT Icons</h1>
           <p className={cn(FONT.body, 'text-[14px] font-[400] text-[var(--n800)] mt-1')}>
-            174 icons · 4 variants · Zero dependencies · Satoshi-calibrated
+            393 icons · 4 variants · Zero dependencies · Satoshi-calibrated
           </p>
         </div>
 
@@ -1032,7 +1112,7 @@ function CatalogContent() {
         {/* ── Footer ── */}
         <div className="mt-12 pb-2 text-center">
           <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)]')}>
-            @ramtt/icons · 174 × 3 + 20 + 18 + 18 + 31 = 609 components · Zero dependencies
+            @ramtt/icons · 393 × 4 + 20 + 26 + 25 + 46 = 1689 components · Zero dependencies
           </p>
         </div>
       </div>
