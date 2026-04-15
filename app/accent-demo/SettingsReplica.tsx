@@ -89,7 +89,7 @@ function SettingsSidebar({
                 : accentTransition
             }
           >
-            <Icon size={20} className="shrink-0" />
+            <span className="shrink-0 [&_svg]:[stroke-width:1.25]"><Icon size={18} /></span>
             {label}
           </button>
         )
