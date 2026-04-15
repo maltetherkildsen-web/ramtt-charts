@@ -141,6 +141,32 @@ export type { FloatingToolbarProps, ToolbarGroup, ToolbarItem } from './Floating
 export { FloatingPanel } from './FloatingPanel';
 export type { FloatingPanelProps } from './FloatingPanel';
 
+// ─── Components (Wave 12 — Claude-Inspired) ───
+export { WorkspaceSwitcher } from './WorkspaceSwitcher';
+export type { WorkspaceSwitcherProps, WorkspaceSwitcherItem } from './WorkspaceSwitcher';
+export { ActivityHeatmap } from './ActivityHeatmap';
+export type { ActivityHeatmapProps, HeatmapDataPoint } from './ActivityHeatmap';
+export { QuickSearch } from './QuickSearch';
+export type { QuickSearchProps, QuickSearchItem, QuickSearchGroup } from './QuickSearch';
+export { ConversationList } from './ConversationList';
+export type { ConversationListProps, ConversationListItemProps, ConversationListGroupProps, ConversationListItemData } from './ConversationList';
+export { StatsGrid } from './StatsGrid';
+export type { StatsGridProps, StatsGridItem } from './StatsGrid';
+export { AppSidebar } from './AppSidebar';
+export type { AppSidebarProps } from './AppSidebar';
+export { ProjectsGrid } from './ProjectsGrid';
+export type { ProjectsGridProps, ProjectsGridHeaderProps, ProjectsGridItemProps } from './ProjectsGrid';
+export { ChatInput } from './ChatInput';
+export type { ChatInputProps, ChatInputTextAreaProps, ChatInputActionBarProps, ChatInputActionProps } from './ChatInput';
+export { MessageActions } from './MessageActions';
+export type { MessageActionsProps, MessageActionProps } from './MessageActions';
+export { WelcomeHero } from './WelcomeHero';
+export type { WelcomeHeroProps } from './WelcomeHero';
+export { PromoCard } from './PromoCard';
+export type { PromoCardProps } from './PromoCard';
+export { ActiveTask } from './ActiveTask';
+export type { ActiveTaskProps, ActiveTaskItemProps } from './ActiveTask';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
@@ -154,7 +180,8 @@ export { DOT_SIZES, STEPPER_BUTTON_WIDTH, STEPPER_REPEAT_DELAY, STEPPER_REPEAT_I
 export { STEP_DOT_SIZE, STEP_DOT_COMPLETED, STEP_DOT_UPCOMING, RATING_SEGMENT_SIZE } from '@/lib/ui';
 export { WIDGET_ICON_SIZE, WIDGET_ICON_COLOR, WIDGET_ICON_HOVER, GRID_COLUMNS, GRID_ROW_HEIGHT, GRID_GAP } from '@/lib/ui';
 export { STAT_SIZES, BADGE_NOTIFY_SIZE, BADGE_NOTIFY_DOT, BADGE_NOTIFY_MAX, CATEGORY_COLORS } from '@/lib/ui';
-export { FLOATING_SHADOW, PANEL_WIDTH, ICON_TAB_SIZE, TOOLBAR_BUTTON_SIZE } from '@/lib/ui';
+export { FLOATING_SHADOW, PANEL_WIDTH, ICON_TAB_SIZE, TOOLBAR_BUTTON_SIZE, CONVERSATION_ITEM_HEIGHT } from '@/lib/ui';
+export { HEATMAP_CELL_SIZE, HEATMAP_GAP, HEATMAP_LEVELS, WORKSPACE_SWITCHER_HEIGHT, QUICK_SEARCH_MAX_HEIGHT, STATS_GRID_COLUMNS } from '@/lib/ui';
 export { formatTime, formatPercent, formatCompact } from '@/lib/ui';
 
 // ─── Types ───

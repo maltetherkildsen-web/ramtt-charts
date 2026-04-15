@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules (94 components)
+# @ramtt/ui — System Rules (106 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -131,7 +131,7 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Small link lists (12px): `-0.02em` (slightly tighter, as in footer/nav)
 - Labels and headers: no letter-spacing
 
-## Components (94)
+## Components (106)
 
 ### Wave 1 — Display & Input (12)
 Button, Badge, ToggleGroup, Card, DataRow, DataTable, Input, Select, MetricCard, SettingsCard, ProgressBar, SectionHeader
@@ -180,3 +180,6 @@ CategoryIcon, CommandPalette
 
 ### Wave 11 — Editor Shell (4)
 IconTabBar, PanelSidebar, FloatingToolbar, FloatingPanel
+
+### Wave 12 — Claude-Inspired (12)
+WorkspaceSwitcher, ActivityHeatmap, QuickSearch, ConversationList, StatsGrid, AppSidebar, ProjectsGrid, ChatInput, MessageActions, WelcomeHero, PromoCard, ActiveTask

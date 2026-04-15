@@ -331,6 +331,23 @@ export const PANEL_WIDTH = 240;
 export const ICON_TAB_SIZE = 56;
 export const TOOLBAR_BUTTON_SIZE = 32;
 
+// ─── ActivityHeatmap ───
+export const HEATMAP_CELL_SIZE = 12
+export const HEATMAP_GAP = 2
+export const HEATMAP_LEVELS = 5 // 0–4 intensity
+
+// ─── WorkspaceSwitcher ───
+export const WORKSPACE_SWITCHER_HEIGHT = 40
+
+// ─── QuickSearch ───
+export const QUICK_SEARCH_MAX_HEIGHT = 480
+
+// ─── ConversationList ───
+export const CONVERSATION_ITEM_HEIGHT = 44
+
+// ─── StatsGrid ───
+export const STATS_GRID_COLUMNS = { sm: 2, md: 3, lg: 4 } as const
+
 // ─── Layout ───
 // Standard content widths for consistent alignment
 export const LAYOUT = {
