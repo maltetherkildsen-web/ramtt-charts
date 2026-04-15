@@ -57,6 +57,10 @@ export type { SunburstNode, SunburstArc } from './layouts/sunburst'
 export { findPeakPower, computeAllPeaks, buildMMPCurve, PEAK_DURATIONS } from './utils/peakPower'
 export type { PeakPowerResult } from './utils/peakPower'
 
+// PMC (Performance Management Chart)
+export { computePMC, computeTSS } from './utils/pmc'
+export type { PMCResult, PMCOptions } from './utils/pmc'
+
 // Zoom
 export { clampViewport, pixelToFraction, indicesToFractions, fractionsToIndices } from './utils/zoom'
 
