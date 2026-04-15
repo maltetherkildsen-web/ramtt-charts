@@ -1,5 +1,5 @@
 // Accent color definitions + HSL-based token ramp generator for the RAMTT accent comparison page.
-// ~90 accent candidates across 15 families, with ground-truth tokens for the original 15.
+// ~157 accent candidates across 19 families, with ground-truth tokens for the original 15.
 
 // ─── HSL Utilities ───
 
@@ -224,11 +224,15 @@ export const ACCENT_FAMILIES = [
   'Exotic',
   'TW 500',
   'TW 600',
+  'TW 700',
+  'TW 800',
+  'TW 900',
+  'TW 950',
 ] as const
 
 export type AccentFamily = (typeof ACCENT_FAMILIES)[number]
 
-// ─── The ~90 Accent Candidates ───
+// ─── The ~157 Accent Candidates ───
 // 1-15: Ground-truth tokens extracted from Figma DevTools
 // 16+: Generated via HSL manipulation
 
@@ -453,6 +457,86 @@ export const ACCENTS: AccentDefinition[] = [
   defineAccent('tw-stone-600', 'Stone 600', '#57534E', 'TW 600'),
   defineAccent('tw-zinc-600', 'Zinc 600', '#52525B', 'TW 600'),
   defineAccent('tw-slate-600', 'Slate 600', '#475569', 'TW 600'),
+
+  // ── Tailwind 700 (17) ──
+
+  defineAccent('tw-red-700', 'Red 700', '#B91C1C', 'TW 700'),
+  defineAccent('tw-orange-700', 'Orange 700', '#C2410C', 'TW 700'),
+  defineAccent('tw-amber-700', 'Amber 700', '#B45309', 'TW 700'),
+  defineAccent('tw-lime-700', 'Lime 700', '#4D7C0F', 'TW 700'),
+  defineAccent('tw-emerald-700', 'Emerald 700', '#047857', 'TW 700'),
+  defineAccent('tw-teal-700', 'Teal 700', '#0F766E', 'TW 700'),
+  defineAccent('tw-cyan-700', 'Cyan 700', '#0E7490', 'TW 700'),
+  defineAccent('tw-sky-700', 'Sky 700', '#0369A1', 'TW 700'),
+  defineAccent('tw-blue-700', 'Blue 700', '#1D4ED8', 'TW 700'),
+  defineAccent('tw-indigo-700', 'Indigo 700', '#4338CA', 'TW 700'),
+  defineAccent('tw-violet-700', 'Violet 700', '#6D28D9', 'TW 700'),
+  defineAccent('tw-fuchsia-700', 'Fuchsia 700', '#A21CAF', 'TW 700'),
+  defineAccent('tw-pink-700', 'Pink 700', '#BE185D', 'TW 700'),
+  defineAccent('tw-rose-700', 'Rose 700', '#BE123C', 'TW 700'),
+  defineAccent('tw-stone-700', 'Stone 700', '#44403C', 'TW 700'),
+  defineAccent('tw-zinc-700', 'Zinc 700', '#3F3F46', 'TW 700'),
+  defineAccent('tw-slate-700', 'Slate 700', '#334155', 'TW 700'),
+
+  // ── Tailwind 800 (17) ──
+
+  defineAccent('tw-red-800', 'Red 800', '#991B1B', 'TW 800'),
+  defineAccent('tw-orange-800', 'Orange 800', '#9A3412', 'TW 800'),
+  defineAccent('tw-amber-800', 'Amber 800', '#92400E', 'TW 800'),
+  defineAccent('tw-lime-800', 'Lime 800', '#3F6212', 'TW 800'),
+  defineAccent('tw-emerald-800', 'Emerald 800', '#065F46', 'TW 800'),
+  defineAccent('tw-teal-800', 'Teal 800', '#115E59', 'TW 800'),
+  defineAccent('tw-cyan-800', 'Cyan 800', '#155E75', 'TW 800'),
+  defineAccent('tw-sky-800', 'Sky 800', '#075985', 'TW 800'),
+  defineAccent('tw-blue-800', 'Blue 800', '#1E40AF', 'TW 800'),
+  defineAccent('tw-indigo-800', 'Indigo 800', '#3730A3', 'TW 800'),
+  defineAccent('tw-violet-800', 'Violet 800', '#5B21B6', 'TW 800'),
+  defineAccent('tw-fuchsia-800', 'Fuchsia 800', '#86198F', 'TW 800'),
+  defineAccent('tw-pink-800', 'Pink 800', '#9D174D', 'TW 800'),
+  defineAccent('tw-rose-800', 'Rose 800', '#9F1239', 'TW 800'),
+  defineAccent('tw-stone-800', 'Stone 800', '#292524', 'TW 800'),
+  defineAccent('tw-zinc-800', 'Zinc 800', '#27272A', 'TW 800'),
+  defineAccent('tw-slate-800', 'Slate 800', '#1E293B', 'TW 800'),
+
+  // ── Tailwind 900 (17) ──
+
+  defineAccent('tw-red-900', 'Red 900', '#7F1D1D', 'TW 900'),
+  defineAccent('tw-orange-900', 'Orange 900', '#7C2D12', 'TW 900'),
+  defineAccent('tw-amber-900', 'Amber 900', '#78350F', 'TW 900'),
+  defineAccent('tw-lime-900', 'Lime 900', '#365314', 'TW 900'),
+  defineAccent('tw-emerald-900', 'Emerald 900', '#064E3B', 'TW 900'),
+  defineAccent('tw-teal-900', 'Teal 900', '#134E4A', 'TW 900'),
+  defineAccent('tw-cyan-900', 'Cyan 900', '#164E63', 'TW 900'),
+  defineAccent('tw-sky-900', 'Sky 900', '#0C4A6E', 'TW 900'),
+  defineAccent('tw-blue-900', 'Blue 900', '#1E3A5F', 'TW 900'),
+  defineAccent('tw-indigo-900', 'Indigo 900', '#312E81', 'TW 900'),
+  defineAccent('tw-violet-900', 'Violet 900', '#4C1D95', 'TW 900'),
+  defineAccent('tw-fuchsia-900', 'Fuchsia 900', '#701A75', 'TW 900'),
+  defineAccent('tw-pink-900', 'Pink 900', '#831843', 'TW 900'),
+  defineAccent('tw-rose-900', 'Rose 900', '#881337', 'TW 900'),
+  defineAccent('tw-stone-900', 'Stone 900', '#1C1917', 'TW 900'),
+  defineAccent('tw-zinc-900', 'Zinc 900', '#18181B', 'TW 900'),
+  defineAccent('tw-slate-900', 'Slate 900', '#0F172A', 'TW 900'),
+
+  // ── Tailwind 950 (17) ──
+
+  defineAccent('tw-red-950', 'Red 950', '#450A0A', 'TW 950'),
+  defineAccent('tw-orange-950', 'Orange 950', '#431407', 'TW 950'),
+  defineAccent('tw-amber-950', 'Amber 950', '#451A03', 'TW 950'),
+  defineAccent('tw-lime-950', 'Lime 950', '#1A2E05', 'TW 950'),
+  defineAccent('tw-emerald-950', 'Emerald 950', '#022C22', 'TW 950'),
+  defineAccent('tw-teal-950', 'Teal 950', '#042F2E', 'TW 950'),
+  defineAccent('tw-cyan-950', 'Cyan 950', '#083344', 'TW 950'),
+  defineAccent('tw-sky-950', 'Sky 950', '#082F49', 'TW 950'),
+  defineAccent('tw-blue-950', 'Blue 950', '#172554', 'TW 950'),
+  defineAccent('tw-indigo-950', 'Indigo 950', '#1E1B4B', 'TW 950'),
+  defineAccent('tw-violet-950', 'Violet 950', '#2E1065', 'TW 950'),
+  defineAccent('tw-fuchsia-950', 'Fuchsia 950', '#4A044E', 'TW 950'),
+  defineAccent('tw-pink-950', 'Pink 950', '#500724', 'TW 950'),
+  defineAccent('tw-rose-950', 'Rose 950', '#4C0519', 'TW 950'),
+  defineAccent('tw-stone-950', 'Stone 950', '#0C0A09', 'TW 950'),
+  defineAccent('tw-zinc-950', 'Zinc 950', '#09090B', 'TW 950'),
+  defineAccent('tw-slate-950', 'Slate 950', '#020617', 'TW 950'),
 ]
 
 export const DEFAULT_ACCENT_ID = 'figma-blue'
