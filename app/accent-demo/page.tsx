@@ -67,9 +67,9 @@ export default function AccentDemoPage() {
 
   return (
     <>
-      {/* Inject ::selection override */}
+      {/* Inject ::selection override for entire page */}
       <style>{`
-        .accent-selection ::selection {
+        ::selection {
           background-color: var(--accent-selection) !important;
           color: var(--n1150) !important;
         }
