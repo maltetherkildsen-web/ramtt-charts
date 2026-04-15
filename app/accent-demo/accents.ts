@@ -228,6 +228,7 @@ export const ACCENT_FAMILIES = [
   'TW 800',
   'TW 900',
   'TW 950',
+  'Custom',
 ] as const
 
 export type AccentFamily = (typeof ACCENT_FAMILIES)[number]
@@ -537,6 +538,23 @@ export const ACCENTS: AccentDefinition[] = [
   defineAccent('tw-stone-950', 'Stone 950', '#0C0A09', 'TW 950'),
   defineAccent('tw-zinc-950', 'Zinc 950', '#09090B', 'TW 950'),
   defineAccent('tw-slate-950', 'Slate 950', '#020617', 'TW 950'),
+
+  // ── Custom (14) ──
+
+  defineAccent('vivid-purple', 'Vivid Purple', '#7A02CD', 'Custom'),
+  defineAccent('acid-yellow', 'Acid Yellow', '#D6CA28', 'Custom', { needsDarkText: true }),
+  defineAccent('raspberry', 'Raspberry', '#A51656', 'Custom'),
+  defineAccent('lime-pastel', 'Lime Pastel', '#D4ED6D', 'Custom', { needsDarkText: true }),
+  defineAccent('deep-violet', 'Deep Violet', '#370059', 'Custom'),
+  defineAccent('hot-pink', 'Hot Pink', '#D8207D', 'Custom'),
+  defineAccent('chartreuse', 'Chartreuse', '#9CBF0F', 'Custom', { needsDarkText: true }),
+  defineAccent('baby-pink', 'Baby Pink', '#FFBCCC', 'Custom', { needsDarkText: true }),
+  defineAccent('candy-rose', 'Candy Rose', '#DD4170', 'Custom'),
+  defineAccent('sand-gold', 'Sand Gold', '#EDD8A4', 'Custom', { needsDarkText: true }),
+  defineAccent('spring-green', 'Spring Green', '#07F49E', 'Custom', { needsDarkText: true }),
+  defineAccent('royal-purple', 'Royal Purple', '#42047E', 'Custom'),
+  defineAccent('mint-green', 'Mint Green', '#00D37B', 'Custom', { needsDarkText: true }),
+  defineAccent('dusty-pink', 'Dusty Pink', '#EA698B', 'Custom'),
 ]
 
 export const DEFAULT_ACCENT_ID = 'figma-blue'
