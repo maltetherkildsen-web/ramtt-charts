@@ -411,3 +411,12 @@ export { IconTestTube } from './IconTestTube'
 export { IconUrineSample } from './IconUrineSample'
 export { IconVO2Max } from './IconVO2Max'
 export { IconYogaMat } from './IconYogaMat'
+
+// --- The Lucky 7 (400 milestone) ---
+export { IconLightbulb } from './IconLightbulb'
+export { IconGift } from './IconGift'
+export { IconWallet } from './IconWallet'
+export { IconScissors } from './IconScissors'
+export { IconMegaphone } from './IconMegaphone'
+export { IconAnchor } from './IconAnchor'
+export { IconDiamond } from './IconDiamond'

@@ -1,0 +1,18 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
+import { forwardRef } from 'react'
+import { IconBaseDuo } from '../IconBaseDuo'
+import type { IconDuoProps } from '../types'
+
+export const IconAnchorDuo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
+  <IconBaseDuo ref={ref} {...props}>
+    {/* Background */}
+    <g fill={props.accent || "currentColor"} stroke="none" opacity={0.15}>
+      <circle cx="12" cy="5" r="3"/><path d="M2 12a10 10 0 0020 0H2z"/>
+    </g>
+    {/* Foreground */}
+    <circle cx="12" cy="5" r="3"/><path d="M12 8v14"/><path d="M5 12H2a10 10 0 0020 0h-3"/><path d="M12 22a10 10 0 01-10-10"/><path d="M12 22a10 10 0 0010-10"/>
+  </IconBaseDuo>
+))
+IconAnchorDuo.displayName = 'IconAnchorDuo'

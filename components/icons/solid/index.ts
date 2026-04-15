@@ -410,3 +410,12 @@ export { IconTestTubeSolid } from './IconTestTubeSolid'
 export { IconUrineSampleSolid } from './IconUrineSampleSolid'
 export { IconVO2MaxSolid } from './IconVO2MaxSolid'
 export { IconYogaMatSolid } from './IconYogaMatSolid'
+
+// --- The Lucky 7 (400 milestone) ---
+export { IconLightbulbSolid } from './IconLightbulbSolid'
+export { IconGiftSolid } from './IconGiftSolid'
+export { IconWalletSolid } from './IconWalletSolid'
+export { IconScissorsSolid } from './IconScissorsSolid'
+export { IconMegaphoneSolid } from './IconMegaphoneSolid'
+export { IconAnchorSolid } from './IconAnchorSolid'
+export { IconDiamondSolid } from './IconDiamondSolid'

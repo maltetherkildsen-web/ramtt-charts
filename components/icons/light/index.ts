@@ -405,3 +405,12 @@ export { IconTaco } from './IconTaco'
 export { IconDonut } from './IconDonut'
 export { IconRamen } from './IconRamen'
 export { IconPancakes } from './IconPancakes'
+
+// --- The Lucky 7 (400 milestone) ---
+export { IconLightbulb } from './IconLightbulb'
+export { IconGift } from './IconGift'
+export { IconWallet } from './IconWallet'
+export { IconScissors } from './IconScissors'
+export { IconMegaphone } from './IconMegaphone'
+export { IconAnchor } from './IconAnchor'
+export { IconDiamond } from './IconDiamond'

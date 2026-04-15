@@ -1,7 +1,7 @@
 // Copyright (c) 2026 RAMTT (Malte Therkildsen)
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
-// @ramtt/icons — Icon catalog metadata (393 icons × 28 categories)
+// @ramtt/icons — Icon catalog metadata (400 icons × 28 categories)
 
 export interface IconMeta {
   name: string
@@ -3625,6 +3625,70 @@ export const ICON_CATALOG: IconMeta[] = [
     name: 'IconPancakes',
     category: 'food',
     tags: ['pancakes', 'breakfast', 'carbs', 'weekend', 'stack', 'syrup', 'morning', 'fun'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  // ─── The Lucky 7 (400 milestone) ─────────────────────────────────
+  {
+    name: 'IconLightbulb',
+    category: 'misc',
+    tags: ['lightbulb', 'idea', 'tip', 'insight', 'suggestion', 'bright'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconGift',
+    category: 'commerce',
+    tags: ['gift', 'present', 'reward', 'prize', 'subscription', 'perk'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconWallet',
+    category: 'commerce',
+    tags: ['wallet', 'payment', 'money', 'finance', 'subscription', 'billing'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconScissors',
+    category: 'action',
+    tags: ['scissors', 'cut', 'trim', 'clip', 'edit', 'crop'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconMegaphone',
+    category: 'communication',
+    tags: ['megaphone', 'announce', 'broadcast', 'marketing', 'news', 'shout'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconAnchor',
+    category: 'misc',
+    tags: ['anchor', 'stable', 'foundation', 'port', 'maritime', 'secure'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconDiamond',
+    category: 'achievement',
+    tags: ['diamond', 'premium', 'pro', 'quality', 'gem', 'vip', 'tier'],
     hasLine: true,
     hasSolid: true,
     hasDuo: true,
