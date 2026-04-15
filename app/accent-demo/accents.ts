@@ -1,5 +1,5 @@
 // Accent color definitions + HSL-based token ramp generator for the RAMTT accent comparison page.
-// ~32 accent candidates across 9 families, with ground-truth tokens for the original 15.
+// ~90 accent candidates across 15 families, with ground-truth tokens for the original 15.
 
 // ─── HSL Utilities ───
 
@@ -218,11 +218,17 @@ export const ACCENT_FAMILIES = [
   'Dark',
   'Pastels',
   'Suggested',
+  'Earth',
+  'Teal & Cyan',
+  'Forest & Lime',
+  'Exotic',
+  'TW 500',
+  'TW 600',
 ] as const
 
 export type AccentFamily = (typeof ACCENT_FAMILIES)[number]
 
-// ─── The ~32 Accent Candidates ───
+// ─── The ~90 Accent Candidates ───
 // 1-15: Ground-truth tokens extracted from Figma DevTools
 // 16+: Generated via HSL manipulation
 
@@ -371,6 +377,82 @@ export const ACCENTS: AccentDefinition[] = [
   defineAccent('terracotta', 'Terracotta', '#A0674B', 'Suggested', { suggested: true }),
   defineAccent('forest', 'Forest', '#2D6A4F', 'Suggested', { suggested: true }),
   defineAccent('copper', 'Copper', '#B87333', 'Suggested', { suggested: true, needsDarkText: true }),
+
+  // ── Earth Tones (8) ──
+
+  defineAccent('warm-orange', 'Warm Orange', '#E8650A', 'Earth', { needsDarkText: true }),
+  defineAccent('dark-saffron', 'Dark Saffron', '#D4600A', 'Earth'),
+  defineAccent('burnt-amber', 'Burnt Amber', '#C45A1A', 'Earth'),
+  defineAccent('terracotta-warm', 'Terracotta Warm', '#C2552A', 'Earth'),
+  defineAccent('burnt-sienna', 'Burnt Sienna', '#A0522D', 'Earth'),
+  defineAccent('paprika', 'Paprika', '#8B2500', 'Earth'),
+  defineAccent('persimmon', 'Persimmon', '#EC5800', 'Earth', { needsDarkText: true }),
+  defineAccent('rust', 'Rust', '#B7410E', 'Earth'),
+
+  // ── Teal & Cyan (4) ──
+
+  defineAccent('deep-teal', 'Deep Teal', '#0A7B6C', 'Teal & Cyan'),
+  defineAccent('petroleum', 'Petroleum', '#0D8B78', 'Teal & Cyan'),
+  defineAccent('viridian', 'Viridian', '#40826D', 'Teal & Cyan'),
+  defineAccent('petrol', 'Petrol', '#005F6B', 'Teal & Cyan'),
+
+  // ── Forest & Lime (5) ──
+
+  defineAccent('emerald-deep', 'Emerald', '#00694E', 'Forest & Lime'),
+  defineAccent('jade', 'Jade', '#00A86B', 'Forest & Lime'),
+  defineAccent('malachite', 'Malachite', '#0B6623', 'Forest & Lime'),
+  defineAccent('chartreuse-dark', 'Dark Chartreuse', '#4B6F1E', 'Forest & Lime'),
+  defineAccent('moss', 'Moss', '#8A9A5B', 'Forest & Lime', { needsDarkText: true }),
+
+  // ── Exotic (9) ──
+
+  defineAccent('deep-indigo', 'Deep Indigo', '#4B0082', 'Exotic'),
+  defineAccent('byzantium', 'Byzantium', '#702963', 'Exotic'),
+  defineAccent('mulberry', 'Mulberry', '#C54B8C', 'Exotic'),
+  defineAccent('plum', 'Plum', '#8E4585', 'Exotic'),
+  defineAccent('prussian-blue', 'Prussian Blue', '#003153', 'Exotic'),
+  defineAccent('oxblood', 'Oxblood', '#4A0000', 'Exotic'),
+  defineAccent('olive-lime', 'Olive Lime', '#6B8E23', 'Exotic'),
+  defineAccent('dusted-mauve', 'Dusted Mauve', '#966F8A', 'Exotic'),
+  defineAccent('warm-slate', 'Warm Slate', '#5D6B7A', 'Exotic'),
+
+  // ── Tailwind 500 (17) ──
+
+  defineAccent('tw-red-500', 'Red 500', '#EF4444', 'TW 500'),
+  defineAccent('tw-orange-500', 'Orange 500', '#F97316', 'TW 500', { needsDarkText: true }),
+  defineAccent('tw-amber-500', 'Amber 500', '#F59E0B', 'TW 500', { needsDarkText: true }),
+  defineAccent('tw-lime-500', 'Lime 500', '#84CC16', 'TW 500', { needsDarkText: true }),
+  defineAccent('tw-emerald-500', 'Emerald 500', '#10B981', 'TW 500'),
+  defineAccent('tw-teal-500', 'Teal 500', '#14B8A6', 'TW 500'),
+  defineAccent('tw-cyan-500', 'Cyan 500', '#06B6D4', 'TW 500'),
+  defineAccent('tw-sky-500', 'Sky 500', '#0EA5E9', 'TW 500'),
+  defineAccent('tw-blue-500', 'Blue 500', '#3B82F6', 'TW 500'),
+  defineAccent('tw-indigo-500', 'Indigo 500', '#6366F1', 'TW 500'),
+  defineAccent('tw-violet-500', 'Violet 500', '#8B5CF6', 'TW 500'),
+  defineAccent('tw-fuchsia-500', 'Fuchsia 500', '#D946EF', 'TW 500'),
+  defineAccent('tw-pink-500', 'Pink 500', '#EC4899', 'TW 500'),
+  defineAccent('tw-rose-500', 'Rose 500', '#F43F5E', 'TW 500'),
+  defineAccent('tw-stone-500', 'Stone 500', '#78716C', 'TW 500'),
+  defineAccent('tw-zinc-500', 'Zinc 500', '#71717A', 'TW 500'),
+  defineAccent('tw-slate-500', 'Slate 500', '#64748B', 'TW 500'),
+
+  // ── Tailwind 600 (15) — skipping violet-600/teal-600 (duplicates of existing) ──
+
+  defineAccent('tw-red-600', 'Red 600', '#DC2626', 'TW 600'),
+  defineAccent('tw-orange-600', 'Orange 600', '#EA580C', 'TW 600'),
+  defineAccent('tw-amber-600', 'Amber 600', '#D97706', 'TW 600'),
+  defineAccent('tw-lime-600', 'Lime 600', '#65A30D', 'TW 600'),
+  defineAccent('tw-emerald-600', 'Emerald 600', '#059669', 'TW 600'),
+  defineAccent('tw-cyan-600', 'Cyan 600', '#0891B2', 'TW 600'),
+  defineAccent('tw-sky-600', 'Sky 600', '#0284C7', 'TW 600'),
+  defineAccent('tw-blue-600', 'Blue 600', '#2563EB', 'TW 600'),
+  defineAccent('tw-indigo-600', 'Indigo 600', '#4F46E5', 'TW 600'),
+  defineAccent('tw-fuchsia-600', 'Fuchsia 600', '#C026D3', 'TW 600'),
+  defineAccent('tw-pink-600', 'Pink 600', '#DB2777', 'TW 600'),
+  defineAccent('tw-rose-600', 'Rose 600', '#E11D48', 'TW 600'),
+  defineAccent('tw-stone-600', 'Stone 600', '#57534E', 'TW 600'),
+  defineAccent('tw-zinc-600', 'Zinc 600', '#52525B', 'TW 600'),
+  defineAccent('tw-slate-600', 'Slate 600', '#475569', 'TW 600'),
 ]
 
 export const DEFAULT_ACCENT_ID = 'figma-blue'
