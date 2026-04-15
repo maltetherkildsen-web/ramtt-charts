@@ -96,7 +96,7 @@ function StepFlowProgress({ className }: { className?: string }) {
                 {/* Outer ring for current */}
                 {isCurrent && (
                   <div
-                    className="absolute rounded-[30%] border-[2px] border-[var(--n400)]"
+                    className="absolute rounded-full border-[2px] border-[var(--n400)]"
                     style={{
                       width: STEP_DOT_SIZE + 8,
                       height: STEP_DOT_SIZE + 8,
@@ -106,7 +106,7 @@ function StepFlowProgress({ className }: { className?: string }) {
                 {/* Dot */}
                 <div
                   className={cn(
-                    'rounded-[30%]',
+                    'rounded-full',
                     isUpcoming ? STEP_DOT_UPCOMING : STEP_DOT_COMPLETED,
                   )}
                   style={{ width: STEP_DOT_SIZE, height: STEP_DOT_SIZE }}

@@ -1969,6 +1969,34 @@ function StatusIndicatorsDemo() {
           </div>
         </div>
 
+        {/* ColorDot — hollow (outline ring) */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — hollow ring</p>
+          <div className="flex items-center gap-5">
+            <ColorDot color="positive" variant="hollow" label="Connected" />
+            <ColorDot color="warning" variant="hollow" label="Syncing" />
+            <ColorDot color="negative" variant="hollow" label="Disconnected" />
+            <Separator orientation="vertical" className="h-4" />
+            <ColorDot color="info" variant="hollow" size="sm" />
+            <ColorDot color="info" variant="hollow" size="md" />
+            <ColorDot color="info" variant="hollow" size="lg" />
+          </div>
+        </div>
+
+        {/* ColorDot — vertical bar */}
+        <div>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — vertical bar</p>
+          <div className="flex items-center gap-5">
+            <ColorDot color="positive" variant="bar" label="Connected" />
+            <ColorDot color="warning" variant="bar" label="Syncing" />
+            <ColorDot color="negative" variant="bar" label="Disconnected" />
+            <Separator orientation="vertical" className="h-4" />
+            <ColorDot color="#8b5cf6" variant="bar" size="sm" />
+            <ColorDot color="#8b5cf6" variant="bar" size="md" />
+            <ColorDot color="#8b5cf6" variant="bar" size="lg" />
+          </div>
+        </div>
+
         {/* ColorDot — pulse animation */}
         <div>
           <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — pulse (live status)</p>

@@ -32,7 +32,7 @@ const TagComponent = forwardRef<HTMLSpanElement, TagProps>(
       >
         {color && (
           <span
-            className="shrink-0 rounded-[30%]"
+            className="shrink-0 rounded-full"
             style={{ width: 6, height: 6, backgroundColor: color }}
           />
         )}

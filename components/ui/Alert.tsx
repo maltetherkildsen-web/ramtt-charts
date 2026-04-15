@@ -91,7 +91,7 @@ const Alert = forwardRef<HTMLDivElement, AlertProps>(
           )}
         >
           <div className="flex items-start gap-2.5">
-            <span className="shrink-0 rounded-[30%] mt-1.5" style={{ width: 8, height: 8, backgroundColor: dotColor }} />
+            <span className="shrink-0 rounded-full mt-1.5" style={{ width: 8, height: 8, backgroundColor: dotColor }} />
             <AlertContent title={title} action={action}>{children}</AlertContent>
             {onDismiss && <DismissButton onClick={onDismiss} />}
           </div>

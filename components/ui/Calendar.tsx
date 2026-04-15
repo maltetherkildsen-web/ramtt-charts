@@ -230,7 +230,7 @@ const Calendar = forwardRef<HTMLDivElement, CalendarProps>(
                     {renderDay ? renderDay(date) : date.getDate()}
                     {isToday && !sel && (
                       <span
-                        className="absolute rounded-[30%] bg-[var(--n1150)]"
+                        className="absolute rounded-full bg-[var(--n1150)]"
                         style={{ width: 4, height: 4, bottom: 4 }}
                       />
                     )}

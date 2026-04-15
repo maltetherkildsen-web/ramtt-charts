@@ -107,7 +107,7 @@ const ActiveTaskItem = forwardRef<HTMLButtonElement, ActiveTaskItemProps>(
       >
         {/* Status dot */}
         <span
-          className={cn('w-2 h-2 rounded-[30%] mt-1.5 shrink-0', DOT_COLOR[status])}
+          className={cn('w-2 h-2 rounded-full mt-1.5 shrink-0', DOT_COLOR[status])}
           aria-hidden="true"
         />
 

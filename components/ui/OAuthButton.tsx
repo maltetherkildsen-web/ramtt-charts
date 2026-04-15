@@ -138,7 +138,7 @@ const OAuthButton = forwardRef<HTMLButtonElement, OAuthButtonProps>(
 
         {/* Connected indicator */}
         {connected && !loading && (
-          <span className="w-1.5 h-1.5 rounded-[30%] bg-green-500 ml-0.5" />
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 ml-0.5" />
         )}
       </button>
     )

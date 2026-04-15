@@ -65,11 +65,13 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Switch on-track: `var(--accent-toggle)`
 - Input/Textarea/Select focus: 1.5px `var(--accent)` border (FOCUS_RING_THIN)
 
-## Indicator Dots — Squircles Only
-- ALL small dots/indicators use `rounded-[30%]` — NEVER `rounded-full` (50%)
-- This is RAMTT's identity: soft squircles, not circles
-- Applies to: ColorDot, status dots, step dots, timeline markers, toast dots, tag dots, notification dots, calendar today dot, avatar status dot, grip dots
-- EXCEPTIONS that stay `rounded-full`: Switch track/thumb, Radio outer ring, Avatar container, Slider thumbs, ScrollArea thumbs, ColorPicker, Calendar day cells, MemberList avatar placeholder
+## Indicator Dots
+- Status indicator dots are **circles** (`rounded-full`)
+- Domain color indicators (nutrition/training/body badges, category icons) use **squircles** (`rounded-[30%]`)
+- ColorDot supports three variants:
+  - `filled` (default) — solid circle, classic status dot
+  - `hollow` — outline ring only (1.5px border, transparent fill)
+  - `bar` — vertical pipe (2.5px wide, height scales with size)
 
 ## Interaction States
 - Accent soft (~12%): sidebar active, selected nav items → use `bg-[var(--accent-soft)]`

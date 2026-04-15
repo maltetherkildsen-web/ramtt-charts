@@ -290,7 +290,7 @@ function ResizableHandle({ className }: ResizableHandleProps) {
           <div
             key={i}
             className={cn(
-              'w-[3px] h-[3px] rounded-[30%]',
+              'w-[3px] h-[3px] rounded-full',
               'bg-[var(--n400)]',
               'group-hover:bg-[var(--n600)]',
             )}

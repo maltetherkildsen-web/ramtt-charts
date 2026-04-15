@@ -102,7 +102,7 @@ function RadioItem({ value, label, description, disabled = false, className }: R
         >
           {isSelected && (
             <span
-              className="rounded-[30%] bg-[var(--n1150)]"
+              className="rounded-full bg-[var(--n1150)]"
               style={{ width: 8, height: 8 }}
             />
           )}

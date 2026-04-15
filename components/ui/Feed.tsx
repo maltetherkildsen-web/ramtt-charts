@@ -40,7 +40,7 @@ export interface FeedProps {
 function DefaultDot() {
   return (
     <div
-      className="rounded-[30%] bg-[var(--n400)]"
+      className="rounded-full bg-[var(--n400)]"
       style={{ width: 8, height: 8 }}
     />
   )

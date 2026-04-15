@@ -126,7 +126,7 @@ function ToastItem({ toast, onDismiss }: { toast: ToastEntry; onDismiss: (id: st
     >
       {dotClass && (
         <span
-          className={cn('shrink-0 rounded-[30%]', dotClass)}
+          className={cn('shrink-0 rounded-full', dotClass)}
           style={{ width: 4, height: 4 }}
         />
       )}

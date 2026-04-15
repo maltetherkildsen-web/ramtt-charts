@@ -162,7 +162,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
           <span className="flex items-center gap-2 truncate">
             {selectedOption?.color && (
               <span
-                className="shrink-0 rounded-[30%]"
+                className="shrink-0 rounded-full"
                 style={{ width: 8, height: 8, backgroundColor: selectedOption.color }}
               />
             )}
@@ -220,7 +220,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                   {/* Color dot */}
                   {opt.color && (
                     <span
-                      className="shrink-0 rounded-[30%]"
+                      className="shrink-0 rounded-full"
                       style={{ width: 8, height: 8, backgroundColor: opt.color }}
                     />
                   )}
