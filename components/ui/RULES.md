@@ -24,8 +24,8 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 
 ## Font Weights
 - Use `WEIGHT` constants, never hardcode font-weight values
-- 400 (WEIGHT.normal): body text, nav items, input text, unselected toggles
-- 450 (WEIGHT.book): units, metadata, descriptions, subtitles
+- 400 (WEIGHT.normal): body text, input text, unselected toggles
+- 450 (WEIGHT.book): units, metadata, descriptions, subtitles, sidebar nav items
 - 500 (WEIGHT.medium): badges, form labels, buttons (primary/outline)
 - 550 (WEIGHT.strong): section headers, card titles, values, active tabs, selected toggles
 
@@ -94,6 +94,18 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - The standard section gap is `40px` (`gap-10`) via `LAYOUT.sectionGap`
 - Header-to-content gap is `12px` (`mt-3`)
 - Card internal padding is `14px` (if it ever drifts, fix it)
+
+## Sidebar Navigation (LOCKED)
+- All items (active AND inactive): `11px / weight 450 / --n1150` — identical text styling
+- Active state: add background `var(--n200)` ONLY — NO weight change, NO color change
+- Rationale: Satoshi 450 matches Inter 400 optically (verified via Figma `getComputedStyle`)
+- Use `NAV_ITEM_STYLE` + `NAV_ITEM_ACTIVE_BG` constants from lib/ui.ts
+- Icons: 18px, stroke-width 1.25 (Light variant), `currentColor` (inherits --n1150)
+- Icon-to-text gap: 14px (`gap-3.5`)
+- Use `NAV_ICON` constant from lib/ui.ts for icon sizing
+- Until Light icon variant ships, use `[&_svg]:[stroke-width:1.25]` CSS override
+- This pattern applies to ALL sidebar/nav-list components in the app
+- Do NOT revert to w400, --n800, or weight-based active states for sidebar navigation
 
 ## Link List Typography
 - In link lists (navigation, footer, settings sidebar), heading and link text MAY be the same font size

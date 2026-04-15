@@ -38,10 +38,10 @@ export type Size = keyof typeof SIZE_HEIGHTS;
 // ─── Font Weight Scale ───
 // Figma's hierarchy: weight communicates IMPORTANCE, not just visual size.
 export const WEIGHT = {
-  /** Standard text — sidebar nav, list items, body text, input text */
+  /** Standard text — list items, body text, input text */
   normal: 'font-normal',        // 400
-  /** Secondary UI — metadata, units, filter dropdowns, descriptions */
-  book: 'font-[450]',           // 450 — between regular and medium
+  /** Secondary UI — metadata, units, filter dropdowns, descriptions, sidebar nav items */
+  book: 'font-[450]',           // 450 — between regular and medium. Satoshi 450 ≈ Inter 400 optically.
   /** Badges, medium emphasis, form labels */
   medium: 'font-medium',        // 500
   /** Strong emphasis — section headers, active tabs, card titles, values */
@@ -216,8 +216,21 @@ export const AVATAR_SIZES = {
 
 // ─── Sidebar ───
 export const SIDEBAR_WIDTH = { expanded: 240, collapsed: 56 } as const;
-export const SIDEBAR_ITEM_STYLE = 'px-3 py-2 rounded-[6px] text-[13px] font-[400] text-[var(--n800)]';
-export const SIDEBAR_ITEM_ACTIVE = 'bg-[var(--n200)] font-[550] text-[var(--n1150)]';
+
+/** Sidebar nav items — ALL states have identical text styling.
+ *  Active state adds background only — no weight or color change.
+ *  Satoshi 450 ≈ Inter 400 optically (verified via Figma getComputedStyle). */
+export const NAV_ITEM_STYLE = 'px-3 py-2 rounded-[6px] text-[11px] font-[450] text-[var(--n1150)]';
+export const NAV_ITEM_ACTIVE_BG = 'bg-[var(--n200)]';
+
+/** Nav item icons — Light variant: 18px, stroke-width 1.25, 14px gap to text.
+ *  Use [&_svg]:[stroke-width:1.25] wrapper until proper Light icon variant ships. */
+export const NAV_ICON = { size: 18, strokeWidth: 1.25, gap: 'gap-3.5' } as const;
+
+/** @deprecated Use NAV_ITEM_STYLE + NAV_ITEM_ACTIVE_BG instead */
+export const SIDEBAR_ITEM_STYLE = NAV_ITEM_STYLE;
+/** @deprecated Use NAV_ITEM_ACTIVE_BG instead */
+export const SIDEBAR_ITEM_ACTIVE = NAV_ITEM_ACTIVE_BG;
 
 // ─── Gauge ───
 export const GAUGE_SIZES = { sm: 64, md: 96, lg: 128 } as const;
