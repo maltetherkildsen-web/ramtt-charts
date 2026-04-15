@@ -113,6 +113,10 @@ export { ButtonGroup } from './ButtonGroup';
 export { AuthLayout } from './AuthLayout';
 export { VirtualList } from './VirtualList';
 export type { VirtualListProps } from './VirtualList';
+export { ColorPicker } from './ColorPicker';
+export type { ColorPickerProps } from './ColorPicker';
+export { OAuthButton } from './OAuthButton';
+export type { OAuthButtonProps, OAuthProvider } from './OAuthButton';
 
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
