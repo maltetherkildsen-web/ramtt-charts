@@ -3874,9 +3874,9 @@ function Wave12Demo() {
                 activeId={wsActive}
                 onSwitch={setWsActive}
                 items={[
-                  { id: 'ramtt', label: 'RAMTT', icon: <span className="text-[14px]">🏃</span> },
-                  { id: 'coaching', label: 'Coaching', icon: <span className="text-[14px]">🎯</span> },
-                  { id: 'research', label: 'Research', icon: <span className="text-[14px]">🔬</span> },
+                  { id: 'ramtt', label: 'RAMTT', icon: <IconRunning size={18} /> },
+                  { id: 'coaching', label: 'Coaching', icon: <IconTarget size={18} /> },
+                  { id: 'research', label: 'Research', icon: <IconLabFlask size={18} /> },
                 ]}
               />
             </div>
@@ -3909,12 +3909,12 @@ function Wave12Demo() {
               <Button variant="outline" size="sm">New project</Button>
             </ProjectsGrid.Header>
             <ProjectsGrid.Body columns={3}>
-              <ProjectsGrid.Item name="RAMTT" description="Sports nutrition + training platform for endurance athletes." timestamp="Updated 1 day ago" icon={<span>🏃</span>} />
-              <ProjectsGrid.Item name="Coaching Dashboard" description="Real-time athlete monitoring and plan management." timestamp="Updated 3 days ago" icon={<span>🎯</span>} />
-              <ProjectsGrid.Item name="Race Predictor" description="ML-based race time estimation from training data." timestamp="Updated 1 week ago" icon={<span>📊</span>} />
-              <ProjectsGrid.Item name="Nutrition Engine" description="Macro timing and fuelling strategy calculator." timestamp="Updated 2 weeks ago" icon={<span>🍌</span>} />
-              <ProjectsGrid.Item name="Recovery Tracker" description="HRV, sleep, and readiness scoring." timestamp="Updated 3 weeks ago" icon={<span>💤</span>} />
-              <ProjectsGrid.Item name="Design System" description="@ramtt/ui component library and tokens." timestamp="Updated today" icon={<span>🎨</span>} />
+              <ProjectsGrid.Item name="RAMTT" description="Sports nutrition + training platform for endurance athletes." timestamp="Updated 1 day ago" icon={<IconRunning size={18} />} />
+              <ProjectsGrid.Item name="Coaching Dashboard" description="Real-time athlete monitoring and plan management." timestamp="Updated 3 days ago" icon={<IconTarget size={18} />} />
+              <ProjectsGrid.Item name="Race Predictor" description="ML-based race time estimation from training data." timestamp="Updated 1 week ago" icon={<IconLineChart size={18} />} />
+              <ProjectsGrid.Item name="Nutrition Engine" description="Macro timing and fuelling strategy calculator." timestamp="Updated 2 weeks ago" icon={<IconBanana size={18} />} />
+              <ProjectsGrid.Item name="Recovery Tracker" description="HRV, sleep, and readiness scoring." timestamp="Updated 3 weeks ago" icon={<IconMoon size={18} />} />
+              <ProjectsGrid.Item name="Design System" description="@ramtt/ui component library and tokens." timestamp="Updated today" icon={<IconPalette size={18} />} />
             </ProjectsGrid.Body>
           </ProjectsGrid>
         </div>
@@ -3924,7 +3924,7 @@ function Wave12Demo() {
           <p className={cn(LABEL_STYLE, 'mb-2')}>PromoCard</p>
           <div className="max-w-[480px]">
             <PromoCard
-              illustration={<span className="text-[32px]">⚡</span>}
+              illustration={<IconZap size={18} />}
               badge="New"
               title="AI Race Predictions"
               description="Get ML-powered race time estimates based on your training history and current fitness."
@@ -4013,9 +4013,9 @@ function Wave12Demo() {
                 <AppSidebar.Search onClick={() => setSearchOpen(true)} />
                 <AppSidebar.Nav>
                   <AppSidebar.Section>
-                    <AppSidebar.Item active icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 6l6-4 6 4v7a1 1 0 01-1 1H3a1 1 0 01-1-1V6z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round"/></svg>}>Dashboard</AppSidebar.Item>
-                    <AppSidebar.Item icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.25"/><path d="M2 6h12" stroke="currentColor" strokeWidth="1.25"/></svg>}>Calendar</AppSidebar.Item>
-                    <AppSidebar.Item icon={<svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l3.5-4L8 10.5l3-4L14 10" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>}>Analytics</AppSidebar.Item>
+                    <AppSidebar.Item active icon={<IconHome size={18} />}>Dashboard</AppSidebar.Item>
+                    <AppSidebar.Item icon={<IconCalendar size={18} />}>Calendar</AppSidebar.Item>
+                    <AppSidebar.Item icon={<IconAnalytics size={18} />}>Analytics</AppSidebar.Item>
                   </AppSidebar.Section>
                   <AppSidebar.Separator />
                   <AppSidebar.Section label="Recent">
@@ -4648,6 +4648,19 @@ import { IconCloud } from '@/components/icons/light/IconCloud'
 import { IconLock } from '@/components/icons/light/IconLock'
 import { IconCode } from '@/components/icons/light/IconCode'
 import { IconUser } from '@/components/icons/light/IconUser'
+import { IconRunning } from '@/components/icons/light/IconRunning'
+import { IconTarget } from '@/components/icons/light/IconTarget'
+import { IconLabFlask } from '@/components/icons/light/IconLabFlask'
+import { IconLineChart } from '@/components/icons/light/IconLineChart'
+import { IconBanana } from '@/components/icons/light/IconBanana'
+import { IconMoon } from '@/components/icons/light/IconMoon'
+import { IconPalette } from '@/components/icons/light/IconPalette'
+import { IconZap } from '@/components/icons/light/IconZap'
+import { IconTimer } from '@/components/icons/light/IconTimer'
+import { IconDumbbell } from '@/components/icons/light/IconDumbbell'
+import { IconHome } from '@/components/icons/light/IconHome'
+import { IconCalendar } from '@/components/icons/light/IconCalendar'
+import { IconAnalytics } from '@/components/icons/light/IconAnalytics'
 
 const SIDEBAR_NAV_ITEMS: { label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
   { label: 'Integrations', icon: IconLink },
