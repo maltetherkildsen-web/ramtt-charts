@@ -1,4 +1,4 @@
-# @ramtt/ui — System Rules (83 components)
+# @ramtt/ui — System Rules (90 components)
 
 These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
@@ -162,3 +162,6 @@ DescriptionList, Feed, ActionPanel, GridList, MediaObject, FormLayout, ButtonGro
 
 ### Wave 9 — Dark Surfaces & Footer (5)
 LinkGroup, LinkList, DarkSection, SocialIcons, Footer
+
+### Wave 10 — Category System & Command Palette (2)
+CategoryIcon, CommandPalette

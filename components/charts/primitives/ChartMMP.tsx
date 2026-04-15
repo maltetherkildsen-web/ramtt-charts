@@ -113,7 +113,7 @@ export function ChartMMP({
       data as MMPPoint[],
       (d) => xScale(d.seconds),
       (d) => yScale(d.watts),
-      () => chartH,
+      chartH,
     )
 
     return { lineD: ld, areaD: ad }

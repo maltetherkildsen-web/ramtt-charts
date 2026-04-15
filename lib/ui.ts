@@ -70,6 +70,18 @@ export const SEMANTIC_COLORS = {
 
 export type SemanticColor = keyof typeof SEMANTIC_COLORS;
 
+// ─── Category Colors ───
+// Content-type identity (5 types). Used by CategoryIcon and content cards.
+export const CATEGORY_COLORS = {
+  session: 'var(--cat-session)',
+  plan: 'var(--cat-plan)',
+  analysis: 'var(--cat-analysis)',
+  nutrition: 'var(--cat-nutrition)',
+  coaching: 'var(--cat-coaching)',
+} as const;
+
+export type CategoryType = keyof typeof CATEGORY_COLORS;
+
 // ─── Dark Surface ───
 // Use --n1100 for dark surface backgrounds (code blocks, toasts, dark panels).
 // --n1150 stays for primary text and button fills.
@@ -295,6 +307,16 @@ export function formatCompact(n: number): string {
   if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`
   return String(n)
 }
+
+// ─── Floating Shadow ───
+// 3-layer warm shadow for floating elements ONLY (toolbar, panel, palette, dropdown).
+// NEVER on regular cards or panels — those are flat.
+export const FLOATING_SHADOW = '0 0 0.5px rgba(19,18,17,0.15), 0 3px 8px rgba(19,18,17,0.08), 0 1px 3px rgba(19,18,17,0.06)';
+
+// ─── Editor Shell ───
+export const PANEL_WIDTH = 240;
+export const ICON_TAB_SIZE = 56;
+export const TOOLBAR_BUTTON_SIZE = 32;
 
 // ─── Layout ───
 // Standard content widths for consistent alignment

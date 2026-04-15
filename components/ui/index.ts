@@ -118,6 +118,12 @@ export type { ColorPickerProps } from './ColorPicker';
 export { OAuthButton } from './OAuthButton';
 export type { OAuthButtonProps, OAuthProvider } from './OAuthButton';
 
+// ─── Components (Wave 10 — Category System & Command Palette) ───
+export { CategoryIcon } from './CategoryIcon';
+export type { CategoryIconProps } from './CategoryIcon';
+export { CommandPalette } from './CommandPalette';
+export type { CommandPaletteProps, CommandPaletteItem, CommandPaletteGroup } from './CommandPalette';
+
 // ─── Components (Wave 9 — Dark Surfaces & Footer) ───
 export { LinkGroup } from './LinkGroup';
 export { LinkList } from './LinkList';
@@ -137,8 +143,9 @@ export { SEPARATOR_DEFAULT, SEPARATOR_SUBTLE, SCROLLBAR_WIDTH, SCROLLBAR_THUMB_M
 export { DOT_SIZES, STEPPER_BUTTON_WIDTH, STEPPER_REPEAT_DELAY, STEPPER_REPEAT_INTERVAL } from '@/lib/ui';
 export { STEP_DOT_SIZE, STEP_DOT_COMPLETED, STEP_DOT_UPCOMING, RATING_SEGMENT_SIZE } from '@/lib/ui';
 export { WIDGET_ICON_SIZE, WIDGET_ICON_COLOR, WIDGET_ICON_HOVER, GRID_COLUMNS, GRID_ROW_HEIGHT, GRID_GAP } from '@/lib/ui';
-export { STAT_SIZES, BADGE_NOTIFY_SIZE, BADGE_NOTIFY_DOT, BADGE_NOTIFY_MAX } from '@/lib/ui';
+export { STAT_SIZES, BADGE_NOTIFY_SIZE, BADGE_NOTIFY_DOT, BADGE_NOTIFY_MAX, CATEGORY_COLORS } from '@/lib/ui';
 export { formatTime, formatPercent, formatCompact } from '@/lib/ui';
 
 // ─── Types ───
 export type { Size, SemanticColor, BaseComponentProps, InteractiveProps, LabelledProps, ColoredProps } from '@/types/ui';
+export type { CategoryType } from '@/lib/ui';

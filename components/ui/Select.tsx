@@ -9,6 +9,8 @@ import { cn, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X, RADIUS, FONT, BORDER, TRAN
 export interface SelectOption {
   value: string
   label: string
+  color?: string
+  description?: string
 }
 
 export interface SelectProps {
@@ -31,7 +33,8 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
     const uid = useId()
     const listboxId = `${uid}-listbox`
 
-    const selectedLabel = options.find((o) => o.value === value)?.label
+    const selectedOption = options.find((o) => o.value === value)
+    const selectedLabel = selectedOption?.label
 
     useEffect(() => {
       if (!open) return
@@ -156,7 +159,15 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             value ? 'text-[var(--n1150)]' : 'text-[var(--n600)]',
           )}
         >
-          <span className="truncate">{selectedLabel ?? placeholder ?? ''}</span>
+          <span className="flex items-center gap-2 truncate">
+            {selectedOption?.color && (
+              <span
+                className="shrink-0 rounded-full"
+                style={{ width: 8, height: 8, backgroundColor: selectedOption.color }}
+              />
+            )}
+            {selectedLabel ?? placeholder ?? ''}
+          </span>
           <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="ml-2 shrink-0 text-[var(--n600)]" aria-hidden="true">
             <path d="M2.5 3.75L5 6.25L7.5 3.75" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
@@ -170,8 +181,12 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             role="listbox"
             aria-labelledby={label ? `${uid}-label` : undefined}
             onKeyDown={handleListKeyDown}
-            className={cn('absolute left-0 top-full z-50 mt-1 w-full list-none m-0 py-1.5 bg-[#1E1E1E]', RADIUS.xl)}
-            style={{ boxShadow: 'rgba(0,0,0,0.15) 0px 2px 5px 0px, rgba(0,0,0,0.12) 0px 10px 16px 0px, rgba(0,0,0,0.12) 0px 0px 0.5px 0px' }}
+            className={cn(
+              'absolute left-0 top-full z-50 mt-1 w-full list-none m-0 p-1 min-w-[180px]',
+              'bg-[var(--n50)] border-[0.5px] border-[var(--n400)] rounded-[8px]',
+              'animate-[ramtt-dropdown-enter_120ms_var(--ease-out-expo)]',
+            )}
+            style={{ boxShadow: '0 8px 24px rgba(19, 18, 17, 0.08)' }}
           >
             {options.map((opt, i) => {
               const isSelected = opt.value === value
@@ -187,18 +202,40 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
                   onClick={() => selectAndClose(opt.value)}
                   className={cn(
                     FONT.body,
-                    RADIUS.md,
-                    'flex items-center justify-between py-1.5 px-3 mx-1 text-[11px] text-white/90 transition-[background-color] duration-100',
-                    WEIGHT.normal,
-                    (isFocused || isSelected) ? 'bg-[#2A2A2A]' : 'bg-transparent',
+                    'flex items-center gap-2 py-1.5 px-2.5 rounded-[5px]',
+                    'transition-[background-color] duration-150',
+                    isSelected ? cn(WEIGHT.medium, 'text-[var(--n1150)]') : cn(WEIGHT.normal, 'text-[var(--n1150)]'),
+                    isFocused ? 'bg-[var(--n200)]' : isSelected ? 'bg-[var(--n200)]' : 'bg-transparent',
                   )}
                 >
-                  <span>{opt.label}</span>
-                  {isSelected && (
-                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-                      <path d="M2.5 6L5 8.5L9.5 3.5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                  {/* Checkmark for selected */}
+                  <span className="shrink-0 flex items-center justify-center" style={{ width: 12, height: 12 }}>
+                    {isSelected && (
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                        <path d="M3 6L5.5 8.5L9 4" stroke="var(--n1150)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </span>
+
+                  {/* Color dot */}
+                  {opt.color && (
+                    <span
+                      className="shrink-0 rounded-full"
+                      style={{ width: 8, height: 8, backgroundColor: opt.color }}
+                    />
                   )}
+
+                  {/* Label + description */}
+                  <span className="flex-1 min-w-0">
+                    <span className={cn('block truncate text-[13px]', isSelected ? WEIGHT.medium : WEIGHT.normal)}>
+                      {opt.label}
+                    </span>
+                    {opt.description && (
+                      <span className={cn('block truncate text-[11px] text-[var(--n600)]', WEIGHT.normal)}>
+                        {opt.description}
+                      </span>
+                    )}
+                  </span>
                 </li>
               )
             })}

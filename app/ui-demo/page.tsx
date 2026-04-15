@@ -13,6 +13,9 @@ import {
   BORDER,
   RADIUS,
   WEIGHT,
+  TRANSITION,
+  CATEGORY_COLORS,
+  type CategoryType,
 } from '@/lib/ui'
 import {
   MetricCard,
@@ -104,6 +107,8 @@ import {
   DarkSection,
   SocialIcons,
   Footer,
+  CategoryIcon,
+  CommandPalette,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3552,6 +3557,258 @@ function FooterDemo() {
   )
 }
 
+// ─── Category Icons ───
+
+function CategoryIconsDemo() {
+  const categories: { key: CategoryType; label: string }[] = [
+    { key: 'session', label: 'Session' },
+    { key: 'plan', label: 'Plan' },
+    { key: 'analysis', label: 'Analysis' },
+    { key: 'nutrition', label: 'Nutrition' },
+    { key: 'coaching', label: 'Coaching' },
+  ]
+
+  return (
+    <DemoSection title="Category icons">
+      <div className="space-y-4">
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Small (16px) — for lists, search results</p>
+          <div className="flex items-center gap-4">
+            {categories.map((c) => (
+              <div key={c.key} className="flex items-center gap-2">
+                <CategoryIcon category={c.key} size="sm" />
+                <span className={cn(FONT.body, WEIGHT.normal, 'text-[13px] text-[var(--n1150)]')}>{c.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Medium (20px) — for cards, headers</p>
+          <div className="flex items-center gap-4">
+            {categories.map((c) => (
+              <div key={c.key} className="flex items-center gap-2">
+                <CategoryIcon category={c.key} size="md" />
+                <span className={cn(FONT.body, WEIGHT.normal, 'text-[13px] text-[var(--n1150)]')}>{c.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Color strip</p>
+          <div className="flex gap-1.5">
+            {categories.map((c) => (
+              <div
+                key={c.key}
+                className="rounded-[4px]"
+                style={{ width: 28, height: 28, backgroundColor: CATEGORY_COLORS[c.key] }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── Content Cards ───
+
+function ContentCardsDemo() {
+  const cards: { category: CategoryType; title: string; time: string }[] = [
+    { category: 'session', title: 'MIT with spikes', time: 'Edited 2 hours ago' },
+    { category: 'analysis', title: 'Week 14 summary', time: 'Edited 1 day ago' },
+    { category: 'plan', title: 'Build phase — weeks 12-16', time: 'Edited 3 days ago' },
+    { category: 'nutrition', title: 'Race day fueling', time: 'Edited 5 days ago' },
+  ]
+
+  return (
+    <DemoSection title="Content cards">
+      <div className="grid grid-cols-2 gap-4">
+        {cards.map((card) => (
+          <div
+            key={card.title}
+            className={cn(
+              'bg-[var(--n50)] border-[0.5px] border-[var(--n400)]',
+              RADIUS.lg,
+              'overflow-hidden group',
+              'transition-[border-color] duration-150',
+              'hover:border-[var(--n600)]/50',
+            )}
+          >
+            {/* Preview area */}
+            <div className="bg-[var(--n200)]" style={{ height: 120 }} />
+            {/* Content */}
+            <div className="px-3.5 py-3">
+              <div className="flex items-center gap-1.5">
+                <CategoryIcon category={card.category} size="sm" />
+                <span className={cn(FONT.body, WEIGHT.strong, 'text-[13px] text-[var(--n1150)]')}>
+                  {card.title}
+                </span>
+              </div>
+              <p className={cn(FONT.body, WEIGHT.normal, 'text-[11px] text-[var(--n600)] mt-0.5')}>
+                {card.time}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── Command Palette Demo ───
+
+function CommandPaletteDemo() {
+  const [open, setOpen] = useState(false)
+
+  const groups = [
+    {
+      label: 'Recent',
+      items: [
+        { id: 'r1', label: 'Morning intervals', description: '2h ago', icon: <CategoryIcon category="session" size="sm" /> },
+        { id: 'r2', label: 'Recovery ride', description: 'Yesterday', icon: <CategoryIcon category="session" size="sm" /> },
+        { id: 'r3', label: 'Weekly summary', description: '3d ago', icon: <CategoryIcon category="analysis" size="sm" /> },
+      ],
+    },
+    {
+      label: 'Actions',
+      items: [
+        { id: 'a1', label: 'New session', shortcut: '\u2318N' },
+        { id: 'a2', label: 'Import FIT file', shortcut: '\u2318I' },
+        { id: 'a3', label: 'Settings', shortcut: '\u2318,' },
+      ],
+    },
+  ]
+
+  return (
+    <DemoSection title="Command palette">
+      <Button variant="outline" onClick={() => setOpen(true)}>
+        Open command palette
+      </Button>
+      <CommandPalette
+        open={open}
+        onOpenChange={setOpen}
+        groups={groups}
+        onSelect={(item) => { setOpen(false); console.log('Selected:', item.label) }}
+      />
+    </DemoSection>
+  )
+}
+
+// ─── Enhanced Dropdowns ───
+
+function EnhancedDropdownsDemo() {
+  const [zone, setZone] = useState('z3')
+  const [integration, setIntegration] = useState('strava')
+  const [selected, setSelected] = useState('metric1')
+
+  return (
+    <DemoSection title="Enhanced dropdowns">
+      <div className="flex gap-6 flex-wrap">
+        <div className="w-[200px]">
+          <Select
+            label="Selected indicator"
+            value={selected}
+            onChange={setSelected}
+            options={[
+              { value: 'metric1', label: 'Average power' },
+              { value: 'metric2', label: 'Normalized power' },
+              { value: 'metric3', label: 'Max power' },
+              { value: 'metric4', label: 'Weighted avg' },
+            ]}
+          />
+        </div>
+        <div className="w-[200px]">
+          <Select
+            label="Zone selection"
+            value={zone}
+            onChange={setZone}
+            options={[
+              { value: 'z1', label: 'Zone 1 — Recovery', color: '#94a3b8' },
+              { value: 'z2', label: 'Zone 2 — Endurance', color: '#22c55e' },
+              { value: 'z3', label: 'Zone 3 — Tempo', color: '#eab308' },
+              { value: 'z4', label: 'Zone 4 — Threshold', color: '#f97316' },
+              { value: 'z5', label: 'Zone 5 — VO2max', color: '#ef4444' },
+              { value: 'z6', label: 'Zone 6 — Anaerobic', color: '#dc2626' },
+            ]}
+          />
+        </div>
+        <div className="w-[220px]">
+          <Select
+            label="Integration"
+            value={integration}
+            onChange={setIntegration}
+            options={[
+              { value: 'strava', label: 'Strava', description: 'Connected' },
+              { value: 'garmin', label: 'Garmin Connect', description: 'Not connected' },
+              { value: 'whoop', label: 'WHOOP', description: 'Connected' },
+            ]}
+          />
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
+// ─── Filter Pills with Icons ───
+
+function FilterPillsDemo() {
+  const [filter, setFilter] = useState('all')
+
+  return (
+    <DemoSection title="Filter pills with icons">
+      <div className="space-y-4">
+        <div>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>With icons and dropdown chevron</p>
+          <ToggleGroup
+            variant="pill"
+            value={filter}
+            onChange={(v) => setFilter(v as string)}
+            options={[
+              {
+                value: 'all',
+                label: 'All',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25" />
+                    <rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25" />
+                    <rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25" />
+                    <rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" strokeWidth="1.25" />
+                  </svg>
+                ),
+              },
+              {
+                value: 'sessions',
+                label: 'Sessions',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M9 2L5 8h3.5L7 14l5-7H8.5L9 2z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+                  </svg>
+                ),
+              },
+              {
+                value: 'plans',
+                label: 'Plans',
+                icon: (
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.25" />
+                    <path d="M2.5 6H13.5" stroke="currentColor" strokeWidth="1.25" />
+                    <path d="M6 6V13.5" stroke="currentColor" strokeWidth="1.25" />
+                  </svg>
+                ),
+              },
+              {
+                value: 'type',
+                label: 'Type',
+                hasDropdown: true,
+              },
+            ]}
+          />
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3567,7 +3824,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              88 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              90 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
@@ -3635,6 +3892,11 @@ export default function UIDemo() {
             <LinkGroupDemo />
             <DarkSurfaceDemo />
             <FooterDemo />
+            <CategoryIconsDemo />
+            <ContentCardsDemo />
+            <CommandPaletteDemo />
+            <EnhancedDropdownsDemo />
+            <FilterPillsDemo />
           </div>
         </div>
       </main>
