@@ -4306,6 +4306,118 @@ function DomainColorsDemo() {
   )
 }
 
+// ─── Sidebar Navigation (Accent Demo Pattern) ───
+
+import { IconLink } from '@/components/icons/light/IconLink'
+import { IconZone } from '@/components/icons/light/IconZone'
+import { IconGut } from '@/components/icons/light/IconGut'
+import { IconApple } from '@/components/icons/light/IconApple'
+import { IconUserCheck } from '@/components/icons/light/IconUserCheck'
+import { IconSun } from '@/components/icons/light/IconSun'
+import { IconNotification } from '@/components/icons/light/IconNotification'
+import { IconMail } from '@/components/icons/light/IconMail'
+import { IconGrid } from '@/components/icons/light/IconGrid'
+import { IconSettings } from '@/components/icons/light/IconSettings'
+import { IconFlag } from '@/components/icons/light/IconFlag'
+import { IconMessageCircle } from '@/components/icons/light/IconMessageCircle'
+import { IconStar } from '@/components/icons/light/IconStar'
+import { IconCloud } from '@/components/icons/light/IconCloud'
+import { IconLock } from '@/components/icons/light/IconLock'
+import { IconCode } from '@/components/icons/light/IconCode'
+import { IconUser } from '@/components/icons/light/IconUser'
+
+const SIDEBAR_NAV_ITEMS: { label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+  { label: 'Integrations', icon: IconLink },
+  { label: 'Zones & thresholds', icon: IconZone },
+  { label: 'Gut training', icon: IconGut },
+  { label: 'Dietary & allergens', icon: IconApple },
+  { label: 'Coach permissions', icon: IconUserCheck },
+  { label: 'Appearance', icon: IconSun },
+  { label: 'Notifications', icon: IconNotification },
+  { label: 'Email preferences', icon: IconMail },
+  { label: 'Shortcuts', icon: IconGrid },
+  { label: 'General', icon: IconSettings },
+  { label: 'Beta features', icon: IconFlag },
+  { label: 'Support & feedback', icon: IconMessageCircle },
+  { label: 'What\'s new', icon: IconStar },
+  { label: 'Connected apps data', icon: IconCloud },
+  { label: 'Data & privacy', icon: IconLock },
+  { label: 'Advanced', icon: IconCode },
+  { label: 'Account', icon: IconUser },
+]
+
+function SidebarNavDemo() {
+  const [active, setActive] = useState('Integrations')
+
+  return (
+    <DemoSection title="Sidebar Navigation">
+      <div className="flex gap-6">
+        {/* Sidebar — exact accent-demo pattern */}
+        <div className={cn('flex w-[280px] shrink-0 flex-col gap-0.5 py-5 pr-3 pl-4', BORDER.default, RADIUS.lg, 'bg-[var(--n50)]')}>
+          <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3')}>
+            Settings
+          </span>
+          {SIDEBAR_NAV_ITEMS.map(({ label, icon: Icon }) => {
+            const isActive = label === active
+            return (
+              <button
+                key={label}
+                onClick={() => setActive(label)}
+                className={cn(
+                  FONT.body, 'text-[11px]',
+                  'flex items-center gap-3.5 px-3 py-2 text-left',
+                  'rounded-[6px]',
+                  TRANSITION.colors,
+                  WEIGHT.book,
+                  'text-[var(--n1150)]',
+                  isActive && 'bg-[var(--accent-soft)]',
+                  !isActive && 'hover:bg-[var(--n200)]',
+                )}
+              >
+                <span className="shrink-0">
+                  <Icon size={18} />
+                </span>
+                {label}
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Specs panel */}
+        <div className="flex-1 flex flex-col gap-4 py-5">
+          <div>
+            <p className={cn(LABEL_STYLE, 'mb-2')}>Pattern specs</p>
+            <div className="flex flex-col gap-1">
+              {[
+                ['Icons', 'Light variant, 18px, stroke-width 1.25'],
+                ['Icon-to-text gap', '14px (gap-3.5)'],
+                ['Text', 'Satoshi 11px, weight 450, var(--n1150)'],
+                ['Item padding', 'px-3 py-2, rounded 6px'],
+                ['Active state', 'var(--accent-soft) background (~12% opacity)'],
+                ['Hover state', 'var(--n200) background'],
+                ['Sidebar width', '280px'],
+              ].map(([label, value]) => (
+                <div key={label} className="flex items-baseline gap-2">
+                  <span className={cn(FONT.body, 'text-[11px]', WEIGHT.medium, 'text-[var(--n1150)] shrink-0 w-[120px]')}>{label}</span>
+                  <span className={cn(FONT.body, 'text-[11px]', WEIGHT.normal, 'text-[var(--n800)]')}>{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <p className={cn(LABEL_STYLE, 'mb-2')}>Active item: {active}</p>
+            <p className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n800)]')}>
+              Click any item to see the accent-wash active state.
+              The sidebar uses NAV_ITEM_STYLE constants from lib/ui.ts.
+            </p>
+          </div>
+        </div>
+      </div>
+    </DemoSection>
+  )
+}
+
 // ─── Filter Pills with Icons ───
 
 function FilterPillsDemo() {
@@ -4450,6 +4562,7 @@ export default function UIDemo() {
             <DarkSurfaceDemo />
             <FooterDemo />
             <DomainColorsDemo />
+            <SidebarNavDemo />
             <CategoryIconsDemo />
             <ContentCardsDemo />
             <CommandPaletteDemo />

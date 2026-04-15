@@ -130,8 +130,8 @@
   --domain-nutrition-selection: #c0dde2;
   --domain-nutrition-wash: #f0f4f5;
   --domain-nutrition-badge: #f6f8f8;
-  --domain-nutrition-soft: #06B6D40A;
-  --domain-nutrition-light: #06B6D414;
+  --domain-nutrition-soft: #06B6D420;
+  --domain-nutrition-light: #06B6D430;
 
   /* ── Training (Pink 600 #DB2777) ── */
   --domain-training-pressed: #891347;
@@ -146,8 +146,8 @@
   --domain-training-selection: #dec4d0;
   --domain-training-wash: #f4f0f2;
   --domain-training-badge: #f8f7f7;
-  --domain-training-soft: #DB27770A;
-  --domain-training-light: #DB277714;
+  --domain-training-soft: #DB277720;
+  --domain-training-light: #DB277730;
 
   /* ── Body (indigo-500 #6366F1) ── */
   --domain-body-pressed: #0f13df;
@@ -162,8 +162,8 @@
   --domain-body-selection: #c2c2e0;
   --domain-body-wash: #f0f0f4;
   --domain-body-badge: #f6f6f8;
-  --domain-body-soft: #6366F10A;
-  --domain-body-light: #6366F114;
+  --domain-body-soft: #6366F120;
+  --domain-body-light: #6366F130;
 
   /* ═══ App Accent (aliases → nutrition placeholder) ═══ */
   /* When Ruth picks the final accent, change these 14 pointers. */
