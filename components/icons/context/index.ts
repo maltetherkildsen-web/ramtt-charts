@@ -22,6 +22,16 @@ export { IconTemperatureGauge } from './IconTemperatureGauge'
 export { IconCountdownTimer } from './IconCountdownTimer'
 export { IconCalorieBalance } from './IconCalorieBalance'
 
+// --- Wave 10-12 context-aware icons ---
+export { IconGaugeContext } from './IconGaugeContext'
+export { IconPowerProfileContext } from './IconPowerProfileContext'
+export { IconSleepScoreContext } from './IconSleepScoreContext'
+export { IconPeriodizationContext } from './IconPeriodizationContext'
+export { IconNegativeSplitContext } from './IconNegativeSplitContext'
+export { IconCadenceOptimalContext } from './IconCadenceOptimalContext'
+export { IconPacingContext } from './IconPacingContext'
+export { IconCarboLoadingContext } from './IconCarboLoadingContext'
+
 // Shared utilities
 export { getThresholdColor, HEALTH_THRESHOLDS, RISK_THRESHOLDS } from './thresholds'
 export type { Threshold } from './thresholds'
