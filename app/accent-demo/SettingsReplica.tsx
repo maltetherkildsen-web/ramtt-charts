@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, FOCUS_RING, LABEL_STYLE } from '@/lib/ui'
-import { type AccentDefinition, needsDarkTextOnFill } from './accents'
+import { type AccentDefinition, type AccentTokens, needsDarkTextOnFill } from './accents'
 import {
   ToggleSwitch,
   StatusDot,
@@ -301,6 +301,13 @@ function AccountCard({ accent }: { accent: AccentDefinition }) {
     accent.isMonochrome ? 'underline' : 'hover:underline',
   )
 
+  const linkStyle: React.CSSProperties = {
+    color: 'var(--accent-text)',
+    textUnderlineOffset: '0.25em',
+    textDecorationThickness: '1px',
+    ...accentTransition,
+  }
+
   return (
     <ContentCard>
       <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3 block')}>
@@ -330,7 +337,7 @@ function AccountCard({ accent }: { accent: AccentDefinition }) {
           href="#"
           onClick={(e) => e.preventDefault()}
           className={linkClass}
-          style={{ color: 'var(--accent-text)', ...accentTransition }}
+          style={linkStyle}
         >
           Change password
         </a>
@@ -339,7 +346,7 @@ function AccountCard({ accent }: { accent: AccentDefinition }) {
           href="#"
           onClick={(e) => e.preventDefault()}
           className={linkClass}
-          style={{ color: 'var(--accent-text)', ...accentTransition }}
+          style={linkStyle}
         >
           Export data
         </a>
@@ -464,6 +471,283 @@ function ComponentsShowcase({ accent }: { accent: AccentDefinition }) {
   )
 }
 
+// ─── Dropdown / Command List ───
+
+function DropdownDemo() {
+  const [hovered, setHovered] = useState(1)
+
+  const items: ({ label: string; badge?: boolean } | { divider: true })[] = [
+    { label: 'Design file' },
+    { label: 'Slides', badge: true },
+    { label: 'Whiteboard' },
+    { divider: true },
+    { label: 'Import file' },
+  ]
+
+  let itemIndex = 0
+  return (
+    <ContentCard>
+      <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3 block')}>
+        Dropdown / command list
+      </span>
+      <div
+        className={cn(RADIUS.lg, 'overflow-hidden')}
+        style={{ border: '0.5px solid var(--n400)', background: 'var(--n50)' }}
+      >
+        <div className="px-3 pt-2.5 pb-1.5">
+          <span className={cn(FONT.body, 'text-[12px]', WEIGHT.strong, 'text-[var(--n800)]')}>
+            New file
+          </span>
+        </div>
+        <div className="flex flex-col px-1.5 pb-1.5">
+          {items.map((item, rawI) => {
+            if ('divider' in item) {
+              return (
+                <div
+                  key={`div-${rawI}`}
+                  className="mx-1.5 my-0.5"
+                  style={{ borderBottom: '0.5px solid var(--n200)' }}
+                />
+              )
+            }
+            const idx = itemIndex++
+            const isHovered = hovered === idx
+            return (
+              <div
+                key={item.label}
+                className={cn('flex items-center gap-2.5 px-2.5 py-[7px] rounded-[5px]')}
+                style={{
+                  backgroundColor: isHovered ? 'var(--accent-hover-wash)' : 'transparent',
+                  transition: 'background-color 0.15s',
+                }}
+                onMouseEnter={() => setHovered(idx)}
+                onMouseLeave={() => setHovered(1)}
+              >
+                <div
+                  className="h-4 w-4 shrink-0 rounded-[3px]"
+                  style={{ backgroundColor: 'var(--n200)' }}
+                />
+                <span className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n1150)] flex-1')}>
+                  {item.label}
+                </span>
+                {item.badge && (
+                  <span
+                    className={cn(
+                      FONT.label, 'text-[10px]', WEIGHT.medium,
+                      'px-1.5 py-0.5', RADIUS.sm,
+                    )}
+                    style={{
+                      backgroundColor: 'var(--accent-badge)',
+                      border: '0.5px solid var(--accent-border)',
+                      color: 'var(--accent-text)',
+                      ...accentTransition,
+                    }}
+                  >
+                    Beta
+                  </span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </ContentCard>
+  )
+}
+
+// ─── Navigation Sidebar States ───
+
+function NavigationStates() {
+  const [hovered, setHovered] = useState(2)
+  const items = ['Overview', 'Analytics', 'Sessions', 'Calendar', 'Settings', 'Help']
+  const activeIndex = 1
+
+  return (
+    <ContentCard>
+      <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3 block')}>
+        Navigation states
+      </span>
+      <div
+        className={cn(RADIUS.lg, 'overflow-hidden py-2 px-2')}
+        style={{ border: '0.5px solid var(--n400)', background: 'var(--n50)' }}
+      >
+        {items.map((item, i) => {
+          const isActive = i === activeIndex
+          const isHovered = i === hovered && !isActive
+          return (
+            <div
+              key={item}
+              className={cn('flex items-center gap-2.5 px-2.5 py-[7px] rounded-[5px]')}
+              style={{
+                backgroundColor: isActive
+                  ? 'var(--accent-wash)'
+                  : isHovered
+                    ? 'var(--accent-hover-wash)'
+                    : 'transparent',
+                transition: 'background-color 0.15s',
+              }}
+              onMouseEnter={() => setHovered(i)}
+              onMouseLeave={() => setHovered(2)}
+            >
+              {isActive && (
+                <div
+                  className="h-1 w-1 shrink-0 rounded-full"
+                  style={{ backgroundColor: 'var(--accent)', ...accentTransition }}
+                />
+              )}
+              <span
+                className={cn(FONT.body, 'text-[12px]')}
+                style={{
+                  fontWeight: isActive ? 550 : 400,
+                  color: isActive ? 'var(--n1150)' : 'var(--n800)',
+                }}
+              >
+                {item}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </ContentCard>
+  )
+}
+
+// ─── Activity Feed ───
+
+const FEED_ITEMS = [
+  { title: 'New session uploaded', desc: 'MIT intervals \u00b7 1:28:40', time: '2 hours ago', unread: true },
+  { title: 'FTP updated to 285W', desc: 'Auto-detected from session', time: 'Yesterday', unread: false },
+  { title: 'Coach comment on session', desc: '\u201cGreat pacing on the\u2026\u201d', time: '3 days ago', unread: true },
+]
+
+function ActivityFeed() {
+  const [hovered, setHovered] = useState(-1)
+
+  return (
+    <ContentCard>
+      <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3 block')}>
+        Activity feed
+      </span>
+      <div
+        className={cn(RADIUS.lg, 'overflow-hidden')}
+        style={{ border: '0.5px solid var(--n400)', background: 'var(--n50)' }}
+      >
+        {FEED_ITEMS.map((item, i) => (
+          <div
+            key={i}
+            className={cn(
+              'flex items-start gap-3 px-3.5 py-2.5',
+              i !== FEED_ITEMS.length - 1 && 'border-b-[0.5px] border-b-[var(--n200)]',
+            )}
+            style={{
+              backgroundColor: hovered === i ? 'var(--accent-hover-wash)' : 'transparent',
+              transition: 'background-color 0.15s',
+            }}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(-1)}
+          >
+            <div className="mt-1.5 flex w-[6px] shrink-0 justify-center">
+              {item.unread && (
+                <div
+                  className="h-[6px] w-[6px] rounded-full"
+                  style={{ backgroundColor: 'var(--accent)', ...accentTransition }}
+                />
+              )}
+            </div>
+            <div className="flex flex-1 flex-col">
+              <span className={cn(FONT.body, 'text-[13px]', item.unread ? WEIGHT.medium : WEIGHT.normal, 'text-[var(--n1150)]')}>
+                {item.title}
+              </span>
+              <span className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n800)] mt-0.5')}>
+                {item.desc}
+              </span>
+              <span className={cn(FONT.body, 'text-[11px]', WEIGHT.normal, 'text-[var(--n600)] mt-0.5')}>
+                {item.time}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </ContentCard>
+  )
+}
+
+// ─── Accent Token Swatch Grid ───
+
+const SWATCH_TOKENS: { key: keyof AccentTokens; label: string }[] = [
+  { key: 'pressed', label: 'Pressed' },
+  { key: 'hover', label: 'Hover' },
+  { key: 'primary', label: 'Primary' },
+  { key: 'text', label: 'Text' },
+  { key: 'icon', label: 'Icon' },
+  { key: 'iconLight', label: 'Icon light' },
+  { key: 'iconLightest', label: 'Icon lightest' },
+  { key: 'border', label: 'Border' },
+  { key: 'hoverWash', label: 'Hover wash' },
+  { key: 'wash', label: 'Wash' },
+  { key: 'badgeBg', label: 'Badge bg' },
+  { key: 'selection', label: 'Selection' },
+  { key: 'toggleTrack', label: 'Toggle' },
+]
+
+const SWATCH_GRADIENT: (keyof AccentTokens)[] = [
+  'pressed', 'primary', 'iconLight', 'border', 'hoverWash', 'wash', 'badgeBg',
+]
+
+function TokenSwatchGrid({ tokens }: { tokens: AccentTokens }) {
+  const gradientCss = SWATCH_GRADIENT.map(
+    (key, i) => `${tokens[key]} ${Math.round((i / (SWATCH_GRADIENT.length - 1)) * 100)}%`,
+  ).join(', ')
+
+  return (
+    <ContentCard>
+      <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3 block')}>
+        Accent ramp
+      </span>
+      <div className="grid grid-cols-5 gap-1.5">
+        {SWATCH_TOKENS.map(({ key, label }) => {
+          const color = tokens[key]
+          const isDark = needsDarkTextOnFill(color)
+          const textColor = isDark ? '#131211' : '#FDFCFA'
+          return (
+            <div key={key} className="flex flex-col gap-1">
+              <div
+                className={cn('flex h-12 items-center justify-center', RADIUS.md)}
+                style={{
+                  backgroundColor: color,
+                  transition: 'background-color 150ms',
+                }}
+              >
+                <span
+                  className={cn('text-[9px] tabular-nums', WEIGHT.normal)}
+                  style={{ color: textColor, opacity: 0.8, transition: 'color 150ms' }}
+                >
+                  {color}
+                </span>
+              </div>
+              <span className={cn('text-[10px]', WEIGHT.book, 'text-[var(--n600)] text-center')}>
+                {label}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+      <div className="mt-3 flex flex-col gap-1">
+        <span className={cn('text-[10px]', WEIGHT.book, 'text-[var(--n600)]')}>
+          Full ramp
+        </span>
+        <div
+          className={cn('h-2 w-full', RADIUS.sm)}
+          style={{
+            background: `linear-gradient(to right, ${gradientCss})`,
+            transition: 'background 150ms',
+          }}
+        />
+      </div>
+    </ContentCard>
+  )
+}
+
 // ─── Text Selection Test ───
 
 function TextSelectionTest() {
@@ -519,6 +803,10 @@ function IntegrationsSection({ accent }: { accent: AccentDefinition }) {
       <DietTypeCard accent={accent} />
       <AccountCard accent={accent} />
       <ComponentsShowcase accent={accent} />
+      <DropdownDemo />
+      <NavigationStates />
+      <ActivityFeed />
+      <TokenSwatchGrid tokens={accent.tokens} />
       <TextSelectionTest />
     </div>
   )

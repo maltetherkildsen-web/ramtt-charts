@@ -28,6 +28,7 @@ const TOKEN_ORDER: (keyof AccentTokens)[] = [
   'iconLightest',
   'border',
   'selection',
+  'hoverWash',
   'wash',
   'badgeBg',
 ]
@@ -37,6 +38,7 @@ const GRADIENT_STOPS: (keyof AccentTokens)[] = [
   'primary',
   'iconLight',
   'border',
+  'hoverWash',
   'wash',
   'badgeBg',
 ]
