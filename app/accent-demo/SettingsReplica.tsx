@@ -517,7 +517,7 @@ function DropdownDemo() {
                 key={item.label}
                 className={cn('flex items-center gap-2.5 px-2.5 py-[7px] rounded-[5px]')}
                 style={{
-                  backgroundColor: isHovered ? 'var(--accent-wash)' : 'transparent',
+                  backgroundColor: isHovered ? 'var(--n200)' : 'transparent',
                   transition: 'background-color 0.15s',
                 }}
                 onMouseEnter={() => setHovered(idx)}
@@ -582,7 +582,7 @@ function NavigationStates() {
                 backgroundColor: isActive
                   ? 'var(--accent-wash)'
                   : isHovered
-                    ? 'var(--accent-wash)'
+                    ? 'var(--n200)'
                     : 'transparent',
                 transition: 'background-color 0.15s',
               }}
@@ -640,7 +640,7 @@ function ActivityFeed() {
               i !== FEED_ITEMS.length - 1 && 'border-b-[0.5px] border-b-[var(--n200)]',
             )}
             style={{
-              backgroundColor: hovered === i ? 'var(--accent-wash)' : 'transparent',
+              backgroundColor: hovered === i ? 'var(--n200)' : 'transparent',
               transition: 'background-color 0.15s',
             }}
             onMouseEnter={() => setHovered(i)}

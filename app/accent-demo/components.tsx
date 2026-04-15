@@ -198,7 +198,7 @@ export function AccentButton({ children, variant, accentHex, size = 'md' }: Acce
   // ghost
   return (
     <button
-      className={cn(base, 'bg-transparent hover:bg-[var(--accent-wash)]')}
+      className={cn(base, 'bg-transparent hover:bg-[var(--n200)]')}
       style={{
         color: 'var(--accent-text)',
         ...accentTransition,
