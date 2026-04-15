@@ -11,6 +11,12 @@
 // Scales
 export { scaleLinear } from './scales/linear'
 export type { LinearScale } from './scales/linear'
+export { scaleLog, niceLogTicks } from './scales/log'
+export type { LogScale } from './scales/log'
+export { scaleBand } from './scales/band'
+export type { BandScale } from './scales/band'
+export { scaleTime, formatTimeTick } from './scales/time'
+export type { TimeScale } from './scales/time'
 
 // Paths
 export { linePath } from './paths/line'
