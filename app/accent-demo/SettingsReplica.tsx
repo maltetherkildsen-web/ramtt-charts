@@ -58,7 +58,7 @@ function SettingsSidebar({
             key={item}
             onClick={() => onSelect(item)}
             className={cn(
-              FONT.body, 'text-[13px]',
+              FONT.body, 'text-[11px]',
               'flex items-center px-3 py-2 text-left cursor-default',
               'rounded-[6px]',
               TRANSITION.colors,
