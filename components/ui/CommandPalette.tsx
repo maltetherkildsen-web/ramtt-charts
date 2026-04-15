@@ -203,7 +203,7 @@ const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
                           RADIUS.md,
                           TRANSITION.background,
                           isActive
-                            ? 'bg-[var(--n1150)] text-[var(--n50)]'
+                            ? 'bg-[var(--accent-soft)] text-[var(--n1150)]'
                             : 'bg-transparent text-[var(--n1150)]',
                         )}
                       >
@@ -219,7 +219,7 @@ const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
                           <span className={cn(
                             'text-[11px] shrink-0',
                             WEIGHT.normal,
-                            isActive ? 'text-[var(--n50)]/60' : 'text-[var(--n600)]',
+                            isActive ? 'text-[var(--n800)]' : 'text-[var(--n600)]',
                           )}>
                             {item.description}
                           </span>
@@ -228,7 +228,7 @@ const CommandPalette = forwardRef<HTMLDivElement, CommandPaletteProps>(
                           <span className={cn(
                             'text-[11px] tabular-nums shrink-0',
                             WEIGHT.book,
-                            isActive ? 'text-[var(--n50)]/60' : 'text-[var(--n600)]',
+                            isActive ? 'text-[var(--n800)]' : 'text-[var(--n600)]',
                           )}>
                             {item.shortcut}
                           </span>
