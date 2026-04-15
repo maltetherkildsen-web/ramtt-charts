@@ -111,6 +111,12 @@ export { MediaObject } from './MediaObject';
 export { FormLayout } from './FormLayout';
 export { ButtonGroup } from './ButtonGroup';
 export { AuthLayout } from './AuthLayout';
+export { VirtualList } from './VirtualList';
+export type { VirtualListProps } from './VirtualList';
+export { ColorPicker } from './ColorPicker';
+export type { ColorPickerProps } from './ColorPicker';
+export { OAuthButton } from './OAuthButton';
+export type { OAuthButtonProps, OAuthProvider } from './OAuthButton';
 
 // ─── Components (Wave 9 — Dark Surfaces & Footer) ───
 export { LinkGroup } from './LinkGroup';

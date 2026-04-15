@@ -11,6 +11,12 @@
 // Scales
 export { scaleLinear } from './scales/linear'
 export type { LinearScale } from './scales/linear'
+export { scaleLog, niceLogTicks } from './scales/log'
+export type { LogScale } from './scales/log'
+export { scaleBand } from './scales/band'
+export type { BandScale } from './scales/band'
+export { scaleTime, formatTimeTick } from './scales/time'
+export type { TimeScale } from './scales/time'
 
 // Paths
 export { linePath } from './paths/line'
@@ -46,6 +52,14 @@ export { sankeyLayout } from './layouts/sankey'
 export type { SankeyNodeInput, SankeyLinkInput, SankeyNode, SankeyLink, SankeyLayout } from './layouts/sankey'
 export { sunburstLayout } from './layouts/sunburst'
 export type { SunburstNode, SunburstArc } from './layouts/sunburst'
+
+// Peak Power / MMP
+export { findPeakPower, computeAllPeaks, buildMMPCurve, PEAK_DURATIONS } from './utils/peakPower'
+export type { PeakPowerResult } from './utils/peakPower'
+
+// PMC (Performance Management Chart)
+export { computePMC, computeTSS } from './utils/pmc'
+export type { PMCResult, PMCOptions } from './utils/pmc'
 
 // Zoom
 export { clampViewport, pixelToFraction, indicesToFractions, fractionsToIndices } from './utils/zoom'
