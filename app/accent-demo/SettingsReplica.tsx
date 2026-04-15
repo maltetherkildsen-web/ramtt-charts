@@ -12,28 +12,45 @@ import {
   IntegrationIcon,
   accentTransition,
 } from './components'
+import { IconLink } from '@/components/icons/line/IconLink'
+import { IconZone } from '@/components/icons/line/IconZone'
+import { IconGut } from '@/components/icons/line/IconGut'
+import { IconApple } from '@/components/icons/line/IconApple'
+import { IconUserCheck } from '@/components/icons/line/IconUserCheck'
+import { IconSun } from '@/components/icons/line/IconSun'
+import { IconNotification } from '@/components/icons/line/IconNotification'
+import { IconMail } from '@/components/icons/line/IconMail'
+import { IconGrid } from '@/components/icons/line/IconGrid'
+import { IconSettings } from '@/components/icons/line/IconSettings'
+import { IconFlag } from '@/components/icons/line/IconFlag'
+import { IconMessageCircle } from '@/components/icons/line/IconMessageCircle'
+import { IconStar } from '@/components/icons/line/IconStar'
+import { IconCloud } from '@/components/icons/line/IconCloud'
+import { IconLock } from '@/components/icons/line/IconLock'
+import { IconCode } from '@/components/icons/line/IconCode'
+import { IconUser } from '@/components/icons/line/IconUser'
 
 // ─── Sidebar Navigation Items ───
 
-const SIDEBAR_ITEMS = [
-  'Integrations',
-  'Zones & thresholds',
-  'Gut training',
-  'Dietary & allergens',
-  'Coach permissions',
-  'Appearance',
-  'Notifications',
-  'Email preferences',
-  'Shortcuts',
-  'General',
-  'Beta features',
-  'Support & feedback',
-  'What\'s new',
-  'Connected apps data',
-  'Data & privacy',
-  'Advanced',
-  'Account',
-] as const
+const SIDEBAR_ITEMS: { label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
+  { label: 'Integrations', icon: IconLink },
+  { label: 'Zones & thresholds', icon: IconZone },
+  { label: 'Gut training', icon: IconGut },
+  { label: 'Dietary & allergens', icon: IconApple },
+  { label: 'Coach permissions', icon: IconUserCheck },
+  { label: 'Appearance', icon: IconSun },
+  { label: 'Notifications', icon: IconNotification },
+  { label: 'Email preferences', icon: IconMail },
+  { label: 'Shortcuts', icon: IconGrid },
+  { label: 'General', icon: IconSettings },
+  { label: 'Beta features', icon: IconFlag },
+  { label: 'Support & feedback', icon: IconMessageCircle },
+  { label: 'What\'s new', icon: IconStar },
+  { label: 'Connected apps data', icon: IconCloud },
+  { label: 'Data & privacy', icon: IconLock },
+  { label: 'Advanced', icon: IconCode },
+  { label: 'Account', icon: IconUser },
+]
 
 // ─── Settings Sidebar ───
 
@@ -51,15 +68,15 @@ function SettingsSidebar({
       <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3')}>
         Settings
       </span>
-      {SIDEBAR_ITEMS.map((item) => {
-        const isActive = item === active
+      {SIDEBAR_ITEMS.map(({ label, icon: Icon }) => {
+        const isActive = label === active
         return (
           <button
-            key={item}
-            onClick={() => onSelect(item)}
+            key={label}
+            onClick={() => onSelect(label)}
             className={cn(
               FONT.body, 'text-[11px]',
-              'flex items-center px-3 py-2 text-left cursor-default',
+              'flex items-center gap-2 px-3 py-2 text-left cursor-default',
               'rounded-[6px]',
               TRANSITION.colors,
               WEIGHT.book,
@@ -72,7 +89,8 @@ function SettingsSidebar({
                 : accentTransition
             }
           >
-            {item}
+            <Icon size={24} className="shrink-0" />
+            {label}
           </button>
         )
       })}
