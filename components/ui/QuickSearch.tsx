@@ -4,7 +4,7 @@
 'use client'
 
 import { useState, useRef, useEffect, useCallback, useId, forwardRef, type ReactNode } from 'react'
-import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, HOVER_SAND, FOCUS_RING, QUICK_SEARCH_MAX_HEIGHT } from '@/lib/ui'
+import { cn, FONT, WEIGHT, RADIUS, BORDER, TRANSITION, HOVER_SAND, FOCUS_RING, QUICK_SEARCH_MAX_HEIGHT, FLOATING_SHADOW } from '@/lib/ui'
 
 // ─── Types ───
 
@@ -164,7 +164,7 @@ const QuickSearch = forwardRef<HTMLDivElement, QuickSearchProps>(
       <div
         className={cn('fixed inset-0 z-50 flex items-start justify-center pt-[15vh]', TRANSITION.opacity)}
         onClick={handleBackdropClick}
-        style={{ backgroundColor: 'rgba(19, 18, 17, 0.3)' }}
+        style={{ backgroundColor: 'rgba(19, 18, 17, 0.4)', backdropFilter: 'blur(2px)' }}
       >
         <div
           ref={ref}
@@ -183,7 +183,7 @@ const QuickSearch = forwardRef<HTMLDivElement, QuickSearchProps>(
             className,
           )}
           style={{
-            boxShadow: '0 16px 48px rgba(19, 18, 17, 0.12)',
+            boxShadow: FLOATING_SHADOW,
             maxHeight: QUICK_SEARCH_MAX_HEIGHT,
             display: 'flex',
             flexDirection: 'column',
@@ -219,7 +219,7 @@ const QuickSearch = forwardRef<HTMLDivElement, QuickSearchProps>(
               onClick={close}
               className={cn(
                 'shrink-0 flex items-center justify-center cursor-default',
-                'rounded-[4px]',
+                RADIUS.sm,
                 HOVER_SAND,
                 TRANSITION.background,
                 FOCUS_RING,
