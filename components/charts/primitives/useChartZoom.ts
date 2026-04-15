@@ -27,6 +27,17 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
   const panAccum = useRef(0)
   const panRaf = useRef(0)
 
+  // Pinch-to-zoom state: tracks two simultaneous pointers
+  const pinchState = useRef<{
+    active: boolean
+    pointerId1: number
+    pointerId2: number
+    initialDist: number
+    initialRange: number
+    centerFrac: number
+  } | null>(null)
+  const activePointers = useRef(new Map<number, { x: number; y: number }>())
+
   useEffect(() => {
     const svg = svgRef.current
     if (!svg || !sync) return
@@ -97,6 +108,47 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       })
     }
 
+    // ─── Pinch-to-zoom: multi-touch gesture ───
+    const getPointerDist = (): number => {
+      const pts = [...activePointers.current.values()]
+      if (pts.length < 2) return 0
+      const dx = pts[1].x - pts[0].x
+      const dy = pts[1].y - pts[0].y
+      return Math.sqrt(dx * dx + dy * dy)
+    }
+
+    const getPointerCenterFrac = (): number => {
+      const pts = [...activePointers.current.values()]
+      if (pts.length < 2) return 0.5
+      const rect = svg.getBoundingClientRect()
+      const cx = (pts[0].x + pts[1].x) / 2 - rect.left - padding.left
+      const cw = rect.width - padding.left - padding.right
+      return Math.max(0, Math.min(1, cx / cw))
+    }
+
+    const handlePinchMove = () => {
+      const ps = pinchState.current
+      if (!ps?.active) return
+      const dist = getPointerDist()
+      if (dist <= 0 || ps.initialDist <= 0) return
+
+      const scale = ps.initialDist / dist // >1 = zoom out, <1 = zoom in
+      const dl = sync.dataLength
+      const newRange = Math.round(ps.initialRange * scale)
+
+      if (newRange < MIN_VISIBLE_POINTS || newRange >= dl) return
+
+      const cursorIdx = sync.zoom.start + ps.centerFrac * ps.initialRange
+      const newStart = Math.round(cursorIdx - ps.centerFrac * newRange)
+      const clampedStart = Math.max(0, newStart)
+      const clampedEnd = Math.min(dl - 1, clampedStart + newRange)
+
+      sync.setZoom({
+        start: clampedEnd - newRange < 0 ? 0 : clampedEnd - newRange,
+        end: clampedEnd,
+      })
+    }
+
     // ─── Wheel: zoom or pan ───
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
@@ -134,6 +186,17 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
 
     // ─── Brush: document-level move/up during drag ───
     const handleDocPointerMove = (e: PointerEvent) => {
+      // Update pointer tracking for pinch
+      if (activePointers.current.has(e.pointerId)) {
+        activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+      }
+
+      // Handle pinch gesture
+      if (pinchState.current?.active) {
+        handlePinchMove()
+        return
+      }
+
       const state = dragState.current
       if (!state?.active) return
       const cx = getChartX(e)
@@ -161,6 +224,15 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
     }
 
     const handleDocPointerUp = (e: PointerEvent) => {
+      // Clean up pointer tracking
+      activePointers.current.delete(e.pointerId)
+      if (pinchState.current?.active) {
+        if (activePointers.current.size < 2) {
+          pinchState.current = null
+        }
+        return
+      }
+
       const state = dragState.current
       if (!state?.active) return
 
@@ -181,7 +253,9 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       }
     }
 
-    const handleDocPointerCancel = () => {
+    const handleDocPointerCancel = (e: PointerEvent) => {
+      activePointers.current.delete(e.pointerId)
+      pinchState.current = null
       removeDragListeners()
       clearBrush()
     }
@@ -195,8 +269,26 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       }
     }
 
-    // ─── Brush: pointerdown on SVG starts drag ───
+    // ─── Brush: pointerdown on SVG starts drag (or pinch) ───
     const handlePointerDown = (e: PointerEvent) => {
+      // Track all active pointers for pinch detection
+      activePointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY })
+
+      // If 2 pointers active → start pinch
+      if (activePointers.current.size === 2) {
+        // Cancel any active brush drag
+        clearBrush()
+        pinchState.current = {
+          active: true,
+          pointerId1: [...activePointers.current.keys()][0],
+          pointerId2: [...activePointers.current.keys()][1],
+          initialDist: getPointerDist(),
+          initialRange: sync.zoom.end - sync.zoom.start,
+          centerFrac: getPointerCenterFrac(),
+        }
+        return
+      }
+
       if (e.button !== 0) return
       // Skip brush in navigator/none modes
       if (sync.zoomMode !== 'brush') return
@@ -292,7 +384,9 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
     if (!container.hasAttribute('tabindex')) container.setAttribute('tabindex', '0')
 
     // pointercancel from implicit capture — must be on SVG directly (where capture lives)
-    const handleSvgPointerCancel = () => {
+    const handleSvgPointerCancel = (e: PointerEvent) => {
+      activePointers.current.delete(e.pointerId)
+      pinchState.current = null
       if (dragState.current?.active) {
         removeDragListeners()
         clearBrush()
