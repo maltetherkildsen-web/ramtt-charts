@@ -134,6 +134,19 @@
   100% { transform: translate(0, 0); }
 }
 
+/* ─── Wave 10-12 Custom Keyframes ─── */
+@keyframes ramtt-boost {
+  0% { transform: translate(0, 0); }
+  35% { transform: translate(2px, -3px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes ramtt-pizza-spin {
+  0% { transform: rotate(0deg); }
+  40% { transform: rotate(-15deg); }
+  70% { transform: rotate(5deg); }
+  100% { transform: rotate(0deg); }
+}
+
 /* ═══════════════════════════════════════════════════════════════════
    Hover Triggers
    Desktop-only: @media (hover: hover) ensures no wasted CSS on touch
@@ -187,6 +200,41 @@
   .ramtt-reactive-link:hover .link-right { animation: ramtt-link-pull 350ms ease-out; }
   .ramtt-reactive-link:hover .link-left { animation: ramtt-link-pull-reverse 350ms ease-out; }
   .ramtt-reactive-external-link:hover .ext-arrow { animation: ramtt-external-shoot 350ms ease-out; }
+
+  /* ─── Wave 10-12 additions ─── */
+
+  /* Bounce up */
+  .ramtt-reactive-trophy:hover .trophy-body { animation: ramtt-bounce-up 400ms ease-out; }
+  .ramtt-reactive-running:hover .running-body { animation: ramtt-bounce-up 400ms ease-out; }
+
+  /* Zoom */
+  .ramtt-reactive-crown:hover .crown-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+  .ramtt-reactive-shield:hover .shield-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+  .ramtt-reactive-target:hover .target-body { transform-origin: center; animation: ramtt-zoom 300ms ease-out; }
+
+  /* Shake */
+  .ramtt-reactive-zap:hover .zap-body { animation: ramtt-shake 400ms ease-out; }
+  .ramtt-reactive-dumbbell:hover .dumbbell-body { animation: ramtt-shake 400ms ease-out; }
+
+  /* Ring */
+  .ramtt-reactive-beer:hover .beer-body { transform-origin: center 4px; animation: ramtt-ring 500ms ease-out; }
+  .ramtt-reactive-banana:hover .banana-body { transform-origin: 12px 4px; animation: ramtt-ring 500ms ease-out; }
+  .ramtt-reactive-taco:hover .taco-body { transform-origin: center 16px; animation: ramtt-ring 500ms ease-out; }
+
+  /* Spin */
+  .ramtt-reactive-donut:hover .donut-body { transform-origin: center; animation: ramtt-spin-full 500ms ease-out; }
+
+  /* Lift (steam) */
+  .ramtt-reactive-coffee:hover .coffee-steam { animation: ramtt-lift 350ms ease-out; }
+
+  /* Bounce right */
+  .ramtt-reactive-bike:hover .bike-body { animation: ramtt-bounce-right 400ms ease-out; }
+
+  /* Custom: Rocket boost (diagonal up-right) */
+  .ramtt-reactive-rocket:hover .rocket-body { animation: ramtt-boost 400ms ease-out; }
+
+  /* Custom: Pizza spin (partial rotation from bottom vertex) */
+  .ramtt-reactive-pizza:hover .pizza-body { transform-origin: 12px 20px; animation: ramtt-pizza-spin 500ms ease-out; }
 }
 
 /* Slow-motion mode (toggled via parent class) */
