@@ -111,6 +111,8 @@ export { MediaObject } from './MediaObject';
 export { FormLayout } from './FormLayout';
 export { ButtonGroup } from './ButtonGroup';
 export { AuthLayout } from './AuthLayout';
+export { VirtualList } from './VirtualList';
+export type { VirtualListProps } from './VirtualList';
 
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
