@@ -60,12 +60,11 @@ function SettingsSidebar({
             onClick={() => onSelect(item)}
             className={cn(
               FONT.body, 'text-[13px]',
-              'flex items-center gap-2 px-2.5 py-1.5 text-left',
+              'flex items-center px-2.5 py-1.5 text-left',
               'rounded-[5px]',
               TRANSITION.colors,
               isActive ? WEIGHT.strong : WEIGHT.normal,
-              !isActive && 'text-[var(--n800)]',
-              isActive && 'text-[var(--n800)]',
+              isActive ? 'text-[var(--n800)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
             )}
             style={
               isActive
@@ -73,14 +72,6 @@ function SettingsSidebar({
                 : accentTransition
             }
           >
-            {/* Accent dot — 4px, only visible when active */}
-            <span
-              className="h-1 w-1 shrink-0 rounded-[1px]"
-              style={{
-                backgroundColor: isActive ? 'var(--accent)' : 'transparent',
-                ...accentTransition,
-              }}
-            />
             {item}
           </button>
         )
