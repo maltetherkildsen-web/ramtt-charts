@@ -28,10 +28,10 @@ const WelcomeHero = forwardRef<HTMLDivElement, WelcomeHeroProps>(
       )}
     >
       <div className="flex items-center gap-3">
-        {icon && <span className="text-[28px] shrink-0">{icon}</span>}
+        {icon && <span className="text-[16px] shrink-0">{icon}</span>}
         <h2
           className={cn(
-            'text-[28px] leading-tight text-[var(--n1150)]',
+            'text-[20px] leading-tight text-[var(--n1150)]',
             WEIGHT.strong,
             italic && 'italic',
           )}

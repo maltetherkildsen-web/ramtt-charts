@@ -3829,7 +3829,6 @@ function Wave12Demo() {
           <p className={cn(LABEL_STYLE, 'mb-2')}>WelcomeHero</p>
           <Card>
             <WelcomeHero
-              icon={<span className="text-[28px]">👋</span>}
               heading="Good morning, Malte"
               subtitle="How can I help you today?"
             />
