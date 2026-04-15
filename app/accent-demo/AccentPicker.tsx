@@ -52,7 +52,7 @@ export function AccentPicker({ activeId, onSelect }: AccentPickerProps) {
                       aria-label={`${accent.name} (${accent.hex})`}
                       aria-pressed={isActive}
                       className={cn(
-                        'relative h-[18px] w-[18px] shrink-0',
+                        'relative h-[18px] w-[18px] shrink-0 cursor-default',
                         RADIUS.full,
                         TRANSITION.opacity,
                         'focus-visible:outline-none',

@@ -38,7 +38,7 @@ export function ToggleSwitch({ checked, onChange, label, description }: ToggleSw
         aria-label={label}
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative inline-flex shrink-0 items-center rounded-full',
+          'relative inline-flex shrink-0 items-center rounded-full cursor-default',
           TRANSITION.background,
           FOCUS_RING,
         )}
@@ -162,7 +162,7 @@ export function AccentButton({ children, variant, accentHex, size = 'md' }: Acce
   const base = cn(
     FONT.body, WEIGHT.medium, text, height, px,
     RADIUS.md, TRANSITION.colors, FOCUS_RING,
-    'inline-flex items-center justify-center',
+    'inline-flex items-center justify-center cursor-default',
   )
 
   if (variant === 'primary') {
@@ -227,11 +227,11 @@ export function DietPill({ label, selected, onClick, accentHex }: DietPillProps)
       onClick={onClick}
       className={cn(
         FONT.label,
-        'h-7 px-3 text-[12px]',
+        'h-7 px-2.5 text-[12px]',
         RADIUS.md,
         TRANSITION.colors,
         FOCUS_RING,
-        'inline-flex items-center justify-center',
+        'inline-flex items-center justify-center cursor-default',
         !selected && cn(WEIGHT.normal, 'text-[var(--n1150)] bg-[var(--n50)]'),
         selected && WEIGHT.strong,
       )}

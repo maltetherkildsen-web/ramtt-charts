@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { cn, FONT, WEIGHT } from '@/lib/ui'
+import { cn, FONT, WEIGHT, TRANSITION } from '@/lib/ui'
 import { ACCENTS, DEFAULT_ACCENT_ID, getAccentById, applyAccentTokens, type AccentDefinition } from './accents'
 import { AccentPicker } from './AccentPicker'
 import { TokenPanel } from './TokenPanel'
@@ -90,9 +90,9 @@ export default function AccentDemoPage() {
             <button
               onClick={() => setShowTokens(true)}
               className={cn(
-                'sticky top-[72px] flex h-7 w-7 shrink-0 items-center justify-center self-start',
+                'sticky top-[72px] flex h-7 w-7 shrink-0 items-center justify-center self-start cursor-default',
                 'rounded-full border-[0.5px] border-[var(--n300)] bg-[var(--n50)]',
-                'text-[var(--n600)] transition-colors hover:bg-[var(--n100)]',
+                'text-[var(--n600)] hover:bg-[var(--n100)]', TRANSITION.colors,
                 FONT.body, 'text-[11px]',
               )}
               aria-label="Show token panel"

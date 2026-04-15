@@ -1,6 +1,6 @@
 'use client'
 
-import { cn, FONT, WEIGHT, RADIUS } from '@/lib/ui'
+import { cn, FONT, WEIGHT, RADIUS, TRANSITION } from '@/lib/ui'
 import { type AccentTokens, TOKEN_LABELS } from './accents'
 
 interface TokenPanelProps {
@@ -60,8 +60,8 @@ export function TokenPanel({ tokens, onCollapse }: TokenPanelProps) {
           onClick={onCollapse}
           className={cn(
             'flex h-6 items-center justify-center gap-1.5',
-            'rounded-full border-[0.5px] border-[var(--n300)] bg-[var(--n50)]',
-            'text-[var(--n600)] transition-colors hover:bg-[var(--n100)]',
+            'rounded-full border-[0.5px] border-[var(--n300)] bg-[var(--n50)] cursor-default',
+            'text-[var(--n600)] hover:bg-[var(--n100)]', TRANSITION.colors,
             'text-[10px]', WEIGHT.book,
           )}
           aria-label="Hide token panel"

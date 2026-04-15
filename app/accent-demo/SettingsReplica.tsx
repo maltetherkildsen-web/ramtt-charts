@@ -46,10 +46,9 @@ function SettingsSidebar({
 }) {
   return (
     <div
-      className="flex w-[190px] shrink-0 flex-col gap-0.5 py-5 pr-3 pl-4"
-      style={{ borderRight: '0.5px solid var(--n400)' }}
+      className="flex w-[240px] shrink-0 flex-col gap-0.5 py-5 pr-3 pl-4 border-r-[0.5px] border-r-[var(--n400)]"
     >
-      <span className={cn(FONT.body, 'text-[18px]', WEIGHT.normal, 'text-[var(--n1150)] mb-3')}>
+      <span className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)] mb-3')}>
         Settings
       </span>
       {SIDEBAR_ITEMS.map((item) => {
@@ -60,11 +59,11 @@ function SettingsSidebar({
             onClick={() => onSelect(item)}
             className={cn(
               FONT.body, 'text-[13px]',
-              'flex items-center px-2.5 py-1.5 text-left',
-              'rounded-[5px]',
+              'flex items-center px-3 py-2 text-left cursor-default',
+              'rounded-[6px]',
               TRANSITION.colors,
               isActive ? WEIGHT.strong : WEIGHT.normal,
-              isActive ? 'text-[var(--n800)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
+              isActive ? 'text-[var(--n1150)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
             )}
             style={
               isActive
@@ -101,7 +100,7 @@ function ContentSectionHeader({ title }: { title: string }) {
 function ContentCard({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
     <div
-      className={cn('bg-[var(--n50)] p-4', RADIUS.lg, BORDER.default, className)}
+      className={cn('bg-[var(--n50)] p-3.5', RADIUS.lg, BORDER.default, className)}
     >
       {children}
     </div>
@@ -159,7 +158,7 @@ function IntegrationCards({ accent }: { accent: AccentDefinition }) {
         <button
           className={cn(
             FONT.body, WEIGHT.medium,
-            'text-[12px] h-7 px-3',
+            'text-[12px] h-7 px-2.5 cursor-default',
             RADIUS.md,
             TRANSITION.colors,
             FOCUS_RING,
@@ -491,8 +490,7 @@ function DropdownDemo() {
         Dropdown / command list
       </span>
       <div
-        className={cn(RADIUS.lg, 'overflow-hidden')}
-        style={{ border: '0.5px solid var(--n400)', background: 'var(--n50)' }}
+        className={cn(RADIUS.lg, BORDER.default, 'overflow-hidden bg-[var(--n50)]')}
       >
         <div className="px-3 pt-2.5 pb-1.5">
           <span className={cn(FONT.body, 'text-[12px]', WEIGHT.strong, 'text-[var(--n800)]')}>
@@ -515,17 +513,15 @@ function DropdownDemo() {
             return (
               <div
                 key={item.label}
-                className={cn('flex items-center gap-2.5 px-2.5 py-[7px] rounded-[5px]')}
+                className={cn('flex items-center gap-2.5 px-2.5 py-1.5', RADIUS.sm, TRANSITION.background)}
                 style={{
                   backgroundColor: isHovered ? 'var(--n200)' : 'transparent',
-                  transition: 'background-color 0.15s',
                 }}
                 onMouseEnter={() => setHovered(idx)}
                 onMouseLeave={() => setHovered(1)}
               >
                 <div
-                  className="h-4 w-4 shrink-0 rounded-[3px]"
-                  style={{ backgroundColor: 'var(--n200)' }}
+                  className={cn('h-4 w-4 shrink-0 bg-[var(--n200)]', RADIUS.sm)}
                 />
                 <span className={cn(FONT.body, 'text-[12px]', WEIGHT.normal, 'text-[var(--n1150)] flex-1')}>
                   {item.label}
@@ -568,8 +564,7 @@ function NavigationStates() {
         Navigation states
       </span>
       <div
-        className={cn(RADIUS.lg, 'overflow-hidden py-2 px-2')}
-        style={{ border: '0.5px solid var(--n400)', background: 'var(--n50)' }}
+        className={cn(RADIUS.lg, BORDER.default, 'overflow-hidden py-2 px-2 bg-[var(--n50)]')}
       >
         {items.map((item, i) => {
           const isActive = i === activeIndex
@@ -577,14 +572,13 @@ function NavigationStates() {
           return (
             <div
               key={item}
-              className={cn('flex items-center gap-2.5 px-2.5 py-[7px] rounded-[5px]')}
+              className={cn('flex items-center gap-2.5 px-3 py-2 rounded-[6px]', TRANSITION.background)}
               style={{
                 backgroundColor: isActive
                   ? 'var(--accent-wash)'
                   : isHovered
                     ? 'var(--n200)'
                     : 'transparent',
-                transition: 'background-color 0.15s',
               }}
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(2)}
@@ -596,11 +590,11 @@ function NavigationStates() {
                 />
               )}
               <span
-                className={cn(FONT.body, 'text-[12px]')}
-                style={{
-                  fontWeight: isActive ? 550 : 400,
-                  color: isActive ? 'var(--n1150)' : 'var(--n800)',
-                }}
+                className={cn(
+                  FONT.body, 'text-[13px]',
+                  isActive ? WEIGHT.strong : WEIGHT.normal,
+                  isActive ? 'text-[var(--n1150)]' : 'text-[var(--n800)]',
+                )}
               >
                 {item}
               </span>
@@ -629,19 +623,18 @@ function ActivityFeed() {
         Activity feed
       </span>
       <div
-        className={cn(RADIUS.lg, 'overflow-hidden')}
-        style={{ border: '0.5px solid var(--n400)', background: 'var(--n50)' }}
+        className={cn(RADIUS.lg, BORDER.default, 'overflow-hidden bg-[var(--n50)]')}
       >
         {FEED_ITEMS.map((item, i) => (
           <div
             key={i}
             className={cn(
               'flex items-start gap-3 px-3.5 py-2.5',
+              TRANSITION.background,
               i !== FEED_ITEMS.length - 1 && 'border-b-[0.5px] border-b-[var(--n200)]',
             )}
             style={{
               backgroundColor: hovered === i ? 'var(--n200)' : 'transparent',
-              transition: 'background-color 0.15s',
             }}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(-1)}
