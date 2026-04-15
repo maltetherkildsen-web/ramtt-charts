@@ -1,7 +1,7 @@
 // Copyright (c) 2026 RAMTT (Malte Therkildsen)
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
-// @ramtt/icons — Icon catalog metadata (174 icons × 24 categories)
+// @ramtt/icons — Icon catalog metadata (184 icons × 25 categories)
 
 export interface IconMeta {
   name: string
@@ -38,6 +38,7 @@ export const ICON_CATEGORIES = [
   'form',
   'social',
   'feedback',
+  'sport-race',
 ] as const
 
 export const ICON_CATALOG: IconMeta[] = [
@@ -1641,6 +1642,97 @@ export const ICON_CATALOG: IconMeta[] = [
     name: 'IconHeart',
     category: 'feedback',
     tags: ['heart', 'love', 'like', 'favorite', 'health'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  // ─── sport-race (10) ──────────────────────────────────────────────
+  {
+    name: 'IconRaceBib',
+    category: 'sport-race',
+    tags: ['bib', 'race', 'number', 'marathon', 'runner'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconMedal',
+    category: 'sport-race',
+    tags: ['medal', 'award', 'winner', 'finisher', 'ribbon'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconStartLine',
+    category: 'sport-race',
+    tags: ['start', 'gate', 'arch', 'begin', 'race'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconFinishLine',
+    category: 'sport-race',
+    tags: ['finish', 'banner', 'checkered', 'end', 'complete'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconRaceVest',
+    category: 'sport-race',
+    tags: ['vest', 'singlet', 'tank', 'jersey', 'kit'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconPodium',
+    category: 'sport-race',
+    tags: ['podium', 'winners', 'first', 'second', 'third', 'place'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconAidStation',
+    category: 'sport-race',
+    tags: ['aid', 'station', 'water', 'cup', 'hydration', 'flag'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconSplitTime',
+    category: 'sport-race',
+    tags: ['split', 'time', 'stopwatch', 'lap', 'pace'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconTransition',
+    category: 'sport-race',
+    tags: ['transition', 'triathlon', 'T1', 'T2', 'zone', 'change'],
+    hasLine: true,
+    hasSolid: true,
+    hasDuo: true,
+    hasAnimated: false,
+  },
+  {
+    name: 'IconCourseMap',
+    category: 'sport-race',
+    tags: ['course', 'map', 'route', 'path', 'track'],
     hasLine: true,
     hasSolid: true,
     hasDuo: true,

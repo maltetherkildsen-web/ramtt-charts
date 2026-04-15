@@ -1,7 +1,7 @@
 // Copyright (c) 2026 RAMTT (Malte Therkildsen)
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
-// @ramtt/icons — 126 icons × 3 variants + 8 animated + 12 context + 11 morph + 30 reactive = 439 components
+// @ramtt/icons — 136 icons × 3 variants + 8 animated + 12 context + 11 morph + 30 reactive = 469 components
 
 // Shared types
 export type { IconProps, IconDuoProps } from './types'
