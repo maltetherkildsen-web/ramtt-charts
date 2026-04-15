@@ -112,10 +112,10 @@ const RatingInput = forwardRef<HTMLDivElement, RatingInputProps>(
                   FOCUS_RING,
                   // Colors
                   isSelected || isHovered
-                    ? 'bg-[var(--n1150)] border-[0.5px] border-[var(--n1150)]'
+                    ? 'bg-[var(--accent)] border-[0.5px] border-[var(--accent)]'
                     : 'bg-[var(--n200)] border-[0.5px] border-[var(--n400)]',
                   // Hover preview on unselected
-                  !isSelected && !isHovered && 'hover:bg-[var(--n400)]',
+                  !isSelected && !isHovered && 'hover:bg-[var(--accent-soft)]',
                 )}
                 style={{ width: segSize, height: segSize }}
               />
