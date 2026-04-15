@@ -517,7 +517,7 @@ function DropdownDemo() {
                 key={item.label}
                 className={cn('flex items-center gap-2.5 px-2.5 py-[7px] rounded-[5px]')}
                 style={{
-                  backgroundColor: isHovered ? 'var(--accent-hover-wash)' : 'transparent',
+                  backgroundColor: isHovered ? 'var(--accent-wash)' : 'transparent',
                   transition: 'background-color 0.15s',
                 }}
                 onMouseEnter={() => setHovered(idx)}
@@ -582,7 +582,7 @@ function NavigationStates() {
                 backgroundColor: isActive
                   ? 'var(--accent-wash)'
                   : isHovered
-                    ? 'var(--accent-hover-wash)'
+                    ? 'var(--accent-wash)'
                     : 'transparent',
                 transition: 'background-color 0.15s',
               }}
@@ -640,7 +640,7 @@ function ActivityFeed() {
               i !== FEED_ITEMS.length - 1 && 'border-b-[0.5px] border-b-[var(--n200)]',
             )}
             style={{
-              backgroundColor: hovered === i ? 'var(--accent-hover-wash)' : 'transparent',
+              backgroundColor: hovered === i ? 'var(--accent-wash)' : 'transparent',
               transition: 'background-color 0.15s',
             }}
             onMouseEnter={() => setHovered(i)}
@@ -683,7 +683,6 @@ const SWATCH_TOKENS: { key: keyof AccentTokens; label: string }[] = [
   { key: 'iconLight', label: 'Icon light' },
   { key: 'iconLightest', label: 'Icon lightest' },
   { key: 'border', label: 'Border' },
-  { key: 'hoverWash', label: 'Hover wash' },
   { key: 'wash', label: 'Wash' },
   { key: 'badgeBg', label: 'Badge bg' },
   { key: 'selection', label: 'Selection' },
@@ -691,7 +690,7 @@ const SWATCH_TOKENS: { key: keyof AccentTokens; label: string }[] = [
 ]
 
 const SWATCH_GRADIENT: (keyof AccentTokens)[] = [
-  'pressed', 'primary', 'iconLight', 'border', 'hoverWash', 'wash', 'badgeBg',
+  'pressed', 'primary', 'iconLight', 'border', 'wash', 'badgeBg',
 ]
 
 function TokenSwatchGrid({ tokens }: { tokens: AccentTokens }) {

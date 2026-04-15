@@ -53,21 +53,9 @@ export interface AccentTokens {
   iconLightest: string
   border: string
   wash: string
-  hoverWash: string
   badgeBg: string
   selection: string
   toggleTrack: string
-}
-
-// ─── Hover Wash Derivation ───
-// Subtle bg for list/dropdown hover — slightly more visible than wash, lighter than border
-
-function computeHoverWash(hex: string): string {
-  const [h, s, l] = hexToHsl(hex)
-  if (l < 15 && s < 10) return hslToHex(h, clamp(s * 2.5, 0, 15), 91)
-  if (l < 15) return hslToHex(h, clamp(s * 0.2, 0, 22), 91)
-  if (l > 75) return hslToHex(h, clamp(s * 0.25, 0, 45), 94)
-  return hslToHex(h, clamp(s * 0.25, 0, 100), 93)
 }
 
 // ─── Token Ramp Generator ───
@@ -87,7 +75,6 @@ export function generateAccentTokens(primary: string): AccentTokens {
       iconLightest: hslToHex(h, clamp(s, 0, 8), 54),
       border: hslToHex(h, clamp(s * 2, 0, 12), 83),
       wash: hslToHex(h, clamp(s * 2, 0, 12), 94),
-      hoverWash: computeHoverWash(primary),
       badgeBg: hslToHex(h, clamp(s * 2, 0, 12), 94),
       selection: hslToHex(h, clamp(s * 2, 0, 12), 90),
       toggleTrack: primary,
@@ -106,7 +93,6 @@ export function generateAccentTokens(primary: string): AccentTokens {
       iconLightest: hslToHex(h, clamp(s * 0.4, 0, 40), 54),
       border: hslToHex(h, clamp(s * 0.25, 0, 25), 83),
       wash: hslToHex(h, clamp(s * 0.15, 0, 20), 94),
-      hoverWash: computeHoverWash(primary),
       badgeBg: hslToHex(h, clamp(s * 0.1, 0, 15), 96),
       selection: hslToHex(h, clamp(s * 0.2, 0, 25), 90),
       toggleTrack: primary,
@@ -127,7 +113,6 @@ export function generateAccentTokens(primary: string): AccentTokens {
       iconLightest: hslToHex(h, clamp(s * 0.4, 0, 60), clamp(l - 5, 70, 85)),
       border: hslToHex(h, clamp(s * 0.5, 0, 60), clamp(l + 2, 80, 92)),
       wash: hslToHex(h, clamp(s * 0.2, 0, 40), 97),
-      hoverWash: computeHoverWash(primary),
       badgeBg: hslToHex(h, clamp(s * 0.12, 0, 30), 98),
       selection: primary,
       toggleTrack: hslToHex(h, clamp(s + 15, 0, 100), medL),
@@ -168,9 +153,8 @@ export function generateAccentTokens(primary: string): AccentTokens {
 
   return {
     primary, hover, pressed, text, icon,
-    iconLight, iconLightest, border, wash,
-    hoverWash: computeHoverWash(primary),
-    badgeBg, selection, toggleTrack: primary,
+    iconLight, iconLightest, border, wash, badgeBg,
+    selection, toggleTrack: primary,
   }
 }
 
@@ -216,10 +200,10 @@ function defineAccentExact(
   name: string,
   hex: string,
   family: string,
-  tokens: Omit<AccentTokens, 'hoverWash'>,
+  tokens: AccentTokens,
   overrides?: Partial<Pick<AccentDefinition, 'needsDarkText' | 'isMonochrome'>>,
 ): AccentDefinition {
-  return { id, name, hex, family, tokens: { ...tokens, hoverWash: computeHoverWash(hex) }, ...overrides }
+  return { id, name, hex, family, tokens, ...overrides }
 }
 
 // ─── Family Definitions ───
@@ -407,7 +391,6 @@ export const ACCENT_CSS_VARS = [
   '--accent-icon-lightest',
   '--accent-border',
   '--accent-wash',
-  '--accent-hover-wash',
   '--accent-badge',
   '--accent-selection',
   '--accent-toggle',
@@ -424,7 +407,6 @@ export function applyAccentTokens(tokens: AccentTokens) {
   root.style.setProperty('--accent-icon-lightest', tokens.iconLightest)
   root.style.setProperty('--accent-border', tokens.border)
   root.style.setProperty('--accent-wash', tokens.wash)
-  root.style.setProperty('--accent-hover-wash', tokens.hoverWash)
   root.style.setProperty('--accent-badge', tokens.badgeBg)
   root.style.setProperty('--accent-selection', tokens.selection)
   root.style.setProperty('--accent-toggle', tokens.toggleTrack)
@@ -441,7 +423,6 @@ export const TOKEN_LABELS: Record<keyof AccentTokens, string> = {
   iconLightest: 'icon-lightest',
   border: 'border',
   wash: 'wash',
-  hoverWash: 'hover-wash',
   badgeBg: 'badge-bg',
   selection: 'selection',
   toggleTrack: 'toggle-track',
