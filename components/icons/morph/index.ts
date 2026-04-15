@@ -22,3 +22,11 @@ export { IconMorphHeartToggle } from './IconMorphHeartToggle'
 export { IconMorphStarToggle } from './IconMorphStarToggle'
 export { IconMorphBookmarkToggle } from './IconMorphBookmarkToggle'
 export { IconMorphGridList } from './IconMorphGridList'
+
+// --- Wave 10-12 morph pairs ---
+export { IconMorphToggle } from './IconMorphToggle'
+export { IconMorphShieldCheck } from './IconMorphShieldCheck'
+export { IconMorphSunriseSunset } from './IconMorphSunriseSunset'
+export { IconMorphBonkTrophy } from './IconMorphBonkTrophy'
+export { IconMorphRestActive } from './IconMorphRestActive'
+export { IconMorphCoffeeBeer } from './IconMorphCoffeeBeer'
