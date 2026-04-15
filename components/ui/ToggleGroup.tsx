@@ -88,6 +88,40 @@ const ToggleGroup = forwardRef<HTMLDivElement, ToggleGroupProps>(
     const itemRole = variant === 'underline' ? 'tab' : multi ? undefined : 'radio'
     const checkedAttr = variant === 'underline' ? 'aria-selected' : multi ? 'aria-pressed' : 'aria-checked'
 
+    // ─── Opacity ───
+    if (variant === 'opacity') {
+      return (
+        <div ref={ref} role={role} aria-label={ariaLabel} className={cn('inline-flex gap-1', className)}>
+          {normalized.map(({ value: val, label }, i) => {
+            const isSel = selected.has(val)
+            return (
+              <button
+                key={val}
+                ref={(el) => { itemRefs.current[i] = el }}
+                role={itemRole}
+                {...{ [checkedAttr]: isSel }}
+                tabIndex={i === focusableIndex ? 0 : -1}
+                onClick={() => handleClick(val)}
+                onKeyDown={(e) => handleKeyDown(e, i)}
+                className={cn(
+                  FONT.label,
+                  SIZE_HEIGHTS.md,
+                  SIZE_TEXT.md,
+                  SIZE_PADDING_X.sm,
+                  TRANSITION.opacity,
+                  FOCUS_RING,
+                  'inline-flex items-center justify-center bg-transparent',
+                  isSel ? cn(WEIGHT.strong, 'text-[var(--n1150)]') : cn(WEIGHT.strong, 'text-[var(--n600)]'),
+                )}
+              >
+                {label}
+              </button>
+            )
+          })}
+        </div>
+      )
+    }
+
     // ─── Underline ───
     if (variant === 'underline') {
       return (

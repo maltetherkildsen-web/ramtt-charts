@@ -131,6 +131,16 @@ export { DarkSection } from './DarkSection';
 export { SocialIcons } from './SocialIcons';
 export { Footer } from './Footer';
 
+// ─── Components (Wave 11 — Editor Shell) ───
+export { IconTabBar } from './IconTabBar';
+export type { IconTabBarProps, IconTabBarItem } from './IconTabBar';
+export { PanelSidebar } from './PanelSidebar';
+export type { PanelSidebarProps } from './PanelSidebar';
+export { FloatingToolbar } from './FloatingToolbar';
+export type { FloatingToolbarProps, ToolbarGroup, ToolbarItem } from './FloatingToolbar';
+export { FloatingPanel } from './FloatingPanel';
+export type { FloatingPanelProps } from './FloatingPanel';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';
@@ -144,6 +154,7 @@ export { DOT_SIZES, STEPPER_BUTTON_WIDTH, STEPPER_REPEAT_DELAY, STEPPER_REPEAT_I
 export { STEP_DOT_SIZE, STEP_DOT_COMPLETED, STEP_DOT_UPCOMING, RATING_SEGMENT_SIZE } from '@/lib/ui';
 export { WIDGET_ICON_SIZE, WIDGET_ICON_COLOR, WIDGET_ICON_HOVER, GRID_COLUMNS, GRID_ROW_HEIGHT, GRID_GAP } from '@/lib/ui';
 export { STAT_SIZES, BADGE_NOTIFY_SIZE, BADGE_NOTIFY_DOT, BADGE_NOTIFY_MAX, CATEGORY_COLORS } from '@/lib/ui';
+export { FLOATING_SHADOW, PANEL_WIDTH, ICON_TAB_SIZE, TOOLBAR_BUTTON_SIZE } from '@/lib/ui';
 export { formatTime, formatPercent, formatCompact } from '@/lib/ui';
 
 // ─── Types ───

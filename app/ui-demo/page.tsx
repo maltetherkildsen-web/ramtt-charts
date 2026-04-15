@@ -109,6 +109,10 @@ import {
   Footer,
   CategoryIcon,
   CommandPalette,
+  IconTabBar,
+  PanelSidebar,
+  FloatingToolbar,
+  FloatingPanel,
 } from '@/components/ui'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -3749,6 +3753,428 @@ function EnhancedDropdownsDemo() {
   )
 }
 
+// ─── Editor Shell ───
+
+function EditorShellDemo() {
+  const [activeTab, setActiveTab] = useState('layers')
+  const [panelOpen, setPanelOpen] = useState(true)
+  const [rightTab, setRightTab] = useState('design')
+  const [activeTool, setActiveTool] = useState('frame')
+  const [floatingOpen, setFloatingOpen] = useState(false)
+
+  const tabs = [
+    {
+      id: 'layers',
+      label: 'Layers',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M10 3L3 7l7 4 7-4-7-4z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+          <path d="M3 10l7 4 7-4" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+          <path d="M3 13l7 4 7-4" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+        </svg>
+      ),
+    },
+    {
+      id: 'assets',
+      label: 'Assets',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="3" width="14" height="14" rx="2" stroke="currentColor" strokeWidth="1.25" />
+          <path d="M10 7v6M7 10h6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+    {
+      id: 'find',
+      label: 'Find',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="9" cy="9" r="5" stroke="currentColor" strokeWidth="1.25" />
+          <path d="M13 13l3.5 3.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+    {
+      id: 'vars',
+      label: 'Vars',
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M5 5h10M5 10h10M5 15h6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+  ]
+
+  const toolGroups = [
+    {
+      items: [
+        {
+          id: 'move',
+          label: 'Move',
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 13L13 3M13 3H7M13 3v6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          ),
+        },
+        {
+          id: 'frame',
+          label: 'Frame',
+          active: activeTool === 'frame',
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="3" y="3" width="10" height="10" rx="1" stroke="currentColor" strokeWidth="1.25" />
+            </svg>
+          ),
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          id: 'rect',
+          label: 'Rectangle',
+          hasDropdown: true,
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.25" />
+            </svg>
+          ),
+        },
+        {
+          id: 'pen',
+          label: 'Pen',
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 13L11 3l2 2-8 10-3 1 1-3z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+            </svg>
+          ),
+        },
+        {
+          id: 'text',
+          label: 'Text',
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M4 4h8M8 4v9M6 13h4" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+            </svg>
+          ),
+        },
+      ],
+    },
+    {
+      items: [
+        {
+          id: 'hand',
+          label: 'Hand',
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v8M5 5v5a3 3 0 006 0V5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+            </svg>
+          ),
+        },
+        {
+          id: 'comment',
+          label: 'Comment',
+          icon: (
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M3 4a1 1 0 011-1h8a1 1 0 011 1v6a1 1 0 01-1 1H7l-3 2v-2H4a1 1 0 01-1-1V4z" stroke="currentColor" strokeWidth="1.25" />
+            </svg>
+          ),
+        },
+      ],
+    },
+  ]
+
+  const pages = ['Home', 'Dashboard', 'Profile', 'Settings']
+
+  return (
+    <DemoSection title="Editor shell">
+      <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>
+        Mini editor layout: icon tab bar, expandable panel, opacity tabs, floating toolbar + panel
+      </p>
+      <Card padding="none">
+        <div className="relative overflow-hidden" style={{ height: 420 }}>
+          <div className="flex h-full">
+            {/* Left icon tab bar */}
+            <div className="shrink-0 bg-[var(--n50)] border-r-[0.5px] border-r-[var(--n400)] py-1 px-0.5">
+              <IconTabBar tabs={tabs} activeTab={activeTab} onTabChange={(id) => { setActiveTab(id); setPanelOpen(true) }} />
+            </div>
+
+            {/* Left panel */}
+            <PanelSidebar
+              side="left"
+              open={panelOpen}
+              header={
+                <SectionHeader action={
+                  <button
+                    onClick={() => setPanelOpen(false)}
+                    className={cn('flex items-center justify-center rounded-[5px] text-[var(--n600)] hover:text-[var(--n1150)] hover:bg-[var(--n200)]')}
+                    style={{ width: 20, height: 20 }}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                  </button>
+                }>
+                  {activeTab === 'layers' ? 'Layers' : activeTab === 'assets' ? 'Assets' : activeTab === 'find' ? 'Find' : 'Variables'}
+                </SectionHeader>
+              }
+            >
+              <div className="p-2 space-y-0.5">
+                {activeTab === 'layers' && pages.map((page, i) => (
+                  <button
+                    key={page}
+                    className={cn(
+                      'w-full text-left px-2 py-1.5 rounded-[5px] text-[11px]',
+                      TRANSITION.background,
+                      i === 0 ? 'bg-[var(--n200)] font-[550] text-[var(--n1150)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
+                    )}
+                  >
+                    {page}
+                  </button>
+                ))}
+                {activeTab === 'find' && (
+                  <div className="px-1">
+                    <Input placeholder="Search layers..." />
+                  </div>
+                )}
+                {activeTab !== 'layers' && activeTab !== 'find' && (
+                  <div className="px-2 py-4">
+                    <p className={cn(MUTED_STYLE, 'text-[11px]')}>Panel content for {activeTab}</p>
+                  </div>
+                )}
+              </div>
+            </PanelSidebar>
+
+            {/* Canvas area */}
+            <div className="flex-1 bg-[var(--bg)] flex items-center justify-center relative">
+              <p className={cn(MUTED_STYLE, 'text-[11px]')}>Canvas area</p>
+            </div>
+
+            {/* Right panel */}
+            <div className="shrink-0 w-[220px] bg-[var(--n50)] border-l-[0.5px] border-l-[var(--n400)] flex flex-col">
+              <div className="px-3 py-2 border-b-[0.5px] border-b-[var(--n200)]">
+                <ToggleGroup
+                  variant="opacity"
+                  value={rightTab}
+                  onChange={(v) => setRightTab(v as string)}
+                  options={['Design', 'Prototype']}
+                  size="sm"
+                />
+              </div>
+              <div className="flex-1 overflow-y-auto p-3 space-y-3">
+                <SectionHeader divider>Alignment</SectionHeader>
+                <div className="flex gap-2">
+                  {['L', 'C', 'R', 'T', 'M', 'B'].map(a => (
+                    <div key={a} className="w-7 h-7 rounded-[5px] border-[0.5px] border-[var(--n400)] flex items-center justify-center text-[10px] text-[var(--n600)]">
+                      {a}
+                    </div>
+                  ))}
+                </div>
+                <SectionHeader divider>Fill</SectionHeader>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-[4px] border-[0.5px] border-[var(--n400)]" style={{ background: '#4C7FF7' }} />
+                  <span className={cn(FONT.body, 'text-[11px] text-[var(--n1150)]')}>4C7FF7</span>
+                  <span className={cn(FONT.body, 'text-[11px] text-[var(--n600)]')}>100%</span>
+                </div>
+                <SectionHeader divider>Stroke</SectionHeader>
+                <p className={cn(MUTED_STYLE, 'text-[11px]')}>No stroke</p>
+                <SectionHeader divider>Export</SectionHeader>
+                <Button size="sm" variant="outline">Add export</Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Floating toolbar */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10">
+            <FloatingToolbar
+              groups={toolGroups}
+              onItemClick={(id) => setActiveTool(id)}
+            />
+          </div>
+
+          {/* Floating panel trigger + panel */}
+          {floatingOpen && (
+            <div className="absolute top-12 left-[120px] z-20">
+              <FloatingPanel
+                open={floatingOpen}
+                onClose={() => setFloatingOpen(false)}
+                title="Variables"
+                width={360}
+                maxHeight={280}
+              >
+                <div className="p-4 space-y-3">
+                  <SectionHeader divider>Color tokens</SectionHeader>
+                  {['--n50', '--n200', '--n400', '--n600', '--n800', '--n1150'].map(tok => (
+                    <div key={tok} className="flex items-center justify-between px-1">
+                      <span className={cn(FONT.body, 'text-[11px] text-[var(--n1150)]')}>{tok}</span>
+                      <div className="w-4 h-4 rounded-[4px] border-[0.5px] border-[var(--n400)]" style={{ background: `var(${tok})` }} />
+                    </div>
+                  ))}
+                </div>
+              </FloatingPanel>
+            </div>
+          )}
+        </div>
+
+        {/* Controls below the mini editor */}
+        <div className="px-4 py-3 border-t-[0.5px] border-t-[var(--n400)] flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => setPanelOpen(!panelOpen)}>
+            {panelOpen ? 'Close panel' : 'Open panel'}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setFloatingOpen(!floatingOpen)}>
+            {floatingOpen ? 'Close floating panel' : 'Open floating panel'}
+          </Button>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── Floating Panels ───
+
+function FloatingPanelsDemo() {
+  const [panel1, setPanel1] = useState(true)
+  const [panel2, setPanel2] = useState(true)
+
+  return (
+    <DemoSection title="Floating panels">
+      <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>
+        Draggable panels with NO backdrop dimming. Content behind stays visible and interactive.
+      </p>
+      <Card padding="none">
+        <div className="relative p-6" style={{ minHeight: 360 }}>
+          {/* Background content proving no dimming */}
+          <div className="space-y-2 opacity-50">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-4 bg-[var(--n200)] rounded-[4px]" style={{ width: `${60 + (i * 7) % 30}%` }} />
+            ))}
+          </div>
+
+          {/* Panel 1 — basic */}
+          {panel1 && (
+            <div className="absolute top-4 left-4">
+              <FloatingPanel open={panel1} onClose={() => setPanel1(false)} title="Quick actions" width={300} maxHeight={240}>
+                <div className="p-3 space-y-1">
+                  {['Create frame', 'Add component', 'Run plugin', 'Open library'].map(action => (
+                    <button
+                      key={action}
+                      className={cn(
+                        'w-full text-left px-2.5 py-1.5 rounded-[5px] text-[11px] text-[var(--n1150)]',
+                        TRANSITION.background,
+                        'hover:bg-[var(--n200)]',
+                      )}
+                    >
+                      {action}
+                    </button>
+                  ))}
+                </div>
+              </FloatingPanel>
+            </div>
+          )}
+
+          {/* Panel 2 — with sidebar nav */}
+          {panel2 && (
+            <div className="absolute top-4 right-4">
+              <FloatingPanel open={panel2} onClose={() => setPanel2(false)} title="Manage libraries" width={380} maxHeight={280}>
+                <div className="flex h-full">
+                  <div className="w-[100px] shrink-0 border-r-[0.5px] border-r-[var(--n200)] py-2 px-1.5 space-y-0.5">
+                    {['This file', 'Team', 'UI kits'].map((item, i) => (
+                      <button
+                        key={item}
+                        className={cn(
+                          'w-full text-left px-2 py-1 rounded-[5px] text-[10px]',
+                          i === 0 ? 'bg-[var(--n200)] font-[550] text-[var(--n1150)]' : 'text-[var(--n600)] hover:bg-[var(--n200)]',
+                        )}
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex-1 p-3">
+                    <p className={cn(MUTED_STYLE, 'text-[11px]')}>Library content</p>
+                  </div>
+                </div>
+              </FloatingPanel>
+            </div>
+          )}
+        </div>
+        <div className="px-4 py-3 border-t-[0.5px] border-t-[var(--n400)] flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => { setPanel1(true); setPanel2(true) }}>
+            Reset panels
+          </Button>
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
+// ─── Property Inspector ───
+
+function PropertyInspectorDemo() {
+  const [clip, setClip] = useState(false)
+  const [autoLayout, setAutoLayout] = useState(true)
+
+  return (
+    <DemoSection title="Property inspector">
+      <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>
+        Dense property rows: color swatches, hex inputs, percentage fields, small toggles
+      </p>
+      <Card>
+        <div className="max-w-[280px] space-y-3">
+          <SectionHeader divider>Fill</SectionHeader>
+          {/* Color swatch + hex row */}
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-[4px] border-[0.5px] border-[var(--n400)]" style={{ background: '#4C7FF7' }} />
+            <Input defaultValue="4C7FF7" className="flex-1" />
+            <Input defaultValue="100" unit="%" className="w-[60px]" />
+          </div>
+
+          <SectionHeader divider>Stroke</SectionHeader>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded-[4px] border-[0.5px] border-[var(--n400)]" style={{ background: 'var(--n1150)' }} />
+            <Input defaultValue="131211" className="flex-1" />
+            <Input defaultValue="1" unit="px" className="w-[60px]" />
+          </div>
+
+          <SectionHeader divider>Layout</SectionHeader>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label>X</Label>
+              <Input defaultValue="120" unit="px" />
+            </div>
+            <div>
+              <Label>Y</Label>
+              <Input defaultValue="84" unit="px" />
+            </div>
+            <div>
+              <Label>W</Label>
+              <Input defaultValue="240" unit="px" />
+            </div>
+            <div>
+              <Label>H</Label>
+              <Input defaultValue="160" unit="px" />
+            </div>
+          </div>
+
+          <SectionHeader divider>Options</SectionHeader>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className={cn(FONT.body, 'text-[11px] text-[var(--n800)]')}>Clip content</span>
+              <Switch checked={clip} onChange={setClip} />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className={cn(FONT.body, 'text-[11px] text-[var(--n800)]')}>Auto layout</span>
+              <Switch checked={autoLayout} onChange={setAutoLayout} />
+            </div>
+          </div>
+
+          <SectionHeader divider>Corner radius</SectionHeader>
+          <Input defaultValue="12" unit="px" />
+        </div>
+      </Card>
+    </DemoSection>
+  )
+}
+
 // ─── Filter Pills with Icons ───
 
 function FilterPillsDemo() {
@@ -3897,6 +4323,9 @@ export default function UIDemo() {
             <CommandPaletteDemo />
             <EnhancedDropdownsDemo />
             <FilterPillsDemo />
+            <EditorShellDemo />
+            <FloatingPanelsDemo />
+            <PropertyInspectorDemo />
           </div>
         </div>
       </main>
