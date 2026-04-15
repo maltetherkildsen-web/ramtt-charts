@@ -5,6 +5,7 @@ import { type AccentTokens, TOKEN_LABELS } from './accents'
 
 interface TokenPanelProps {
   tokens: AccentTokens
+  onCollapse?: () => void
 }
 
 /** Decide text color for legibility on a given background */
@@ -40,7 +41,7 @@ const GRADIENT_STOPS: (keyof AccentTokens)[] = [
   'badgeBg',
 ]
 
-export function TokenPanel({ tokens }: TokenPanelProps) {
+export function TokenPanel({ tokens, onCollapse }: TokenPanelProps) {
   const gradientCss = GRADIENT_STOPS.map(
     (key, i) => `${tokens[key]} ${Math.round((i / (GRADIENT_STOPS.length - 1)) * 100)}%`,
   ).join(', ')
@@ -53,6 +54,25 @@ export function TokenPanel({ tokens }: TokenPanelProps) {
       )}
       style={{ height: 'calc(100vh - 72px - 32px)' }}
     >
+      {/* Collapse button */}
+      {onCollapse && (
+        <button
+          onClick={onCollapse}
+          className={cn(
+            'flex h-6 items-center justify-center gap-1.5',
+            'rounded-full border-[0.5px] border-[var(--n300)] bg-[var(--n50)]',
+            'text-[var(--n600)] transition-colors hover:bg-[var(--n100)]',
+            'text-[10px]', WEIGHT.book,
+          )}
+          aria-label="Hide token panel"
+        >
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.75 3.5L5.25 7L8.75 10.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+          Hide tokens
+        </button>
+      )}
+
       {/* Token bars */}
       <div className={cn('flex flex-col gap-0.5', RADIUS.lg, 'overflow-hidden')}>
         {TOKEN_ORDER.map((key) => {

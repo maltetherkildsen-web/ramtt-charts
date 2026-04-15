@@ -16,6 +16,7 @@ function readHash(): string {
 
 export default function AccentDemoPage() {
   const [accentId, setAccentId] = useState(DEFAULT_ACCENT_ID)
+  const [showTokens, setShowTokens] = useState(true)
   const accent = getAccentById(accentId) ?? ACCENTS[0]
 
   // On mount, read hash
@@ -83,7 +84,25 @@ export default function AccentDemoPage() {
 
         {/* Content area: Token panel + Settings replica */}
         <div className="flex gap-6 px-6 pt-5 pb-10">
-          <TokenPanel tokens={accent.tokens} />
+          {showTokens ? (
+            <TokenPanel tokens={accent.tokens} onCollapse={() => setShowTokens(false)} />
+          ) : (
+            <button
+              onClick={() => setShowTokens(true)}
+              className={cn(
+                'sticky top-[72px] flex h-7 w-7 shrink-0 items-center justify-center self-start',
+                'rounded-full border-[0.5px] border-[var(--n300)] bg-[var(--n50)]',
+                'text-[var(--n600)] transition-colors hover:bg-[var(--n100)]',
+                FONT.body, 'text-[11px]',
+              )}
+              aria-label="Show token panel"
+              title="Show tokens"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5.25 3.5L8.75 7L5.25 10.5" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          )}
           <SettingsReplica accent={accent} />
         </div>
 
