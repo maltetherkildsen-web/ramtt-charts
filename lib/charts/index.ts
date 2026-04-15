@@ -53,6 +53,10 @@ export type { SankeyNodeInput, SankeyLinkInput, SankeyNode, SankeyLink, SankeyLa
 export { sunburstLayout } from './layouts/sunburst'
 export type { SunburstNode, SunburstArc } from './layouts/sunburst'
 
+// Peak Power / MMP
+export { findPeakPower, computeAllPeaks, buildMMPCurve, PEAK_DURATIONS } from './utils/peakPower'
+export type { PeakPowerResult } from './utils/peakPower'
+
 // Zoom
 export { clampViewport, pixelToFraction, indicesToFractions, fractionsToIndices } from './utils/zoom'
 
