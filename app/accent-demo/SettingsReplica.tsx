@@ -12,23 +12,23 @@ import {
   IntegrationIcon,
   accentTransition,
 } from './components'
-import { IconLink } from '@/components/icons/line/IconLink'
-import { IconZone } from '@/components/icons/line/IconZone'
-import { IconGut } from '@/components/icons/line/IconGut'
-import { IconApple } from '@/components/icons/line/IconApple'
-import { IconUserCheck } from '@/components/icons/line/IconUserCheck'
-import { IconSun } from '@/components/icons/line/IconSun'
-import { IconNotification } from '@/components/icons/line/IconNotification'
-import { IconMail } from '@/components/icons/line/IconMail'
-import { IconGrid } from '@/components/icons/line/IconGrid'
-import { IconSettings } from '@/components/icons/line/IconSettings'
-import { IconFlag } from '@/components/icons/line/IconFlag'
-import { IconMessageCircle } from '@/components/icons/line/IconMessageCircle'
-import { IconStar } from '@/components/icons/line/IconStar'
-import { IconCloud } from '@/components/icons/line/IconCloud'
-import { IconLock } from '@/components/icons/line/IconLock'
-import { IconCode } from '@/components/icons/line/IconCode'
-import { IconUser } from '@/components/icons/line/IconUser'
+import { IconLink } from '@/components/icons/light/IconLink'
+import { IconZone } from '@/components/icons/light/IconZone'
+import { IconGut } from '@/components/icons/light/IconGut'
+import { IconApple } from '@/components/icons/light/IconApple'
+import { IconUserCheck } from '@/components/icons/light/IconUserCheck'
+import { IconSun } from '@/components/icons/light/IconSun'
+import { IconNotification } from '@/components/icons/light/IconNotification'
+import { IconMail } from '@/components/icons/light/IconMail'
+import { IconGrid } from '@/components/icons/light/IconGrid'
+import { IconSettings } from '@/components/icons/light/IconSettings'
+import { IconFlag } from '@/components/icons/light/IconFlag'
+import { IconMessageCircle } from '@/components/icons/light/IconMessageCircle'
+import { IconStar } from '@/components/icons/light/IconStar'
+import { IconCloud } from '@/components/icons/light/IconCloud'
+import { IconLock } from '@/components/icons/light/IconLock'
+import { IconCode } from '@/components/icons/light/IconCode'
+import { IconUser } from '@/components/icons/light/IconUser'
 
 // ─── Sidebar Navigation Items ───
 
@@ -89,7 +89,7 @@ function SettingsSidebar({
                 : accentTransition
             }
           >
-            <span className="shrink-0 [&_svg]:[stroke-width:1.25]"><Icon size={18} /></span>
+            <span className="shrink-0"><Icon /></span>
             {label}
           </button>
         )

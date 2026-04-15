@@ -10,6 +10,7 @@ import { IconSearch } from '@/components/icons/line/IconSearch'
 // ─── Dynamic Icon Maps ───
 
 import * as LineIcons from '@/components/icons/line'
+import * as LightIcons from '@/components/icons/light'
 import * as SolidIcons from '@/components/icons/solid'
 import * as DuoIcons from '@/components/icons/duo'
 import * as AnimatedIcons from '@/components/icons/animated'
@@ -17,7 +18,7 @@ import * as ContextIcons from '@/components/icons/context'
 import * as MorphIcons from '@/components/icons/morph'
 import * as ReactiveIcons from '@/components/icons/reactive'
 
-type Variant = 'line' | 'solid' | 'duo'
+type Variant = 'line' | 'light' | 'solid' | 'duo'
 
 function getIcon(name: string, variant: Variant): ComponentType<IconProps | IconDuoProps> | null {
   if (variant === 'solid') {
@@ -27,6 +28,10 @@ function getIcon(name: string, variant: Variant): ComponentType<IconProps | Icon
   if (variant === 'duo') {
     const key = `${name}Duo` as keyof typeof DuoIcons
     return (DuoIcons[key] as ComponentType<IconDuoProps>) ?? null
+  }
+  if (variant === 'light') {
+    const key = name as keyof typeof LightIcons
+    return (LightIcons[key] as ComponentType<IconProps>) ?? null
   }
   const key = name as keyof typeof LineIcons
   return (LineIcons[key] as ComponentType<IconProps>) ?? null
@@ -133,6 +138,7 @@ function DetailPanel({
   const toast = useToast()
 
   const Line = getIcon(meta.name, 'line')
+  const Light = getIcon(meta.name, 'light')
   const Solid = getIcon(meta.name, 'solid')
   const Duo = getIcon(meta.name, 'duo')
 
@@ -191,6 +197,7 @@ function DetailPanel({
           <div className="flex gap-4">
             {[
               { label: 'Line', Comp: Line },
+              { label: 'Light', Comp: Light },
               { label: 'Solid', Comp: Solid },
               { label: 'Duo', Comp: Duo },
             ].map(({ label, Comp }) => (
@@ -821,7 +828,7 @@ function CatalogContent() {
         <div className="mb-8">
           <h1 className={cn(FONT.body, 'text-[24px] font-[550] text-[var(--n1150)]')}>RAMTT Icons</h1>
           <p className={cn(FONT.body, 'text-[14px] font-[400] text-[var(--n800)] mt-1')}>
-            174 icons · 3 variants · Zero dependencies · Satoshi-calibrated
+            174 icons · 4 variants · Zero dependencies · Satoshi-calibrated
           </p>
         </div>
 
@@ -845,6 +852,7 @@ function CatalogContent() {
             <ToggleGroup
               options={[
                 { value: 'line', label: 'Line' },
+                { value: 'light', label: 'Light' },
                 { value: 'solid', label: 'Solid' },
                 { value: 'duo', label: 'Duo' },
               ]}

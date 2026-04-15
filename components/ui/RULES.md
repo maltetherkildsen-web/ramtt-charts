@@ -100,10 +100,10 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Active state: add background `var(--n200)` ONLY — NO weight change, NO color change
 - Rationale: Satoshi 450 matches Inter 400 optically (verified via Figma `getComputedStyle`)
 - Use `NAV_ITEM_STYLE` + `NAV_ITEM_ACTIVE_BG` constants from lib/ui.ts
-- Icons: 18px, stroke-width 1.25 (Light variant), `currentColor` (inherits --n1150)
+- Icons: import from `components/icons/light/` — 18px default, stroke-width 1.25, `currentColor`
 - Icon-to-text gap: 14px (`gap-3.5`)
 - Use `NAV_ICON` constant from lib/ui.ts for icon sizing
-- Until Light icon variant ships, use `[&_svg]:[stroke-width:1.25]` CSS override
+- Light variant is now shipped — no CSS overrides needed
 - This pattern applies to ALL sidebar/nav-list components in the app
 - Do NOT revert to w400, --n800, or weight-based active states for sidebar navigation
 

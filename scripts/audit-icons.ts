@@ -12,7 +12,7 @@
  * 8. Solid: uses IconBaseSolid
  * 9. Duo: uses IconBaseDuo
  *
- * Expected: 174 line + 174 solid + 174 duo + 20 animated + 18 context + 18 morph + 31 reactive + 3 bases = 612 files
+ * Expected: 174 line + 174 light + 174 solid + 174 duo + 20 animated + 18 context + 18 morph + 31 reactive + 4 bases = 787 files
  *
  * Run: npx tsx scripts/audit-icons.ts
  */
@@ -31,7 +31,7 @@ function fail(file: string, msg: string) {
   failed++
 }
 
-function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 'base' | 'context' | 'morph' | 'reactive') {
+function auditDir(dir: string, variant: 'line' | 'light' | 'solid' | 'duo' | 'animated' | 'base' | 'context' | 'morph' | 'reactive') {
   if (!existsSync(dir)) return
 
   const files = readdirSync(dir).filter(
@@ -83,6 +83,11 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
           fail(label, 'Does not import ReactiveBase')
           fileOk = false
         }
+      } else if (variant === 'light') {
+        if (!content.includes('IconBaseLight')) {
+          fail(label, 'Light icon does not import IconBaseLight')
+          fileOk = false
+        }
       } else if (variant === 'line' || variant === 'animated' || variant === 'context') {
         if (!content.includes('IconBase')) {
           fail(label, 'Does not import IconBase')
@@ -127,7 +132,7 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
     }
 
     // 7. Line/animated: no strokeWidth override
-    if ((variant === 'line' || variant === 'animated') && !isBase) {
+    if ((variant === 'line' || variant === 'light' || variant === 'animated') && !isBase) {
       if (/strokeWidth/.test(content)) {
         fail(label, 'Overrides strokeWidth')
         fileOk = false
@@ -145,6 +150,7 @@ function auditDir(dir: string, variant: 'line' | 'solid' | 'duo' | 'animated' | 
 // Audit all directories
 const baseCounts = auditDir(ICONS_DIR, 'base') || 0
 const lineCounts = auditDir(join(ICONS_DIR, 'line'), 'line') || 0
+const lightCounts = auditDir(join(ICONS_DIR, 'light'), 'light') || 0
 const solidCounts = auditDir(join(ICONS_DIR, 'solid'), 'solid') || 0
 const duoCounts = auditDir(join(ICONS_DIR, 'duo'), 'duo') || 0
 const animCounts = auditDir(join(ICONS_DIR, 'animated'), 'animated') || 0
@@ -162,6 +168,7 @@ console.log('══════════════════════�
 console.log('')
 console.log(`  Base:      ${baseCounts}`)
 console.log(`  Line:      ${lineCounts}`)
+console.log(`  Light:     ${lightCounts}`)
 console.log(`  Solid:     ${solidCounts}`)
 console.log(`  Duo:       ${duoCounts}`)
 console.log(`  Animated:  ${animCounts}`)
