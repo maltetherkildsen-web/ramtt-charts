@@ -1,0 +1,25 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
+import { forwardRef } from 'react'
+import { IconBaseDuo } from '../IconBaseDuo'
+import type { IconDuoProps } from '../types'
+
+export const IconO2Duo = forwardRef<SVGSVGElement, IconDuoProps>((props, ref) => (
+  <IconBaseDuo ref={ref} {...props}>
+    {/* Background */}
+    <circle cx="8.5" cy="12" r="4.5" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
+    <circle cx="15.5" cy="12" r="4.5" fill={props.accent || 'currentColor'} stroke="none" opacity={0.15}/>
+    {/* Foreground */}
+
+    <circle cx="8.5" cy="12" r="4.5"/>
+    <circle cx="15.5" cy="12" r="4.5"/>
+    <line x1="11" y1="10.5" x2="13" y2="10.5"/>
+    <line x1="11" y1="13.5" x2="13" y2="13.5"/>
+    <circle cx="4" cy="10" r=".6" fill="currentColor" stroke="none"/>
+    <circle cx="4" cy="14" r=".6" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="10" r=".6" fill="currentColor" stroke="none"/>
+    <circle cx="20" cy="14" r=".6" fill="currentColor" stroke="none"/>
+  </IconBaseDuo>
+))
+IconO2Duo.displayName = 'IconO2Duo'
