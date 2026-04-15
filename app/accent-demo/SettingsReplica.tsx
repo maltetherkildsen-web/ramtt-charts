@@ -63,11 +63,12 @@ function SettingsSidebar({
               'rounded-[6px]',
               TRANSITION.colors,
               isActive ? WEIGHT.strong : WEIGHT.normal,
-              isActive ? 'text-[var(--n1150)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
+              'text-[var(--n1150)]',
+              !isActive && 'hover:bg-[var(--n200)]',
             )}
             style={
               isActive
-                ? { backgroundColor: 'var(--accent-wash)', ...accentTransition }
+                ? { backgroundColor: 'var(--n200)', ...accentTransition }
                 : accentTransition
             }
           >
