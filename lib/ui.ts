@@ -232,7 +232,7 @@ export const SIDEBAR_WIDTH = { expanded: 240, collapsed: 56 } as const;
  *  Active state adds background only — no weight or color change.
  *  Satoshi 450 ≈ Inter 400 optically (verified via Figma getComputedStyle). */
 export const NAV_ITEM_STYLE = 'px-3 py-2 rounded-[6px] text-[11px] font-[450] text-[var(--n1150)]';
-export const NAV_ITEM_ACTIVE_BG = 'bg-[var(--n200)]';
+export const NAV_ITEM_ACTIVE_BG = 'bg-[var(--accent-soft)]';
 
 /** Nav item icons — Light variant: 18px, stroke-width 1.25, 14px gap to text.
  *  Use [&_svg]:[stroke-width:1.25] wrapper until proper Light icon variant ships. */

@@ -51,11 +51,32 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Semantic colors (positive/negative/warning/info) are NEVER used for text
 - Text is ALWAYS the neutral scale
 
+## Domain Colors & Accent System
+- Three domains: Nutrition (Cyan 500 `#06B6D4`), Training (Pink 600 `#DB2777`), Body (Indigo 500 `#6366F1`)
+- 14 CSS tokens per domain in tokens.css: pressed, hover, base, toggle, text, icon, icon-light, icon-lightest, border, selection, wash, badge, soft, light
+- `--accent-*` aliases point to the current app accent (nutrition/cyan placeholder)
+- Use `var(--domain-nutrition)` etc. for domain-specific UI, `var(--accent)` for generic accent
+- `DOMAIN` constant + `DomainKey` type exported from lib/ui.ts
+- Badge, ProgressBar, StatusIndicator accept domain keys as color props
+- **Accent-soft opacity (~12%)** is the standard for active/selected states (sidebar nav, tabs). This intensity is LOCKED — do not weaken it.
+- Button primary: `var(--accent)` bg, `var(--accent-hover)` hover, `var(--accent-pressed)` active
+- Button outline: `var(--accent-text)` text, `var(--accent-border)` border
+- Button ghost: `var(--accent-text)` text
+- Switch on-track: `var(--accent-toggle)`
+- Input/Textarea/Select focus: 1.5px `var(--accent)` border (FOCUS_RING_THIN)
+
+## Indicator Dots — Squircles Only
+- ALL small dots/indicators use `rounded-[30%]` — NEVER `rounded-full` (50%)
+- This is RAMTT's identity: soft squircles, not circles
+- Applies to: ColorDot, status dots, step dots, timeline markers, toast dots, tag dots, notification dots, calendar today dot, avatar status dot, grip dots
+- EXCEPTIONS that stay `rounded-full`: Switch track/thumb, Radio outer ring, Avatar container, Slider thumbs, ScrollArea thumbs, ColorPicker, Calendar day cells, MemberList avatar placeholder
+
 ## Interaction States
+- Accent soft (~12%): sidebar active, selected nav items → use `bg-[var(--accent-soft)]`
 - Sand fill (--n400): selected toggles, filters → use ACTIVE_SAND
 - Underline (2px --n1150): tab navigation → use ACTIVE_UNDERLINE
 - White lift (bg-white): card hover → use WHITE_LIFT
-- Black fill (--n1150): primary CTA ONLY → use ACTIVE_BLACK
+- Accent fill: primary CTA → Button primary uses accent tokens
 - Sand hover (--n200): rows, ghost buttons → use HOVER_SAND
 
 ## Transitions
@@ -97,15 +118,16 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 
 ## Sidebar Navigation (LOCKED)
 - All items (active AND inactive): `11px / weight 450 / --n1150` — identical text styling
-- Active state: add background `var(--n200)` ONLY — NO weight change, NO color change
+- Active state: `bg-[var(--accent-soft)]` (~12% accent opacity) — NO weight change, NO color change
+- Hover state: `bg-[var(--n200)]` (sand)
 - Rationale: Satoshi 450 matches Inter 400 optically (verified via Figma `getComputedStyle`)
-- Use `NAV_ITEM_STYLE` + `NAV_ITEM_ACTIVE_BG` constants from lib/ui.ts
 - Icons: import from `components/icons/light/` — 18px default, stroke-width 1.25, `currentColor`
 - Icon-to-text gap: 14px (`gap-3.5`)
 - Use `NAV_ICON` constant from lib/ui.ts for icon sizing
 - Light variant is now shipped — no CSS overrides needed
 - This pattern applies to ALL sidebar/nav-list components in the app
 - Do NOT revert to w400, --n800, or weight-based active states for sidebar navigation
+- Do NOT weaken the accent-soft opacity — the ~12% intensity is calibrated to Figma
 
 ## Link List Typography
 - In link lists (navigation, footer, settings sidebar), heading and link text MAY be the same font size
