@@ -1,0 +1,13 @@
+// Copyright (c) 2026 RAMTT (Malte Therkildsen)
+// Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
+
+import { forwardRef } from 'react'
+import { IconBaseSolid } from '../IconBaseSolid'
+import type { IconProps } from '../types'
+
+export const IconCalendarCheckSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
+  <IconBaseSolid ref={ref} {...props}>
+    <path fillRule="evenodd" d="M8 1.25a.75.75 0 01.75.75v1.75h6.5V2a.75.75 0 011.5 0v1.75H18A2.75 2.75 0 0120.75 6.5v12.25A2.75 2.75 0 0118 21.5H6A2.75 2.75 0 013.25 18.75V6.5A2.75 2.75 0 016 3.75h.75V2A.75.75 0 018 1.25zM4.75 10.25v8.5c0 .69.56 1.25 1.25 1.25h12c.69 0 1.25-.56 1.25-1.25v-8.5H4.75zm11.78 2.22a.75.75 0 010 1.06l-4 4a.75.75 0 01-1.06 0l-2-2a.75.75 0 111.06-1.06L11 14.94l3.47-3.47a.75.75 0 011.06 0z"/>
+  </IconBaseSolid>
+))
+IconCalendarCheckSolid.displayName = 'IconCalendarCheckSolid'

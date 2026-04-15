@@ -7,10 +7,7 @@ import type { IconProps } from '../types'
 
 export const IconWaterBottleSolid = forwardRef<SVGSVGElement, IconProps>((props, ref) => (
   <IconBaseSolid ref={ref} {...props}>
-
-    <path d="M9 8h6a1 1 0 0 1 1 1v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9a1 1 0 0 1 1-1Z"/>
-    <rect x="10" y="5" width="4" height="3" rx="1"/>
-    <rect x="11" y="2" width="2" height="3.5" rx="1"/>
+    <path fillRule="evenodd" d="M8.25 2a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v2.25H17a.75.75 0 01.72.53l1 3a.75.75 0 01.03.22V19a2.75 2.75 0 01-2.75 2.75H8A2.75 2.75 0 015.25 19V7.75a.75.75 0 01.03-.22l1-3a.75.75 0 01.72-.53h1.25V2zm.75 4.75V3h6v1.5h-6z"/>
   </IconBaseSolid>
 ))
 IconWaterBottleSolid.displayName = 'IconWaterBottleSolid'
