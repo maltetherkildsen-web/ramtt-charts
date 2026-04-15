@@ -76,7 +76,7 @@ function SettingsSidebar({
             onClick={() => onSelect(label)}
             className={cn(
               FONT.body, 'text-[11px]',
-              'flex items-center gap-2.5 px-3 py-2 text-left cursor-default',
+              'flex items-center gap-3 px-3 py-2 text-left cursor-default',
               'rounded-[6px]',
               TRANSITION.colors,
               WEIGHT.book,
