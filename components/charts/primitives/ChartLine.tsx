@@ -22,6 +22,17 @@ import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
 import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
+export interface DotRenderPayload {
+  /** Pixel x position */
+  cx: number
+  /** Pixel y position */
+  cy: number
+  /** Data value at this point */
+  value: number
+  /** Index in data array */
+  index: number
+}
+
 export interface ChartLineProps {
   data?: readonly number[]
   className?: string
@@ -33,9 +44,28 @@ export interface ChartLineProps {
   curve?: CurveType
   /** Entry animation. Default: true. */
   animate?: AnimateConfig
+  /** Show dots at data points. false=none, true/'all'=every point. Default: false. */
+  showDots?: boolean | 'all'
+  /** Dot radius in px. Default: 4. */
+  dotRadius?: number
+  /** CSS class for dots. Default: inherits line stroke color as fill. */
+  dotClassName?: string
+  /** Custom dot renderer. When set, replaces the default circle for each data point. */
+  renderDot?: (payload: DotRenderPayload) => React.ReactNode
 }
 
-export function ChartLine({ data: dataProp, className, yDomain, yAccessor, curve = 'linear', animate = true }: ChartLineProps) {
+export function ChartLine({
+  data: dataProp,
+  className,
+  yDomain,
+  yAccessor,
+  curve = 'linear',
+  animate = true,
+  showDots = false,
+  dotRadius = 4,
+  dotClassName,
+  renderDot,
+}: ChartLineProps) {
   const { data: ctxData, scaleX, scaleY, chartWidth, chartHeight, decimationFactor } = useChart()
   const sourceData = dataProp ?? ctxData
 
@@ -114,20 +144,54 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, curve
     ? { animation: `ramtt-progressive-reveal ${anim.duration}ms ${anim.easing} ${anim.delay}ms both` }
     : undefined
 
+  // Compute dot positions when showDots is enabled
+  const dots = useMemo(() => {
+    if (!showDots || sourceData.length === 0) return null
+
+    const getY = yAccessor
+      ? (v: any, i: number) => effectiveScaleY(yAccessor(v, i))
+      : (v: number) => effectiveScaleY(v)
+
+    return sourceData.map((v, i) => ({
+      cx: scaleX(i),
+      cy: (getY as any)(v, i),
+      value: typeof v === 'number' ? v : (yAccessor?.(v, i) ?? 0),
+      index: i,
+    }))
+  }, [showDots, sourceData, scaleX, effectiveScaleY, yAccessor])
+
   if (!d) return null
 
   return (
-    <path
-      ref={pathRef}
-      d={d}
-      className={cn(
-        'fill-none stroke-emerald-600 stroke-[1.5]',
-        className,
+    <g>
+      <path
+        ref={pathRef}
+        d={d}
+        className={cn(
+          'fill-none stroke-emerald-600 stroke-[1.5]',
+          className,
+        )}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+        style={progressiveStyle}
+      />
+      {dots && dots.map((dot) =>
+        renderDot ? (
+          <g key={dot.index}>{renderDot(dot)}</g>
+        ) : (
+          <circle
+            key={dot.index}
+            cx={dot.cx}
+            cy={dot.cy}
+            r={dotRadius}
+            className={dotClassName}
+            fill={dotClassName ? undefined : 'currentColor'}
+            stroke="var(--n50)"
+            strokeWidth={2}
+          />
+        )
       )}
-      strokeLinejoin="round"
-      strokeLinecap="round"
-      vectorEffect="non-scaling-stroke"
-      style={progressiveStyle}
-    />
+    </g>
   )
 }
