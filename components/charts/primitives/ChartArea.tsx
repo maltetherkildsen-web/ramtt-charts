@@ -12,6 +12,7 @@
 
 import { useId, useMemo } from 'react'
 import { areaPath } from '@/lib/charts/paths/area'
+import { linePath, type CurveType } from '@/lib/charts/paths/line'
 import { smoothDecimate } from '@/lib/charts/utils/smooth-decimate'
 import { cn } from '@/lib/utils'
 import { useChart } from './chart-context'
@@ -31,6 +32,8 @@ export interface ChartAreaProps {
   thresholdY?: number
   /** Color for area below threshold. Default: '#ef4444'. */
   negativeColor?: string
+  /** Curve interpolation mode. Default: 'linear'. */
+  curve?: CurveType
   /** Entry animation. Default: true. */
   animate?: AnimateConfig
 }
@@ -45,6 +48,7 @@ export function ChartArea({
   yAccessor,
   thresholdY,
   negativeColor = '#ef4444',
+  curve = 'linear',
   animate = true,
 }: ChartAreaProps) {
   const { data: ctxData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor } = useChart()
@@ -56,7 +60,31 @@ export function ChartArea({
 
     // Stacked area mode: custom y0/y1 accessors (no downsampling — stacked data is pre-processed)
     if (y0Accessor && yAccessor) {
+      // For stacked areas with curve support, build top and bottom edges
+      // using linePath for consistent curve handling
       const len = sourceData.length
+      if (curve !== 'linear') {
+        const indices = Array.from({ length: len }, (_, i) => i)
+        const topEdge = linePath(
+          indices,
+          (i: number) => scaleX(i),
+          (i: number) => scaleY(yAccessor(sourceData[i], i)),
+          1,
+          curve,
+        )
+        // Bottom edge: right to left
+        const reversed = [...indices].reverse()
+        const bottomEdge = linePath(
+          reversed,
+          (i: number) => scaleX(i),
+          (i: number) => scaleY(y0Accessor(sourceData[i], i)),
+          1,
+          curve,
+        )
+        // Replace the M command of bottom edge with L
+        return topEdge + 'L' + bottomEdge.slice(1) + 'Z'
+      }
+
       const topParts: string[] = new Array(len)
       const bottomParts: string[] = new Array(len)
 
@@ -82,6 +110,8 @@ export function ChartArea({
         (_v, i) => scaleX(i),
         (v) => scaleY(v as number),
         chartHeight,
+        1,
+        curve,
       )
     }
 
@@ -92,8 +122,10 @@ export function ChartArea({
       (p) => scaleX(p.x),
       (p) => scaleY(p.y),
       chartHeight,
+      1,
+      curve,
     )
-  }, [sourceData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor, y0Accessor, yAccessor])
+  }, [sourceData, scaleX, scaleY, chartHeight, chartWidth, decimationFactor, y0Accessor, yAccessor, curve])
 
   // Animation
   const anim = resolveAnimate(animate, { duration: 800, delay: 200, easing: EASE_OUT_EXPO, mode: 'fade' })

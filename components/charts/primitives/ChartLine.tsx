@@ -15,7 +15,7 @@
  */
 
 import { useMemo, useRef, useEffect } from 'react'
-import { linePath } from '@/lib/charts/paths/line'
+import { linePath, type CurveType } from '@/lib/charts/paths/line'
 import { smoothDecimate } from '@/lib/charts/utils/smooth-decimate'
 import { scaleLinear } from '@/lib/charts/scales/linear'
 import { cn } from '@/lib/utils'
@@ -29,11 +29,13 @@ export interface ChartLineProps {
   yDomain?: readonly [number, number]
   /** Custom Y accessor for object data. When set, maps each datum through this before scaling. */
   yAccessor?: (datum: any, index: number) => number
+  /** Curve interpolation mode. Default: 'linear'. */
+  curve?: CurveType
   /** Entry animation. Default: true. */
   animate?: AnimateConfig
 }
 
-export function ChartLine({ data: dataProp, className, yDomain, yAccessor, animate = true }: ChartLineProps) {
+export function ChartLine({ data: dataProp, className, yDomain, yAccessor, curve = 'linear', animate = true }: ChartLineProps) {
   const { data: ctxData, scaleX, scaleY, chartWidth, chartHeight, decimationFactor } = useChart()
   const sourceData = dataProp ?? ctxData
 
@@ -56,6 +58,8 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, anima
         sourceData,
         (_v, i) => scaleX(i),
         getY as any,
+        1,
+        curve,
       )
     }
 
@@ -66,6 +70,8 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, anima
         pts,
         (p) => scaleX(p.x),
         (p) => effectiveScaleY(p.y),
+        1,
+        curve,
       )
     }
 
@@ -74,8 +80,10 @@ export function ChartLine({ data: dataProp, className, yDomain, yAccessor, anima
       sourceData,
       (_v, i) => scaleX(i),
       getY as any,
+      1,
+      curve,
     )
-  }, [sourceData, scaleX, effectiveScaleY, chartWidth, decimationFactor, yAccessor])
+  }, [sourceData, scaleX, effectiveScaleY, chartWidth, decimationFactor, yAccessor, curve])
 
   // Animation
   const pathRef = useRef<SVGPathElement>(null)

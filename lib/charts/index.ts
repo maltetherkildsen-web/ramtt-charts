@@ -20,7 +20,7 @@ export type { TimeScale } from './scales/time'
 
 // Paths
 export { linePath } from './paths/line'
-export type { Accessor } from './paths/line'
+export type { Accessor, CurveType } from './paths/line'
 export { areaPath } from './paths/area'
 export { arcPath, pieLayout } from './paths/arc'
 
