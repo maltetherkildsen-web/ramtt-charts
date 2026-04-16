@@ -36,15 +36,15 @@ export { nearest2d } from './utils/nearest2d'
 export { stackSeries } from './utils/stack'
 export { waterfallLayout } from './utils/waterfall'
 export type { WaterfallItem, WaterfallBar } from './utils/waterfall'
-export { treemapLayout } from './utils/treemap'
-export type { TreemapItem, TreemapRect } from './utils/treemap'
+export { treemapLayout, hierarchicalTreemapLayout } from './utils/treemap'
+export type { TreemapItem, TreemapRect, TreemapNode, TreemapGroup, TreemapLeafRect, HierarchicalTreemapResult } from './utils/treemap'
 export { interpolateColor, hexToRgb, rgbToHex } from './utils/colorInterpolate'
 
 // Radar geometry
 export { radarPoints, radarPath, radarGridPoints } from './paths/radar'
 
 // Color scale (value-based interpolation for heatmaps)
-export { interpolateColorScale, parseHexColor, isLightColor } from './utils/colorScale'
+export { interpolateColorScale, parseHexColor, isLightColor, divergingScale } from './utils/colorScale'
 export type { ColorStop } from './utils/colorScale'
 
 // Layouts

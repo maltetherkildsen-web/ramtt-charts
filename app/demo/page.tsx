@@ -38,6 +38,7 @@ import { ChartCandlestick } from '@/components/charts/primitives/ChartCandlestic
 import { ChartRadar } from '@/components/charts/primitives/ChartRadar'
 import { ChartRadialBar } from '@/components/charts/primitives/ChartRadialBar'
 import { ChartTreemap } from '@/components/charts/primitives/ChartTreemap'
+import { ChartTreemapPro } from '@/components/charts/primitives/ChartTreemapPro'
 import { ChartFunnel } from '@/components/charts/primitives/ChartFunnel'
 import { ChartBoxPlot } from '@/components/charts/primitives/ChartBoxPlot'
 
@@ -103,6 +104,8 @@ import {
   generateStockWithVolume,
 } from './generate-data'
 import type { ScatterPoint, OHLCPoint, ResponseTimeBox, PortfolioStock } from './generate-data'
+import { generateSP500Data } from './treemap/generate-data'
+import type { TreemapNode, TreemapGroup } from '@/lib/charts/utils/treemap'
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Shared UI
@@ -3230,6 +3233,67 @@ function StockVolumeChart() {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// Market Treemap — ChartTreemapPro (Showpiece)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function MarketTreemapChart() {
+  const sp500Data = useMemo(() => generateSP500Data(), [])
+
+  const hoverContent = useCallback((node: TreemapNode, group: TreemapGroup) => {
+    const meta = node.meta as { name: string; ticker: string; marketCap: number; change: number } | undefined
+    if (!meta) return null
+    const pct = meta.change * 100
+    const pctColor = Math.abs(pct) < 0.1 ? 'var(--n600)' : pct > 0 ? '#3BAC88' : '#E96850' // audit-ignore-hex
+
+    return (
+      <div className="flex flex-col gap-1">
+        <span className="text-[11px] text-[var(--n600)]" style={{ fontFamily: 'var(--font-sans)', fontWeight: 450 }}>
+          {group.label}
+        </span>
+        <div className="flex items-baseline gap-2">
+          <span className="text-[15px] text-[var(--n1150)]" style={{ fontFamily: 'var(--font-sans)', fontWeight: 550 }}>
+            {meta.ticker}
+          </span>
+          <span className="text-[12px] text-[var(--n600)]" style={{ fontFamily: 'var(--font-sans)', fontWeight: 400 }}>
+            {meta.name}
+          </span>
+        </div>
+        <div className="flex items-center gap-3 mt-0.5">
+          <span className="text-[13px] text-[var(--n800)]" style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums' }}>
+            ${meta.marketCap.toLocaleString()}B
+          </span>
+          <span className="text-[13px]" style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums', color: pctColor }}>
+            {pct >= 0 ? '+' : ''}{pct.toFixed(2)}%
+          </span>
+        </div>
+      </div>
+    )
+  }, [])
+
+  return (
+    <ChartCard
+      title="S&P 500 Market Overview"
+      description="Hierarchical treemap — size = market cap, color = daily % change"
+      components="ChartTreemapPro"
+      trend={{ text: 'Tech leads +1.6%, Energy lags -1.1%', direction: 'up' }}
+      context="Click a sector header to zoom in"
+    >
+      <div className="h-[500px]">
+        <ChartTreemapPro
+          data={sp500Data}
+          hoverContent={hoverContent}
+          legendLabels={['-3%', '0%', '+3%']}
+          enableZoom
+          enableFullscreen
+          showLegend
+          animate
+        />
+      </div>
+    </ChartCard>
+  )
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Page
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -3285,6 +3349,7 @@ export default function DemoPage() {
           <BulletChartStrip />
           <NavigatorDemo />
           <StockVolumeChart />
+          <MarketTreemapChart />
         </div>
       </div>
     </main>

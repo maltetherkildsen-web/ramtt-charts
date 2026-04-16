@@ -318,19 +318,29 @@ p, li, dd {
   --duration-normal: 400ms;
   --duration-slow: 800ms;
   --duration-draw: 1200ms;
+
+  /* Heatmap / treemap diverging scale — vivid, saturated */
+  --heatmap-negative-strong: #ef4444;
+  --heatmap-negative-medium: #f8a0a0;
+  --heatmap-negative-weak: #fde2e2;
+  --heatmap-neutral: var(--n400);
+  --heatmap-positive-weak: #d5f5dc;
+  --heatmap-positive-medium: #6ee07b;
+  --heatmap-positive-strong: #22c55e;
+
+  /* Additional easing (Perplexity-inspired) */
+  --ease-out-soft: cubic-bezier(.36, 1.3, .64, 1);
+  --ease-in-out-quart: cubic-bezier(.76, 0, .24, 1);
+  --ease-out-quint: cubic-bezier(.22, 1, .36, 1);
 }
 
 /* ─── Chart fullscreen ─── */
 :fullscreen {
   background: var(--bg);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-}
-
-:fullscreen > * {
-  flex: 1;
-  min-height: 0;
+  padding: 16px;
+  width: 100vw !important;
+  height: 100vh !important;
+  box-sizing: border-box;
 }
 
 /* Non-dialog fullscreen backdrop (chart fullscreen) */
@@ -544,6 +554,11 @@ dialog[open] {
 @keyframes ramtt-cell-fade {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes ramtt-treemap-block-in {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 @keyframes ramtt-axis-fade-x {

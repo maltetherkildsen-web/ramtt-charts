@@ -99,3 +99,48 @@ export function isLightColor(color: string): boolean {
   const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
   return luminance > 0.55
 }
+
+/**
+ * Diverging color scale — maps a value in [-1, +1] to a three-stop
+ * color gradient: negative → neutral → positive.
+ *
+ * Uses RGB interpolation. Suitable for treemaps, heatmaps, and any
+ * visualization with a meaningful midpoint.
+ *
+ * @param value   Number in [-1, +1]. Clamped to range.
+ * @param colors  Tuple of [negative, neutral, positive] hex colors.
+ * @returns       CSS hex color string.
+ *
+ * @example
+ * divergingScale(-0.5, ['#a23544', '#F2F0EA', '#016b1d'])
+ * // Returns a color halfway between red and neutral
+ */
+export function divergingScale(
+  value: number,
+  colors: [string, string, string],
+): string {
+  const v = Math.max(-1, Math.min(1, value))
+  const [negColor, midColor, posColor] = colors
+
+  const negRgb = parseHexColor(negColor)
+  const midRgb = parseHexColor(midColor)
+  const posRgb = parseHexColor(posColor)
+
+  let r: number, g: number, b: number
+
+  if (v <= 0) {
+    // Interpolate negative → neutral (t goes from 0 at -1 to 1 at 0)
+    const t = v + 1 // maps [-1, 0] → [0, 1]
+    r = Math.round(negRgb.r + (midRgb.r - negRgb.r) * t)
+    g = Math.round(negRgb.g + (midRgb.g - negRgb.g) * t)
+    b = Math.round(negRgb.b + (midRgb.b - negRgb.b) * t)
+  } else {
+    // Interpolate neutral → positive (t goes from 0 at 0 to 1 at +1)
+    const t = v
+    r = Math.round(midRgb.r + (posRgb.r - midRgb.r) * t)
+    g = Math.round(midRgb.g + (posRgb.g - midRgb.g) * t)
+    b = Math.round(midRgb.b + (posRgb.b - midRgb.b) * t)
+  }
+
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+}

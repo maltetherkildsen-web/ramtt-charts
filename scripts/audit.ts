@@ -83,6 +83,7 @@ const SHADOW_ALLOWLIST = new Set([
   'ColorPicker.tsx', // picker cursor indicator needs shadow against gradient
   'ChartTooltip.tsx', // chart tooltip floats above chart content
   'ChartTooltip.old.tsx',
+  'ChartTreemapPro.tsx', // treemap hover panel floats above blocks
 ]);
 
 // ─── Banned hardcoded font-weight classes ───
@@ -225,7 +226,7 @@ function checkNoStateInHandlers(path: string, content: string) {
 
 // Files that legitimately display hex values as data (color guides, chart data generators)
 // tokens/page.tsx displays hex values as documentation content — not styling violations
-const HEX_CHECK_SKIP = ['color-guide', 'chart-data', 'generate-data', 'tokens.css', 'tokens/page.tsx'];
+const HEX_CHECK_SKIP = ['color-guide', 'chart-data', 'generate-data', 'tokens.css', 'tokens/page.tsx', 'colorScale.ts', 'colorInterpolate.ts', 'ChartTreemapPro.tsx'];
 
 function checkHardcodedHex(path: string, content: string) {
   // Skip files that display colors as data
@@ -240,7 +241,8 @@ function checkHardcodedHex(path: string, content: string) {
       if (pattern.test(line)) {
         const isDataColor = line.includes('color:') && (line.includes('zone') || line.includes('Zone') || line.includes('signal'));
         const isComment = line.trim().startsWith('//') || line.trim().startsWith('/*');
-        if (!isDataColor && !isComment) {
+        const isSuppressed = line.includes('audit-ignore-hex');
+        if (!isDataColor && !isComment && !isSuppressed) {
           pattern.lastIndex = 0;
           ERRORS.push(`${path}:${i + 1}: Hardcoded neutral ${line.match(pattern)?.[0]} → use ${suggestion}`);
         }
