@@ -38,6 +38,18 @@ export interface ChartRadarProps {
   size?: number // Width & height in px. Default: 280
   rings?: number // Number of concentric grid rings. Default: 5
   showValues?: boolean // Show numeric values at each axis tip
+  /** Grid shape: 'circle' (concentric circles) or 'polygon' (concentric polygons). Default: 'circle'. */
+  gridType?: 'polygon' | 'circle'
+  /** Whether to show grid rings. Default: true. */
+  showGrid?: boolean
+  /** Whether to show dots at vertices. Default: true. */
+  showDots?: boolean
+  /** Fill opacity for series polygons (0-1). Default: 0.12. Overridden by className fill. */
+  fillOpacity?: number
+  /** Stroke width for series polygons. Default: 1.5. */
+  strokeWidth?: number
+  /** Custom label renderer. Receives dimension name, index, and value of first series. */
+  renderLabel?: (dimension: string, index: number, value: number) => React.ReactNode
   className?: string
   /** Entry animation. Default: true. */
   animate?: AnimateConfig
@@ -80,6 +92,12 @@ export function ChartRadar({
   size = 280,
   rings = 5,
   showValues = false,
+  gridType = 'circle',
+  showGrid = true,
+  showDots = true,
+  fillOpacity,
+  strokeWidth: strokeWidthProp,
+  renderLabel,
   className,
   animate = true,
 }: ChartRadarProps) {
@@ -260,19 +278,35 @@ export function ChartRadar({
       className={cn(className)}
       shapeRendering="geometricPrecision"
     >
-      {/* Grid rings (circular) */}
-      {gridRadii.map((r, i) => (
-        <circle
-          key={`ring-${i}`}
-          cx={cx}
-          cy={cy}
-          r={r}
-          fill="none"
-          stroke="var(--n400)"
-          strokeWidth={0.5}
-          opacity={0.3}
-        />
-      ))}
+      {/* Grid rings */}
+      {showGrid && gridRadii.map((r, i) => {
+        if (gridType === 'polygon') {
+          const pts = radarGridPoints(n, cx, cy, r)
+          const d = radarPath(pts)
+          return (
+            <path
+              key={`ring-${i}`}
+              d={d}
+              fill="none"
+              stroke="var(--n400)"
+              strokeWidth={0.5}
+              opacity={0.3}
+            />
+          )
+        }
+        return (
+          <circle
+            key={`ring-${i}`}
+            cx={cx}
+            cy={cy}
+            r={r}
+            fill="none"
+            stroke="var(--n400)"
+            strokeWidth={0.5}
+            opacity={0.3}
+          />
+        )
+      })}
 
       {/* Axis lines (spokes) */}
       {axisEnds.map(([x, y], i) => (
@@ -293,6 +327,28 @@ export function ChartRadar({
       {/* Dimension labels */}
       {labelPositions.map(([x, y], i) => {
         const angle = (Math.PI * 2 * i) / n - Math.PI / 2
+        if (renderLabel) {
+          const firstValue = series[0]?.values[i] ?? 0
+          return (
+            <foreignObject
+              key={`label-${i}`}
+              x={x - 50}
+              y={y - 12}
+              width={100}
+              height={24}
+              style={{ overflow: 'visible' }}
+            >
+              <div style={{
+                display: 'flex',
+                justifyContent: textAnchor(angle) === 'start' ? 'flex-start' : textAnchor(angle) === 'end' ? 'flex-end' : 'center',
+                alignItems: 'center',
+                height: '100%',
+              }}>
+                {renderLabel(dimensions[i], i, firstValue)}
+              </div>
+            </foreignObject>
+          )
+        }
         return (
           <text
             key={`label-${i}`}
@@ -302,7 +358,7 @@ export function ChartRadar({
             dominantBaseline={dominantBaseline(angle)}
             fill="var(--n800)"
             fontSize={12}
-            style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 450 }}
+            style={{ fontFamily: "var(--font-sans)", fontWeight: 450 }}
           >
             {dimensions[i]}
           </text>
@@ -326,7 +382,7 @@ export function ChartRadar({
                 fill="var(--n800)"
                 fontSize={10}
                 style={{
-                  fontFamily: "'Satoshi', sans-serif",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 550,
                   fontVariantNumeric: 'tabular-nums',
                 }}
@@ -345,15 +401,16 @@ export function ChartRadar({
           ref={(el) => { seriesPathRefs.current[i] = el }}
           d={d}
           className={s.className}
-          strokeWidth={1.5}
+          strokeWidth={strokeWidthProp ?? 1.5}
           strokeLinejoin="round"
           strokeDasharray={s.dashed ? '4 4' : undefined}
+          fillOpacity={fillOpacity}
           style={anim.enabled ? { opacity: 0 } : undefined}
         />
       ))}
 
       {/* Series dots */}
-      {seriesData.map(({ dots, series: s }, si) => (
+      {showDots && seriesData.map(({ dots, series: s }, si) => (
         <g key={`dots-${si}`} ref={(el) => { dotGroupRefs.current[si] = el }}>
           {dots.map(([dx, dy], di) => (
             <circle
@@ -411,7 +468,7 @@ export function ChartRadar({
                   y={10}
                   fill="var(--n800)"
                   fontSize={12}
-                  style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+                  style={{ fontFamily: "var(--font-sans)", fontWeight: 400 }}
                 >
                   {s.label}
                 </text>

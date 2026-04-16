@@ -41,6 +41,10 @@ export interface ChartRadialBarProps {
   trackWidth?: number
   /** Gap between rings in px. Default 6. */
   gap?: number
+  /** Whether to show rounded end caps. Default: true. */
+  showCaps?: boolean
+  /** Custom React content rendered in the center. Overrides default center text. */
+  centerContent?: React.ReactNode
   /** Tailwind classes on the wrapper. */
   className?: string
 }
@@ -52,6 +56,8 @@ export function ChartRadialBar({
   size = 240,
   trackWidth = 12,
   gap = 6,
+  showCaps = true,
+  centerContent,
   className,
 }: ChartRadialBarProps) {
   const cx = size / 2
@@ -170,56 +176,85 @@ export function ChartRadialBar({
           {ring.hasFill && (
             <>
               <path d={ring.fillD} fill={ring.item.color} />
-              {/* Round end-caps */}
-              <circle
-                cx={ring.startCap.x}
-                cy={ring.startCap.y}
-                r={ring.startCap.r}
-                fill={ring.item.color}
-              />
-              <circle
-                cx={ring.endCap.x}
-                cy={ring.endCap.y}
-                r={ring.endCap.r}
-                fill={ring.item.color}
-              />
+              {showCaps && (
+                <>
+                  <circle
+                    cx={ring.startCap.x}
+                    cy={ring.startCap.y}
+                    r={ring.startCap.r}
+                    fill={ring.item.color}
+                  />
+                  <circle
+                    cx={ring.endCap.x}
+                    cy={ring.endCap.y}
+                    r={ring.endCap.r}
+                    fill={ring.item.color}
+                  />
+                </>
+              )}
             </>
           )}
         </g>
       ))}
 
-      {/* Center text */}
-      <text
-        ref={centerNameRef}
-        x={cx}
-        y={cy - 14}
-        textAnchor="middle"
-        fill="var(--n600)"
-        fontSize={10}
-        style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, pointerEvents: 'none' }}
-      >
-        Progress
-      </text>
-      <text
-        ref={centerValueRef}
-        x={cx}
-        y={cy + 6}
-        textAnchor="middle"
-        fill="var(--n1150)"
-        fontSize={22}
-        style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums', pointerEvents: 'none' }}
-      >
-        {totalPct}%
-      </text>
-      <text
-        ref={centerPctRef}
-        x={cx}
-        y={cy + 22}
-        textAnchor="middle"
-        fill="var(--n600)"
-        fontSize={11}
-        style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums', pointerEvents: 'none' }}
-      />
+      {/* Center content — custom React node via foreignObject */}
+      {centerContent && (
+        <foreignObject
+          x={cx - 60}
+          y={cy - 30}
+          width={120}
+          height={60}
+          style={{ pointerEvents: 'none' }}
+        >
+          <div style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+            {centerContent}
+          </div>
+        </foreignObject>
+      )}
+
+      {/* Default center text (when no centerContent) */}
+      {!centerContent && (
+        <>
+          <text
+            ref={centerNameRef}
+            x={cx}
+            y={cy - 14}
+            textAnchor="middle"
+            fill="var(--n600)"
+            fontSize={10}
+            style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, pointerEvents: 'none' }}
+          >
+            Progress
+          </text>
+          <text
+            ref={centerValueRef}
+            x={cx}
+            y={cy + 6}
+            textAnchor="middle"
+            fill="var(--n1150)"
+            fontSize={22}
+            style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums', pointerEvents: 'none' }}
+          >
+            {totalPct}%
+          </text>
+          <text
+            ref={centerPctRef}
+            x={cx}
+            y={cy + 22}
+            textAnchor="middle"
+            fill="var(--n600)"
+            fontSize={11}
+            style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums', pointerEvents: 'none' }}
+          />
+        </>
+      )}
     </svg>
   )
 }
