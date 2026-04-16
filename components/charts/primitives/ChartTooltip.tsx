@@ -40,6 +40,8 @@ export interface TooltipSeriesConfig {
   values: readonly number[]
   /** Value formatter, e.g. (v) => `$${v.toLocaleString()}` */
   format?: (v: number) => string
+  /** Optional icon/emoji shown before the label. */
+  icon?: string
 }
 
 export interface TooltipPayload {
@@ -87,6 +89,17 @@ export interface ChartTooltipProps {
    */
   indicator?: 'line' | 'dot' | 'none'
 
+  /**
+   * Marker style next to each series label INSIDE the tooltip body.
+   * 'dot' = small colored circle (default)
+   * 'line' = small colored line (12px × 2px)
+   * 'dashed' = small dashed colored line
+   */
+  tooltipIndicator?: 'dot' | 'line' | 'dashed'
+
+  /** Show a total row summing all series at the bottom. Default: false. */
+  showTotal?: boolean
+
   /** Color for the crosshair dot. Default: '#3b82f6' */
   dotColor?: string
 
@@ -112,6 +125,8 @@ export function ChartTooltip({
   labelFn,
   formatValue,
   indicator = 'line',
+  tooltipIndicator = 'dot',
+  showTotal = false,
   dotColor = '#3b82f6',
   lineColor = '#71717a',
   className,
@@ -216,18 +231,47 @@ export function ChartTooltip({
       if (series && series.length > 0) {
         // Multi-series mode
         let html = ''
+        let total = 0
+
         for (const s of series) {
           const val = s.values[idx]
           if (val === undefined) continue
+          total += val
           const formatted = s.format ? s.format(val) : String(val)
+
+          // Indicator marker HTML
+          let markerHtml: string
+          if (tooltipIndicator === 'line') {
+            markerHtml = `<span style="width:12px;height:2px;background:${s.color};flex-shrink:0;border-radius:1px"></span>`
+          } else if (tooltipIndicator === 'dashed') {
+            markerHtml = `<span style="width:12px;height:0;border-top:2px dashed ${s.color};flex-shrink:0"></span>`
+          } else {
+            markerHtml = `<span style="width:6px;height:6px;border-radius:50%;background:${s.color};flex-shrink:0"></span>`
+          }
+
+          // Icon (emoji/unicode before label)
+          const iconHtml = s.icon ? `<span style="font-size:12px;line-height:1">${s.icon}</span>` : ''
+
           html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">`
           html += `<span style="display:flex;align-items:center;gap:6px">`
-          html += `<span style="width:6px;height:6px;border-radius:50%;background:${s.color};flex-shrink:0"></span>`
+          html += markerHtml
+          html += iconHtml
           html += `<span style="font-family:var(--font-sans);font-size:12px;font-weight:400;color:var(--n800)">${s.label}</span>`
           html += `</span>`
           html += `<span style="font-family:var(--font-sans);font-size:12px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--n1150)">${formatted}</span>`
           html += `</div>`
         }
+
+        // Total row
+        if (showTotal && series.length > 1) {
+          const totalFormat = series[0].format
+          const formattedTotal = totalFormat ? totalFormat(total) : String(total)
+          html += `<div style="margin-top:4px;padding-top:4px;border-top:0.5px solid var(--n300);display:flex;align-items:center;justify-content:space-between;gap:12px">`
+          html += `<span style="font-family:var(--font-sans);font-size:12px;font-weight:450;color:var(--n800)">Total</span>`
+          html += `<span style="font-family:var(--font-sans);font-size:12px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--n1150)">${formattedTotal}</span>`
+          html += `</div>`
+        }
+
         bodyRef.current.innerHTML = html
       } else {
         // Single-series mode
@@ -236,7 +280,7 @@ export function ChartTooltip({
         bodyRef.current.innerHTML = `<span style="font-family:var(--font-sans);font-size:14px;font-weight:550;font-variant-numeric:tabular-nums;color:var(--n1150)">${formatted}</span>`
       }
     }
-  }, [children, data, series, labelFn, formatValue])
+  }, [children, data, series, labelFn, formatValue, tooltipIndicator, showTotal])
 
   // ─── Tooltip positioning ───
 
