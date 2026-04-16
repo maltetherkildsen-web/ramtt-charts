@@ -1,7 +1,7 @@
 {
   "name": "@ramtt/ui",
   "version": "0.1.0",
-  "description": "18 accessible React UI components with RAMTT design tokens. Zero dependencies. Tailwind-native.",
+  "description": "112 accessible React UI components with RAMTT design tokens. Zero dependencies. Tailwind-native.",
   "license": "MIT OR Apache-2.0",
   "author": "Malte Therkildsen",
   "repository": {

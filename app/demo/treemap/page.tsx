@@ -100,7 +100,7 @@ export default function TreemapDemoPage() {
               enableZoom
               enableFullscreen
               showLegend
-              animate
+              animate={false}
             />
           </div>
         </section>

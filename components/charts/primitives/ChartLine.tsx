@@ -117,13 +117,19 @@ export function ChartLine({
 
   // Animation
   const pathRef = useRef<SVGPathElement>(null)
+  const hasAnimatedRef = useRef(false)
   const anim = resolveAnimate(animate, { duration: 1200, delay: 0, easing: EASE_OUT_EXPO, mode: 'draw' })
 
-  // stroke-dasharray draw-in (mode: 'draw')
+  // stroke-dasharray draw-in (mode: 'draw') — runs ONCE on mount only.
+  // Re-running on every `d` change would retrigger the animation during zoom/pan,
+  // producing a flicker as the line redraws from scratch on each slice update.
   useEffect(() => {
-    if (!anim.enabled || anim.mode !== 'draw' || !pathRef.current) return
+    if (!anim.enabled || anim.mode !== 'draw') return
+    if (hasAnimatedRef.current || !pathRef.current || !d) return
     const path = pathRef.current
     const length = path.getTotalLength()
+    if (length === 0) return
+    hasAnimatedRef.current = true
 
     path.style.strokeDasharray = `${length}`
     path.style.strokeDashoffset = `${length}`
@@ -132,11 +138,13 @@ export function ChartLine({
     path.style.transition = `stroke-dashoffset ${anim.duration}ms ${anim.easing} ${anim.delay}ms`
     path.style.strokeDashoffset = '0'
 
-    return () => {
+    const handleEnd = () => {
       path.style.strokeDasharray = ''
       path.style.strokeDashoffset = ''
       path.style.transition = ''
+      path.removeEventListener('transitionend', handleEnd)
     }
+    path.addEventListener('transitionend', handleEnd)
   }, [d, anim.enabled, anim.mode, anim.duration, anim.delay, anim.easing])
 
   // Progressive clip-path reveal style (mode: 'progressive')

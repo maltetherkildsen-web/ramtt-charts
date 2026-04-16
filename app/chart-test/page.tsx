@@ -64,7 +64,7 @@ const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'ele
 const CHART_LABELS: Record<ChartKey, string> = {
   power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', elevation: 'Elevation', torque: 'Torque',
 }
-const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation']
+const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
   power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 80,

@@ -82,7 +82,6 @@ const SHADOW_ALLOWLIST = new Set([
   'Select.tsx',
   'ColorPicker.tsx', // picker cursor indicator needs shadow against gradient
   'ChartTooltip.tsx', // chart tooltip floats above chart content
-  'ChartTooltip.old.tsx',
   'ChartTreemapPro.tsx', // treemap hover panel floats above blocks
 ]);
 

@@ -254,9 +254,26 @@ export function ChartTreemapPro({
     }
   }, [enableFullscreen])
 
-  // ─── Entry animation key ───
-  const animationId = useRef(0)
-  useEffect(() => { animationId.current += 1 }, [zoomedGroupId])
+  // ─── Entry animation window ───
+  // Apply the block-in animation style ONLY during the initial entry window.
+  // After that, re-renders (fullscreen resize, hover, zoom) must not re-emit
+  // the `animation` style — otherwise the keyframe replays, producing a
+  // full-viewport "blocks fly in" effect on every layout change.
+  const [isEntering, setIsEntering] = useState(animate)
+  useEffect(() => {
+    if (!animate) return
+    // 300ms duration + 500ms max staggered delay + 50ms buffer
+    const t = setTimeout(() => setIsEntering(false), 900)
+    return () => clearTimeout(t)
+  }, [animate])
+
+  // Replay the block-in once when the user drills into a group.
+  useEffect(() => {
+    if (!animate) return
+    setIsEntering(true)
+    const t = setTimeout(() => setIsEntering(false), 900)
+    return () => clearTimeout(t)
+  }, [zoomedGroupId, animate])
 
   // ─── Render ───
   if (!layoutData || svgWidth <= 0 || svgHeight <= 0) {
@@ -335,13 +352,15 @@ export function ChartTreemapPro({
           const tier = sizeTier(iw, ih)
           const ts = TIER_STYLES[tier]
 
-          const animDelay = animate ? `${Math.min(idx * 12, 500)}ms` : '0ms'
+          const animDelay = isEntering ? `${Math.min(idx * 12, 500)}ms` : '0ms'
 
           return (
             <g
               key={leaf.node.id}
               style={{
-                animation: animate ? `ramtt-treemap-block-in 300ms var(--ease-out-expo) ${animDelay} both` : undefined,
+                transformBox: 'fill-box',
+                transformOrigin: 'center',
+                animation: isEntering ? `ramtt-treemap-block-in 300ms var(--ease-out-expo) ${animDelay} both` : undefined,
               }}
               onPointerEnter={(e) => handleLeafEnter(leaf, group, e)}
               onPointerMove={handleLeafMove}

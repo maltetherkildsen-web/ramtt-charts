@@ -167,6 +167,10 @@ export type { PromoCardProps } from './PromoCard';
 export { ActiveTask } from './ActiveTask';
 export type { ActiveTaskProps, ActiveTaskItemProps } from './ActiveTask';
 
+// ─── Components (Wave 13 — Animation Utilities) ───
+export { AnimatedPanel } from './AnimatedPanel';
+export type { AnimatedPanelProps } from './AnimatedPanel';
+
 // ─── Utilities (for building custom components with the same system) ───
 export { cn, FONT, WEIGHT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE, BODY_STYLE, QUIET_STYLE, UNIT_STYLE } from '@/lib/ui';
 export { BORDER, RADIUS, SIZE_HEIGHTS, SIZE_TEXT, SIZE_PADDING_X } from '@/lib/ui';

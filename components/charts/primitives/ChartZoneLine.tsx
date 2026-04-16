@@ -142,12 +142,18 @@ export function ChartZoneLine({
 
   // Animation
   const pathRef = useRef<SVGPathElement>(null)
+  const hasAnimatedRef = useRef(false)
   const anim = resolveAnimate(animate, { duration: 1200, delay: 0, easing: EASE_OUT_EXPO })
 
+  // Mount-only draw-in. Re-running on `d` changes causes the line to redraw
+  // from scratch during zoom/pan, producing a flicker.
   useEffect(() => {
-    if (!anim.enabled || !pathRef.current) return
+    if (!anim.enabled) return
+    if (hasAnimatedRef.current || !pathRef.current || !d) return
     const path = pathRef.current
     const length = path.getTotalLength()
+    if (length === 0) return
+    hasAnimatedRef.current = true
 
     path.style.strokeDasharray = `${length}`
     path.style.strokeDashoffset = `${length}`
@@ -156,11 +162,13 @@ export function ChartZoneLine({
     path.style.transition = `stroke-dashoffset ${anim.duration}ms ${anim.easing} ${anim.delay}ms`
     path.style.strokeDashoffset = '0'
 
-    return () => {
+    const handleEnd = () => {
       path.style.strokeDasharray = ''
       path.style.strokeDashoffset = ''
       path.style.transition = ''
+      path.removeEventListener('transitionend', handleEnd)
     }
+    path.addEventListener('transitionend', handleEnd)
   }, [d, anim.enabled, anim.duration, anim.delay, anim.easing])
 
   if (!d) return null

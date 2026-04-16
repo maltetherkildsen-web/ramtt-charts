@@ -4700,7 +4700,22 @@ function FilterPillsDemo() {
 export default function UIDemo() {
   return (
     <ToastProvider>
-      <main className="min-h-screen bg-[var(--bg)]">
+      <main className="min-h-screen bg-[var(--bg)]" style={{
+        '--accent': '#4D49FC',
+        '--accent-pressed': '#1a17a8',
+        '--accent-hover': '#3330d4',
+        '--accent-toggle': '#4D49FC',
+        '--accent-text': '#2725a8',
+        '--accent-icon': '#4D49FC',
+        '--accent-icon-light': '#a6a5de',
+        '--accent-icon-lightest': '#cdcce9',
+        '--accent-border': '#d0cfe5',
+        '--accent-selection': '#c3c2e1',
+        '--accent-wash': '#f0f0f5',
+        '--accent-badge': '#f6f6f8',
+        '--accent-soft': '#4D49FC20',
+        '--accent-light': '#4D49FC30',
+      } as React.CSSProperties}>
         <div className={cn(LAYOUT.maxWidth, 'mx-auto', LAYOUT.pagePadding, 'py-12')}>
           {/* Header */}
           <header className="mb-10">
