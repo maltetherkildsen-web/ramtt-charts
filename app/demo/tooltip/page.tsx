@@ -219,6 +219,10 @@ function FormatterTooltipChart() {
 // 5. Tooltip — Icons (emoji next to series names)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+// Inline SVG markup for tooltip icons (innerHTML-compatible, from @ramtt/icons light)
+const ICON_RUNNING = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="15" cy="4" r="2"/><path d="M7 22l4-7"/><path d="M11 15l4-2 2 5"/><path d="M11 15l-3-4 4-3"/><path d="M4 17l4.5-2"/><path d="M16 9l-4 4"/></svg>'
+const ICON_SWIMMING = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><path d="M2 18c1-1 2-1.5 3.5-1.5S8 18 9 18s2-.5 3.5-1.5S15 15 16.5 16.5 20 18 22 18"/><path d="M2 22c1-1 2-1.5 3.5-1.5S8 22 9 22s2-.5 3.5-1.5S15 19 16.5 20.5 20 22 22 22"/><circle cx="12" cy="7" r="2"/><path d="M8 14l2-4h4l-1.5-3"/></svg>'
+
 function IconsTooltipChart() {
   return (
     <ChartCard
@@ -229,8 +233,8 @@ function IconsTooltipChart() {
       <BaseStackedChart
         tooltipProps={{
           series: [
-            { label: 'Running', color: CHART_1, values: runningValues, icon: '\u{1F3C3}' },
-            { label: 'Swimming', color: CHART_2, values: swimmingValues, icon: '\u{1F3CA}' },
+            { label: 'Running', color: CHART_1, values: runningValues, icon: ICON_RUNNING },
+            { label: 'Swimming', color: CHART_2, values: swimmingValues, icon: ICON_SWIMMING },
           ],
           labelFn: (i: number) => DAY_LABELS[i] ?? '',
           indicator: 'line',

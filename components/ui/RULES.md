@@ -81,6 +81,14 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Accent fill: primary CTA → Button primary uses accent tokens
 - Sand hover (--n200): rows, ghost buttons → use HOVER_SAND
 
+## Icons
+- **ALWAYS** use icons from `components/icons/` — our own SVG icon library
+- **NEVER** use emoji, Unicode symbols, or any third-party icon library (Lucide, Heroicons, Remix Icons, Font Awesome, etc.)
+- Import from `components/icons/light/` (light variant) as default
+- Size: 16px or 18px depending on context (16px inline/tight, 18px standalone/nav)
+- Icons use `currentColor` — color is controlled by the parent's text color
+- stroke-width: 1.25
+
 ## Transitions
 - NEVER use `transition-all` — specify exact properties
 - Use TRANSITION.colors, TRANSITION.background, TRANSITION.opacity, TRANSITION.transform

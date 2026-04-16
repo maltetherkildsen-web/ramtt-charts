@@ -119,6 +119,18 @@ Every new primitive, math utility, or demo chart MUST follow these rules from th
 
 ---
 
+## Icons
+
+### @ramtt/icons ONLY
+- **ALWAYS** use icons from `components/icons/` — our own SVG icon library
+- **NEVER** use emoji, Unicode symbols, or any third-party icon library (Lucide, Heroicons, Remix Icons, Font Awesome, etc.)
+- Import from `components/icons/light/` (light variant) as default
+- Size: 16px or 18px depending on context (16px inline/tight, 18px standalone/nav)
+- Icons use `currentColor` — color is controlled by the parent's text color
+- stroke-width: 1.25
+
+---
+
 ## Visual Rules
 
 ### Axes

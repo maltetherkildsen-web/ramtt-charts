@@ -250,7 +250,7 @@ export function ChartTooltip({
           }
 
           // Icon (emoji/unicode before label)
-          const iconHtml = s.icon ? `<span style="font-size:12px;line-height:1">${s.icon}</span>` : ''
+          const iconHtml = s.icon ? `<span style="display:inline-flex;align-items:center;flex-shrink:0">${s.icon}</span>` : ''
 
           html += `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">`
           html += `<span style="display:flex;align-items:center;gap:6px">`
