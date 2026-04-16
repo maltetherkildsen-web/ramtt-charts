@@ -1228,10 +1228,14 @@ function MetricsTiers({
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
   const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
 
+  // Fallback: if FIT file lacks total_calories, estimate from mechanical energy.
+  // Cycling heuristic: 1 kJ work ≈ 1 kcal metabolic energy at ~24% efficiency.
+  const effectiveCalories = totalCalories > 0 ? totalCalories : Math.round(energyKJ)
+
   // Energy replacement %
   const kcalIngested = choIntake * 4
-  const energyReplacement = totalCalories > 0 && choIntake > 0
-    ? Math.round((kcalIngested / totalCalories) * 100) : null
+  const energyReplacement = effectiveCalories > 0 && choIntake > 0
+    ? Math.round((kcalIngested / effectiveCalories) * 100) : null
   const replacementColor = energyReplacement !== null
     ? energyReplacement < 30 ? '#ef4444'
       : energyReplacement < 50 ? '#f97316'
@@ -1251,7 +1255,7 @@ function MetricsTiers({
         <KS label="Distance" value={distanceKm > 0 ? `${distanceKm}` : '—'} unit={distanceKm > 0 ? 'km' : undefined} />
         {totalAscent > 0 && <KS label="Ascent" value={`${totalAscent}`} unit="m" sub={`↓ ${totalDescent}m`} />}
         {energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" sub={`${avgKjPerMin} kJ/min`} />}
-        {totalCalories > 0 && <KS label="Calories" value={`${totalCalories}`} unit="kcal" />}
+        {effectiveCalories > 0 && <KS label="Calories" value={`${effectiveCalories}`} unit="kcal" sub={totalCalories === 0 ? 'est.' : undefined} />}
         {hasTorque && avgTorque > 0 && <KS label="Avg Torque" value={`${avgTorque}`} unit="Nm" />}
         <KS label="R-Score" value="—" unit="rS" sub="PL —" />
       </div>
@@ -1286,7 +1290,7 @@ function MetricsTiers({
           label="Energy replaced"
           value={energyReplacement !== null ? `${energyReplacement}` : '—'}
           unit={energyReplacement !== null ? '%' : undefined}
-          sub={energyReplacement !== null ? `${kcalIngested} of ${totalCalories} kcal` : undefined}
+          sub={energyReplacement !== null ? `${kcalIngested} of ${effectiveCalories} kcal` : undefined}
           progress={energyReplacement !== null ? energyReplacement : undefined}
           progressColor={replacementColor}
         />
