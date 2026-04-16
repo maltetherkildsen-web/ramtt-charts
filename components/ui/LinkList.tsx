@@ -34,7 +34,6 @@ const LinkList = forwardRef<HTMLUListElement, LinkListProps>(
               )}
               style={{
                 padding: '4px 8px 8px',
-                letterSpacing: '-0.02em',
                 textUnderlineOffset: '0.25em',
                 textDecorationThickness: '1px',
               }}

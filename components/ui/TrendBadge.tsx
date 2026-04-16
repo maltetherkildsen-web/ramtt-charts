@@ -40,13 +40,15 @@ export function TrendBadge({ period, value, className }: TrendBadgeProps) {
       <span className="text-[11px] font-[450] text-[var(--n800)]" style={{ fontFamily: 'var(--font-sans)' }}>
         {period}
       </span>
-      <span className={`text-[11px] ${colorClass}`}>{arrow}</span>
+      <span className={cn('text-[11px]', colorClass)}>{arrow}</span>
       <span
-        className={`text-[11px] font-[550] ${colorClass}`}
-        style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}
+        className={cn('text-[11px] font-[550] tabular-nums', colorClass)}
+        style={{ fontFamily: 'var(--font-sans)' }}
       >
         {formatted}
       </span>
     </span>
   )
 }
+
+TrendBadge.displayName = 'TrendBadge'

@@ -59,9 +59,10 @@ export function AccentPicker({ activeId, onSelect }: AccentPickerProps) {
                       )}
                       style={{
                         backgroundColor: accent.hex,
-                        boxShadow: isActive
-                          ? '0 0 0 2px var(--n1150), 0 0 0 3.5px rgba(255,255,255,0.9)'
-                          : 'none',
+                        outline: isActive
+                          ? '2px solid var(--n1150)'
+                          : '2px solid transparent',
+                        outlineOffset: '1.5px',
                       }}
                     >
                       {accent.suggested && (

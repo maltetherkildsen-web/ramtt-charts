@@ -93,7 +93,7 @@ function RadioItem({ value, label, description, disabled = false, className }: R
             'flex items-center justify-center rounded-full',
             'border-[0.5px]',
             TRANSITION.colors,
-            'peer-focus-visible:shadow-[0_0_0_2px_var(--n1050)]',
+            'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--n600)]',
             isSelected
               ? 'border-[var(--n1150)]'
               : 'border-[var(--n400)] bg-[var(--n50)] hover:border-[var(--n800)]',

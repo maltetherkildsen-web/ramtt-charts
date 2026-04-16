@@ -22,7 +22,7 @@ import {
   useMemo,
   type ReactNode,
 } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/ui'
 
 export interface VirtualListProps<T> {
   /** All items in the list. */

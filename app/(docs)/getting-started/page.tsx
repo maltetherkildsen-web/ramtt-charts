@@ -61,8 +61,7 @@ const satoshi = localFont({
 @theme {
   --font-sans: "Satoshi", system-ui, sans-serif;
   --font-label: "Satoshi", system-ui, sans-serif;
-  --color-canvas: #FAF9F5;
-  /* ... see globals.css for full theme */
+  /* ... see globals.css for full @theme tokens */
 }`}</DocCode>
       </DocSection>
 
@@ -87,7 +86,7 @@ import { FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE } from '@/lib/ui'`}</DocCod
             },
             {
               title: '0.5px hairline borders',
-              desc: 'Every border is 0.5px solid var(--n400). No 1px, no 2px (except underline tabs). No box-shadow for decoration — RAMTT is flat.',
+              desc: 'Every border is 0.5px solid var(--n400). No 1px, no 2px (except underline tabs). No decorative shadows — RAMTT is flat.',
             },
             {
               title: 'cursor: default everywhere',

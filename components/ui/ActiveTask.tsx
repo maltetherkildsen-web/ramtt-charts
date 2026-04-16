@@ -52,7 +52,7 @@ const ActiveTaskRoot = forwardRef<HTMLDivElement, ActiveTaskProps>(
           <span
             className={cn(
               FONT.body,
-              'text-[12px] uppercase tracking-wide text-[var(--n600)]',
+              'text-[12px] text-[var(--n600)]',
               WEIGHT.medium,
             )}
           >

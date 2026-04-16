@@ -28,12 +28,14 @@ export interface ChartPatternProps {
   opacity?: number
   /** Spacing between pattern units in px. Default: 16 */
   spacing?: number
+  className?: string
 }
 
 export function ChartPattern({
   variant = 'dots',
   opacity = 0.3,
   spacing = 16,
+  className,
 }: ChartPatternProps) {
   const { chartWidth, chartHeight } = useChart()
   const id = useId()
@@ -42,7 +44,7 @@ export function ChartPattern({
   if (variant === 'none') return null
 
   return (
-    <g>
+    <g className={className}>
       <defs>
         {variant === 'dots' && (
           <pattern id={patternId} width={spacing} height={spacing} patternUnits="userSpaceOnUse">

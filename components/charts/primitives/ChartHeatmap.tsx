@@ -85,7 +85,7 @@ export function ChartHeatmap({
   const cellColors = useMemo(() => {
     return data.map((row) =>
       row.map((val) => {
-        if (val === null) return '#E8E5DC' // --n400 equivalent for null
+        if (val === null) return 'var(--n400)'
         return interpolateColorScale(val, colorScale)
       }),
     )
@@ -276,7 +276,7 @@ export function ChartHeatmap({
             height={cs}
             rx={radius}
             ry={radius}
-            fill={cellColors[r]?.[c] ?? '#E8E5DC'}
+            fill={cellColors[r]?.[c] ?? 'var(--n400)'}
             style={anim.enabled
               ? { animation: `ramtt-cell-fade ${anim.duration}ms ${anim.easing} ${anim.delay + (r + c) * cellStagger}ms both` }
               : undefined
@@ -291,10 +291,10 @@ export function ChartHeatmap({
         data.map((row, r) =>
           row.map((val, c) => {
             if (val === null) return null
-            const cellColor = cellColors[r]?.[c] ?? '#E8E5DC'
-            const textColor = isLightColor(cellColor)
-              ? 'var(--n1150)'
-              : 'var(--n50)'
+            const cellColor = cellColors[r]?.[c] ?? 'var(--n400)'
+            const textColor = cellColor.startsWith('#') && !isLightColor(cellColor)
+              ? 'var(--n50)'
+              : 'var(--n1150)'
             return (
               <text
                 key={`v-${r}-${c}`}

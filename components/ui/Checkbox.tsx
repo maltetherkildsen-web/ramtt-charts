@@ -36,7 +36,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
             'flex items-center justify-center',
             'border-[0.5px] rounded-[3px]',
             TRANSITION.colors,
-            'peer-focus-visible:shadow-[0_0_0_2px_var(--n1050)]',
+            'peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--n600)]',
             checked || indeterminate
               ? 'bg-[var(--n1150)] border-[var(--n1150)]'
               : 'bg-[var(--n50)] border-[var(--n400)] hover:border-[var(--n800)]',

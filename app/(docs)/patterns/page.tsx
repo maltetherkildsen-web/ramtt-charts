@@ -130,12 +130,12 @@ import { FOCUS_WITHIN_RING } from '@/lib/ui'`}</DocCode>
           <p><code className="bg-[var(--n200)] px-1 py-0.5 rounded-[4px] text-[12px]">cursor: default</code> — everywhere, including buttons and links</p>
           <p><code className="bg-[var(--n200)] px-1 py-0.5 rounded-[4px] text-[12px]">cursor: text</code> — text inputs only</p>
           <p><code className="bg-[var(--n200)] px-1 py-0.5 rounded-[4px] text-[12px]">cursor: grab/grabbing</code> — drag handles only</p>
-          <p className="font-[550] text-[var(--n1150)] mt-3">Never cursor: pointer.</p>
+          <p className="font-[550] text-[var(--n1150)] mt-3">Never use pointer cursors.</p>
         </div>
       </DocSection>
 
       {/* ─── Transitions ─── */}
-      <DocSection title="Transitions" description="transition-all is banned. Always specify exact properties.">
+      <DocSection title="Transitions" description="The 'all' shorthand is banned. Always specify exact properties.">
         <DocCode>{`import { TRANSITION } from '@/lib/ui'
 
 TRANSITION.colors      // transition-colors duration-150
@@ -157,8 +157,8 @@ TRANSITION.transform   // transition-transform duration-150`}</DocCode>
 }`}</DocCode>
       </DocSection>
 
-      {/* ─── No box-shadow ─── */}
-      <DocSection title="No decorative shadows" description="RAMTT is flat. Box-shadow is only used for focus rings and validation rings.">
+      {/* ─── No decorative shadows ─── */}
+      <DocSection title="No decorative shadows" description="RAMTT is flat. Shadows are only used for focus rings and validation rings.">
         <div className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] space-y-1')}>
           <p>Cards separate by border only (0.5px --n400).</p>
           <p>Modals use ::backdrop with blur, not shadow.</p>

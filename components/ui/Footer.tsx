@@ -37,7 +37,6 @@ const Footer = forwardRef<HTMLElement, FooterProps>(
                   WEIGHT.strong,
                   'text-[18px] text-[var(--dark-text)]',
                 )}
-                style={{ letterSpacing: '-0.02em' }}
               >
                 RAMTT
               </span>

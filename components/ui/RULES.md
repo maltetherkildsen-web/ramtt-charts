@@ -112,6 +112,11 @@ Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui
 - Modal uses `::backdrop` with blur, not shadow
 - Dropdown and Toast rely on border/color contrast for separation
 
+### Shadow exceptions
+Overlay and floating components (FloatingPanel, CommandPalette, QuickSearch, FloatingToolbar,
+Modal, Drawer, Popover, Tooltip, Dropdown, ContextMenu, HoverCard, Combobox, Toast, ColorPicker)
+MAY use box-shadow for elevation. All other components must remain flat — no box-shadow.
+
 ## Vertical Rhythm
 - Section gaps use `gap` (flex/grid), never `margin-bottom`, to ensure consistent visual spacing
 - The standard section gap is `40px` (`gap-10`) via `LAYOUT.sectionGap`

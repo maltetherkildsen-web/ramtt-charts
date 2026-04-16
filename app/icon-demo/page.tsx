@@ -106,7 +106,7 @@ export default function IconDemoPage() {
         <Section title="Variant System">
           <div className="flex gap-8">
             <div className="space-y-2">
-              <span className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] uppercase tracking-wide')}>Line (default)</span>
+              <span className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)]')}>Line (default)</span>
               <div className="flex gap-3">
                 <IconCalendar size={24} />
                 <IconFuel size={24} />
@@ -115,7 +115,7 @@ export default function IconDemoPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <span className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] uppercase tracking-wide')}>Solid (active)</span>
+              <span className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)]')}>Solid (active)</span>
               <div className="flex gap-3">
                 <IconCalendarSolid size={24} />
                 <IconFuelSolid size={24} />
@@ -124,7 +124,7 @@ export default function IconDemoPage() {
               </div>
             </div>
             <div className="space-y-2">
-              <span className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)] uppercase tracking-wide')}>Duo (accent)</span>
+              <span className={cn(FONT.body, 'text-[11px] font-[550] text-[var(--n600)]')}>Duo (accent)</span>
               <div className="flex gap-3">
                 <IconCalendarDuo size={24} accent="var(--color-sig-power)" />
                 <IconFuelDuo size={24} accent="var(--color-sig-cho)" />

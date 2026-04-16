@@ -435,7 +435,6 @@ export function ChartRadar({
         background: 'var(--n50)',
         border: '0.5px solid var(--n400)',
         borderRadius: 8,
-        boxShadow: '0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
         padding: '8px 12px',
         willChange: 'left, opacity',
         transition: 'opacity 100ms ease-out, left 150ms cubic-bezier(0.16,1,0.3,1), top 150ms cubic-bezier(0.16,1,0.3,1)',

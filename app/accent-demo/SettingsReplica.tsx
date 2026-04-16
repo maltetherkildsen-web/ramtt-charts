@@ -130,7 +130,7 @@ function ContentCard({ children, className }: { children: React.ReactNode; class
 
 function IntegrationCards({ accent }: { accent: AccentDefinition }) {
   const isDark = needsDarkTextOnFill(accent.hex)
-  const fillText = isDark ? 'var(--n1150)' : '#FDFCFA'
+  const fillText = isDark ? 'var(--n1150)' : 'var(--n50)'
 
   return (
     <ContentCard>
@@ -447,8 +447,7 @@ function ComponentsShowcase({ accent }: { accent: AccentDefinition }) {
               'outline-none',
             )}
             style={{
-              border: '0.5px solid var(--accent)',
-              boxShadow: '0 0 0 2px var(--accent-wash)',
+              border: '1.5px solid var(--accent)',
               ...accentTransition,
             }}
           />
@@ -719,7 +718,7 @@ function TokenSwatchGrid({ tokens }: { tokens: AccentTokens }) {
         {SWATCH_TOKENS.map(({ key, label }) => {
           const color = tokens[key]
           const isDark = needsDarkTextOnFill(color)
-          const textColor = isDark ? '#131211' : '#FDFCFA'
+          const textColor = isDark ? 'var(--n1150)' : 'var(--n50)'
           return (
             <div key={key} className="flex flex-col gap-1">
               <div

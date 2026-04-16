@@ -55,7 +55,6 @@ export function ToggleSwitch({ checked, onChange, label, description }: ToggleSw
             width: SWITCH_THUMB.size,
             height: SWITCH_THUMB.size,
             backgroundColor: '#fff',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.12)',
             transform: checked
               ? `translateX(${SWITCH_TRACK.width - SWITCH_THUMB.size - SWITCH_THUMB.inset}px)`
               : `translateX(${SWITCH_THUMB.inset}px)`,
@@ -105,7 +104,7 @@ interface AccentBadgeProps {
 
 export function AccentBadge({ children, variant, accentHex }: AccentBadgeProps) {
   const isDark = needsDarkTextOnFill(accentHex)
-  const fillText = isDark ? 'var(--n1150)' : '#FDFCFA'
+  const fillText = isDark ? 'var(--n1150)' : 'var(--n50)'
 
   const styles: Record<string, React.CSSProperties> = {
     filled: {
@@ -153,7 +152,7 @@ interface AccentButtonProps {
 
 export function AccentButton({ children, variant, accentHex, size = 'md' }: AccentButtonProps) {
   const isDark = needsDarkTextOnFill(accentHex)
-  const fillText = isDark ? 'var(--n1150)' : '#FDFCFA'
+  const fillText = isDark ? 'var(--n1150)' : 'var(--n50)'
 
   const height = size === 'sm' ? 'h-7' : 'h-8'
   const px = size === 'sm' ? 'px-2.5' : 'px-3.5'
@@ -220,7 +219,7 @@ interface DietPillProps {
 
 export function DietPill({ label, selected, onClick, accentHex }: DietPillProps) {
   const isDark = needsDarkTextOnFill(accentHex)
-  const fillText = isDark ? 'var(--n1150)' : '#FDFCFA'
+  const fillText = isDark ? 'var(--n1150)' : 'var(--n50)'
 
   return (
     <button

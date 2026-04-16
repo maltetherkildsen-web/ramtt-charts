@@ -41,7 +41,6 @@ const LinkGroup = forwardRef<HTMLDivElement, LinkGroupProps>(
                   'hover:underline',
                 )}
                 style={{
-                  letterSpacing: '-0.02em',
                   textUnderlineOffset: '0.25em',
                   textDecorationThickness: '1px',
                 }}

@@ -62,6 +62,29 @@ const CLASSNAME_WHITELIST = new Set([
   'ChartZoomHandler.tsx',  // logic wrapper, no DOM
 ]);
 
+// ─── Shadow allowlist ───
+// Overlay/floating components render above other content and genuinely need
+// box-shadow for depth/elevation. All other files must remain flat.
+const SHADOW_ALLOWLIST = new Set([
+  'FloatingPanel.tsx',
+  'FloatingToolbar.tsx',
+  'CommandPalette.tsx',
+  'QuickSearch.tsx',
+  'Modal.tsx',
+  'Drawer.tsx',
+  'Popover.tsx',
+  'Dropdown.tsx',
+  'ContextMenu.tsx',
+  'HoverCard.tsx',
+  'Combobox.tsx',
+  'Toast.tsx',
+  'Tooltip.tsx',
+  'Select.tsx',
+  'ColorPicker.tsx', // picker cursor indicator needs shadow against gradient
+  'ChartTooltip.tsx', // chart tooltip floats above chart content
+  'ChartTooltip.old.tsx',
+]);
+
 // ─── Banned hardcoded font-weight classes ───
 const BANNED_WEIGHT_CLASSES = [
   { pattern: /\bfont-semibold\b/g, fix: 'WEIGHT.strong (font-[550])' },
@@ -135,14 +158,15 @@ function checkCursorDefault(path: string, content: string) {
 }
 
 function checkNoBoxShadow(path: string, content: string) {
-  // Tooltips/floating elements are exempt
-  if (path.includes('Tooltip') || path.includes('Dropdown') || path.includes('Modal') || path.includes('Select')) return;
+  // Overlay/floating components are exempt — they need shadow for elevation
+  const basename = path.split('/').pop() || '';
+  if (SHADOW_ALLOWLIST.has(basename)) return;
   const lines = content.split('\n');
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (line.trimStart().startsWith('//')) continue;
     if (/box-shadow|boxShadow|\bshadow-/.test(line) && !line.includes('shadow-none')) {
-      ERRORS.push(`${path}:${i + 1}: box-shadow banned — no shadows on cards or static elements`);
+      ERRORS.push(`${path}:${i + 1}: box-shadow banned — only allowed in overlay/floating components`);
     }
   }
 }
@@ -200,7 +224,8 @@ function checkNoStateInHandlers(path: string, content: string) {
 }
 
 // Files that legitimately display hex values as data (color guides, chart data generators)
-const HEX_CHECK_SKIP = ['color-guide', 'chart-data', 'generate-data', 'tokens.css'];
+// tokens/page.tsx displays hex values as documentation content — not styling violations
+const HEX_CHECK_SKIP = ['color-guide', 'chart-data', 'generate-data', 'tokens.css', 'tokens/page.tsx'];
 
 function checkHardcodedHex(path: string, content: string) {
   // Skip files that display colors as data

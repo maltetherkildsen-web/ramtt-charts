@@ -144,7 +144,7 @@ import { IconHeart } from '@ramtt/icons/line'`}
           {[
             ['Monochrome UI', 'Color is reserved for data. UI chrome uses the warm neutral scale.'],
             ['Single font', 'Satoshi for everything — body, labels, numbers. Weight communicates hierarchy.'],
-            ['0.5px borders', 'Hairline borders everywhere. No box-shadow for decoration.'],
+            ['0.5px borders', 'Hairline borders everywhere. No decorative shadows.'],
             ['Flat and calm', 'No gradients, no shadows, no visual noise. Cards separate by border only.'],
             ['cursor: default', 'Follows the Figma/Linear pattern. The interface is calm, not clickbaity.'],
           ].map(([title, desc]) => (

@@ -3534,7 +3534,7 @@ function DarkSurfaceDemo() {
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <span className={cn(WEIGHT.strong, 'text-[14px] text-[var(--dark-text)]')}>Dark surface tokens</span>
-            <span className={cn(WEIGHT.normal, 'text-[13px] text-[var(--dark-muted)]')}>--dark-bg #141413 &middot; --dark-text #FAF9F5 &middot; --dark-muted #B0AEA5</span>
+            <span className={cn(WEIGHT.normal, 'text-[13px] text-[var(--dark-muted)]')}>Uses --dark-bg &middot; --dark-text &middot; --dark-muted tokens</span>
           </div>
           <SocialIcons
             dark

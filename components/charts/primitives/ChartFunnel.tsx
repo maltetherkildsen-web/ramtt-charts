@@ -205,6 +205,7 @@ export function ChartFunnel({
         return (
           <text
             key={i}
+            fontFamily="'Satoshi', sans-serif"
             ref={(el) => { convRefs.current[i] = el }}
             x={labelX}
             y={midY}
