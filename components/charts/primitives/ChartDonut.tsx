@@ -10,7 +10,7 @@
  * Supports hover highlight (slight outward translation along midpoint angle).
  */
 
-import { useMemo, useRef, useCallback } from 'react'
+import { useMemo, useRef, useCallback, useEffect } from 'react'
 import { arcPath, pieLayout } from '@/lib/charts/paths/arc'
 import { resolveAnimate, EASE_OUT_EXPO, type AnimateConfig } from '@/lib/charts/utils/animate'
 
@@ -19,7 +19,7 @@ export interface ChartDonutProps {
   valueAccessor: (d: any) => number
   labelAccessor?: (d: any) => string
   colors: readonly string[]
-  /** Inner radius as fraction of outer. Default: 0.6 */
+  /** Inner radius as fraction of outer. 0 = full pie, 0.6 = donut. Default: 0.6 */
   innerRadius?: number
   /** Gap between segments in degrees. Default: 1.5 */
   padAngle?: number
@@ -29,6 +29,12 @@ export interface ChartDonutProps {
   centerLabel?: string
   /** Center value (large text). */
   centerValue?: string
+  /** Custom React content rendered in the donut hole. Overrides centerLabel/centerValue. */
+  centerContent?: React.ReactNode
+  /** Controlled active segment index (pulled out + others dimmed). -1 = none. */
+  activeIndex?: number
+  /** Callback when a segment is clicked. */
+  onSegmentClick?: (index: number) => void
   className?: string
   /** Entry animation. Default: true. */
   animate?: AnimateConfig
@@ -43,6 +49,9 @@ export function ChartDonut({
   size = 220,
   centerLabel,
   centerValue,
+  centerContent,
+  activeIndex: activeIndexProp,
+  onSegmentClick,
   className,
   animate = true,
 }: ChartDonutProps) {
@@ -61,6 +70,9 @@ export function ChartDonut({
     () => pieLayout(data, valueAccessor, padRad),
     [data, valueAccessor, padRad],
   )
+
+  // Controlled mode: apply highlight from prop
+  const isControlled = activeIndexProp !== undefined
 
   const applyHighlight = useCallback((target: number) => {
     if (target === currentIdx.current) return
@@ -81,34 +93,48 @@ export function ChartDonut({
     })
   }, [slices])
 
-  const handleSegmentPointer = useCallback((e: React.PointerEvent<SVGCircleElement>) => {
+  // Apply controlled activeIndex when it changes
+  useEffect(() => {
+    if (!isControlled) return
+    applyHighlight(activeIndexProp)
+  }, [isControlled, activeIndexProp, applyHighlight])
+
+  const hitTestSegment = useCallback((e: React.PointerEvent<SVGCircleElement> | React.MouseEvent<SVGCircleElement>): number => {
     const svg = e.currentTarget.ownerSVGElement
-    if (!svg) return
+    if (!svg) return -1
     const rect = svg.getBoundingClientRect()
     const px = (e.clientX - rect.left) * (size / rect.width)
     const py = (e.clientY - rect.top) * (size / rect.height)
     const dx = px - cx
     const dy = py - cy
     const dist = Math.sqrt(dx * dx + dy * dy)
-    if (dist < innerR || dist > outerR + 8) {
-      cancelAnimationFrame(rafRef.current)
-      rafRef.current = requestAnimationFrame(() => applyHighlight(-1))
-      return
-    }
+    if (dist < innerR || dist > outerR + 8) return -1
     let angle = Math.atan2(dx, -dy)
     if (angle < 0) angle += 2 * Math.PI
-    let idx = -1
     for (let i = 0; i < slices.length; i++) {
-      if (angle >= slices[i].startAngle && angle <= slices[i].endAngle) { idx = i; break }
+      if (angle >= slices[i].startAngle && angle <= slices[i].endAngle) return i
     }
+    return -1
+  }, [slices, cx, cy, innerR, outerR, size])
+
+  const handleSegmentPointer = useCallback((e: React.PointerEvent<SVGCircleElement>) => {
+    if (isControlled) return // hover disabled in controlled mode
+    const idx = hitTestSegment(e)
     cancelAnimationFrame(rafRef.current)
     rafRef.current = requestAnimationFrame(() => applyHighlight(idx))
-  }, [slices, cx, cy, innerR, outerR, size, applyHighlight])
+  }, [isControlled, hitTestSegment, applyHighlight])
 
   const handleSegmentLeave = useCallback(() => {
+    if (isControlled) return
     cancelAnimationFrame(rafRef.current)
     rafRef.current = requestAnimationFrame(() => applyHighlight(-1))
-  }, [applyHighlight])
+  }, [isControlled, applyHighlight])
+
+  const handleSegmentClick = useCallback((e: React.MouseEvent<SVGCircleElement>) => {
+    if (!onSegmentClick) return
+    const idx = hitTestSegment(e as any)
+    if (idx >= 0) onSegmentClick(idx)
+  }, [onSegmentClick, hitTestSegment])
 
   const anim = resolveAnimate(animate, { duration: 500, delay: 0, easing: EASE_OUT_EXPO })
   const segmentStagger = 80
@@ -148,31 +174,58 @@ export function ChartDonut({
         fill="transparent"
         onPointerMove={handleSegmentPointer}
         onPointerLeave={handleSegmentLeave}
+        onClick={handleSegmentClick}
+        style={onSegmentClick ? { cursor: 'pointer' } : undefined}
       />
 
-      {/* Center text */}
-      {centerLabel && (
+      {/* Center content — custom React node via foreignObject */}
+      {centerContent && (
+        <foreignObject
+          x={cx - innerR * 0.7}
+          y={cy - innerR * 0.7}
+          width={innerR * 1.4}
+          height={innerR * 1.4}
+        >
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {centerContent}
+          </div>
+        </foreignObject>
+      )}
+
+      {/* Center text (legacy — used when centerContent is not set) */}
+      {!centerContent && centerLabel && (
         <text
           x={cx}
           y={cy - 8}
           textAnchor="middle"
-          className="fill-(--n600) text-[9px]"
+          fill="var(--n600)"
           style={{
             fontFamily: "var(--font-sans)",
+            fontSize: 9,
             fontWeight: 550,
           }}
         >
           {centerLabel}
         </text>
       )}
-      {centerValue && (
+      {!centerContent && centerValue && (
         <text
           x={cx}
           y={cy + 10}
           textAnchor="middle"
-          className="fill-(--n1150) text-[18px]"
+          fill="var(--n1150)"
           style={{
             fontFamily: "var(--font-sans)",
+            fontSize: 18,
             fontWeight: 550,
             fontVariantNumeric: 'tabular-nums',
           }}
