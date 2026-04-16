@@ -22,7 +22,6 @@
 
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
 import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, MUTED_STYLE, QUIET_STYLE, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
-import { motion, AnimatePresence, MotionConfig } from 'motion/react'
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
 import { ChartArea } from '@/components/charts/primitives/ChartArea'
@@ -369,11 +368,7 @@ export default function ChartTestPage() {
     )
   }
 
-  return (
-    <MotionConfig reducedMotion="user">
-      <SessionAnalysis data={fitData} onChangeFile={handleClear} />
-    </MotionConfig>
-  )
+  return <SessionAnalysis data={fitData} onChangeFile={handleClear} />
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -688,30 +683,21 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
         </div>
       </div>
       {/* ━━━ Fullscreen overlay ━━━ */}
-      <AnimatePresence>
-        {isFullscreen && (
-          <motion.div
-            key="fullscreen"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[9999] bg-(--bg)"
-          >
-            <FullscreenOverlay
-              meta={meta}
-              power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
-              kjPerMin={kjPerMin} torque={torque}
-              ftp={meta.ftp} maxHR={meta.maxHR}
-              zoneMode={zoneMode} setZoneMode={setZoneMode}
-              visibleCharts={visibleCharts} onToggle={toggleChart}
-              showPeaks={showPeaks} setShowPeaks={setShowPeaks}
-              activePeak={activePeak} onActivePeakChange={setActivePeak}
-              onClose={() => setIsFullscreen(false)}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[9999] bg-(--bg)">
+          <FullscreenOverlay
+            meta={meta}
+            power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
+            kjPerMin={kjPerMin} torque={torque}
+            ftp={meta.ftp} maxHR={meta.maxHR}
+            zoneMode={zoneMode} setZoneMode={setZoneMode}
+            visibleCharts={visibleCharts} onToggle={toggleChart}
+            showPeaks={showPeaks} setShowPeaks={setShowPeaks}
+            activePeak={activePeak} onActivePeakChange={setActivePeak}
+            onClose={() => setIsFullscreen(false)}
+          />
+        </div>
+      )}
     </ChartSyncProvider>
   )
 }
@@ -1605,9 +1591,7 @@ function SyncedCharts({
       <BrushOverlay />
 
       {/* Power — 110px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('power') && (
-        <motion.div key="power" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
         <ChartRoot
           data={visPower}
           height={h('power')}
@@ -1627,14 +1611,10 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Power</text>
         </ChartRoot>
-        </motion.div>
       )}
-      </AnimatePresence>
-
       {/* HR — 75px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('hr') && (
-        <motion.div key="hr" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <div className="border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visHR}
           height={h('hr')}
@@ -1652,14 +1632,11 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>HR</text>
         </ChartRoot>
-        </motion.div>
+        </div>
       )}
-      </AnimatePresence>
-
       {/* kJ/min — 55px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('kjmin') && (
-        <motion.div key="kjmin" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <div className="border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visKjMin}
           height={h('kjmin')}
@@ -1673,14 +1650,11 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
         </ChartRoot>
-        </motion.div>
+        </div>
       )}
-      </AnimatePresence>
-
       {/* Cadence — 55px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('cadence') && (
-        <motion.div key="cadence" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <div className="border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visCadence}
           height={h('cadence')}
@@ -1694,14 +1668,11 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Cadence</text>
         </ChartRoot>
-        </motion.div>
+        </div>
       )}
-      </AnimatePresence>
-
       {/* Speed — 55px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('speed') && (
-        <motion.div key="speed" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <div className="border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visSpeed}
           height={h('speed')}
@@ -1715,14 +1686,11 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
         </ChartRoot>
-        </motion.div>
+        </div>
       )}
-      </AnimatePresence>
-
       {/* Elevation — 55px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('elevation') && (
-        <motion.div key="elevation" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <div className="border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visAltitude}
           height={h('elevation')}
@@ -1737,14 +1705,11 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
         </ChartRoot>
-        </motion.div>
+        </div>
       )}
-      </AnimatePresence>
-
       {/* Torque — 80px */}
-      <AnimatePresence initial={false}>
       {visibleCharts.has('torque') && (
-        <motion.div key="torque" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden border-t-[0.5px] border-t-(--n400)">
+        <div className="border-t-[0.5px] border-t-(--n400)">
         <ChartRoot
           data={visTorque}
           height={h('torque')}
@@ -1758,9 +1723,8 @@ function SyncedCharts({
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Nm</text>
         </ChartRoot>
-        </motion.div>
+        </div>
       )}
-      </AnimatePresence>
       </div>
 
       {/* Shared X-axis time bar — outside individual charts so toggling never shifts layout */}
