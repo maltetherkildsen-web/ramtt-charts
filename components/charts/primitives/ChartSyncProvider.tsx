@@ -5,6 +5,11 @@
 
 /**
  * ChartSyncProvider — synchronises crosshair + zoom across stacked charts.
+ *
+ * Zoom is ref-based for 60fps scroll-zoom:
+ *   - zoomRef holds the instant truth (updated on every wheel tick)
+ *   - zoom (React state) is debounced — updates 150ms after last interaction
+ *   - subscribeZoom lets charts react to ref-based updates without re-render
  */
 
 import {
@@ -40,7 +45,10 @@ export interface ChartSyncContextValue {
   subscribeHover: (cb: HoverCallback) => () => void
   broadcastHover: (index: number | null, sourceId: string, clientY?: number) => void
   zoom: ZoomRange
+  /** Set zoom — updates ref instantly + debounces React state (150ms). */
   setZoom: (range: ZoomRange | ((prev: ZoomRange) => ZoomRange)) => void
+  /** Instant zoom ref — always current, no re-render. */
+  zoomRef: React.RefObject<ZoomRange>
   dataLength: number
   brush: React.RefObject<BrushState>
   zoomMode: ZoomMode
@@ -59,6 +67,8 @@ export interface ChartSyncProviderProps {
   children: ReactNode
 }
 
+const DEBOUNCE_MS = 100
+
 export function ChartSyncProvider({ dataLength, zoomMode = 'brush', children }: ChartSyncProviderProps) {
   const hoverSubs = useRef(new Set<HoverCallback>())
 
@@ -71,8 +81,22 @@ export function ChartSyncProvider({ dataLength, zoomMode = 'brush', children }: 
     hoverSubs.current.forEach((cb) => cb(index, sourceId, clientY))
   }, [])
 
-  const [zoom, setZoom] = useState<ZoomRange>({ start: 0, end: dataLength - 1 })
+  const [zoom, setZoomState] = useState<ZoomRange>({ start: 0, end: dataLength - 1 })
+  const zoomRef = useRef<ZoomRange>({ start: 0, end: dataLength - 1 })
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const brush = useRef<BrushState>({ active: false, startFrac: 0, currentFrac: 0 })
+
+  // Wrapped setZoom: updates ref instantly, debounces React state
+  const setZoom = useCallback((range: ZoomRange | ((prev: ZoomRange) => ZoomRange)) => {
+    const newRange = typeof range === 'function' ? range(zoomRef.current) : range
+    zoomRef.current = newRange
+
+    // Debounce the React state update
+    if (debounceTimer.current) clearTimeout(debounceTimer.current)
+    debounceTimer.current = setTimeout(() => {
+      setZoomState(newRange)
+    }, DEBOUNCE_MS)
+  }, [])
 
   const ctx = useMemo<ChartSyncContextValue>(
     () => ({
@@ -80,11 +104,12 @@ export function ChartSyncProvider({ dataLength, zoomMode = 'brush', children }: 
       broadcastHover,
       zoom,
       setZoom,
+      zoomRef,
       dataLength,
       brush,
       zoomMode,
     }),
-    [subscribeHover, broadcastHover, zoom, dataLength, zoomMode],
+    [subscribeHover, broadcastHover, zoom, setZoom, dataLength, zoomMode],
   )
 
   return <SyncContext.Provider value={ctx}>{children}</SyncContext.Provider>

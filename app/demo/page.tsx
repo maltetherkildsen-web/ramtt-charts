@@ -503,8 +503,8 @@ function IoTCharts({ data }: { data: SensorData }) {
       {/* ── Time label (between charts and scrubber) ── */}
       <CrosshairTimeLabel format={formatTimeLabel} padLeft={48} padRight={64} />
 
-      {/* ── Scrubber ── */}
-      <ChartScrubber data={data.temperature} color="var(--chart-5)" />
+      {/* ── Navigator (draggable handles + viewport) ── */}
+      <ChartNavigator data={data.temperature} height={48} className="mt-1" />
     </div>
   )
 }

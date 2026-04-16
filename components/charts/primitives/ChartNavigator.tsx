@@ -156,8 +156,9 @@ export function ChartNavigator({
     dragStartClientX.current = e.clientX
 
     const dl = sync.dataLength
-    dragStartLeft.current = dl > 1 ? sync.zoom.start / (dl - 1) : 0
-    dragStartRight.current = dl > 1 ? sync.zoom.end / (dl - 1) : 1
+    const currentZoom = sync.zoomRef?.current ?? sync.zoom
+    dragStartLeft.current = dl > 1 ? currentZoom.start / (dl - 1) : 0
+    dragStartRight.current = dl > 1 ? currentZoom.end / (dl - 1) : 1
 
     document.addEventListener('pointermove', handleDocMove)
     document.addEventListener('pointerup', handleDocUp)
@@ -246,8 +247,9 @@ export function ChartNavigator({
       const cursorFrac = (e.clientX - rect.left) / rect.width
       const dl = sync.dataLength
 
-      const currentLeft = dl > 1 ? sync.zoom.start / (dl - 1) : 0
-      const currentRight = dl > 1 ? sync.zoom.end / (dl - 1) : 1
+      const currentZoom = sync.zoomRef?.current ?? sync.zoom
+      const currentLeft = dl > 1 ? currentZoom.start / (dl - 1) : 0
+      const currentRight = dl > 1 ? currentZoom.end / (dl - 1) : 1
       const vpWidth = currentRight - currentLeft
 
       const zoomIn = e.deltaY < 0

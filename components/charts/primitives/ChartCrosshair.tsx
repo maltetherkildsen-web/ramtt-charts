@@ -191,9 +191,9 @@ export function ChartCrosshair({
       <line
         ref={lineRef}
         x1={0}
-        y1={0}
+        y1={-padding.top}
         x2={0}
-        y2={chartHeight}
+        y2={chartHeight + padding.bottom}
         stroke={lineColor}
         strokeWidth={lineWidth}
         shapeRendering="crispEdges"

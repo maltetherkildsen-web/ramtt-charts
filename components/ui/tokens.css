@@ -117,21 +117,21 @@
   /* ═══ Domain Color Ramps ═══ */
   /* Generated from accents.ts ramp algorithm — 14 tokens per domain */
 
-  /* ── Nutrition (Cyan 500 #06B6D4) ── */
-  --domain-nutrition-pressed: #016273;
-  --domain-nutrition-hover: #03849a;
-  --domain-nutrition: #06B6D4;
-  --domain-nutrition-toggle: #06B6D4;
-  --domain-nutrition-text: #128ca1;
-  --domain-nutrition-icon: #06B6D4;
-  --domain-nutrition-icon-light: #81c6d2;
-  --domain-nutrition-icon-lightest: #c2dce0;
-  --domain-nutrition-border: #cee0e4;
-  --domain-nutrition-selection: #c0dde2;
-  --domain-nutrition-wash: #f0f4f5;
-  --domain-nutrition-badge: #f6f8f8;
-  --domain-nutrition-soft: #06B6D420;
-  --domain-nutrition-light: #06B6D430;
+  /* ── Nutrition (#8ed88d — pastel green, testing) ── */
+  --domain-nutrition-pressed: #3ec23c;
+  --domain-nutrition-hover: #5fcb5d;
+  --domain-nutrition: #8ed88d;
+  --domain-nutrition-toggle: #5bbf5a;
+  --domain-nutrition-text: #44a343;
+  --domain-nutrition-icon: #5bbf5a;
+  --domain-nutrition-icon-light: #c0d9c0;
+  --domain-nutrition-icon-lightest: #dee7dd;
+  --domain-nutrition-border: #d3ded3;
+  --domain-nutrition-selection: #c8dac8;
+  --domain-nutrition-wash: #f1f3f1;
+  --domain-nutrition-badge: #f7f8f7;
+  --domain-nutrition-soft: #8ed88d20;
+  --domain-nutrition-light: #8ed88d30;
 
   /* ── Training (Pink 600 #DB2777) ── */
   --domain-training-pressed: #891347;
@@ -318,6 +318,24 @@ p, li, dd {
   --duration-normal: 400ms;
   --duration-slow: 800ms;
   --duration-draw: 1200ms;
+}
+
+/* ─── Chart fullscreen ─── */
+:fullscreen {
+  background: var(--bg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+:fullscreen > * {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Non-dialog fullscreen backdrop (chart fullscreen) */
+:not(dialog)::backdrop {
+  background: var(--bg);
 }
 
 /* ─── Dialog: ensure closed dialogs stay hidden (Tailwind v4 preflight omits this) ─── */

@@ -73,7 +73,8 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       const cw = getChartWidth()
       if (cw <= 0) return
 
-      const range = sync.zoom.end - sync.zoom.start
+      const currentZoom = sync.zoomRef?.current ?? sync.zoom
+      const range = currentZoom.end - currentZoom.start
       const dataFrac = (panAccum.current / cw) * range
       const intDelta = Math.trunc(dataFrac)
       if (intDelta === 0) return
@@ -138,7 +139,8 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
 
       if (newRange < MIN_VISIBLE_POINTS || newRange >= dl) return
 
-      const cursorIdx = sync.zoom.start + ps.centerFrac * ps.initialRange
+      const currentZoom = sync.zoomRef?.current ?? sync.zoom
+      const cursorIdx = currentZoom.start + ps.centerFrac * ps.initialRange
       const newStart = Math.round(cursorIdx - ps.centerFrac * newRange)
       const clampedStart = Math.max(0, newStart)
       const clampedEnd = Math.min(dl - 1, clampedStart + newRange)
@@ -158,7 +160,9 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
         return
       }
 
-      const range = sync.zoom.end - sync.zoom.start
+      // Read from ref for instant access (no stale closure)
+      const currentZoom = sync.zoomRef?.current ?? sync.zoom
+      const range = currentZoom.end - currentZoom.start
       const dl = sync.dataLength
       const frac = getDataFraction(e)
       const zoomIn = e.deltaY < 0
@@ -173,7 +177,7 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
         return
       }
 
-      const cursorIdx = sync.zoom.start + frac * range
+      const cursorIdx = currentZoom.start + frac * range
       const newStart = Math.round(cursorIdx - frac * newRange)
       const clampedStart = Math.max(0, newStart)
       const clampedEnd = Math.min(dl - 1, clampedStart + newRange)
@@ -240,11 +244,12 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
 
       const cx = getChartX(e)
       const cw = getChartWidth()
-      const range = sync.zoom.end - sync.zoom.start
+      const currentZoom = sync.zoomRef?.current ?? sync.zoom
+      const range = currentZoom.end - currentZoom.start
       const frac1 = Math.max(0, Math.min(1, state.startX / cw))
       const frac2 = Math.max(0, Math.min(1, cx / cw))
-      const idx1 = Math.round(sync.zoom.start + Math.min(frac1, frac2) * range)
-      const idx2 = Math.round(sync.zoom.start + Math.max(frac1, frac2) * range)
+      const idx1 = Math.round(currentZoom.start + Math.min(frac1, frac2) * range)
+      const idx2 = Math.round(currentZoom.start + Math.max(frac1, frac2) * range)
 
       clearBrush()
 
@@ -283,7 +288,7 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
           pointerId1: [...activePointers.current.keys()][0],
           pointerId2: [...activePointers.current.keys()][1],
           initialDist: getPointerDist(),
-          initialRange: sync.zoom.end - sync.zoom.start,
+          initialRange: (sync.zoomRef?.current ?? sync.zoom).end - (sync.zoomRef?.current ?? sync.zoom).start,
           centerFrac: getPointerCenterFrac(),
         }
         return
@@ -334,7 +339,8 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
 
-      const range = sync.zoom.end - sync.zoom.start
+      const currentZoom = sync.zoomRef?.current ?? sync.zoom
+      const range = currentZoom.end - currentZoom.start
       const dl = sync.dataLength
       const step = Math.max(1, Math.round(range * 0.05))
 
@@ -351,7 +357,7 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
           e.preventDefault()
           { const amt = Math.max(1, Math.round(range * 0.2))
             const nr = Math.max(MIN_VISIBLE_POINTS, range - amt)
-            const c = sync.zoom.start + range / 2
+            const c = currentZoom.start + range / 2
             const s = Math.max(0, Math.round(c - nr / 2))
             sync.setZoom({ start: s, end: Math.min(dl - 1, s + nr) }) }
           break
@@ -359,7 +365,7 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
           e.preventDefault()
           { const amt = Math.max(1, Math.round(range * 0.2))
             const nr = Math.min(dl - 1, range + amt)
-            const c = sync.zoom.start + range / 2
+            const c = currentZoom.start + range / 2
             const s = Math.max(0, Math.round(c - nr / 2))
             const end = Math.min(dl - 1, s + nr)
             sync.setZoom({ start: end - nr < 0 ? 0 : end - nr, end }) }
