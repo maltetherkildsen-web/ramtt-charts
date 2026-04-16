@@ -4,24 +4,26 @@
 'use client'
 
 /**
- * ChartBar — vertical bar chart primitive.
+ * ChartBar — bar chart primitive (vertical and horizontal).
  *
  * Renders one `<rect>` per data point. Bars extend from the baseline
- * (bottom of the drawing area) up to the data value. Gap between
- * bars is controlled by `gap` (px) — default 1px for dense data,
- * increase for fewer bars.
+ * to the data value. Gap between bars is controlled by `gap` (px).
  *
  * Supports:
+ *   - Vertical (default) and horizontal orientation
  *   - Custom bar colour via className or per-bar via `colorFn`
- *   - Rounded top corners via `radius`
- *   - Negative values (bars extend downward from zero)
+ *   - Rounded corners via `radius`
+ *   - Negative values (bars extend downward/leftward from zero)
  *   - Optional highlight of a single bar (e.g. hovered index)
+ *   - Active bar index (others dim to 30% opacity)
+ *   - Value labels (inside or outside bars)
+ *   - Grouped bars via groupIndex/groupCount
  *
  * Usage:
  *   <ChartRoot data={values}>
  *     <ChartBar />
  *     <ChartBar className="fill-amber-500" gap={2} radius={2} />
- *     <ChartBar colorFn={(v, i) => v > 240 ? '#ef4444' : '#22c55e'} />
+ *     <ChartBar orientation="horizontal" showLabels="outside" />
  *   </ChartRoot>
  */
 
@@ -37,7 +39,7 @@ export interface ChartBarProps {
   data?: readonly number[]
   /** Gap between bars in px (default 1). */
   gap?: number
-  /** Top corner radius in px (default 0). */
+  /** Corner radius in px (default 0). */
   radius?: number
   /**
    * Per-bar colour function. Receives the value and index,
@@ -52,8 +54,34 @@ export interface ChartBarProps {
   highlightClassName?: string
   /** Tailwind classes applied to each `<rect>` (default fill). */
   className?: string
+  /** Bar orientation. Default: 'vertical'. */
+  orientation?: 'vertical' | 'horizontal'
+  /** Show value labels on bars. Default: false. */
+  showLabels?: boolean | 'inside' | 'outside'
+  /** Format function for labels. Default: toLocaleString. */
+  labelFormat?: (value: number, index: number) => string
+  /** Active bar index — others dim to 30% opacity. */
+  activeIndex?: number | null
+  /** For grouped bars: which group this ChartBar belongs to (0-based). */
+  groupIndex?: number
+  /** For grouped bars: total number of groups. */
+  groupCount?: number
   /** Entry animation. Default: true. */
   animate?: AnimateConfig
+}
+
+// ─── Bar geometry result ───
+
+interface BarGeometry {
+  x: number
+  y: number
+  width: number
+  height: number
+  value: number
+  index: number
+  /** Label position (center of label placement). */
+  labelX: number
+  labelY: number
 }
 
 // ─── Component ───
@@ -67,20 +95,70 @@ export function ChartBar({
   highlightIndex,
   highlightClassName,
   className,
+  orientation = 'vertical',
+  showLabels = false,
+  labelFormat,
+  activeIndex,
+  groupIndex,
+  groupCount,
   animate = true,
 }: ChartBarProps) {
-  const { data: ctxData, scaleX, scaleY, chartHeight } = useChart()
+  const { data: ctxData, scaleX, scaleY, chartWidth, chartHeight } = useChart()
   const data = dataProp ?? ctxData
+  const isHorizontal = orientation === 'horizontal'
 
   // Pre-compute bar geometry
   const bars = useMemo(() => {
     const len = data.length
     if (len === 0) return []
 
-    // Bar width = available space per point minus gap
+    if (isHorizontal) {
+      // ─── Horizontal bars ───
+      // Self-contained geometry: Y = categories (evenly spaced), X = proportional to value.
+      // Does NOT rely on scaleX/scaleY (which assume vertical layout).
+      const slotHeight = chartHeight / len
+      let barHeight = Math.max(0.5, slotHeight - gap)
+
+      // Grouped bar support
+      if (groupCount && groupCount > 1) {
+        barHeight = barHeight / groupCount
+      }
+      const groupOffset = groupCount && groupIndex != null ? groupIndex * barHeight : 0
+
+      // Value → pixel width scaling
+      const maxVal = Math.max(...Array.from(data as number[]).map(Math.abs), 1)
+
+      const result: BarGeometry[] = new Array(len)
+
+      for (let i = 0; i < len; i++) {
+        const cy = (i + 0.5) * slotHeight // center of slot
+        const barW = (Math.abs(data[i]) / maxVal) * chartWidth
+        const isNeg = data[i] < 0
+
+        result[i] = {
+          x: isNeg ? chartWidth * 0 - barW : 0,
+          y: cy - barHeight / 2 + groupOffset,
+          width: Math.max(0, barW),
+          height: barHeight,
+          value: data[i],
+          index: i,
+          labelX: barW + 6,
+          labelY: cy + groupOffset,
+        }
+      }
+
+      return result
+    }
+
+    // ─── Vertical bars ───
     const totalWidth = len > 1 ? scaleX(len - 1) - scaleX(0) : scaleX(1)
-    const barWidth = Math.max(0.5, totalWidth / len - gap)
-    const halfBar = barWidth / 2
+    let barWidth = Math.max(0.5, totalWidth / len - gap)
+
+    // Grouped bar support
+    if (groupCount && groupCount > 1) {
+      barWidth = barWidth / groupCount
+    }
+    const groupOffset = groupCount && groupIndex != null ? groupIndex * barWidth - ((groupCount - 1) * barWidth) / 2 : 0
 
     // Baseline: if y0Accessor provided, use it per-bar.
     // Otherwise: if domain includes 0, use 0; else use domain min.
@@ -88,17 +166,10 @@ export function ChartBar({
     const hasZero = dMin <= 0 && dMax >= 0
     const defaultBaselineY = hasZero ? scaleY(0) : chartHeight
 
-    const result: {
-      x: number
-      y: number
-      width: number
-      height: number
-      value: number
-      index: number
-    }[] = new Array(len)
+    const result: BarGeometry[] = new Array(len)
 
     for (let i = 0; i < len; i++) {
-      const cx = scaleX(i)
+      const cx = scaleX(i) + groupOffset
       const vy = scaleY(data[i])
       const baselineY = y0Accessor ? scaleY(y0Accessor(data[i], i)) : defaultBaselineY
 
@@ -107,6 +178,7 @@ export function ChartBar({
       const top = Math.min(vy, baselineY)
       const bottom = Math.max(vy, baselineY)
       const h = bottom - top
+      const halfBar = groupCount && groupCount > 1 ? barWidth / 2 : barWidth / 2
 
       result[i] = {
         x: cx - halfBar,
@@ -115,17 +187,23 @@ export function ChartBar({
         height: Math.max(0, h),
         value: data[i],
         index: i,
+        labelX: cx,
+        labelY: top - 6,
       }
     }
 
     return result
-  }, [data, scaleX, scaleY, chartHeight, gap, y0Accessor])
+  }, [data, scaleX, scaleY, chartWidth, chartHeight, gap, y0Accessor, isHorizontal, groupIndex, groupCount])
 
-  // Animation
+  // Animation — cap total stagger at 800ms so large datasets (90+ bars) don't crawl
   const anim = resolveAnimate(animate, { duration: 600, delay: 0, easing: EASE_OUT_EXPO })
-  const stagger = 40
+  const stagger = bars.length > 1 ? Math.min(40, 800 / bars.length) : 0
 
   if (bars.length === 0) return null
+
+  // Resolve label mode
+  const labelMode = showLabels === true ? 'outside' : showLabels || null
+  const formatLabel = labelFormat ?? ((v: number) => v.toLocaleString())
 
   // When using colorFn we need individual rects with fill attributes.
   // When using className only, all rects share the same class.
@@ -138,28 +216,59 @@ export function ChartBar({
         const isHighlighted = highlightIndex === bar.index
         const fill = colorFn ? colorFn(bar.value, bar.index) : undefined
 
-        // For animation: transform-origin at bar's baseline (bottom edge for positive, top for negative)
-        const baselineY = bar.y + bar.height // bottom of bar is the baseline for grow-up
-        const barAnimStyle = anim.enabled
-          ? {
-              transformOrigin: `${bar.x + bar.width / 2}px ${baselineY}px`,
-              animation: `ramtt-bar-grow ${anim.duration}ms ${anim.easing} ${anim.delay + bar.index * stagger}ms both`,
-            }
-          : undefined
+        // Active index: dim non-active bars
+        const isActive = activeIndex == null || activeIndex === bar.index
+        const opacity = activeIndex != null && !isActive ? 0.3 : undefined
+
+        // For animation: transform-origin at bar's baseline
+        const baselineY = isHorizontal ? bar.y + bar.height / 2 : bar.y + bar.height
+        const baselineX = isHorizontal ? bar.x : bar.x + bar.width / 2
+        const barAnimStyle: React.CSSProperties = {
+          ...(anim.enabled
+            ? {
+                transformOrigin: `${baselineX}px ${baselineY}px`,
+                animation: `ramtt-bar-grow ${anim.duration}ms ${anim.easing} ${anim.delay + bar.index * stagger}ms both`,
+              }
+            : undefined),
+          ...(opacity != null ? { opacity } : undefined),
+        }
 
         return (
-          <rect
-            key={bar.index}
-            x={bar.x}
-            y={bar.y}
-            width={bar.width}
-            height={bar.height}
-            rx={radius}
-            ry={radius}
-            fill={fill}
-            className={fill ? undefined : (isHighlighted ? hlClass : defaultClass)}
-            style={barAnimStyle}
-          />
+          <g key={bar.index}>
+            <rect
+              x={bar.x}
+              y={bar.y}
+              width={bar.width}
+              height={bar.height}
+              rx={radius}
+              ry={radius}
+              fill={fill}
+              className={fill ? undefined : (isHighlighted ? hlClass : defaultClass)}
+              style={Object.keys(barAnimStyle).length > 0 ? barAnimStyle : undefined}
+            />
+            {/* Value labels */}
+            {labelMode && (
+              <text
+                x={labelMode === 'inside'
+                  ? (isHorizontal ? bar.x + bar.width / 2 : bar.x + bar.width / 2)
+                  : bar.labelX}
+                y={labelMode === 'inside'
+                  ? (isHorizontal ? bar.y + bar.height / 2 : bar.y + bar.height / 2)
+                  : bar.labelY}
+                textAnchor={labelMode === 'inside' ? 'middle' : (isHorizontal ? 'start' : 'middle')}
+                dominantBaseline={labelMode === 'inside' ? 'central' : (isHorizontal ? 'central' : 'auto')}
+                fill={labelMode === 'inside' ? 'var(--n50)' : 'var(--n800)'}
+                style={{
+                  fontFamily: 'var(--font-sans)',
+                  fontSize: 11,
+                  fontWeight: 550,
+                  fontVariantNumeric: 'tabular-nums',
+                }}
+              >
+                {formatLabel(bar.value, bar.index)}
+              </text>
+            )}
+          </g>
         )
       })}
     </g>
