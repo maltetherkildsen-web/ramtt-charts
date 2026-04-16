@@ -880,15 +880,28 @@ function FullscreenDataSidebar({
 
   const rangeAvg = useMemo(() => {
     const len = end - start + 1
-    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0, kj: 0 }
+    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0, kj: 0, tq: 0, maxPw: 0, maxHr: 0 }
     let pw = 0, hr = 0, cd = 0, sp = 0, el = 0, kj = 0, tq = 0, tqCount = 0
-    for (let i = start; i <= end; i++) { pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i]; kj += kjPerMin[i]; if (torque[i] > 0) { tq += torque[i]; tqCount++ } }
-    return { pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len), spd: +(sp / len).toFixed(1), elv: Math.round(el / len), kj: +(kj / len).toFixed(1), tq: tqCount > 0 ? +(tq / tqCount).toFixed(1) : 0 }
+    let mxPw = -Infinity, mxHr = -Infinity
+    for (let i = start; i <= end; i++) {
+      pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i]; kj += kjPerMin[i]
+      if (torque[i] > 0) { tq += torque[i]; tqCount++ }
+      if (power[i] > mxPw) mxPw = power[i]
+      if (heartRate[i] > mxHr) mxHr = heartRate[i]
+    }
+    return {
+      pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len),
+      spd: +(sp / len).toFixed(1), elv: Math.round(el / len), kj: +(kj / len).toFixed(1),
+      tq: tqCount > 0 ? +(tq / tqCount).toFixed(1) : 0,
+      maxPw: Math.round(mxPw), maxHr: Math.round(mxHr),
+    }
   }, [power, heartRate, cadence, speed, altitude, kjPerMin, torque, start, end])
 
   const timeRef = useRef<HTMLSpanElement>(null)
   const pwRef = useRef<HTMLSpanElement>(null)
+  const pwMaxRef = useRef<HTMLSpanElement>(null)
   const hrRef = useRef<HTMLSpanElement>(null)
+  const hrMaxRef = useRef<HTMLSpanElement>(null)
   const kjRef = useRef<HTMLSpanElement>(null)
   const cadRef = useRef<HTMLSpanElement>(null)
   const spdRef = useRef<HTMLSpanElement>(null)
@@ -902,7 +915,9 @@ function FullscreenDataSidebar({
       ? formatTime(end - start)
       : formatDuration(meta.totalTime)
     if (pwRef.current) pwRef.current.textContent = `${a.pw}`
+    if (pwMaxRef.current) pwMaxRef.current.textContent = a.maxPw > 0 ? `max ${a.maxPw}W` : ''
     if (hrRef.current) hrRef.current.textContent = `${a.hr}`
+    if (hrMaxRef.current) hrMaxRef.current.textContent = a.maxHr > 0 ? `max ${a.maxHr}` : ''
     if (kjRef.current) kjRef.current.textContent = `${a.kj}`
     if (cadRef.current) cadRef.current.textContent = `${a.cad}`
     if (spdRef.current) spdRef.current.textContent = `${a.spd}`
@@ -922,7 +937,9 @@ function FullscreenDataSidebar({
       const pw = power[idx]
       if (timeRef.current) timeRef.current.textContent = formatTime(idx)
       if (pwRef.current) pwRef.current.textContent = `${pw}`
+      if (pwMaxRef.current) pwMaxRef.current.textContent = ''
       if (hrRef.current) hrRef.current.textContent = `${heartRate[idx]}`
+      if (hrMaxRef.current) hrMaxRef.current.textContent = ''
       if (kjRef.current) kjRef.current.textContent = kjPerMin[idx].toFixed(1)
       if (cadRef.current) cadRef.current.textContent = `${cadence[idx]}`
       if (spdRef.current) spdRef.current.textContent = speed[idx].toFixed(1)
@@ -944,26 +961,32 @@ function FullscreenDataSidebar({
 
       {/* Metrics — only show those with active charts */}
       {visibleCharts.has('power') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-start justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5">
+          <div className="flex items-center gap-1.5 pt-0.5">
             <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
             <span className="text-[11px] text-[var(--n600)]">Power</span>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={pwRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">W</span>
+          <div className="flex flex-col items-end">
+            <div className="flex items-baseline gap-1">
+              <span ref={pwRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
+              <span className="text-[10px] text-[var(--n600)]">W</span>
+            </div>
+            <span ref={pwMaxRef} className="text-[9px] tabular-nums text-[var(--n600)]" />
           </div>
         </div>
       )}
       {visibleCharts.has('hr') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
+        <div className="flex items-start justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5">
+          <div className="flex items-center gap-1.5 pt-0.5">
             <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
             <span className="text-[11px] text-[var(--n600)]">HR</span>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={hrRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">bpm</span>
+          <div className="flex flex-col items-end">
+            <div className="flex items-baseline gap-1">
+              <span ref={hrRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
+              <span className="text-[10px] text-[var(--n600)]">bpm</span>
+            </div>
+            <span ref={hrMaxRef} className="text-[9px] tabular-nums text-[var(--n600)]" />
           </div>
         </div>
       )}
