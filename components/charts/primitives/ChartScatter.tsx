@@ -130,6 +130,9 @@ export function ChartScatter({
             cy={dot.cy}
             r={dot.r}
             fill={fill}
+            stroke="var(--n50)"
+            strokeWidth={1.5}
+            opacity={0.75}
             className={fill ? undefined : defaultClass}
             style={{
               transition: 'opacity 150ms, transform 150ms',

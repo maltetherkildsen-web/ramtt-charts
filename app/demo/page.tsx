@@ -804,11 +804,11 @@ function ComposedChart() {
       {/* Legend */}
       <div className="ml-12 mt-2 flex gap-5">
         <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-2 rounded-[2px] bg-blue-500/70" />
+          <span className="inline-block h-2 w-2 rounded-[2px]" style={{ backgroundColor: 'var(--chart-1)', opacity: 0.7 }} />
           <span className="font-sans text-[12px] text-(--n800)">Revenue (left axis)</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-block h-0.5 w-3 rounded-full bg-emerald-500" />
+          <span className="inline-block h-0.5 w-3 rounded-full" style={{ backgroundColor: 'var(--chart-2)' }} />
           <span className="font-sans text-[12px] text-(--n800)">Growth rate (right axis)</span>
         </div>
       </div>
@@ -858,7 +858,6 @@ function ComposedInner({
       })
 
       const cx = scaleX(idx)
-      const barTopY = scaleY(rev)
       const dotY = growthScaleY(growth)
 
       // Line dot
@@ -868,7 +867,7 @@ function ComposedInner({
         lineDotRef.current.style.opacity = '1'
       }
 
-      // Combined pill: revenue + growth in one dark pill above bar
+      // Tooltip: left/right of crosshair, fixed Y near top
       const g = labelRef.current
       if (g) {
         const texts = g.querySelectorAll('text')
@@ -876,23 +875,35 @@ function ComposedInner({
         const revText = texts[0] as SVGTextElement
         const growthText = texts[1] as SVGTextElement
 
-        revText.textContent = `$${(rev / 1000).toFixed(0)}k`
-        growthText.textContent = `${growth.toFixed(1)}%`
+        revText.textContent = `Revenue  $${(rev / 1000).toFixed(0)}k`
+        growthText.textContent = `Growth  ${growth.toFixed(1)}%`
 
-        g.setAttribute('transform', `translate(${cx.toFixed(1)},${(barTopY - 12).toFixed(1)})`)
+        // Position: left half → right of crosshair, right half → left
+        const inLeftHalf = cx < chartWidth / 2
+        const tooltipX = inLeftHalf ? cx + 16 : cx - 16
+
+        g.setAttribute('transform', `translate(${tooltipX.toFixed(1)},12)`)
 
         const bbox1 = revText.getBBox()
         const bbox2 = growthText.getBBox()
-        const w = Math.max(bbox1.width, bbox2.width) + 16
-        const h = bbox1.height + bbox2.height + 10
-        bg.setAttribute('x', (-w / 2).toFixed(1))
-        bg.setAttribute('y', (-h).toFixed(1))
+        const w = Math.max(bbox1.width, bbox2.width) + 20
+        const h = bbox1.height + bbox2.height + 14
+
+        // Anchor: left-aligned if on right, right-aligned if on left
+        const anchorX = inLeftHalf ? 0 : -w
+        bg.setAttribute('x', anchorX.toFixed(1))
+        bg.setAttribute('y', '0')
         bg.setAttribute('width', w.toFixed(1))
         bg.setAttribute('height', h.toFixed(1))
-        bg.setAttribute('rx', '4')
+        bg.setAttribute('rx', '6')
 
-        revText.setAttribute('y', (-h + bbox1.height + 3).toFixed(1))
-        growthText.setAttribute('y', (-h + bbox1.height + bbox2.height + 7).toFixed(1))
+        const textX = inLeftHalf ? 10 : -w + 10
+        revText.setAttribute('x', textX.toFixed(1))
+        revText.setAttribute('text-anchor', 'start')
+        revText.setAttribute('y', (bbox1.height + 4).toFixed(1))
+        growthText.setAttribute('x', textX.toFixed(1))
+        growthText.setAttribute('text-anchor', 'start')
+        growthText.setAttribute('y', (bbox1.height + bbox2.height + 8).toFixed(1))
 
         g.style.opacity = '1'
       }
@@ -932,12 +943,12 @@ function ComposedInner({
         format={(i) => labels[i] ?? ''}
         tickValues={labels.map((_, i) => i)}
       />
-      {/* Combined value pill — always two-line: revenue (white) + growth (green) */}
+      {/* Combined value tooltip — revenue + growth, positioned left/right of crosshair */}
       <g ref={labelRef} style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 100ms' }}>
-        <rect fill="var(--n1150)" />
-        <text textAnchor="middle" fill="var(--n50)" fontSize={12}
+        <rect fill="var(--n1150)" rx={6} />
+        <text fill="var(--n50)" fontSize={12}
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }} />
-        <text textAnchor="middle" fill="var(--chart-2)" fontSize={11}
+        <text fill="var(--chart-2)" fontSize={11}
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums' }} />
       </g>
       {/* Line dot */}
@@ -981,11 +992,11 @@ function MarketShareChart() {
         <ChartGrid />
         <MarketShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
       </ChartRoot>
-      {/* Legend */}
-      <div className="ml-12 mt-2 flex gap-5">
+      {/* Legend — line indicators to match area chart visual */}
+      <div className="ml-12 mt-2 flex gap-4">
         {MARKET_COLORS.map((c, i) => (
-          <div key={c.name} className="flex items-center gap-2">
-            <span className={`inline-block h-2 w-2 rounded-[2px] ${c.className}`} />
+          <div key={c.name} className="flex items-center gap-1.5">
+            <span className="inline-block h-0.5 w-3 rounded-full" style={{ backgroundColor: c.color }} />
             <span
               ref={(el) => { legendRefs.current[i] = el }}
               className="font-sans text-[12px] text-(--n800)"
@@ -1057,10 +1068,10 @@ function MarketShareInner({
         dotRef.current.style.opacity = '1'
       }
 
-      // Highlight: hovered segment full, others faded
+      // Highlight: hovered segment boosted, others dimmed
       areaRefs.current.forEach((g, i) => {
         if (g) {
-          g.style.opacity = i === segIdx ? '1' : '0.25'
+          g.style.opacity = i === segIdx ? '0.85' : '0.35'
           g.style.transition = 'opacity 150ms'
         }
       })
@@ -1114,7 +1125,7 @@ function MarketShareInner({
 
   return (
     <>
-      {/* Render bottom-to-top */}
+      {/* Render bottom-to-top: areas + top-edge strokes */}
       {[...stacked].reverse().map((series, reverseIdx) => {
         const originalIdx = stacked.length - 1 - reverseIdx
         return (
@@ -1128,6 +1139,13 @@ function MarketShareInner({
               y0Accessor={(_, i) => series[i].y0}
               yAccessor={(_, i) => series[i].y1}
             />
+            <g style={{ color: MARKET_COLORS[originalIdx].color }}>
+              <ChartLine
+                data={indices}
+                yAccessor={(_, i) => series[i].y1}
+                className="fill-none stroke-current stroke-1"
+              />
+            </g>
           </g>
         )
       })}
@@ -1546,6 +1564,7 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
   const { scaleX, scaleY, chartWidth, chartHeight } = useChart()
   const dotsRef = useRef<SVGGElement>(null)
   const labelRef = useRef<SVGGElement>(null)
+  const highlightRingRef = useRef<SVGCircleElement>(null)
   const activeIdx = useRef(-1)
 
   // Pre-compute pixel positions for nearest2d lookup
@@ -1566,19 +1585,26 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
       const circles = dotsRef.current?.querySelectorAll('circle')
       circles?.forEach((circle, i) => {
         const el = circle as SVGCircleElement
-        el.style.transition = 'opacity 150ms ease-out, transform 150ms ease-out'
+        el.style.transition = 'opacity 150ms ease-out'
         if (i === index) {
           el.style.opacity = '1'
-          el.style.transform = 'scale(1.2)'
-          el.setAttribute('stroke', 'white')
           el.setAttribute('stroke-width', '2')
         } else {
-          el.style.opacity = '0.3'
-          el.style.transform = 'scale(1)'
-          el.removeAttribute('stroke')
-          el.removeAttribute('stroke-width')
+          el.style.opacity = '0.25'
         }
       })
+
+      // Highlight ring around hovered dot
+      const ringEl = highlightRingRef.current
+      if (ringEl && index >= 0) {
+        const pt = pixelPoints[index]
+        const baseR = parseFloat(circles?.[index]?.getAttribute('r') ?? '4')
+        ringEl.setAttribute('cx', pt.x.toFixed(1))
+        ringEl.setAttribute('cy', pt.y.toFixed(1))
+        ringEl.setAttribute('r', (baseR + 4).toFixed(1))
+        ringEl.setAttribute('stroke', SCATTER_COLORS[data[index].group])
+        ringEl.style.opacity = '1'
+      }
 
       // Value label near hovered dot
       const g = labelRef.current
@@ -1613,12 +1639,11 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
     requestAnimationFrame(() => {
       dotsRef.current?.querySelectorAll('circle').forEach((circle) => {
         const el = circle as SVGCircleElement
-        el.style.opacity = '1'
-        el.style.transform = 'scale(1)'
-        el.removeAttribute('stroke')
-        el.removeAttribute('stroke-width')
+        el.style.opacity = '0.75'
+        el.setAttribute('stroke-width', '1.5')
       })
       if (labelRef.current) labelRef.current.style.opacity = '0'
+      if (highlightRingRef.current) highlightRingRef.current.style.opacity = '0'
     })
   }, [])
 
@@ -1634,6 +1659,9 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
           colorFn={(d) => SCATTER_COLORS[d.group]}
         />
       </g>
+      {/* Highlight ring */}
+      <circle ref={highlightRingRef} r={8} fill="none" strokeWidth={2}
+        style={{ opacity: 0, pointerEvents: 'none', transition: 'opacity 150ms' }} />
       <ChartAxisX labelCount={5} format={(v) => v.toFixed(0)} tickValues={[0, 25, 50, 75, 100]} />
       <ChartAxisY tickCount={5} format={(v) => v.toFixed(0)} />
       {/* Value label pill */}
@@ -2296,11 +2324,11 @@ function BrowserShareChart() {
         <ChartGrid />
         <BrowserShareInner stacked={stacked} indices={indices} legendRefs={legendRefs} />
       </ChartRoot>
-      {/* Legend */}
-      <div className="ml-12 mt-2 flex gap-5">
+      {/* Legend — line indicators */}
+      <div className="ml-12 mt-2 flex gap-4">
         {BROWSER_COLORS.map((c, i) => (
-          <div key={c.name} className="flex items-center gap-2">
-            <span className={`inline-block h-2 w-2 rounded-[2px] ${c.className}`} />
+          <div key={c.name} className="flex items-center gap-1.5">
+            <span className="inline-block h-0.5 w-3 rounded-full" style={{ backgroundColor: c.color }} />
             <span
               ref={(el) => { legendRefs.current[i] = el }}
               className="font-sans text-[12px] text-(--n800)"
@@ -2371,7 +2399,7 @@ function BrowserShareInner({
 
       areaRefs.current.forEach((g, i) => {
         if (g) {
-          g.style.opacity = i === segIdx ? '1' : '0.25'
+          g.style.opacity = i === segIdx ? '0.85' : '0.35'
           g.style.transition = 'opacity 150ms'
         }
       })
@@ -2420,7 +2448,7 @@ function BrowserShareInner({
 
   return (
     <>
-      {/* Render bottom-to-top */}
+      {/* Render bottom-to-top: areas + top-edge strokes */}
       {[...stacked].reverse().map((series, reverseIdx) => {
         const originalIdx = stacked.length - 1 - reverseIdx
         return (
@@ -2434,6 +2462,13 @@ function BrowserShareInner({
               y0Accessor={(_, i) => series[i].y0}
               yAccessor={(_, i) => series[i].y1}
             />
+            <g style={{ color: BROWSER_COLORS[originalIdx].color }}>
+              <ChartLine
+                data={indices}
+                yAccessor={(_, i) => series[i].y1}
+                className="fill-none stroke-current stroke-1"
+              />
+            </g>
           </g>
         )
       })}
