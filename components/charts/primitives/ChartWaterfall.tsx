@@ -55,15 +55,15 @@ export function ChartWaterfall({
   data,
   width = 600,
   height = 300,
-  positiveClassName = 'fill-emerald-500',
-  negativeClassName = 'fill-red-500',
-  totalClassName = 'fill-blue-500',
-  radius = 3,
-  gap = 0.3,
+  positiveClassName,
+  negativeClassName,
+  totalClassName,
+  radius = 2,
+  gap = 0.35,
   animate = true,
   className,
 }: ChartWaterfallProps) {
-  const padTop = 20
+  const padTop = 24
   const padBottom = 40
   const padLeft = 48
   const padRight = 12
@@ -91,6 +91,13 @@ export function ChartWaterfall({
   const barW = barSlotW * (1 - gap)
   const barOffset = (barSlotW - barW) / 2
 
+  // Color resolver — use CSS custom properties for fills
+  const barFill = (type: string): string => {
+    if (type === 'total') return 'var(--n1050)'
+    if (type === 'increase') return 'var(--chart-positive)'
+    return 'var(--chart-negative)'
+  }
+
   // Animation
   const anim = resolveAnimate(animate, { duration: 600, delay: 0, easing: EASE_OUT_EXPO })
   const stagger = 50
@@ -103,10 +110,21 @@ export function ChartWaterfall({
       className={cn(className)}
     >
       <g transform={`translate(${padLeft}, 0)`}>
+        {/* Zero reference line */}
+        {minVal <= 0 && maxVal >= 0 && (
+          <line
+            x1={0}
+            y1={scaleY(0)}
+            x2={chartW}
+            y2={scaleY(0)}
+            stroke="var(--n400)"
+            strokeWidth={0.5}
+          />
+        )}
+
         {/* Connector lines between bars */}
         {bars.map((bar, i) => {
           if (i === n - 1) return null
-          const next = bars[i + 1]
           const fromX = i * barSlotW + barOffset + barW
           const toX = (i + 1) * barSlotW + barOffset
           const y = scaleY(bar.type === 'increase' || bar.type === 'total'
@@ -121,7 +139,7 @@ export function ChartWaterfall({
               y2={y}
               stroke="var(--n400)"
               strokeWidth={0.5}
-              strokeDasharray="3 2"
+              strokeDasharray="2 2"
             />
           )
         })}
@@ -134,6 +152,7 @@ export function ChartWaterfall({
           const top = Math.min(y0px, y1px)
           const barH = Math.max(1, Math.abs(y1px - y0px))
 
+          const fill = barFill(bar.type)
           const barClass = bar.type === 'total'
             ? totalClassName
             : bar.type === 'increase'
@@ -142,24 +161,43 @@ export function ChartWaterfall({
 
           const baselineY = top + barH
 
+          // Value label above/below bar
+          const delta = bar.type === 'total' ? bar.y1 : bar.y1 - bar.y0
+          const labelY = bar.type === 'decrease' ? top + barH + 13 : top - 5
+          const prefix = bar.type === 'increase' ? '+' : bar.type === 'decrease' ? '' : ''
+
           return (
-            <rect
-              key={i}
-              x={x}
-              y={top}
-              width={barW}
-              height={barH}
-              rx={radius}
-              ry={radius}
-              className={barClass}
-              style={anim.enabled
-                ? {
-                    transformOrigin: `${x + barW / 2}px ${baselineY}px`,
-                    animation: `ramtt-bar-grow ${anim.duration}ms ${anim.easing} ${anim.delay + i * stagger}ms both`,
-                  }
-                : undefined
-              }
-            />
+            <g key={i}>
+              <rect
+                x={x}
+                y={top}
+                width={barW}
+                height={barH}
+                rx={radius}
+                ry={radius}
+                fill={barClass ? undefined : fill}
+                opacity={bar.type === 'total' ? 1 : 0.75}
+                className={barClass}
+                style={anim.enabled
+                  ? {
+                      transformOrigin: `${x + barW / 2}px ${baselineY}px`,
+                      animation: `ramtt-bar-grow ${anim.duration}ms ${anim.easing} ${anim.delay + i * stagger}ms both`,
+                    }
+                  : undefined
+                }
+              />
+              {/* Value label */}
+              <text
+                x={x + barW / 2}
+                y={labelY}
+                textAnchor="middle"
+                fill="var(--n800)"
+                fontSize={11}
+                style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums' }}
+              >
+                {prefix}{Math.abs(delta).toLocaleString()}
+              </text>
+            </g>
           )
         })}
       </g>
@@ -175,7 +213,7 @@ export function ChartWaterfall({
               y={height - padBottom + 16}
               textAnchor="middle"
               fill="var(--n600)"
-              fontSize={10}
+              fontSize={11}
               style={{ fontFamily: 'var(--font-sans)', fontWeight: 450 }}
             >
               {bar.label}
@@ -195,10 +233,10 @@ export function ChartWaterfall({
             textAnchor="end"
             dominantBaseline="central"
             fill="var(--n600)"
-            fontSize={9}
-            style={{ fontFamily: 'var(--font-sans)', fontVariantNumeric: 'tabular-nums' }}
+            fontSize={10}
+            style={{ fontFamily: 'var(--font-sans)', fontWeight: 450, fontVariantNumeric: 'tabular-nums' }}
           >
-            {t.toLocaleString()}
+            {(t / 1000).toFixed(1)} kJ
           </text>
         ))
       })()}

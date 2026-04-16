@@ -1666,10 +1666,10 @@ function ScatterInner({ data }: { data: ScatterPoint[] }) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 const REGION_COLORS = [
-  { name: 'West', color: 'var(--chart-3)', className: 'fill-[var(--chart-3)]/75' },
-  { name: 'East', color: 'var(--chart-4)', className: 'fill-[var(--chart-4)]/75' },
-  { name: 'South', color: 'var(--chart-2)', className: 'fill-[var(--chart-2)]/75' },
-  { name: 'North', color: 'var(--chart-1)', className: 'fill-[var(--chart-1)]/75' },
+  { name: 'West', color: 'var(--chart-3)', className: 'fill-[var(--chart-3)]/80' },
+  { name: 'East', color: 'var(--chart-4)', className: 'fill-[var(--chart-4)]/80' },
+  { name: 'South', color: 'var(--chart-2)', className: 'fill-[var(--chart-2)]/80' },
+  { name: 'North', color: 'var(--chart-1)', className: 'fill-[var(--chart-1)]/80' },
 ]
 
 function StackedBarChart() {
@@ -1717,14 +1717,14 @@ function StackedBarChart() {
         />
       </ChartRoot>
       {/* Legend */}
-      <div className="ml-12 mt-2 flex gap-5">
+      <div className="ml-12 mt-2 flex gap-4">
         {[...REGION_COLORS].reverse().map((r) => (
-          <div key={r.name} className="flex items-center gap-2">
+          <div key={r.name} className="flex items-center gap-1.5">
             <span
               className="inline-block h-2 w-2 rounded-[2px]"
               style={{ backgroundColor: r.color }}
             />
-            <span className="font-sans text-[12px] text-(--n800)">{r.name}</span>
+            <span className="font-sans text-[12px] font-normal text-(--n800)">{r.name}</span>
           </div>
         ))}
       </div>
@@ -1821,8 +1821,8 @@ function StackedBarInner({
             data={regionData[seriesIdx]}
             y0Accessor={(_, i) => stacked[seriesIdx][i].y0}
             className={region.className}
-            radius={seriesIdx === REGION_COLORS.length - 1 ? 3 : 0}
-            gap={32}
+            radius={seriesIdx === REGION_COLORS.length - 1 ? 2 : 0}
+            gap={28}
           />
         ))}
       </g>
@@ -2217,9 +2217,8 @@ function RadarChart() {
       <ChartRadar
         dimensions={profile.dimensions}
         series={profile.series}
-        size={320}
+        size={340}
         rings={5}
-        showValues
       />
     </ChartCard>
   )
@@ -2498,7 +2497,7 @@ function FunnelChart() {
 
   return (
     <ChartCard title="Sales Pipeline" description="Sales funnel with stage-to-stage conversion" components="ChartFunnel" trend={{ text: '12% overall conversion rate', direction: 'flat' }} context="Current pipeline">
-      <ChartFunnel data={data} width={860} height={260} />
+      <ChartFunnel data={data} width={860} height={280} />
     </ChartCard>
   )
 }
@@ -2540,19 +2539,19 @@ function BoxPlotChart() {
       {/* Legend */}
       <div className="ml-12 mt-2 flex gap-5">
         <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-0.5" style={{ backgroundColor: 'var(--n1150)' }} />
+          <span className="inline-block h-2 w-0.5" style={{ backgroundColor: 'var(--n800)' }} />
           <span className="font-sans text-[12px] text-(--n800)">Whiskers (min–max)</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-block h-2 w-3 rounded-[1px] border border-(--n1150)" style={{ opacity: 0.15, backgroundColor: 'var(--n1150)' }} />
+          <span className="inline-block h-2 w-3 rounded-[1px]" style={{ opacity: 0.6, backgroundColor: 'var(--chart-1)', border: '0.5px solid var(--chart-1)' }} />
           <span className="font-sans text-[12px] text-(--n800)">Q1–Q3</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-block h-0.5 w-3 bg-blue-500" />
+          <span className="inline-block h-0.5 w-3" style={{ backgroundColor: 'var(--n1150)' }} />
           <span className="font-sans text-[12px] text-(--n800)">Median</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-blue-500" />
+          <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ backgroundColor: 'var(--n600)' }} />
           <span className="font-sans text-[12px] text-(--n800)">Outliers</span>
         </div>
       </div>
@@ -2966,9 +2965,9 @@ function SankeyChart() {
         data={data}
         width={880}
         height={320}
-        nodeWidth={18}
-        nodePadding={12}
-        colors={['#3b82f6', '#22c55e', '#eab308', '#f97316', '#ef4444', '#8b5cf6']}
+        nodeWidth={14}
+        nodePadding={14}
+        colors={['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-5)', 'var(--chart-4)', 'var(--chart-6)']}
       />
     </ChartCard>
   )
@@ -3015,8 +3014,8 @@ function PyramidChart() {
           data={data}
           width={520}
           height={320}
-          gap={3}
-          neckWidth={0.12}
+          gap={1}
+          neckWidth={0.1}
         />
       </div>
     </ChartCard>
@@ -3039,10 +3038,7 @@ function EnergyBalanceChart() {
         data={data}
         width={880}
         height={300}
-        positiveClassName="fill-emerald-500"
-        negativeClassName="fill-red-500"
-        totalClassName="fill-blue-500"
-        radius={3}
+        radius={2}
         gap={0.35}
       />
     </ChartCard>
@@ -3061,7 +3057,7 @@ function BulletChartStrip() {
       description="Compact bullet charts — actual value, target marker, qualitative ranges"
       components="ChartBullet"
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         {metrics.map((m) => (
           <ChartBullet
             key={m.label}
@@ -3069,7 +3065,7 @@ function BulletChartStrip() {
             target={m.target}
             ranges={m.ranges}
             width={500}
-            height={28}
+            height={30}
             label={m.label}
             unit={m.unit}
           />

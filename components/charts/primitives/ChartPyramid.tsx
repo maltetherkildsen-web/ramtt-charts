@@ -52,40 +52,52 @@ export function ChartPyramid({
   width = 400,
   height = 350,
   colors = [],
-  gap = 2,
-  neckWidth = 0.15,
+  gap = 1,
+  neckWidth = 0.1,
   animate = true,
   className,
 }: ChartPyramidProps) {
-  const labelPadRight = 120
+  const labelPadRight = 140
   const chartW = width - labelPadRight
+  const maxW = Math.min(chartW, 300) // Keep pyramid narrow
+  const offsetX = (chartW - maxW) / 2 // Center the pyramid
   const maxVal = useMemo(() => Math.max(...data.map((d) => d.value), 1), [data])
+  const totalVal = useMemo(() => data.reduce((s, d) => s + d.value, 0), [data])
 
-  // Segments are ordered top-to-bottom (index 0 = top / narrowest)
-  // Data is provided widest-first (Z1 at index 0), but pyramid is widest at bottom
-  // So we render in reverse: last item at bottom (widest)
+  // Segments: reversed order (narrowest at top, widest at bottom)
+  // Heights proportional to value — Z1 is much taller than Z6
   const segments = useMemo(() => {
     const n = data.length
     if (n === 0) return []
 
     const totalGaps = (n - 1) * gap
-    const segH = (height - totalGaps) / n
+    const availH = height - totalGaps
 
-    return data.map((item, i) => {
-      // i=0 is widest (bottom), i=n-1 is narrowest (top)
-      // Render bottom to top, so visual position: bottom item at bottom of SVG
-      const visualIdx = n - 1 - i // flip: data[0] goes to bottom
-      const y = visualIdx * (segH + gap)
+    // Heights proportional to value
+    const heights = data.map((item) => Math.max(8, (item.value / totalVal) * availH))
+
+    // Reversed order: data[n-1] (narrowest) at top, data[0] (widest) at bottom
+    const reversed = [...data].map((_, i) => n - 1 - i) // visual order indices
+
+    let cumulativeY = 0
+    const result = reversed.map((dataIdx) => {
+      const item = data[dataIdx]
+      const segH = heights[dataIdx]
+      const y = cumulativeY
+      cumulativeY += segH + gap
 
       const fraction = item.value / maxVal
-      const w = (neckWidth + (1 - neckWidth) * fraction) * chartW
-      const x = (chartW - w) / 2
+      const w = (neckWidth + (1 - neckWidth) * fraction) * maxW
+      const x = offsetX + (maxW - w) / 2
 
-      const color = item.color ?? colors[i % Math.max(1, colors.length)] ?? 'var(--chart-1)'
+      const color = item.color ?? colors[dataIdx % Math.max(1, colors.length)] ?? 'var(--chart-1)'
+      const pct = Math.round((item.value / totalVal) * 100)
 
-      return { item, x, y, w, h: segH, color, index: i, visualIdx }
+      return { item, x, y, w, h: segH, color, index: dataIdx, visualIdx: n - 1 - dataIdx, pct }
     })
-  }, [data, chartW, height, gap, neckWidth, maxVal, colors])
+
+    return result
+  }, [data, maxW, offsetX, height, gap, neckWidth, maxVal, totalVal, colors])
 
   // Hover refs
   const segRefs = useRef<(SVGGElement | null)[]>([])
@@ -122,8 +134,10 @@ export function ChartPyramid({
       className={cn(className)}
     >
       {segments.map((seg) => {
-        const centerX = chartW / 2
+        const centerX = offsetX + maxW / 2
         const centerY = seg.y + seg.h / 2
+        const labelX = chartW + 12
+        const labelY = seg.y + seg.h / 2
 
         return (
           <g
@@ -141,35 +155,47 @@ export function ChartPyramid({
             onPointerEnter={() => handleEnter(seg.index)}
             onPointerLeave={handleLeave}
           >
-            {/* Trapezoid segment */}
+            {/* Segment */}
             <rect
               x={seg.x}
               y={seg.y}
               width={seg.w}
               height={seg.h}
-              rx={3}
-              ry={3}
+              rx={2}
+              ry={2}
               fill={seg.color}
+              opacity={0.7}
             />
 
-            {/* Label + value to the right */}
+            {/* Connecting line to label */}
+            <line
+              x1={seg.x + seg.w}
+              y1={labelY}
+              x2={labelX - 4}
+              y2={labelY}
+              stroke="var(--n400)"
+              strokeWidth={0.5}
+            />
+
+            {/* Label */}
             <text
-              x={chartW + 12}
-              y={seg.y + seg.h / 2 - 6}
-              fill="var(--n1050)"
+              x={labelX}
+              y={labelY - 6}
+              fill="var(--n800)"
               fontSize={12}
               style={{ fontFamily: 'var(--font-sans)', fontWeight: 450 }}
             >
               {seg.item.label}
             </text>
+            {/* Percentage */}
             <text
-              x={chartW + 12}
-              y={seg.y + seg.h / 2 + 8}
+              x={labelX}
+              y={labelY + 8}
               fill="var(--n1150)"
               fontSize={12}
               style={{ fontFamily: 'var(--font-sans)', fontWeight: 550, fontVariantNumeric: 'tabular-nums' }}
             >
-              {seg.item.value.toLocaleString()}
+              {seg.pct}%
             </text>
           </g>
         )

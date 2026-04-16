@@ -451,8 +451,8 @@ export function generateAthleteProfile(): AthleteProfile {
   return {
     dimensions: ['Explosive', 'Anaerobic', 'VO2max', 'Threshold', 'Endurance', 'Durability', 'Fuel Efficiency', 'Race Execution'],
     series: [
-      { label: 'Current', values: [72, 85, 90, 88, 76, 65, 75, 68], className: 'stroke-[var(--n1150)] fill-[var(--n1150)]/15' },
-      { label: 'Best ever', values: [80, 88, 92, 90, 82, 78, 80, 74], className: 'stroke-[var(--n600)] fill-[var(--n600)]/10', dashed: true },
+      { label: 'Current', values: [72, 85, 90, 88, 76, 65, 75, 68], className: 'stroke-[var(--n1150)] fill-[var(--n1150)]/12' },
+      { label: 'Best ever', values: [80, 88, 92, 90, 82, 78, 80, 74], className: 'stroke-[var(--n600)] fill-[var(--n600)]/8', dashed: true },
     ],
   }
 }
@@ -559,11 +559,11 @@ export interface SalesPipelineItem {
  */
 export function generateSalesPipeline(): SalesPipelineItem[] {
   return [
-    { label: 'Leads', value: 1000, color: '#3b82f6' },
-    { label: 'Qualified', value: 720, color: '#22c55e' },
-    { label: 'Proposal', value: 410, color: '#f59e0b' },
-    { label: 'Negotiation', value: 230, color: '#8b5cf6' },
-    { label: 'Closed', value: 120, color: '#ef4444' },
+    { label: 'Leads', value: 1000, color: 'var(--chart-1)' },
+    { label: 'Qualified', value: 720, color: 'var(--chart-2)' },
+    { label: 'Proposal', value: 410, color: 'var(--chart-3)' },
+    { label: 'Negotiation', value: 230, color: 'var(--chart-4)' },
+    { label: 'Closed', value: 120, color: 'var(--chart-5)' },
   ]
 }
 
@@ -847,12 +847,12 @@ export function generateSunburstData(): SunburstNode {
 
 export function generatePyramidData() {
   return [
-    { label: 'Z1 Recovery', value: 420, color: '#94a3b8' },
-    { label: 'Z2 Endurance', value: 280, color: '#22c55e' },
-    { label: 'Z3 Tempo', value: 120, color: '#eab308' },
-    { label: 'Z4 Threshold', value: 60, color: '#f97316' },
-    { label: 'Z5 VO2max', value: 30, color: '#ef4444' },
-    { label: 'Z6 Anaerobic', value: 10, color: '#dc2626' },
+    { label: 'Z1 Recovery', value: 420, color: 'var(--color-pz-1)' },
+    { label: 'Z2 Endurance', value: 280, color: 'var(--color-pz-2)' },
+    { label: 'Z3 Tempo', value: 120, color: 'var(--color-pz-3)' },
+    { label: 'Z4 Threshold', value: 60, color: 'var(--color-pz-4)' },
+    { label: 'Z5 VO2max', value: 30, color: 'var(--color-pz-5)' },
+    { label: 'Z6 Anaerobic', value: 10, color: 'var(--color-pz-6)' },
   ]
 }
 
@@ -883,10 +883,10 @@ export function generateBulletMetrics() {
       value: 238,
       target: 250,
       ranges: [
-        { to: 200, color: '#fecaca' },
-        { to: 240, color: '#fef3c7' },
-        { to: 280, color: '#d1fae5' },
-        { to: 320, color: '#ecfdf5' },
+        { to: 200, color: 'var(--n200)' },
+        { to: 240, color: 'var(--n400)' },
+        { to: 280, color: 'rgba(132,204,22,0.15)' },
+        { to: 320, color: 'rgba(132,204,22,0.08)' },
       ],
     },
     {
@@ -895,10 +895,10 @@ export function generateBulletMetrics() {
       value: 580,
       target: 650,
       ranges: [
-        { to: 400, color: '#fecaca' },
-        { to: 550, color: '#fef3c7' },
-        { to: 700, color: '#d1fae5' },
-        { to: 800, color: '#ecfdf5' },
+        { to: 400, color: 'var(--n200)' },
+        { to: 550, color: 'var(--n400)' },
+        { to: 700, color: 'rgba(132,204,22,0.15)' },
+        { to: 800, color: 'rgba(132,204,22,0.08)' },
       ],
     },
     {
@@ -907,10 +907,10 @@ export function generateBulletMetrics() {
       value: 142,
       target: 148,
       ranges: [
-        { to: 120, color: '#ecfdf5' },
-        { to: 145, color: '#d1fae5' },
-        { to: 160, color: '#fef3c7' },
-        { to: 180, color: '#fecaca' },
+        { to: 120, color: 'rgba(132,204,22,0.08)' },
+        { to: 145, color: 'rgba(132,204,22,0.15)' },
+        { to: 160, color: 'var(--n400)' },
+        { to: 180, color: 'var(--n200)' },
       ],
     },
     {
@@ -919,10 +919,10 @@ export function generateBulletMetrics() {
       value: 72,
       target: 80,
       ranges: [
-        { to: 40, color: '#fecaca' },
-        { to: 60, color: '#fef3c7' },
-        { to: 80, color: '#d1fae5' },
-        { to: 100, color: '#ecfdf5' },
+        { to: 40, color: 'var(--n200)' },
+        { to: 60, color: 'var(--n400)' },
+        { to: 80, color: 'rgba(132,204,22,0.15)' },
+        { to: 100, color: 'rgba(132,204,22,0.08)' },
       ],
     },
   ]

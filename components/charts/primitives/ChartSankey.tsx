@@ -86,11 +86,11 @@ export function ChartSankey({
 
     linkRefs.current.forEach((p, i) => {
       if (!p) return
-      p.style.opacity = target === -1 ? '0.3' : i === target ? '0.5' : '0.08'
+      p.style.opacity = target === -1 ? '0.2' : i === target ? '0.4' : '0.06'
     })
     nodeRefs.current.forEach((g) => {
       if (!g) return
-      g.style.opacity = target === -1 ? '1' : '0.5'
+      g.style.opacity = target === -1 ? '1' : '0.4'
     })
 
     // Highlight source and target nodes of the hovered link
@@ -128,16 +128,26 @@ export function ChartSankey({
       shapeRendering="geometricPrecision"
     >
       <g transform={`translate(${padLeft}, ${padTop})`}>
+        {/* Gradient defs for flow paths — source color to target color */}
+        <defs>
+          {layout.links.map((link, i) => (
+            <linearGradient key={`grad-${i}`} id={`sankey-grad-${i}`} x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={link.source.color} />
+              <stop offset="100%" stopColor={link.target.color} />
+            </linearGradient>
+          ))}
+        </defs>
+
         {/* Links (bottom layer) */}
         {layout.links.map((link, i) => (
           <path
             key={`link-${i}`}
             ref={(el) => { linkRefs.current[i] = el }}
             d={link.path}
-            fill={link.source.color}
-            opacity={0.3}
+            fill={`url(#sankey-grad-${i})`}
+            opacity={0.2}
             style={{
-              transition: 'opacity 200ms',
+              transition: 'opacity 150ms',
               ...(anim.enabled
                 ? { animation: `ramtt-grid-fade ${anim.duration}ms ${anim.easing} ${anim.delay + 200 + i * 40}ms both` }
                 : undefined),
@@ -153,7 +163,7 @@ export function ChartSankey({
             key={node.id}
             ref={(el) => { nodeRefs.current[i] = el }}
             style={{
-              transition: 'opacity 200ms',
+              transition: 'opacity 150ms',
               ...(anim.enabled
                 ? { animation: `ramtt-dot-pop 400ms ${anim.easing} ${anim.delay + node.column * 100}ms both` }
                 : undefined),
@@ -164,17 +174,18 @@ export function ChartSankey({
               y={node.y}
               width={node.width}
               height={node.height}
-              rx={3}
+              rx={4}
               fill={node.color}
+              opacity={0.85}
             />
             {/* Label — left of first column, right of last, otherwise right */}
             <text
-              x={node.column === 0 ? node.x - 6 : node.x + node.width + 6}
+              x={node.column === 0 ? node.x - 8 : node.x + node.width + 8}
               y={node.y + node.height / 2}
               textAnchor={node.column === 0 ? 'end' : 'start'}
               dominantBaseline="central"
-              fill="var(--n1050)"
-              fontSize={11}
+              fill="var(--n800)"
+              fontSize={12}
               style={{ fontFamily: 'var(--font-sans)', fontWeight: 450 }}
             >
               {node.label}

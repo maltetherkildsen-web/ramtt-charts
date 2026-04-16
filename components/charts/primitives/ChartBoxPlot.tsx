@@ -51,8 +51,8 @@ export interface ChartBoxPlotProps {
 export function ChartBoxPlot({
   data,
   boxWidth = 0.5,
-  color = 'var(--n1150)',
-  medianColor = '#3b82f6',
+  color = 'var(--chart-1)',
+  medianColor = 'var(--n1150)',
   className,
 }: ChartBoxPlotProps) {
   const { scaleX, scaleY, chartWidth } = useChart()
@@ -61,8 +61,8 @@ export function ChartBoxPlot({
     if (!data || data.length === 0) return []
 
     const step = data.length > 1 ? scaleX(1) - scaleX(0) : chartWidth
-    const halfW = (step * boxWidth) / 2
-    const capHalfW = halfW * 0.5
+    const halfW = Math.min((step * boxWidth) / 2, 15) // Max 30px wide
+    const capHalfW = 6 // Fixed 12px cap width
 
     return data.map((d, i) => {
       const cx = scaleX(i)
@@ -99,32 +99,32 @@ export function ChartBoxPlot({
           <line
             x1={b.cx} y1={b.yQ1}
             x2={b.cx} y2={b.yMin}
-            stroke={color}
-            strokeWidth={1}
+            stroke="var(--n800)"
+            strokeWidth={0.5}
             shapeRendering="crispEdges"
           />
           {/* Upper whisker: Q3 to max */}
           <line
             x1={b.cx} y1={b.yQ3}
             x2={b.cx} y2={b.yMax}
-            stroke={color}
-            strokeWidth={1}
+            stroke="var(--n800)"
+            strokeWidth={0.5}
             shapeRendering="crispEdges"
           />
           {/* Min cap */}
           <line
             x1={b.cx - b.capHalfW} y1={b.yMin}
             x2={b.cx + b.capHalfW} y2={b.yMin}
-            stroke={color}
-            strokeWidth={1}
+            stroke="var(--n800)"
+            strokeWidth={0.5}
             shapeRendering="crispEdges"
           />
           {/* Max cap */}
           <line
             x1={b.cx - b.capHalfW} y1={b.yMax}
             x2={b.cx + b.capHalfW} y2={b.yMax}
-            stroke={color}
-            strokeWidth={1}
+            stroke="var(--n800)"
+            strokeWidth={0.5}
             shapeRendering="crispEdges"
           />
           {/* Box: Q1 to Q3 */}
@@ -134,11 +134,11 @@ export function ChartBoxPlot({
             width={b.halfW * 2}
             height={Math.abs(b.yQ3 - b.yQ1)}
             fill={color}
-            fillOpacity={0.15}
+            fillOpacity={0.6}
             stroke={color}
-            strokeWidth={1}
+            strokeWidth={0.5}
           />
-          {/* Median line */}
+          {/* Median line — the most prominent element */}
           <line
             x1={b.cx - b.halfW} y1={b.yMedian}
             x2={b.cx + b.halfW} y2={b.yMedian}
@@ -152,8 +152,8 @@ export function ChartBoxPlot({
               key={oi}
               cx={b.cx}
               cy={oy}
-              r={2.5}
-              fill={medianColor}
+              r={3}
+              fill="var(--n600)"
             />
           ))}
         </g>

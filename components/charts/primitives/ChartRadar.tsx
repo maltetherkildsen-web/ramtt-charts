@@ -89,25 +89,23 @@ export function ChartRadar({
   const maxRadius = size / 2 - padding
   const n = dimensions.length
 
-  // Grid ring polygons
-  const gridPaths = useMemo(() => {
-    const result: string[] = []
+  // Grid ring radii (circular rings instead of polygon)
+  const gridRadii = useMemo(() => {
+    const result: number[] = []
     for (let r = 1; r <= rings; r++) {
-      const ringRadius = (r / rings) * maxRadius
-      const pts = radarGridPoints(n, cx, cy, ringRadius)
-      result.push(radarPath(pts))
+      result.push((r / rings) * maxRadius)
     }
     return result
-  }, [rings, maxRadius, n, cx, cy])
+  }, [rings, maxRadius])
 
   // Axis endpoint coordinates
   const axisEnds = useMemo(() => {
     return radarGridPoints(n, cx, cy, maxRadius)
   }, [n, cx, cy, maxRadius])
 
-  // Label positions (slightly beyond maxRadius)
+  // Label positions (12px beyond outermost ring)
   const labelPositions = useMemo(() => {
-    const labelRadius = maxRadius + 14
+    const labelRadius = maxRadius + 16
     return radarPoints(new Array(n).fill(100), 100, cx, cy, labelRadius)
   }, [n, cx, cy, maxRadius])
 
@@ -179,8 +177,9 @@ export function ChartRadar({
       // Highlight axis line
       axisLineRefs.current.forEach((line, i) => {
         if (line) {
-          line.setAttribute('stroke', i === dimIdx ? 'var(--n600)' : 'var(--n200)')
+          line.setAttribute('stroke', i === dimIdx ? 'var(--n600)' : 'var(--n400)')
           line.setAttribute('stroke-width', i === dimIdx ? '1' : '0.5')
+          line.style.opacity = i === dimIdx ? '0.6' : '0.2'
         }
       })
 
@@ -234,8 +233,9 @@ export function ChartRadar({
     requestAnimationFrame(() => {
       axisLineRefs.current.forEach((line) => {
         if (line) {
-          line.setAttribute('stroke', 'var(--n200)')
+          line.setAttribute('stroke', 'var(--n400)')
           line.setAttribute('stroke-width', '0.5')
+          line.style.opacity = '0.2'
         }
       })
       seriesData.forEach((_, si) => {
@@ -260,19 +260,21 @@ export function ChartRadar({
       className={cn(className)}
       shapeRendering="geometricPrecision"
     >
-      {/* Grid rings */}
-      {gridPaths.map((d, i) => (
-        <path
+      {/* Grid rings (circular) */}
+      {gridRadii.map((r, i) => (
+        <circle
           key={`ring-${i}`}
-          d={d}
+          cx={cx}
+          cy={cy}
+          r={r}
           fill="none"
           stroke="var(--n400)"
           strokeWidth={0.5}
-          strokeOpacity={0.3}
+          opacity={0.3}
         />
       ))}
 
-      {/* Axis lines */}
+      {/* Axis lines (spokes) */}
       {axisEnds.map(([x, y], i) => (
         <line
           key={`axis-${i}`}
@@ -281,9 +283,10 @@ export function ChartRadar({
           y1={cy}
           x2={x}
           y2={y}
-          stroke="var(--n200)"
+          stroke="var(--n400)"
           strokeWidth={0.5}
-          style={{ transition: 'stroke 150ms, stroke-width 150ms' }}
+          opacity={0.2}
+          style={{ transition: 'stroke 150ms, stroke-width 150ms, opacity 150ms' }}
         />
       ))}
 

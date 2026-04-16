@@ -72,7 +72,7 @@ export function ChartBullet({
   target,
   ranges,
   width = 300,
-  height = 32,
+  height = 30,
   label,
   unit,
   valueClassName,
@@ -83,7 +83,7 @@ export function ChartBullet({
   const labelWidth = label ? 80 : 0
   const valueTextWidth = 60
   const chartW = width - labelWidth - valueTextWidth
-  const barH = height * 0.5
+  const barH = height * 0.38
   const barY = (height - barH) / 2
 
   // Determine max of ranges for scaling
@@ -111,7 +111,7 @@ export function ChartBullet({
           y={height / 2}
           dominantBaseline="central"
           fill="var(--n800)"
-          fontSize={12}
+          fontSize={13}
           style={{ fontFamily: 'var(--font-sans)', fontWeight: 450 }}
         >
           {label}
@@ -129,8 +129,8 @@ export function ChartBullet({
               y={0}
               width={w}
               height={height}
-              rx={3}
-              ry={3}
+              rx={4}
+              ry={4}
               fill={range.color}
               className={range.color ? undefined : range.className}
             />
@@ -143,8 +143,8 @@ export function ChartBullet({
           y={barY}
           width={scale(value)}
           height={barH}
-          rx={2}
-          ry={2}
+          rx={3}
+          ry={3}
           className={cn('fill-[var(--n1150)]', valueClassName)}
           style={anim.enabled
             ? {
@@ -160,11 +160,11 @@ export function ChartBullet({
         {target != null && (
           <line
             x1={scale(target)}
-            y1={2}
+            y1={4}
             x2={scale(target)}
-            y2={height - 2}
-            stroke="var(--n1150)"
-            strokeWidth={2}
+            y2={height - 4}
+            stroke="var(--n600)"
+            strokeWidth={1.5}
             className={targetClassName}
             style={anim.enabled
               ? { animation: `ramtt-grid-fade 300ms ${anim.easing} ${anim.delay + anim.duration * 0.7}ms both` }
