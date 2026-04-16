@@ -22,8 +22,8 @@ npx vitest run         # 248 tests, all must pass
 
 ## Rules that Claude cannot infer from code
 
-- `motion` dependency exists for ONE file only: `app/chart-test/page.tsx`. Do not remove it.
-- NEVER wrap charts in AnimatedPanel or CSS transition containers. Causes zoom lag.
+- `motion` dependency is used in `app/chart-test/page.tsx` for panel collapse/expand. Framer's `motion.div` animates on mount/unmount only, so it's safe around charts. Do not replace with AnimatedPanel or CSS grid transitions.
+- Chart zoom MUST use direct `setZoomState()` without debounce in ChartSyncProvider. Debouncing zoom state causes catastrophic lag. This was proven the hard way.
 - Two `cn()` exist: `lib/ui.ts` (preferred) and `lib/utils.ts` (legacy). New files use `lib/ui.ts`.
 - No barrel export for chart primitives — import by direct file path.
 - Run `npm run audit` before committing. Non-negotiable.
