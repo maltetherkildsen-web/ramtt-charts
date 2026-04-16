@@ -129,6 +129,37 @@ import {
   ActiveTask,
 } from '@/components/ui'
 
+import { IconLink } from '@/components/icons/light/IconLink'
+import { IconZone } from '@/components/icons/light/IconZone'
+import { IconGut } from '@/components/icons/light/IconGut'
+import { IconApple } from '@/components/icons/light/IconApple'
+import { IconUserCheck } from '@/components/icons/light/IconUserCheck'
+import { IconSun } from '@/components/icons/light/IconSun'
+import { IconNotification } from '@/components/icons/light/IconNotification'
+import { IconMail } from '@/components/icons/light/IconMail'
+import { IconGrid } from '@/components/icons/light/IconGrid'
+import { IconSettings } from '@/components/icons/light/IconSettings'
+import { IconFlag } from '@/components/icons/light/IconFlag'
+import { IconMessageCircle } from '@/components/icons/light/IconMessageCircle'
+import { IconStar } from '@/components/icons/light/IconStar'
+import { IconCloud } from '@/components/icons/light/IconCloud'
+import { IconLock } from '@/components/icons/light/IconLock'
+import { IconCode } from '@/components/icons/light/IconCode'
+import { IconUser } from '@/components/icons/light/IconUser'
+import { IconRunning } from '@/components/icons/light/IconRunning'
+import { IconTarget } from '@/components/icons/light/IconTarget'
+import { IconLabFlask } from '@/components/icons/light/IconLabFlask'
+import { IconLineChart } from '@/components/icons/light/IconLineChart'
+import { IconBanana } from '@/components/icons/light/IconBanana'
+import { IconMoon } from '@/components/icons/light/IconMoon'
+import { IconPalette } from '@/components/icons/light/IconPalette'
+import { IconZap } from '@/components/icons/light/IconZap'
+import { IconTimer } from '@/components/icons/light/IconTimer'
+import { IconDumbbell } from '@/components/icons/light/IconDumbbell'
+import { IconHome } from '@/components/icons/light/IconHome'
+import { IconCalendar } from '@/components/icons/light/IconCalendar'
+import { IconAnalytics } from '@/components/icons/light/IconAnalytics'
+
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // Layout
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -201,9 +232,9 @@ function ToggleGroupDemo() {
 
   return (
     <DemoSection title="Toggle Groups">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Channel selector (default variant)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Channel selector (default variant)</p>
           <ToggleGroup
             value={channel}
             onChange={(v) => setChannel(v as string)}
@@ -218,7 +249,7 @@ function ToggleGroupDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Time period (sm size)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Time period (sm size)</p>
           <ToggleGroup
             value={period}
             onChange={(v) => setPeriod(v as string)}
@@ -228,7 +259,7 @@ function ToggleGroupDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Zone mode (sm, pill variant)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Zone mode (sm, pill variant)</p>
           <ToggleGroup
             value={zone}
             onChange={(v) => setZone(v as string)}
@@ -239,7 +270,7 @@ function ToggleGroupDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Tab navigation (underline variant)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Tab navigation (underline variant)</p>
           <ToggleGroup
             value={channel}
             onChange={(v) => setChannel(v as string)}
@@ -254,7 +285,7 @@ function ToggleGroupDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Filter pills (multi-select, pill variant)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Filter pills (multi-select, pill variant)</p>
           <ToggleGroup
             value={filters}
             onChange={setFilters}
@@ -359,7 +390,7 @@ function WhiteLiftDemo() {
           <div
             key={p.title}
             className={cn(
-              'bg-transparent transition-colors duration-150 hover:bg-white py-4 px-[18px]',
+              'bg-transparent hover:bg-white py-4 px-[18px]', TRANSITION.colors,
               BORDER.default,
               RADIUS.lg,
             )}
@@ -525,7 +556,7 @@ function InteractionStatesDemo() {
         <div>
           <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>White lift</div>
           <div className={cn('bg-white py-2.5 px-3.5', BORDER.default, RADIUS.lg)}>
-            <span className={cn(FONT.body, 'font-[450] text-[11px] text-[var(--n1150)]')}>Hovered</span>
+            <span className={cn(FONT.body, WEIGHT.book, 'text-[11px] text-[var(--n1150)]')}>Hovered</span>
           </div>
           <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Cards on sand bg</div>
         </div>
@@ -543,7 +574,7 @@ function InteractionStatesDemo() {
         <div>
           <div className={cn(LABEL_STYLE, WEIGHT.medium, 'mb-2')}>Sand hover</div>
           <div className="bg-[var(--n200)] py-1.5 px-3.5 inline-flex">
-            <span className={cn(FONT.body, 'font-[450] text-[11px] text-[var(--n1050)]')}>Hovered</span>
+            <span className={cn(FONT.body, WEIGHT.book, 'text-[11px] text-[var(--n1150)]')}>Hovered</span>
           </div>
           <div className={cn(MUTED_STYLE, 'mt-1 text-[10px]')}>Rows, ghost buttons</div>
         </div>
@@ -632,7 +663,7 @@ function OverlayFeedbackDemo() {
 
   return (
     <DemoSection title="Overlay & Feedback">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap items-center gap-3">
           <Button variant="outline" onClick={() => setModalOpen(true)}>Open modal</Button>
           <Button variant="ghost" onClick={() => toast({ message: 'Settings saved' })}>Default toast</Button>
@@ -746,9 +777,9 @@ function TabsDemo() {
 
   return (
     <DemoSection title="Tabs & Toggle">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Underline tabs (with panels)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Underline tabs (with panels)</p>
           <Tabs value={underlineTab} onChange={setUnderlineTab}>
             <Tabs.List>
               <Tabs.Tab value="overview">Overview</Tabs.Tab>
@@ -780,7 +811,7 @@ function TabsDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Pill tabs (with panels)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Pill tabs (with panels)</p>
           <Tabs value={pillTab} onChange={setPillTab} variant="pill">
             <Tabs.List>
               <Tabs.Tab value="day">Day</Tabs.Tab>
@@ -812,7 +843,7 @@ function TabsDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>ToggleGroup underline (no panels — compare with Tabs above)</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>ToggleGroup underline (no panels — compare with Tabs above)</p>
           <ToggleGroup
             value={toggleVal}
             onChange={(v) => setToggleVal(v as string)}
@@ -834,9 +865,9 @@ function TabsDemo() {
 function LoadingStatesDemo() {
   return (
     <DemoSection title="Loading States">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>MetricCard skeleton</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>MetricCard skeleton</p>
           <Card>
             <div className="flex flex-col gap-2 py-1">
               <Skeleton width={80} height={12} />
@@ -847,7 +878,7 @@ function LoadingStatesDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>DataTable skeleton</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>DataTable skeleton</p>
           <Card>
             <div className="flex items-center gap-4 py-2 border-b-[0.5px] border-b-[var(--n200)]">
               <Skeleton width={100} height={12} />
@@ -867,7 +898,7 @@ function LoadingStatesDemo() {
         </div>
 
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-1.5')}>Shape variations</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Shape variations</p>
           <div className="flex items-center gap-4">
             <Skeleton width={140} height={14} />
             <Skeleton width={80} height={28} radius="md" />
@@ -934,7 +965,7 @@ function TooltipDemo() {
       <Card>
         <div className="flex flex-col gap-4">
           <div>
-            <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Hover over each icon to see tooltip positions</p>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Hover over each icon to see tooltip positions</p>
             <div className="flex items-center gap-4">
               <Tooltip content="Export as CSV" side="top">
                 <Button variant="ghost" size="icon">
@@ -1080,10 +1111,10 @@ function SliderDemo() {
 function IdentityNavDemo() {
   return (
     <DemoSection title="Identity & Navigation">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Avatars */}
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Avatars — sizes, initials fallback, status dots</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Avatars — sizes, initials fallback, status dots</p>
           <div className="flex items-end gap-4">
             <Avatar name="Malte" size="sm" />
             <Avatar name="Malte Therkildsen" size="md" />
@@ -1132,12 +1163,12 @@ function IdentityNavDemo() {
 function AppShellDemo() {
   return (
     <DemoSection title="App Shell">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Sidebars */}
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Sidebar — expanded and collapsed</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Sidebar — expanded and collapsed</p>
           <div className="flex gap-6">
-            <div className="border-[0.5px] border-[var(--n400)] rounded-[12px] overflow-hidden" style={{ height: 320 }}>
+            <div className={cn(BORDER.default, RADIUS.lg, 'overflow-hidden h-[320px]')}>
               <Sidebar>
                 <Sidebar.Logo>
                   <span className={cn(FONT.body, 'text-[15px]', WEIGHT.strong, 'text-[var(--n1150)]')}>RAMTT</span>
@@ -1155,7 +1186,7 @@ function AppShellDemo() {
                 </Sidebar.Footer>
               </Sidebar>
             </div>
-            <div className="border-[0.5px] border-[var(--n400)] rounded-[12px] overflow-hidden" style={{ height: 320 }}>
+            <div className={cn(BORDER.default, RADIUS.lg, 'overflow-hidden h-[320px]')}>
               <Sidebar collapsed>
                 <Sidebar.Logo>
                   <span className={cn(FONT.body, 'text-[15px]', WEIGHT.strong, 'text-[var(--n1150)]')}>R</span>
@@ -1175,7 +1206,7 @@ function AppShellDemo() {
 
         {/* PageHeader */}
         <div>
-          <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Page header variants</p>
+          <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Page header variants</p>
           <Card>
             <PageHeader title="Settings" />
             <PageHeader
@@ -1323,10 +1354,10 @@ const GAUGE_THRESHOLDS = [
 function GaugesDemo() {
   return (
     <DemoSection title="Gauges & Scores">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Ring (full circle) — default */}
         <div>
-          <p className={cn(LABEL_STYLE, 'mb-3')}>Ring (full circle)</p>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Ring (full circle)</p>
           <Card>
             <div className="flex items-center gap-8 justify-center py-4">
               <Gauge variant="ring" value={42} max={100} label="Injury risk" thresholds={GAUGE_THRESHOLDS} />
@@ -1339,7 +1370,7 @@ function GaugesDemo() {
 
         {/* Bar (horizontal) */}
         <div>
-          <p className={cn(LABEL_STYLE, 'mb-3')}>Bar (horizontal)</p>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>Bar (horizontal)</p>
           <Card>
             <div className="flex flex-col gap-4 py-2">
               <Gauge variant="bar" value={42} max={100} label="Injury risk" thresholds={GAUGE_THRESHOLDS} />
@@ -1366,7 +1397,7 @@ function CalendarDemo() {
 
   return (
     <DemoSection title="Calendar & Dates">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <div className="flex gap-8 flex-wrap">
           <div>
             <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Single date selection</p>
@@ -1549,7 +1580,7 @@ function MiscDemo() {
 
   return (
     <DemoSection title="Pagination, Alert, Combobox">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Pagination */}
         <div>
           <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Pagination</p>
@@ -1645,7 +1676,7 @@ function SeparatorsLabelsDemo() {
 
   return (
     <DemoSection title="Separators & Labels">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Separators */}
         <Card>
           <Card.Header>
@@ -1767,7 +1798,7 @@ function CollapsibleScrollDemo() {
           </Card.Header>
           <Card.Body>
             <ScrollArea orientation="horizontal">
-              <div className="flex gap-3" style={{ width: 'max-content' }}>
+              <div className="flex gap-3 w-max">
                 {['MIT', 'Tempo', 'Recovery', 'VO2max', 'Endurance', 'Sweet Spot', 'Race Pace', 'Threshold'].map((name) => (
                   <Card key={name} className="min-w-[160px] shrink-0">
                     <div className="p-3">
@@ -1790,7 +1821,7 @@ function CollapsibleScrollDemo() {
 function Wave6ComplexDemo() {
   return (
     <DemoSection title="InputGroup, HoverCard, Resizable, ContextMenu">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* InputGroup */}
         <Card>
           <Card.Header>
@@ -1842,7 +1873,7 @@ function Wave6ComplexDemo() {
             <Card.Title>Hover card</Card.Title>
           </Card.Header>
           <Card.Body>
-            <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>Hover over the name to see a preview</p>
+            <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Hover over the name to see a preview</p>
             <HoverCard>
               <HoverCard.Trigger>
                 <span className="text-[var(--info)] text-[13px]">@malte</span>
@@ -1868,7 +1899,7 @@ function Wave6ComplexDemo() {
           </Card.Header>
           <Card.Body>
             <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Drag the handle to resize (30/70 split)</p>
-            <div className={cn(BORDER.default, 'rounded-[8px] overflow-hidden')} style={{ height: 160 }}>
+            <div className={cn(BORDER.default, RADIUS.lg, 'overflow-hidden h-[160px]')}>
               <Resizable direction="horizontal">
                 <Resizable.Panel defaultSize={30} minSize={15} maxSize={50}>
                   <div className="h-full bg-[var(--n200)] p-3">
@@ -1954,7 +1985,7 @@ function Wave6ComplexDemo() {
 function StatusIndicatorsDemo() {
   return (
     <DemoSection title="Status & Indicators">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* ColorDot — all semantic colors + custom hex, all sizes */}
         <div>
           <p className={cn(LABEL_STYLE, 'mb-2')}>ColorDot — semantic colors, all sizes</p>
@@ -2082,7 +2113,7 @@ function StatusIndicatorsDemo() {
 function SegmentedBarDemo() {
   return (
     <DemoSection title="Segmented Bar">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Zone distribution */}
         <div>
           <p className={cn(LABEL_STYLE, 'mb-2')}>Zone distribution (6 zones)</p>
@@ -2220,7 +2251,7 @@ function RatingTimeDemo() {
 
   return (
     <DemoSection title="Rating & Time Input">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* RatingInput 1-5 with labels */}
         <div>
           <RatingInput
@@ -2300,7 +2331,7 @@ function StepFlowDemo() {
       content: (
         <Card>
           <Card.Body>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <RatingInput value={sleepHours} onChange={setSleepHours} label="Sleep duration" max={5} labels={['< 5h', '5-6h', '6-7h', '7-8h', '8h+']} />
               <RatingInput value={sleepQuality} onChange={setSleepQuality} label="Sleep quality" max={5} labels={['Terrible', 'Poor', 'OK', 'Good', 'Great']} />
               <TimePicker value={wakeTime} onChange={setWakeTime} label="Wake time" />
@@ -2314,7 +2345,7 @@ function StepFlowDemo() {
       content: (
         <Card>
           <Card.Body>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <RatingInput value={soreness} onChange={setSoreness} label="Soreness" max={5} labels={['None', 'Slight', 'Moderate', 'Sore', 'Very sore']} />
               <RatingInput value={fatigue} onChange={setFatigue} label="Fatigue" max={5} labels={['Fresh', 'Rested', 'Normal', 'Tired', 'Exhausted']} />
             </div>
@@ -2327,7 +2358,7 @@ function StepFlowDemo() {
       content: (
         <Card>
           <Card.Body>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <RatingInput value={mood} onChange={setMood} label="Mood" max={5} labels={['Low', 'Below avg', 'Neutral', 'Good', 'Great']} />
               <RatingInput value={stress} onChange={setStress} label="Stress" max={5} labels={['None', 'Low', 'Moderate', 'High', 'Extreme']} />
             </div>
@@ -2340,7 +2371,7 @@ function StepFlowDemo() {
       content: (
         <Card>
           <Card.Body>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <Switch label="Well hydrated" checked={hydrated} onChange={setHydrated} />
               <Input label="Breakfast notes" placeholder="What did you eat?" />
             </div>
@@ -2391,7 +2422,7 @@ function WidgetSystemDemo() {
 
   return (
     <DemoSection title="Widget System">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* WidgetCard with all action icons */}
         <WidgetCard
           title="Durability index"
@@ -2493,7 +2524,7 @@ function WidgetSystemDemo() {
 function StatComparisonDemo() {
   return (
     <DemoSection title="Stat & Comparison">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Stat formats */}
         <div>
           <p className={cn(LABEL_STYLE, 'mb-2')}>Stat — format types</p>
@@ -2587,7 +2618,7 @@ function TimelineRangeDemo() {
 
   return (
     <DemoSection title="Timeline & Range">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Race nutrition timeline */}
         <div>
           <p className={cn(LABEL_STYLE, 'mb-2')}>TimelineStrip — race nutrition (300 min)</p>
@@ -2669,7 +2700,7 @@ function FormNotificationDemo() {
 
   return (
     <DemoSection title="Form & Notification">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* FormField examples */}
         <div className="max-w-[360px]">
           <FormField label="FTP" required description="Your functional threshold power">
@@ -2705,7 +2736,7 @@ function FormNotificationDemo() {
 
         {/* NotificationBadge */}
         <div>
-          <p className={cn(LABEL_STYLE, 'mb-3')}>NotificationBadge</p>
+          <p className={cn(LABEL_STYLE, 'mb-2')}>NotificationBadge</p>
           <div className="flex items-center gap-8">
             <NotificationBadge count={3}>
               <div className={cn('w-8 h-8 rounded-[5px] bg-[var(--n200)] flex items-center justify-center', FONT.body, 'text-[12px]', WEIGHT.book, 'text-[var(--n800)]')}>
@@ -2744,7 +2775,7 @@ function ChartCardDemo() {
 
   return (
     <DemoSection title="Chart card">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <ChartCard
           title="Training load"
           subtitle="CTL / ATL / TSB over time"
@@ -2758,8 +2789,7 @@ function ChartCardDemo() {
           ]}
         >
           <div
-            className="bg-[var(--n200)] rounded-[8px] flex items-center justify-center"
-            style={{ height: 200 }}
+            className="bg-[var(--n200)] rounded-[5px] flex items-center justify-center h-[200px]"
           >
             <span className={cn(FONT.body, 'text-[13px] text-[var(--n600)]')}>Chart placeholder</span>
           </div>
@@ -2771,8 +2801,7 @@ function ChartCardDemo() {
           metric={{ value: '412 W', label: 'Peak 5min', delta: '+8%', deltaColor: 'positive' }}
         >
           <div
-            className="bg-[var(--n200)] rounded-[8px] flex items-center justify-center"
-            style={{ height: 160 }}
+            className="bg-[var(--n200)] rounded-[5px] flex items-center justify-center h-[160px]"
           >
             <span className={cn(FONT.body, 'text-[13px] text-[var(--n600)]')}>Chart placeholder</span>
           </div>
@@ -2847,7 +2876,7 @@ function MemberListDemo() {
 function InviteCardDemo() {
   return (
     <DemoSection title="Invite card">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <InviteCard
           onInvite={(email, role) => alert(`Invited ${email} as ${role}`)}
           roles={['Athlete', 'Coach', 'Viewer']}
@@ -2878,7 +2907,7 @@ function OnboardingDemo() {
               title: 'Welcome',
               description: "Let's set up your profile",
               content: (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
                     Welcome to RAMTT. This wizard will guide you through initial setup so you can
                     start tracking your training right away.
@@ -2890,7 +2919,7 @@ function OnboardingDemo() {
               title: 'Thresholds',
               description: 'Set your FTP and heart rate zones',
               content: (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
                     Enter your current functional threshold power (FTP) and max heart rate to
                     calibrate your training zones.
@@ -2902,7 +2931,7 @@ function OnboardingDemo() {
               title: 'Integrations',
               description: 'Connect Strava and your devices',
               content: (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
                     Connect your accounts and devices to automatically sync training sessions.
                   </p>
@@ -2913,7 +2942,7 @@ function OnboardingDemo() {
               title: 'Done',
               description: "You're all set",
               content: (
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                   <p className={cn(FONT.body, 'text-[13px]', WEIGHT.normal, 'text-[var(--n800)]')}>
                     Your profile is ready. Start logging sessions or explore your dashboard.
                   </p>
@@ -3123,7 +3152,7 @@ function TodoListDemo() {
 function DescriptionListDemo() {
   return (
     <DemoSection title="Description list">
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <DescriptionList
           title="Athlete profile"
           items={[
@@ -3213,7 +3242,7 @@ function ActionPanelDemo() {
   return (
     <DemoSection title="Action panels">
       <Card padding="md">
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <ActionPanel
             description="Changes will take effect immediately."
             onSave={() => {}}
@@ -3272,10 +3301,10 @@ function MediaObjectDemo() {
   return (
     <DemoSection title="Media objects">
       <Card padding="md">
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <MediaObject
             icon={
-              <div className="flex items-center justify-center text-[var(--n600)]" style={{ width: 20, height: 20 }}>
+              <div className="flex items-center justify-center text-[var(--n600)] w-5 h-5">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 12L8 4l4 8" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
             }
@@ -3365,7 +3394,7 @@ function FormLayoutDemo() {
 function ButtonGroupDemo() {
   return (
     <DemoSection title="Button groups">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <ButtonGroup>
           <ButtonGroup.Item>Save</ButtonGroup.Item>
           <ButtonGroup.Item>Save & close</ButtonGroup.Item>
@@ -3402,7 +3431,7 @@ function AuthLayoutDemo() {
   return (
     <DemoSection title="Auth layout">
       <Card padding="none">
-        <div style={{ height: 520, overflow: 'hidden' }} className="rounded-[12px]">
+        <div className="h-[520px] overflow-hidden rounded-[12px]">
           <AuthLayout title="Sign in to RAMTT" subtitle="Welcome back">
             <FormLayout.Field label="Email">
               <Input type="email" placeholder="you@example.com" />
@@ -3616,7 +3645,7 @@ function CategoryIconsDemo() {
 
   return (
     <DemoSection title="Category icons">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div>
           <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>Small (16px) — for lists, search results</p>
           <div className="flex items-center gap-4">
@@ -3645,8 +3674,8 @@ function CategoryIconsDemo() {
             {categories.map((c) => (
               <div
                 key={c.key}
-                className="rounded-[4px]"
-                style={{ width: 28, height: 28, backgroundColor: CATEGORY_COLORS[c.key] }}
+                className="rounded-[4px] w-7 h-7"
+                style={{ backgroundColor: CATEGORY_COLORS[c.key] }}
               />
             ))}
           </div>
@@ -3681,7 +3710,7 @@ function ContentCardsDemo() {
             )}
           >
             {/* Preview area */}
-            <div className="bg-[var(--n200)]" style={{ height: 120 }} />
+            <div className="bg-[var(--n200)] h-[120px]" />
             {/* Content */}
             <div className="px-3.5 py-3">
               <div className="flex items-center gap-1.5">
@@ -3873,7 +3902,7 @@ function Wave12Demo() {
         {/* AppSidebar — rebuilt with proper RAMTT sidebar nav pattern */}
         <div>
           <p className={cn(LABEL_STYLE, 'mb-2')}>AppSidebar (collapsible)</p>
-          <div className={cn(BORDER.default, RADIUS.lg, 'overflow-hidden')} style={{ height: 520 }}>
+          <div className={cn(BORDER.default, RADIUS.lg, 'overflow-hidden h-[520px]')}>
             <div className="flex h-full">
               <AppSidebar collapsed={sidebarCollapsed}>
                 <AppSidebar.Header>
@@ -4093,11 +4122,11 @@ function EditorShellDemo() {
 
   return (
     <DemoSection title="Editor shell">
-      <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>
+      <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>
         Mini editor layout: icon tab bar, expandable panel, opacity tabs, floating toolbar + panel
       </p>
       <Card padding="none">
-        <div className="relative overflow-hidden" style={{ height: 420 }}>
+        <div className="relative overflow-hidden h-[420px]">
           <div className="flex h-full">
             {/* Left icon tab bar */}
             <div className="shrink-0 bg-[var(--n50)] border-r-[0.5px] border-r-[var(--n400)] py-1 px-0.5">
@@ -4112,8 +4141,7 @@ function EditorShellDemo() {
                 <SectionHeader action={
                   <button
                     onClick={() => setPanelOpen(false)}
-                    className={cn('flex items-center justify-center rounded-[5px] text-[var(--n600)] hover:text-[var(--n1150)] hover:bg-[var(--n200)]')}
-                    style={{ width: 20, height: 20 }}
+                    className={cn('flex items-center justify-center w-5 h-5 rounded-[5px] text-[var(--n600)] hover:text-[var(--n1150)] hover:bg-[var(--n200)]')}
                   >
                     <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4L12 12M12 4L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
                   </button>
@@ -4122,14 +4150,16 @@ function EditorShellDemo() {
                 </SectionHeader>
               }
             >
-              <div className="p-2 space-y-0.5">
+              <div className="p-2 flex flex-col gap-0.5">
                 {activeTab === 'layers' && pages.map((page, i) => (
                   <button
                     key={page}
                     className={cn(
                       'w-full text-left px-2 py-1.5 rounded-[5px] text-[11px]',
                       TRANSITION.background,
-                      i === 0 ? 'bg-[var(--n200)] font-[550] text-[var(--n1150)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
+                      i === 0 && 'bg-[var(--n200)]',
+                      i === 0 ? WEIGHT.strong : '',
+                      i === 0 ? 'text-[var(--n1150)]' : 'text-[var(--n800)] hover:bg-[var(--n200)]',
                     )}
                   >
                     {page}
@@ -4164,7 +4194,7 @@ function EditorShellDemo() {
                   size="sm"
                 />
               </div>
-              <div className="flex-1 overflow-y-auto p-3 space-y-3">
+              <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
                 <SectionHeader divider>Alignment</SectionHeader>
                 <div className="flex gap-2">
                   {['L', 'C', 'R', 'T', 'M', 'B'].map(a => (
@@ -4205,7 +4235,7 @@ function EditorShellDemo() {
                 width={360}
                 maxHeight={280}
               >
-                <div className="p-4 space-y-3">
+                <div className="p-4 flex flex-col gap-3">
                   <SectionHeader divider>Color tokens</SectionHeader>
                   {['--n50', '--n200', '--n400', '--n600', '--n800', '--n1150'].map(tok => (
                     <div key={tok} className="flex items-center justify-between px-1">
@@ -4241,13 +4271,13 @@ function FloatingPanelsDemo() {
 
   return (
     <DemoSection title="Floating panels">
-      <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>
+      <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>
         Draggable panels with NO backdrop dimming. Content behind stays visible and interactive.
       </p>
       <Card padding="none">
-        <div className="relative p-6" style={{ minHeight: 360 }}>
+        <div className="relative p-6 min-h-[360px]">
           {/* Background content proving no dimming */}
-          <div className="space-y-2 opacity-50">
+          <div className="flex flex-col gap-2 opacity-50">
             {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="h-4 bg-[var(--n200)] rounded-[4px]" style={{ width: `${60 + (i * 7) % 30}%` }} />
             ))}
@@ -4257,7 +4287,7 @@ function FloatingPanelsDemo() {
           {panel1 && (
             <div className="absolute top-4 left-4">
               <FloatingPanel open={panel1} onClose={() => setPanel1(false)} title="Quick actions" width={300} maxHeight={240}>
-                <div className="p-3 space-y-1">
+                <div className="p-3 flex flex-col gap-1">
                   {['Create frame', 'Add component', 'Run plugin', 'Open library'].map(action => (
                     <button
                       key={action}
@@ -4280,13 +4310,15 @@ function FloatingPanelsDemo() {
             <div className="absolute top-4 right-4">
               <FloatingPanel open={panel2} onClose={() => setPanel2(false)} title="Manage libraries" width={380} maxHeight={280}>
                 <div className="flex h-full">
-                  <div className="w-[100px] shrink-0 border-r-[0.5px] border-r-[var(--n200)] py-2 px-1.5 space-y-0.5">
+                  <div className="w-[100px] shrink-0 border-r-[0.5px] border-r-[var(--n200)] py-2 px-1.5 flex flex-col gap-0.5">
                     {['This file', 'Team', 'UI kits'].map((item, i) => (
                       <button
                         key={item}
                         className={cn(
                           'w-full text-left px-2 py-1 rounded-[5px] text-[10px]',
-                          i === 0 ? 'bg-[var(--n200)] font-[550] text-[var(--n1150)]' : 'text-[var(--n600)] hover:bg-[var(--n200)]',
+                          i === 0 && 'bg-[var(--n200)]',
+                          i === 0 ? WEIGHT.strong : '',
+                          i === 0 ? 'text-[var(--n1150)]' : 'text-[var(--n600)] hover:bg-[var(--n200)]',
                         )}
                       >
                         {item}
@@ -4319,11 +4351,11 @@ function PropertyInspectorDemo() {
 
   return (
     <DemoSection title="Property inspector">
-      <p className={cn(MUTED_STYLE, 'text-[12px] mb-3')}>
+      <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>
         Dense property rows: color swatches, hex inputs, percentage fields, small toggles
       </p>
       <Card>
-        <div className="max-w-[280px] space-y-3">
+        <div className="max-w-[280px] flex flex-col gap-3">
           <SectionHeader divider>Fill</SectionHeader>
           {/* Color swatch + hex row */}
           <div className="flex items-center gap-2">
@@ -4360,7 +4392,7 @@ function PropertyInspectorDemo() {
           </div>
 
           <SectionHeader divider>Options</SectionHeader>
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <span className={cn(FONT.body, 'text-[11px] text-[var(--n800)]')}>Clip content</span>
               <Switch checked={clip} onChange={setClip} />
@@ -4427,11 +4459,10 @@ function DomainColorsDemo() {
             {domains.map(d => (
               <div
                 key={d.key}
-                className={cn(RADIUS.md, 'px-3.5 py-2.5')}
+                className={cn('px-3.5 py-2.5 rounded-r-[4px] rounded-l-none')}
                 style={{
                   borderLeft: `3px solid var(--domain-${d.key})`,
                   backgroundColor: `var(--domain-${d.key}-wash)`,
-                  borderRadius: `0 ${4}px ${4}px 0`,
                 }}
               >
                 <div className={cn(FONT.body, 'text-[13px]', WEIGHT.strong, 'text-[var(--n1150)]')}>
@@ -4486,7 +4517,7 @@ function DomainColorsDemo() {
                 <p className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n800)] mb-1')}>
                   {DOMAIN[key].label} — {DOMAIN[key].color}
                 </p>
-                <div className="flex h-8 overflow-hidden" style={{ borderRadius: 4 }}>
+                <div className="flex h-8 overflow-hidden rounded-[4px]">
                   {DOMAIN_TOKEN_KEYS.map(suffix => {
                     const varName = suffix ? `--domain-${key}-${suffix}` : `--domain-${key}`
                     return (
@@ -4509,37 +4540,6 @@ function DomainColorsDemo() {
 }
 
 // ─── Sidebar Navigation (Accent Demo Pattern) ───
-
-import { IconLink } from '@/components/icons/light/IconLink'
-import { IconZone } from '@/components/icons/light/IconZone'
-import { IconGut } from '@/components/icons/light/IconGut'
-import { IconApple } from '@/components/icons/light/IconApple'
-import { IconUserCheck } from '@/components/icons/light/IconUserCheck'
-import { IconSun } from '@/components/icons/light/IconSun'
-import { IconNotification } from '@/components/icons/light/IconNotification'
-import { IconMail } from '@/components/icons/light/IconMail'
-import { IconGrid } from '@/components/icons/light/IconGrid'
-import { IconSettings } from '@/components/icons/light/IconSettings'
-import { IconFlag } from '@/components/icons/light/IconFlag'
-import { IconMessageCircle } from '@/components/icons/light/IconMessageCircle'
-import { IconStar } from '@/components/icons/light/IconStar'
-import { IconCloud } from '@/components/icons/light/IconCloud'
-import { IconLock } from '@/components/icons/light/IconLock'
-import { IconCode } from '@/components/icons/light/IconCode'
-import { IconUser } from '@/components/icons/light/IconUser'
-import { IconRunning } from '@/components/icons/light/IconRunning'
-import { IconTarget } from '@/components/icons/light/IconTarget'
-import { IconLabFlask } from '@/components/icons/light/IconLabFlask'
-import { IconLineChart } from '@/components/icons/light/IconLineChart'
-import { IconBanana } from '@/components/icons/light/IconBanana'
-import { IconMoon } from '@/components/icons/light/IconMoon'
-import { IconPalette } from '@/components/icons/light/IconPalette'
-import { IconZap } from '@/components/icons/light/IconZap'
-import { IconTimer } from '@/components/icons/light/IconTimer'
-import { IconDumbbell } from '@/components/icons/light/IconDumbbell'
-import { IconHome } from '@/components/icons/light/IconHome'
-import { IconCalendar } from '@/components/icons/light/IconCalendar'
-import { IconAnalytics } from '@/components/icons/light/IconAnalytics'
 
 const SIDEBAR_NAV_ITEMS: { label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
   { label: 'Integrations', icon: IconLink },
@@ -4640,7 +4640,7 @@ function FilterPillsDemo() {
 
   return (
     <DemoSection title="Filter pills with icons">
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         <div>
           <p className={cn(MUTED_STYLE, 'text-[12px] mb-2')}>With icons and dropdown chevron</p>
           <ToggleGroup
@@ -4708,7 +4708,7 @@ export default function UIDemo() {
               @ramtt/ui
             </h1>
             <p className={cn(MUTED_STYLE, 'text-[13px] leading-relaxed mt-1.5 max-w-[560px]')}>
-              90 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
+              106 components. Zero dependencies. Satoshi for everything — labels, numbers, body text.
               Every border at 0.5px. Sentence case labels. Tabular nums for data.
             </p>
           </header>
