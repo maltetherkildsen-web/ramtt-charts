@@ -250,6 +250,9 @@ export function useChartZoom(brushRef: React.RefObject<SVGRectElement | null>) {
 
       if (idx2 - idx1 >= MIN_BRUSH_POINTS) {
         sync.setZoom({ start: Math.max(0, idx1), end: Math.min(sync.dataLength - 1, idx2) })
+      } else if (sync.zoom.start > 0 || sync.zoom.end < sync.dataLength - 1) {
+        // Click without drag → reset zoom to full range
+        sync.setZoom({ start: 0, end: sync.dataLength - 1 })
       }
     }
 
