@@ -1176,7 +1176,7 @@ function SessionDataPanel({ input, onUpdate }: {
           <div className="w-[70px]">
             <Input
               inputMode="numeric"
-              label="CHO"
+              label="CHO total"
               unit="g"
               placeholder="0"
               value={input.choIntake === 0 ? '' : `${input.choIntake}`}
@@ -1857,10 +1857,12 @@ function HoverDataTable({
   const powerValRef = useRef<HTMLSpanElement>(null)
   const powerDeltaRef = useRef<HTMLSpanElement>(null)
   const powerZoneRef = useRef<HTMLSpanElement>(null)
+  const powerMaxRef = useRef<HTMLSpanElement>(null)
   const hrLabelRef = useRef<HTMLSpanElement>(null)
   const hrValRef = useRef<HTMLSpanElement>(null)
   const hrDeltaRef = useRef<HTMLSpanElement>(null)
   const hrZoneRef = useRef<HTMLSpanElement>(null)
+  const hrMaxRef = useRef<HTMLSpanElement>(null)
   const cadLabelRef = useRef<HTMLSpanElement>(null)
   const cadValRef = useRef<HTMLSpanElement>(null)
   const cadDeltaRef = useRef<HTMLSpanElement>(null)
@@ -1902,6 +1904,8 @@ function HoverDataTable({
     if (elevDeltaRef.current) elevDeltaRef.current.textContent = ''
     if (powerZoneRef.current) { powerZoneRef.current.textContent = ''; powerZoneRef.current.style.backgroundColor = '' }
     if (hrZoneRef.current) { hrZoneRef.current.textContent = ''; hrZoneRef.current.style.backgroundColor = '' }
+    if (powerMaxRef.current) powerMaxRef.current.textContent = s.maxPower > 0 ? `max ${s.maxPower}W` : ''
+    if (hrMaxRef.current) hrMaxRef.current.textContent = s.maxHR > 0 ? `max ${s.maxHR}` : ''
   }, [meta, rangeStats, isZoomed, rangeDur, power.length])
 
   useEffect(() => { showAverages() }, [showAverages])
@@ -1937,6 +1941,8 @@ function HoverDataTable({
       if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
       if (speedDeltaRef.current) speedDeltaRef.current.textContent = ''
       if (elevDeltaRef.current) elevDeltaRef.current.textContent = ''
+      if (powerMaxRef.current) powerMaxRef.current.textContent = ''
+      if (hrMaxRef.current) hrMaxRef.current.textContent = ''
       if (powerZoneRef.current) {
         const z = getPowerZone(pw, meta.ftp)
         powerZoneRef.current.textContent = z.label; powerZoneRef.current.style.color = z.color; powerZoneRef.current.style.backgroundColor = `${z.color}1F`
@@ -1974,6 +1980,7 @@ function HoverDataTable({
             <span ref={powerValRef} className={valCls}>0</span>
             <span className={unitCls}>W</span>
           </span>
+          <span ref={powerMaxRef} className="text-[10px] tabular-nums text-[var(--n600)]" />
           <span ref={powerZoneRef} className={zoneCls} />
           <span ref={powerDeltaRef} className="hidden" />
         </div>
@@ -1986,6 +1993,7 @@ function HoverDataTable({
             <span ref={hrValRef} className={valCls}>0</span>
             <span className={unitCls}>bpm</span>
           </span>
+          <span ref={hrMaxRef} className="text-[10px] tabular-nums text-[var(--n600)]" />
           <span ref={hrZoneRef} className={zoneCls} />
           <span ref={hrDeltaRef} className="hidden" />
         </div>
