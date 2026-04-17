@@ -106,6 +106,27 @@ confirm you actually searched for it.
 - No hardcoded font-family, border-width, border-radius, or transition values
 - Use `cn()` for class merging, never template literals
 
+## Inline audit suppression
+
+The audit supports one inline suppression marker: `// audit-ignore-hex`.
+It suppresses the hex-color check on the line where it appears.
+
+**Usage:**
+
+```tsx
+const NEUTRAL = '#F2F0EA' // audit-ignore-hex — var(--n200), alpha-compositing over --bg
+```
+
+**Rules:**
+
+- Only use when `var(--*)` genuinely cannot substitute (e.g. hex-alpha
+  composition in SVG, where CSS variables don't work for the alpha channel).
+- The comment MUST include a rationale after the marker.
+- No blanket file-level or directory-level suppressions — every
+  suppression is one line, inline, with a reason.
+- Suppression only applies to hex-color checks. All other rules still
+  fire on suppressed lines.
+
 ## Typography
 - Satoshi for EVERYTHING — body, labels, numbers, UI copy
 - BODY TEXT: `FONT.body` or `BODY_STYLE` (weight 400)

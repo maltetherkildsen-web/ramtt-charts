@@ -154,6 +154,10 @@ function checkHardcodedHex(path: string, content: string) {
     const line = lines[i];
     if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*') || line.trimStart().startsWith('import')) continue;
 
+    // Inline suppression: developer has documented intent on this line.
+    // Scoped to hex-color check only — no audit-ignore-everything loophole.
+    if (line.includes('audit-ignore-hex')) continue;
+
     for (const [pattern, suggestion] of HEX_TO_VAR) {
       pattern.lastIndex = 0;
       const matches = line.match(pattern);
