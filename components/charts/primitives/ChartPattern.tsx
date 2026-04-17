@@ -48,7 +48,7 @@ export function ChartPattern({
       <defs>
         {variant === 'dots' && (
           <pattern id={patternId} width={spacing} height={spacing} patternUnits="userSpaceOnUse">
-            <circle cx={spacing / 2} cy={spacing / 2} r={0.5} fill="var(--n400)" opacity={opacity} />
+            <circle cx={spacing / 2} cy={spacing / 2} r={0.5} fill="var(--n400)" opacity={opacity} shapeRendering="geometricPrecision" />
           </pattern>
         )}
         {variant === 'lines' && (
@@ -56,6 +56,7 @@ export function ChartPattern({
             <line
               x1={spacing / 2} y1={0} x2={spacing / 2} y2={spacing}
               stroke="var(--n400)" strokeWidth={0.5} strokeDasharray="2 3" opacity={opacity}
+              shapeRendering="crispEdges"
             />
           </pattern>
         )}
@@ -64,10 +65,12 @@ export function ChartPattern({
             <line
               x1={spacing / 2 - 2} y1={spacing / 2} x2={spacing / 2 + 2} y2={spacing / 2}
               stroke="var(--n400)" strokeWidth={0.5} opacity={opacity}
+              shapeRendering="crispEdges"
             />
             <line
               x1={spacing / 2} y1={spacing / 2 - 2} x2={spacing / 2} y2={spacing / 2 + 2}
               stroke="var(--n400)" strokeWidth={0.5} opacity={opacity}
+              shapeRendering="crispEdges"
             />
           </pattern>
         )}

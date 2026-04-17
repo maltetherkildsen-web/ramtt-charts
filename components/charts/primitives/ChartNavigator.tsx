@@ -290,8 +290,8 @@ export function ChartNavigator({
         preserveAspectRatio="none"
         className="absolute inset-0 h-full w-full"
       >
-        <path d={miniAreaPath} fill="var(--n200)" />
-        <path d={miniLinePath} fill="none" stroke="var(--n400)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" />
+        <path d={miniAreaPath} fill="var(--n200)" shapeRendering="geometricPrecision" />
+        <path d={miniLinePath} fill="none" stroke="var(--n400)" strokeWidth={1.5} vectorEffect="non-scaling-stroke" shapeRendering="geometricPrecision" />
       </svg>
 
       {/* Dimmed left overlay */}

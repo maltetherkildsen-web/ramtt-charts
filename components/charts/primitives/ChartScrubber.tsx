@@ -231,7 +231,7 @@ export function ChartScrubber({
           preserveAspectRatio="none"
           className="absolute inset-0 h-full w-full"
         >
-          <path d={miniPath} fill={fillColor} />
+          <path d={miniPath} fill={fillColor} shapeRendering="geometricPrecision" />
         </svg>
 
         {/* Draggable zoom window */}
