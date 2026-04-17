@@ -22,6 +22,7 @@ import {
   type TreemapGroup,
   type TreemapLeafRect,
 } from '@/lib/charts/utils/treemap'
+import { ChartTreemapTooltip } from './ChartTreemapTooltip'
 
 // ─── Types ───
 
@@ -492,27 +493,11 @@ export function ChartTreemapPro({
 
       {/* ─── Hover Panel ─── */}
       {tooltipState && (
-        <div
-          ref={tooltipRef}
-          className="absolute z-30 pointer-events-none"
-          style={{
-            left: tooltipState.x + 16,
-            top: Math.max(8, tooltipState.y - 60),
-            opacity: 1,
-            transition: 'opacity 100ms',
-          }}
-        >
-          <div
-            className="rounded-[12px] border-[0.5px] border-[var(--n400)] bg-[var(--n50)] p-4 shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
-            style={{ maxWidth: 320, minWidth: 180 }}
-          >
-            {hoverContent ? (
-              hoverContent(tooltipState.node, tooltipState.group)
-            ) : (
-              <DefaultHoverContent node={tooltipState.node} group={tooltipState.group} />
-            )}
-          </div>
-        </div>
+        <ChartTreemapTooltip ref={tooltipRef} x={tooltipState.x} y={tooltipState.y}>
+          {hoverContent
+            ? hoverContent(tooltipState.node, tooltipState.group)
+            : <DefaultHoverContent node={tooltipState.node} group={tooltipState.group} />}
+        </ChartTreemapTooltip>
       )}
     </div>
   )
