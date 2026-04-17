@@ -347,9 +347,8 @@ Hvad der gør Perplexity's charts visuelt overlegne:
 
 Vi adopterer samme principper, men med vores design tokens:
 
-- **Cormorant Garamond** til chart-titler og session-headings
-- **JetBrains Mono** til alle numeriske værdier, axis labels, tooltip data
-- **Space Grotesk** til zone labels, stat labels, UI-tekst
+- **Satoshi** til alt UI — body, labels, zone labels, axis labels, tooltip data, numre (med `tabular-nums` hvor det gælder)
+- **Cormorant Garamond** til chart-titler og session-headings på editorial/marketing kontekster
 - **Fuchsia accent** til highlights og interaktive elementer (men IKKE til selve chart-linjen — den skal være grøn/rød/neutral afhængig af kontekst)
 - **Warm off-white (#fafaf8)** som side-baggrund, hvid (#fff) som chart-baggrund
 - **CRISP-RENDERING** på alle SVG paths: `shape-rendering: geometricPrecision`

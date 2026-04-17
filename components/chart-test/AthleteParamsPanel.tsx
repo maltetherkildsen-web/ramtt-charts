@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useRef, useState } from 'react'
-import { cn, WEIGHT, BORDER, RADIUS, TRANSITION } from '@/lib/ui'
+import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE } from '@/lib/ui'
 import { Input } from '@/components/ui/Input'
 
 export type ParamSource = 'file' | 'manual' | 'missing'
@@ -108,8 +108,8 @@ export function AthleteParamsPanel({ state, onChange, isRunning, className }: At
       <button
         onClick={() => setOpen(p => !p)}
         className={cn(
-          'flex w-full items-center gap-1.5 px-4 py-2 text-[13px] text-[var(--n1150)]',
-          WEIGHT.strong, TRANSITION.colors, 'hover:text-[var(--n800)]',
+          'flex w-full items-center gap-1.5 px-4 py-2',
+          LABEL_STYLE, TRANSITION.colors, 'hover:text-[var(--n800)]',
         )}
       >
         <span className={cn('text-[9px] transition-transform duration-150', open && 'rotate-90')}>▶</span>

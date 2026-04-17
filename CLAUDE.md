@@ -34,4 +34,4 @@ npx vitest run         # 248 tests, all must pass
 - Chart primitives → `components/charts/primitives/RULES.md`
 - Design tokens → `components/ui/tokens.css`
 - Shared constants → `lib/ui.ts`
-- Full repo inventory → `REPO-STATE-APRIL-2026.md`
+- Full repo inventory → `docs/REPO-OVERVIEW.md` (regenerer efter større features: bed om "opdater overblikket")

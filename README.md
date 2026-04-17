@@ -236,7 +236,7 @@ app/
 ├── demo/                  ← Generic chart demo (non-sport)
 ├── ui-demo/               ← UI component showcase
 public/
-├── fonts/                 ← Variable font files (Satoshi, Space Grotesk, Cormorant Garamond)
+├── fonts/                 ← Variable font files (Satoshi + Cormorant Garamond)
 ```
 
 ---

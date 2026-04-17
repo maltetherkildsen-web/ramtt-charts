@@ -312,9 +312,8 @@ Satoshi is the **only** UI font in the system. All text — body, labels, values
 
 ### Font Loading (app/layout.tsx)
 
-- **Satoshi**: Self-hosted from `/public/fonts/Satoshi-Variable.woff2` (weight 100-900, `font-display: swap`)
-- **Space Grotesk**: Loaded via Google Fonts (legacy, `--font-label` now resolves to Satoshi)
-- **JetBrains Mono**: Loaded via Google Fonts (available as `font-space` utility for monospace contexts)
+- **Satoshi**: Self-hosted from `/public/fonts/Satoshi-Variable.woff2` (weight 100-900, `font-display: swap`) — ONLY font loaded for UI
+- **Cormorant Garamond**: Self-hosted — editorial/marketing only (`--font-serif`)
 
 ### Base Rendering (globals.css)
 
@@ -1030,7 +1029,7 @@ components/ui/
 lib/ui.ts                     Design system constants (single source of truth)
 lib/types/ui.ts               Shared type definitions
 app/globals.css               @theme tokens, @layer base, CSS variables
-app/layout.tsx                Font loading (Satoshi, Space Grotesk, JetBrains Mono)
+app/layout.tsx                Font loading (Satoshi only)
 components/ui/tokens.css      Tier 1 identity tokens, @font-face
 ```
 

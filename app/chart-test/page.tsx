@@ -1227,7 +1227,7 @@ function SessionDataPanel({ input, onUpdate }: {
     <div className={cn("mb-2", BORDER.default, RADIUS.lg, "bg-[var(--n50)]")}>
       <button
         onClick={() => setOpen(p => !p)}
-        className={cn("flex w-full items-center gap-1.5 px-4 py-2 text-[13px] text-[var(--n1150)]", WEIGHT.strong, TRANSITION.colors, "hover:text-[var(--n800)]")}
+        className={cn("flex w-full items-center gap-1.5 px-4 py-2", LABEL_STYLE, TRANSITION.colors, "hover:text-[var(--n800)]")}
       >
         <span className={cn("text-[9px] transition-transform duration-150", open && 'rotate-90')}>▶</span>
         CHO & Sport

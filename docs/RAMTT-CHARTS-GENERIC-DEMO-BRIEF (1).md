@@ -92,7 +92,7 @@ Use seeded random (simple LCG or just fixed seed with Math.random replacement) s
 └─────────────────────────────────────┘
 ```
 
-Clean, minimal page. RAMTT design tokens for background/text colors. Each chart in a card-like container with subtle border. Chart titles in Space Grotesk. Values in JetBrains Mono.
+Clean, minimal page. RAMTT design tokens for background/text colors. Each chart in a card-like container with subtle border. Chart titles and values in Satoshi with `tabular-nums` for numeric contexts.
 
 ## Important Notes
 
