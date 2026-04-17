@@ -155,42 +155,22 @@
   --domain-body-soft: #6366F120;
   --domain-body-light: #6366F130;
 
-  /* ── RAMTT Iris (#7888FF) — app-wide accent ramp ── */
-  /* Hand-tuned to match the defineAccentExact pattern used in accents.ts
-     for figma-blue / electric-indigo. Text is darker than primary for AA
-     contrast on sand; iconLight/iconLightest/border follow the indigo
-     lightening pattern. Mirrored 1:1 in accents.ts as 'ramtt-iris'. */
-  --domain-ramtt-pressed: #3E52F5;
-  --domain-ramtt-hover: #5A6DFF;
-  --domain-ramtt: #7888FF;
-  --domain-ramtt-toggle: #7888FF;
-  --domain-ramtt-text: #3E52F5;
-  --domain-ramtt-icon: #5A6DFF;
-  --domain-ramtt-icon-light: #B5BEF5;
-  --domain-ramtt-icon-lightest: #D7DBF5;
-  --domain-ramtt-border: #D7DBF5;
-  --domain-ramtt-selection: #CDD4F2;
-  --domain-ramtt-wash: #F0F1FE;
-  --domain-ramtt-badge: #F6F7FE;
-  --domain-ramtt-soft: #7888FF20;
-  --domain-ramtt-light: #7888FF30;
-
-  /* ═══ App Accent (aliases → ramtt) ═══ */
-  /* Changing the accent = repointing these 14 aliases to another domain ramp. */
-  --accent: var(--domain-ramtt);
-  --accent-pressed: var(--domain-ramtt-pressed);
-  --accent-hover: var(--domain-ramtt-hover);
-  --accent-toggle: var(--domain-ramtt-toggle);
-  --accent-text: var(--domain-ramtt-text);
-  --accent-icon: var(--domain-ramtt-icon);
-  --accent-icon-light: var(--domain-ramtt-icon-light);
-  --accent-icon-lightest: var(--domain-ramtt-icon-lightest);
-  --accent-border: var(--domain-ramtt-border);
-  --accent-selection: var(--domain-ramtt-selection);
-  --accent-wash: var(--domain-ramtt-wash);
-  --accent-badge: var(--domain-ramtt-badge);
-  --accent-soft: var(--domain-ramtt-soft);
-  --accent-light: var(--domain-ramtt-light);
+  /* ═══ App Accent (aliases → nutrition placeholder) ═══ */
+  /* When Ruth picks the final accent, change these 14 pointers. */
+  --accent: var(--domain-nutrition);
+  --accent-pressed: var(--domain-nutrition-pressed);
+  --accent-hover: var(--domain-nutrition-hover);
+  --accent-toggle: var(--domain-nutrition-toggle);
+  --accent-text: var(--domain-nutrition-text);
+  --accent-icon: var(--domain-nutrition-icon);
+  --accent-icon-light: var(--domain-nutrition-icon-light);
+  --accent-icon-lightest: var(--domain-nutrition-icon-lightest);
+  --accent-border: var(--domain-nutrition-border);
+  --accent-selection: var(--domain-nutrition-selection);
+  --accent-wash: var(--domain-nutrition-wash);
+  --accent-badge: var(--domain-nutrition-badge);
+  --accent-soft: var(--domain-nutrition-soft);
+  --accent-light: var(--domain-nutrition-light);
 
   /* ═══ Chart Palette ═══ */
   /* 8 colors tuned for warm --bg (#FAF9F5).
