@@ -11,11 +11,9 @@
  * Zwift, older Garmin firmware, etc.).
  */
 
-import { useCallback, useRef } from 'react'
-import { cn, WEIGHT } from '@/lib/ui'
-import { Card } from '@/components/ui/Card'
+import { useCallback, useRef, useState } from 'react'
+import { cn, WEIGHT, BORDER, RADIUS, TRANSITION } from '@/lib/ui'
 import { Input } from '@/components/ui/Input'
-import { SectionHeader } from '@/components/ui/SectionHeader'
 
 export type ParamSource = 'file' | 'manual' | 'missing'
 
@@ -103,46 +101,59 @@ export function AthleteParamsPanel({ state, onChange, isRunning, className }: At
     ? `${Math.floor(state.thresholdPaceSecPerKm.value / 60)}:${(state.thresholdPaceSecPerKm.value % 60).toString().padStart(2, '0')}`
     : ''
 
+  const [open, setOpen] = useState(false)
+
   return (
-    <Card padding="md" className={cn('mb-2', className)}>
-      <SectionHeader>Athlete parameters</SectionHeader>
-      <div className="flex flex-wrap items-start gap-5">
-        {!isRunning && (
-          <>
-            <ParamField
-              label="FTP"
-              unit="W"
-              source={state.ftp.source}
-              value={state.ftp.value}
-              onChange={(v) => handleEdit('ftp', v)}
-            />
-            <ParamField
-              label="CP"
-              unit="W"
-              source={state.cp.source}
-              value={state.cp.value}
-              onChange={(v) => handleEdit('cp', v)}
-            />
-          </>
+    <div className={cn('mb-2', BORDER.default, RADIUS.lg, 'bg-[var(--n50)]', className)}>
+      <button
+        onClick={() => setOpen(p => !p)}
+        className={cn(
+          'flex w-full items-center gap-1.5 px-4 py-2 text-[13px] text-[var(--n1150)]',
+          WEIGHT.strong, TRANSITION.colors, 'hover:text-[var(--n800)]',
         )}
-        {isRunning && (
-          <PaceField
-            label="Threshold pace"
-            unit="/km"
-            source={state.thresholdPaceSecPerKm.source}
-            value={paceDisplay}
-            onChange={handlePaceEdit}
+      >
+        <span className={cn('text-[9px] transition-transform duration-150', open && 'rotate-90')}>▶</span>
+        Athlete parameters
+      </button>
+      {open && (
+        <div className="flex flex-wrap items-start gap-5 px-4 pb-3">
+          {!isRunning && (
+            <>
+              <ParamField
+                label="FTP"
+                unit="W"
+                source={state.ftp.source}
+                value={state.ftp.value}
+                onChange={(v) => handleEdit('ftp', v)}
+              />
+              <ParamField
+                label="CP"
+                unit="W"
+                source={state.cp.source}
+                value={state.cp.value}
+                onChange={(v) => handleEdit('cp', v)}
+              />
+            </>
+          )}
+          {isRunning && (
+            <PaceField
+              label="Threshold pace"
+              unit="/km"
+              source={state.thresholdPaceSecPerKm.source}
+              value={paceDisplay}
+              onChange={handlePaceEdit}
+            />
+          )}
+          <ParamField
+            label="Weight"
+            unit="kg"
+            source={state.weightKg.source}
+            value={state.weightKg.value}
+            onChange={(v) => handleEdit('weightKg', v)}
           />
-        )}
-        <ParamField
-          label="Weight"
-          unit="kg"
-          source={state.weightKg.source}
-          value={state.weightKg.value}
-          onChange={(v) => handleEdit('weightKg', v)}
-        />
-      </div>
-    </Card>
+        </div>
+      )}
+    </div>
   )
 }
 

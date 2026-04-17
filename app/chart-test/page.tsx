@@ -93,9 +93,18 @@ function formatTimeForZoom(index: number, visibleRange: number, sessionDuration:
   return `${h}:${m.toString().padStart(2, '0')}`
 }
 
+// Hover / crosshair / selection time. Rolls over to h:mm:ss once >= 1 hour
+// so long sessions don't show "71:00" when the user means 1:11:00.
 function formatTime(index: number): string {
-  const m = Math.floor(index / 60)
-  const s = index % 60
+  const idx = Math.floor(index)
+  if (idx >= 3600) {
+    const h = Math.floor(idx / 3600)
+    const m = Math.floor((idx % 3600) / 60)
+    const s = idx % 60
+    return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  }
+  const m = Math.floor(idx / 60)
+  const s = idx % 60
   return `${m}:${s.toString().padStart(2, '0')}`
 }
 
