@@ -241,7 +241,7 @@ export function ChartHeatmap({
           textAnchor="end"
           fontSize={11}
           fill="var(--n800)"
-          style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+          style={{ fontFamily: "var(--font-sans)", fontWeight: 400 }}
         >
           {label}
         </text>
@@ -258,7 +258,7 @@ export function ChartHeatmap({
             textAnchor="middle"
             fontSize={10}
             fill="var(--n600)"
-            style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 450 }}
+            style={{ fontFamily: "var(--font-sans)", fontWeight: 450 }}
           >
             {label}
           </text>
@@ -304,7 +304,7 @@ export function ChartHeatmap({
                 fontSize={cs * 0.4}
                 fill={textColor}
                 style={{
-                  fontFamily: "'Satoshi', sans-serif",
+                  fontFamily: "var(--font-sans)",
                   fontWeight: 550,
                   fontVariantNumeric: 'tabular-nums',
                   pointerEvents: 'none',
@@ -344,7 +344,7 @@ export function ChartHeatmap({
           textAnchor="middle"
           fill="var(--n50)"
           fontSize={10}
-          style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}
+          style={{ fontFamily: "var(--font-sans)", fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}
         />
       </g>
 
@@ -373,7 +373,7 @@ export function ChartHeatmap({
         y={xLabelHeight + gridH + 18}
         fontSize={9}
         fill="var(--n600)"
-        style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+        style={{ fontFamily: "var(--font-sans)", fontWeight: 400 }}
       >
         {scaleMin}
       </text>
@@ -390,7 +390,7 @@ export function ChartHeatmap({
         y={xLabelHeight + gridH + 18}
         fontSize={9}
         fill="var(--n600)"
-        style={{ fontFamily: "'Satoshi', sans-serif", fontWeight: 400 }}
+        style={{ fontFamily: "var(--font-sans)", fontWeight: 400 }}
       >
         {scaleMax}
       </text>
