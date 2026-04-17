@@ -1081,6 +1081,23 @@ toast({ message: 'Saved!', variant: 'success' })`,
     ],
   },
 
+  'hex-swatch': {
+    slug: 'hex-swatch',
+    name: 'HexSwatch',
+    description: 'Color swatch that displays a hex value as docs data. Used in design-system reference pages where the hex IS the content, not a styling literal.',
+    category: 'components',
+    usage: `import { HexSwatch } from '@ramtt/ui'
+
+<HexSwatch token="--bg" hex="#FAF9F5" label="Canvas" usage="Page background" />`,
+    props: [
+      { name: 'hex', type: 'string', description: 'The hex value to display (passed as data, not styling)', required: true },
+      { name: 'token', type: 'string', description: 'Optional token name shown above the swatch (e.g. "--n50")' },
+      { name: 'label', type: 'string', description: 'Optional label shown below the hex' },
+      { name: 'usage', type: 'string', description: 'Optional usage description' },
+      { name: 'size', type: 'number', default: '56', description: 'Swatch size in px' },
+    ],
+  },
+
   // ═══ Wave 7B — Input Patterns ═══
 
   'rating-input': {
