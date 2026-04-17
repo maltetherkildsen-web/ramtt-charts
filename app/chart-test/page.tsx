@@ -1225,16 +1225,16 @@ function SessionDataPanel({ input, onUpdate }: {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className={cn("mb-2", BORDER.default, RADIUS.lg, "bg-[var(--n50)]")}>
+    <div className={cn("border-b-[0.5px] border-b-[var(--n400)]")}>
       <button
         onClick={() => setOpen(p => !p)}
-        className={cn("flex w-full items-center gap-1.5 px-4 py-2", LABEL_STYLE, TRANSITION.colors, "hover:text-[var(--n800)]")}
+        className={cn("flex w-full items-center gap-1.5 py-2", LABEL_STYLE, TRANSITION.colors, "hover:text-[var(--n800)]")}
       >
         <IconChevronRight className={cn(TRANSITION.transform, open && 'rotate-90')} size={16} />
         CHO & Sport
       </button>
       {open && (
-        <div className="flex items-end gap-4 px-4 pb-3">
+        <div className="flex items-end gap-4 pb-3">
           <div className="w-[70px]">
             <Input
               inputMode="numeric"

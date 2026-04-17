@@ -12,7 +12,7 @@
  */
 
 import { useCallback, useRef, useState } from 'react'
-import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE } from '@/lib/ui'
+import { cn, WEIGHT, TRANSITION, LABEL_STYLE } from '@/lib/ui'
 import { Input } from '@/components/ui/Input'
 import { IconChevronRight } from '@/components/icons/light/IconChevronRight'
 
@@ -108,11 +108,11 @@ export function AthleteParamsPanel({ state, onChange, isRunning, className }: At
   const [open, setOpen] = useState(false)
 
   return (
-    <div className={cn('mb-2', BORDER.default, RADIUS.lg, 'bg-[var(--n50)]', className)}>
+    <div className={cn('border-b-[0.5px] border-b-[var(--n400)]', className)}>
       <button
         onClick={() => setOpen(p => !p)}
         className={cn(
-          'flex w-full items-center gap-1.5 px-4 py-2',
+          'flex w-full items-center gap-1.5 py-2',
           LABEL_STYLE, TRANSITION.colors, 'hover:text-[var(--n800)]',
         )}
       >
@@ -120,7 +120,7 @@ export function AthleteParamsPanel({ state, onChange, isRunning, className }: At
         Athlete parameters
       </button>
       {open && (
-        <div className="flex flex-wrap items-start gap-5 px-4 pb-3">
+        <div className="flex flex-wrap items-start gap-5 pb-3">
           {!isRunning && (
             <>
               <ParamField

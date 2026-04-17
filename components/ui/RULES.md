@@ -131,6 +131,19 @@ MAY use box-shadow for elevation. All other components must remain flat — no b
 - Header-to-content gap is `12px` (`mt-3`)
 - Card internal padding is `14px` (if it ever drifts, fix it)
 
+## Edge Alignment (LOCKED)
+- Within a page section, every stacked element — headings, labels, metric rows,
+  collapsible panels, form fields — aligns to the SAME left edge. No surprise indents.
+- A section gets a single horizontal padding (`px-6` on the page container, or similar).
+  Children do NOT add their own horizontal padding unless visually required.
+- Collapsible/accordion headers use only a horizontal divider (`border-b-[0.5px]`),
+  never a full bordered+rounded+bg card that forces internal padding. The button
+  text must line up with surrounding section labels.
+- Chevron / leading icon sits INSIDE that same left edge — it's part of the row,
+  not an indent.
+- Rationale: top-tier design systems (Linear, Stripe, Vercel) enforce a single
+  vertical rule down the page. Even a 4-8px drift is visible and cheapens the layout.
+
 ## Sidebar Navigation (LOCKED)
 - All items (active AND inactive): `11px / weight 450 / --n1150` — identical text styling
 - Active state: `bg-[var(--accent-soft)]` (~12% accent opacity) — NO weight change, NO color change
