@@ -48,6 +48,7 @@ import {
   makeAthleteParamsState,
   type AthleteParamsState,
 } from '@/components/chart-test/AthleteParamsPanel'
+import { IconChevronRight } from '@/components/icons/light/IconChevronRight'
 
 // ─── Constants ───
 
@@ -1229,7 +1230,7 @@ function SessionDataPanel({ input, onUpdate }: {
         onClick={() => setOpen(p => !p)}
         className={cn("flex w-full items-center gap-1.5 px-4 py-2", LABEL_STYLE, TRANSITION.colors, "hover:text-[var(--n800)]")}
       >
-        <span className={cn("text-[9px] transition-transform duration-150", open && 'rotate-90')}>▶</span>
+        <IconChevronRight className={cn(TRANSITION.transform, open && 'rotate-90')} size={16} />
         CHO & Sport
       </button>
       {open && (

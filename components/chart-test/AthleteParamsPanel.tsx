@@ -14,6 +14,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE } from '@/lib/ui'
 import { Input } from '@/components/ui/Input'
+import { IconChevronRight } from '@/components/icons/light/IconChevronRight'
 
 export type ParamSource = 'file' | 'manual' | 'missing'
 
@@ -41,11 +42,14 @@ function sourceLabel(source: ParamSource): string {
   }
 }
 
-function sourceColor(source: ParamSource): string {
+// Text is always on the neutral scale — never semantic colors (RULES.md).
+// Missing state uses italic + n600 so it reads as "awaiting input" without warning.
+function sourceLabelClass(source: ParamSource): string {
+  const base = `text-[11px] ${WEIGHT.book}`
   switch (source) {
-    case 'file': return 'var(--n600)'
-    case 'manual': return 'var(--n800)'
-    case 'missing': return 'var(--warning)'
+    case 'file': return `${base} text-[var(--n600)]`
+    case 'manual': return `${base} text-[var(--n800)]`
+    case 'missing': return `${base} text-[var(--n600)] italic`
   }
 }
 
@@ -112,7 +116,7 @@ export function AthleteParamsPanel({ state, onChange, isRunning, className }: At
           LABEL_STYLE, TRANSITION.colors, 'hover:text-[var(--n800)]',
         )}
       >
-        <span className={cn('text-[9px] transition-transform duration-150', open && 'rotate-90')}>▶</span>
+        <IconChevronRight className={cn(TRANSITION.transform, open && 'rotate-90')} size={16} />
         Athlete parameters
       </button>
       {open && (
@@ -177,18 +181,7 @@ function PaceField({
         placeholder="—:——"
         onChange={(e) => onChange(e.target.value)}
       />
-      <span
-        className={cn('text-[11px]', WEIGHT.book)}
-        style={{ color: sourceColor(source) }}
-      >
-        {source === 'missing' && (
-          <span
-            className="mr-1 inline-block size-1.5 rounded-full align-middle"
-            style={{ backgroundColor: 'var(--warning)' }}
-          />
-        )}
-        {sourceLabel(source)}
-      </span>
+      <span className={sourceLabelClass(source)}>{sourceLabel(source)}</span>
     </div>
   )
 }
@@ -214,18 +207,7 @@ function ParamField({
         placeholder="—"
         onChange={(e) => onChange(e.target.value)}
       />
-      <span
-        className={cn('text-[11px]', WEIGHT.book)}
-        style={{ color: sourceColor(source) }}
-      >
-        {source === 'missing' && (
-          <span
-            className="mr-1 inline-block size-1.5 rounded-full align-middle"
-            style={{ backgroundColor: 'var(--warning)' }}
-          />
-        )}
-        {sourceLabel(source)}
-      </span>
+      <span className={sourceLabelClass(source)}>{sourceLabel(source)}</span>
     </div>
   )
 }
