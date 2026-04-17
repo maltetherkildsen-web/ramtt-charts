@@ -21,7 +21,7 @@
  */
 
 import { useMemo, useState, useCallback, useEffect, useRef } from 'react'
-import { cn, WEIGHT, BORDER, RADIUS, TRANSITION, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, MUTED_STYLE, QUIET_STYLE, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
+import { cn, WEIGHT, FONT, BORDER, RADIUS, TRANSITION, LABEL_STYLE, VALUE_STYLE, UNIT_STYLE, MUTED_STYLE, QUIET_STYLE, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, FOCUS_RING } from '@/lib/ui'
 import { motion, AnimatePresence, MotionConfig } from 'motion/react'
 import { ChartRoot } from '@/components/charts/primitives/ChartRoot'
 import { ChartLine } from '@/components/charts/primitives/ChartLine'
@@ -43,6 +43,7 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
+import { RatingInput } from '@/components/ui/RatingInput'
 import {
   AthleteParamsPanel,
   makeAthleteParamsState,
@@ -1136,10 +1137,34 @@ function SessionHeader({ meta, scores, setScores, onChangeFile }: {
           {dateStr} &middot; {meta.sport}
         </p>
       </div>
-      <div className="flex items-center gap-2 pt-1">
-        <ScoreBadge label="Effort" value={scores.effort} onChange={(v) => setScores(p => ({ ...p, effort: v }))} />
-        <ScoreBadge label="Quality" value={scores.quality} onChange={(v) => setScores(p => ({ ...p, quality: v }))} />
-        <ScoreBadge label="Legs" value={scores.legs} onChange={(v) => setScores(p => ({ ...p, legs: v }))} />
+      <div className="flex items-center gap-4 pt-1">
+        <div className="flex items-center gap-2">
+          <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n600)]')}>Effort</span>
+          <RatingInput
+            value={scores.effort}
+            onChange={(v) => setScores(p => ({ ...p, effort: v }))}
+            max={10}
+            compact
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n600)]')}>Quality</span>
+          <RatingInput
+            value={scores.quality}
+            onChange={(v) => setScores(p => ({ ...p, quality: v }))}
+            max={10}
+            compact
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n600)]')}>Legs</span>
+          <RatingInput
+            value={scores.legs}
+            onChange={(v) => setScores(p => ({ ...p, legs: v }))}
+            max={10}
+            compact
+          />
+        </div>
         <button
           onClick={onChangeFile}
           className={cn("text-[12px] text-[var(--n600)]", WEIGHT.book, TRANSITION.colors, "hover:text-[var(--n1050)]")}
@@ -1147,69 +1172,6 @@ function SessionHeader({ meta, scores, setScores, onChangeFile }: {
           ↻ Change file
         </button>
       </div>
-    </div>
-  )
-}
-
-function ScoreBadge({ label, value, onChange }: { label: string; value: number | null; onChange: (v: number) => void }) {
-  const [pickerOpen, setPickerOpen] = useState(false)
-  const closeTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Close on outside click
-  useEffect(() => {
-    if (!pickerOpen) return
-    function handleClick(e: MouseEvent) {
-      if (!containerRef.current?.contains(e.target as Node)) setPickerOpen(false)
-    }
-    document.addEventListener('mousedown', handleClick)
-    return () => document.removeEventListener('mousedown', handleClick)
-  }, [pickerOpen])
-
-  const handleSelect = useCallback((v: number) => {
-    onChange(v)
-    closeTimer.current = setTimeout(() => setPickerOpen(false), 400)
-  }, [onChange])
-
-  useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current) }, [])
-
-  const isRated = value !== null
-
-  return (
-    <div ref={containerRef} className="relative">
-      <button
-        onClick={() => { if (closeTimer.current) clearTimeout(closeTimer.current); setPickerOpen(p => !p) }}
-        className={cn(
-          "flex items-center gap-1.5", RADIUS.md, "border-[0.5px] px-2.5 py-1", TRANSITION.colors,
-          isRated ? "border-[var(--n400)] text-[var(--n1050)]" : "border-[var(--n400)] text-[var(--n600)]"
-        )}
-      >
-        <span className="text-[11px] text-[var(--n600)]">{label}</span>
-        <span className={cn("text-[13px] tabular-nums", WEIGHT.medium, isRated ? "text-[var(--n1050)]" : "text-[var(--n600)]")}>
-          {value ?? '—'}
-        </span>
-      </button>
-
-      {/* Rating picker */}
-      {pickerOpen && (
-        <div className={cn("absolute right-0 top-full z-50 mt-1 flex gap-0.5 p-1", RADIUS.md, "border-[0.5px] border-[var(--n400)] bg-white")}>
-          {Array.from({ length: 10 }, (_, i) => i + 1).map(n => (
-            <button
-              key={n}
-              onClick={() => handleSelect(n)}
-              className={cn(
-                "flex h-6 w-6 items-center justify-center text-[11px] tabular-nums", RADIUS.md, WEIGHT.strong,
-                TRANSITION.background,
-                value === n
-                  ? "bg-[var(--n1150)] text-[var(--n50)]"
-                  : "text-[var(--n800)] hover:bg-[var(--n200)]"
-              )}
-            >
-              {n}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )
 }
