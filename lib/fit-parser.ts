@@ -36,12 +36,25 @@ export interface FitData {
     maxTemperature: number    // °C
     minTemperature: number    // °C
   }
+  athleteParams: FitAthleteParams
   power: number[]
   heartRate: number[]
   cadence: number[]
   speed: number[]
   altitude: number[]
   intervals: { startIndex: number; endIndex: number; avgPower?: number; maxPower?: number }[]
+}
+
+export interface FitAthleteParams {
+  ftp: number | undefined       // watts
+  cp: number | undefined        // watts (rarely in FIT)
+  weightKg: number | undefined  // kilograms
+}
+
+// Treat 0 / non-positive / non-finite as missing — Garmin writes 0 for "no value".
+function validPositive(v: unknown): number | undefined {
+  if (typeof v !== 'number' || !Number.isFinite(v) || v <= 0) return undefined
+  return v
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -148,8 +161,22 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
   // Duration
   const totalTime = (session.total_timer_time ?? session.total_elapsed_time ?? n) as number
 
-  // FTP
-  const ftp = (session.threshold_power ?? 0) as number
+  // Athlete parameters — FTP preferred from zones_target, fallback user_profile, fallback session.
+  // Weight from user_profile (fit-file-parser already applies scale:10 → kg).
+  // CP has no dedicated FIT field — left undefined unless a future source populates it.
+  const zonesTarget = parsed.zones_target as AnyRecord | undefined
+  const userProfile = parsed.user_profile as AnyRecord | undefined
+  const athleteParams: FitAthleteParams = {
+    ftp:
+      validPositive(zonesTarget?.functional_threshold_power) ??
+      validPositive(userProfile?.functional_threshold_power) ??
+      validPositive(session.threshold_power),
+    cp: undefined,
+    weightKg: validPositive(userProfile?.weight),
+  }
+
+  // Legacy meta.ftp — keep for backward compat, 0 when missing.
+  const ftp = athleteParams.ftp ?? 0
 
   // Date
   const date = (session.start_time ?? allRecords[0]?.timestamp ?? new Date().toISOString()) as string
@@ -215,5 +242,5 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     }
   })
 
-  return { meta, power, heartRate, cadence, speed, altitude, intervals }
+  return { meta, athleteParams, power, heartRate, cadence, speed, altitude, intervals }
 }

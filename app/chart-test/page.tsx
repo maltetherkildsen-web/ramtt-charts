@@ -43,6 +43,11 @@ import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
+import {
+  AthleteParamsPanel,
+  makeAthleteParamsState,
+  type AthleteParamsState,
+} from '@/components/chart-test/AthleteParamsPanel'
 
 // ─── Constants ───
 
@@ -326,12 +331,11 @@ function getKJDemandZone(kj_per_kg_per_hour: number): { zone: string; name: stri
 // ─── Session input state ───
 
 interface SessionInput {
-  weight: number
   choIntake: number
   sport: string
 }
 
-const DEFAULT_SESSION_INPUT: SessionInput = { weight: 75, choIntake: 0, sport: 'Cycling' }
+const DEFAULT_SESSION_INPUT: SessionInput = { choIntake: 0, sport: 'Cycling' }
 
 function loadSessionInput(): SessionInput {
   if (typeof window === 'undefined') return DEFAULT_SESSION_INPUT
@@ -339,16 +343,15 @@ function loadSessionInput(): SessionInput {
     const stored = localStorage.getItem('ramtt-session-input')
     if (stored) {
       const parsed = JSON.parse(stored)
-      // Only restore weight and sport — CHO intake is per-session, always starts at 0
-      return { ...DEFAULT_SESSION_INPUT, weight: parsed.weight ?? 75, sport: parsed.sport ?? 'Cycling' }
+      // CHO intake is per-session, always starts at 0. Only sport persists.
+      return { ...DEFAULT_SESSION_INPUT, sport: parsed.sport ?? 'Cycling' }
     }
   } catch { /* ignore */ }
   return DEFAULT_SESSION_INPUT
 }
 
 function saveSessionInput(input: SessionInput) {
-  // Only persist weight and sport — CHO intake is per-session
-  try { localStorage.setItem('ramtt-session-input', JSON.stringify({ weight: input.weight, sport: input.sport })) } catch { /* ignore */ }
+  try { localStorage.setItem('ramtt-session-input', JSON.stringify({ sport: input.sport })) } catch { /* ignore */ }
 }
 
 // ─── Page ───
@@ -518,7 +521,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   // Session scores — interactive
   const [scores, setScores] = useState<{ effort: number | null; quality: number | null; legs: number | null }>({ effort: null, quality: null, legs: null })
 
-  // Session input (weight, CHO, sport) — persisted in localStorage
+  // Session input (CHO, sport) — sport persisted in localStorage
   const [sessionInput, setSessionInput] = useState<SessionInput>(DEFAULT_SESSION_INPUT)
   useEffect(() => { setSessionInput(loadSessionInput()) }, [])
   const updateSessionInput = useCallback((patch: Partial<SessionInput>) => {
@@ -528,6 +531,15 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
       return next
     })
   }, [])
+
+  // Athlete parameters (FTP / CP / weight) — auto-filled from FIT, user can override.
+  // New file upload overwrites everything — no persistence, no merge.
+  const [athleteParams, setAthleteParams] = useState<AthleteParamsState>(() =>
+    makeAthleteParamsState(data.athleteParams),
+  )
+  useEffect(() => {
+    setAthleteParams(makeAthleteParamsState(data.athleteParams))
+  }, [data])
 
   const peaks = useMemo(() => computeAllPeaks(power), [power])
 
@@ -605,10 +617,11 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   const choZone = choGPerHour > 0 ? getCHOZone(choGPerHour) : null
 
   const coefficient = SPORT_COEFFICIENTS[sessionInput.sport] ?? 1.0
-  const rawKjPerKgH = sessionInput.weight > 0 && durationHours > 0 ? energyKJ / sessionInput.weight / durationHours : 0
+  const weightKg = athleteParams.weightKg.value
+  const rawKjPerKgH = weightKg !== undefined && weightKg > 0 && durationHours > 0 ? energyKJ / weightKg / durationHours : 0
   const adjustedKjPerKgH = rawKjPerKgH * coefficient
   const kjDemandZone = adjustedKjPerKgH > 0 ? getKJDemandZone(adjustedKjPerKgH) : null
-  const isDefaultWeight = sessionInput.weight === 75
+  const isDefaultWeight = false  // weight is now always either from FIT or user-entered; no default fallback
 
   // Determine which channels have data
   const hasPower = power.some(v => v > 0)
@@ -648,6 +661,9 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
 
           {/* ── 1. Header ── */}
           <SessionHeader meta={meta} scores={scores} setScores={setScores} onChangeFile={onChangeFile} />
+
+          {/* ── 1a. Athlete parameters (FTP / CP / Weight) ── */}
+          <AthleteParamsPanel state={athleteParams} onChange={setAthleteParams} />
 
           {/* ── 1b. Session Data Input Panel ── */}
           <SessionDataPanel input={sessionInput} onUpdate={updateSessionInput} />
@@ -696,7 +712,8 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             altitude={altitude}
             kjPerMin={kjPerMin}
             torque={torque}
-            ftp={meta.ftp}
+            ftp={athleteParams.ftp.value}
+            cp={athleteParams.cp.value}
             maxHR={meta.maxHR}
             meta={meta}
             zoneMode={zoneMode}
@@ -728,7 +745,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
               meta={meta}
               power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
               kjPerMin={kjPerMin} torque={torque}
-              ftp={meta.ftp} maxHR={meta.maxHR}
+              ftp={athleteParams.ftp.value} cp={athleteParams.cp.value} maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
               showPeaks={showPeaks} setShowPeaks={setShowPeaks}
@@ -749,12 +766,12 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, altitude, kjPerMin, torque,
-  ftp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onActivePeakChange, onClose,
+  ftp, cp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onActivePeakChange, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   kjPerMin: number[]; torque: number[]
-  ftp: number; maxHR: number
+  ftp: number | undefined; cp: number | undefined; maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
   showPeaks: boolean; setShowPeaks: (v: boolean) => void
@@ -878,7 +895,7 @@ function FullscreenOverlay({
           <SyncedCharts
             power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
             kjPerMin={kjPerMin} torque={torque}
-            ftp={ftp} maxHR={maxHR} meta={meta}
+            ftp={ftp} cp={cp} maxHR={maxHR} meta={meta}
             zoneMode={zoneMode} visibleCharts={visibleCharts}
             heightOverrides={heights}
             decimationFactor={0.2}
@@ -1204,25 +1221,10 @@ function SessionDataPanel({ input, onUpdate }: {
         className={cn("flex w-full items-center gap-1.5 px-4 py-2 text-[13px] text-[var(--n1150)]", WEIGHT.strong, TRANSITION.colors, "hover:text-[var(--n800)]")}
       >
         <span className={cn("text-[9px] transition-transform duration-150", open && 'rotate-90')}>▶</span>
-        CHO & Weight Log
+        CHO & Sport
       </button>
       {open && (
         <div className="flex items-end gap-4 px-4 pb-3">
-          <div className="w-[70px]">
-            <Input
-              inputMode="decimal"
-              label="Weight"
-              unit="kg"
-              placeholder="75"
-              value={input.weight === 0 ? '' : `${input.weight}`}
-              onChange={e => {
-                const val = e.target.value.replace(/[^0-9.]/g, '')
-                if (val === '') { onUpdate({ weight: 0 }); return }
-                const num = parseFloat(val)
-                if (!isNaN(num) && num >= 0) onUpdate({ weight: num })
-              }}
-            />
-          </div>
           <div className="w-[70px]">
             <Input
               inputMode="numeric"
@@ -1582,11 +1584,11 @@ function PeakPowersStrip({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, kjPerMin, torque, ftp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
+  power, heartRate, cadence, speed, altitude, kjPerMin, torque, ftp, cp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
   kjPerMin: number[]; torque: number[]
-  ftp: number; maxHR: number; meta: FitData['meta']
+  ftp: number | undefined; cp: number | undefined; maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
   heightOverrides?: Partial<Record<ChartKey, number>>
   hideExtras?: boolean
@@ -1671,9 +1673,10 @@ function SyncedCharts({
           yPadding={0.10}
         >
           <ChartAxisY tickCount={3} />
-          <ChartRefLine y={ftp} label={`CP ${ftp}W`} />
+          {ftp !== undefined && <ChartRefLine y={ftp} label={`FTP ${ftp}W`} />}
+          {cp !== undefined && <ChartRefLine y={cp} label={`CP ${cp}W`} />}
           <ChartArea gradientColor="#059669" opacityFrom={0.10} opacityTo={0.005} />
-          {zoneMode === 'power' ? (
+          {zoneMode === 'power' && ftp !== undefined ? (
             <ChartZoneLine threshold={ftp} zones={POWER_ZONES} />
           ) : (
             <ChartLine />
@@ -1834,6 +1837,7 @@ function SyncedCharts({
       {!hideExtras && (
         <HoverDataTable
           power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta}
+          ftp={ftp}
           visibleCharts={visibleCharts}
         />
       )}
@@ -1861,10 +1865,11 @@ function SyncedCharts({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function HoverDataTable({
-  power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, visibleCharts,
+  power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, visibleCharts,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
-  kjPerMin: number[]; torque: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
+  kjPerMin: number[]; torque: number[]; meta: FitData['meta']; ftp: number | undefined
+  visibleCharts: Set<ChartKey>
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -1995,15 +2000,19 @@ function HoverDataTable({
       if (powerMaxRef.current) powerMaxRef.current.textContent = ''
       if (hrMaxRef.current) hrMaxRef.current.textContent = ''
       if (powerZoneRef.current) {
-        const z = getPowerZone(pw, meta.ftp)
-        powerZoneRef.current.textContent = z.label; powerZoneRef.current.style.color = z.color; powerZoneRef.current.style.backgroundColor = `${z.color}1F`
+        if (ftp !== undefined && ftp > 0) {
+          const z = getPowerZone(pw, ftp)
+          powerZoneRef.current.textContent = z.label; powerZoneRef.current.style.color = z.color; powerZoneRef.current.style.backgroundColor = `${z.color}1F`
+        } else {
+          powerZoneRef.current.textContent = ''; powerZoneRef.current.style.backgroundColor = 'transparent'
+        }
       }
       if (hrZoneRef.current) {
         const z = getHRZone(hr, meta.maxHR)
         hrZoneRef.current.textContent = z.label; hrZoneRef.current.style.color = z.color; hrZoneRef.current.style.backgroundColor = `${z.color}1F`
       }
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAverages])
+  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, showAverages])
 
   const cellCls = 'flex items-center gap-2 py-1.5'
   const dotCls = 'h-2 w-2 shrink-0 rounded-full'
