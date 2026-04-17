@@ -162,4 +162,13 @@
     -webkit-font-smoothing: antialiased;
     font-kerning: normal;
   }
+
+  /* ── CRISP §1.7: default SVG shape rendering ──
+     Smooth curves by default. Chart primitives that need pixel-aligned
+     lines (grid, reference lines) set `shapeRendering="crispEdges"` as
+     a presentation attribute on the specific element — that wins over
+     this parent-level default via normal SVG inheritance rules. */
+  svg {
+    shape-rendering: geometricPrecision;
+  }
 }

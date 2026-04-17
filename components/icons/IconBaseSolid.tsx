@@ -13,6 +13,7 @@ export const IconBaseSolid = forwardRef<SVGSVGElement, IconProps & { children: R
       viewBox="0 0 24 24"
       fill={color}
       stroke="none"
+      shapeRendering="geometricPrecision"
       className={className}
       aria-hidden={props['aria-label'] ? undefined : true}
       {...props}

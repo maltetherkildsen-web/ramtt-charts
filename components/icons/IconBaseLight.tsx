@@ -18,6 +18,7 @@ export const IconBaseLight = forwardRef<SVGSVGElement, IconProps & { children: R
       strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
+      shapeRendering="geometricPrecision"
       className={className}
       aria-hidden={props['aria-label'] ? undefined : true}
       {...props}
