@@ -72,10 +72,20 @@ const CHART_HEIGHTS: Record<ChartKey, number> = {
 
 // ─── Time formatting ───
 
-function formatTimeForZoom(index: number, _visibleRange: number): string {
-  const m = Math.floor(index / 60)
-  const s = index % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
+// X-axis tick labels and crosshair time.
+// Minutes always reset within each hour (timecode style, never cumulative >59).
+// Long sessions (>=1h) show h:mm, or h:mm:ss when visibleRange < 10 min.
+// Short sessions (<1h) keep m:ss format.
+function formatTimeForZoom(index: number, visibleRange: number, sessionDuration: number): string {
+  const h = Math.floor(index / 3600)
+  const m = Math.floor((index % 3600) / 60)
+  const s = Math.floor(index % 60)
+  if (sessionDuration < 3600) {
+    const totalMin = Math.floor(index / 60)
+    return `${totalMin}:${s.toString().padStart(2, '0')}`
+  }
+  if (visibleRange < 600) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  return `${h}:${m.toString().padStart(2, '0')}`
 }
 
 function formatTime(index: number): string {
@@ -90,6 +100,14 @@ function formatDuration(totalSeconds: number): string {
   const s = Math.round(totalSeconds % 60)
   if (h > 0) return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
   return `${m}:${s.toString().padStart(2, '0')}`
+}
+
+// Headline duration for the metric strip: "48m" or "6h 10m".
+function formatDurationHeadline(totalSeconds: number): string {
+  const h = Math.floor(totalSeconds / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  if (h === 0) return `${m}m`
+  return `${h}h ${m}m`
 }
 
 // ─── Rolling average (pre-smoothing for HR / elevation) ───
@@ -525,6 +543,14 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
     return () => document.removeEventListener('keydown', handleKey)
   }, [isFullscreen])
 
+  // Lock body scroll while fullscreen is open so the underlying page scrollbar doesn't leak through.
+  useEffect(() => {
+    if (!isFullscreen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => { document.body.style.overflow = prev }
+  }, [isFullscreen])
+
   const toggleChart = useCallback((key: ChartKey) => {
     setVisibleCharts((prev) => {
       const next = new Set(prev)
@@ -533,7 +559,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
     })
   }, [])
 
-  const durationStr = formatDuration(meta.totalTime)
+  const durationStr = formatDurationHeadline(meta.totalTime)
 
   const np = useMemo(() => computeNP(power), [power])
 
@@ -746,10 +772,11 @@ function FullscreenOverlay({
   // Scale chart heights proportionally to fill viewport
   const topBar = 40
   const peaksBar = showPeaks ? 28 : 0
+  const xAxisBar = 24 // shared x-axis row below the chart stack
   const sidebarW = 176
   const ordered = ALL_CHARTS.filter((k) => visibleCharts.has(k))
   const normalTotal = ordered.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
-  const available = winH - topBar - peaksBar
+  const available = Math.max(0, winH - topBar - peaksBar - xAxisBar)
   const scale = available / normalTotal
 
   const heights = useMemo(() => {
@@ -1602,9 +1629,10 @@ function SyncedCharts({
   const visKjMin = useMemo(() => kjPerMin.slice(start, end + 1), [kjPerMin, start, end])
   const visTorque = useMemo(() => torque.slice(start, end + 1), [torque, start, end])
 
+  const sessionDuration = power.length
   const formatX = useCallback(
-    (i: number) => formatTimeForZoom(start + i, visibleRange),
-    [start, visibleRange],
+    (i: number) => formatTimeForZoom(start + i, visibleRange, sessionDuration),
+    [start, visibleRange, sessionDuration],
   )
   const formatTimeLabel = useCallback((idx: number) => formatTime(idx), [])
 
@@ -1814,7 +1842,7 @@ function SyncedCharts({
       {!hideExtras && (start > 0 || end < power.length - 1) && (
         <div className="mt-1 flex items-center justify-between">
           <span className="text-[10px] text-[var(--n600)]">
-            {formatTimeForZoom(start, visibleRange)} – {formatTimeForZoom(end, visibleRange)}
+            {formatTimeForZoom(start, visibleRange, sessionDuration)} – {formatTimeForZoom(end, visibleRange, sessionDuration)}
           </span>
           <button
             onClick={() => sync.setZoom({ start: 0, end: power.length - 1 })}
