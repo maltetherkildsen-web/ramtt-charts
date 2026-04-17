@@ -160,7 +160,7 @@ export default function IconDemoPage() {
               </nav>
             </div>
             <div className="text-[var(--n600)] text-[12px] font-[400] leading-relaxed max-w-[300px]">
-              Active page uses <strong>Solid</strong> variant. Inactive pages use <strong>Line</strong>. Same icon, different weight — the iOS/Figma/Linear pattern.
+              Active page uses <strong>Solid</strong> variant. Inactive pages use <strong>Line</strong>. Same icon, different weight — the iOS/Linear pattern.
             </div>
           </div>
         </Section>

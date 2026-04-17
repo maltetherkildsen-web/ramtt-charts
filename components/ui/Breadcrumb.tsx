@@ -1,7 +1,7 @@
 // Copyright (c) 2026 RAMTT (Malte Therkildsen)
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
-import { forwardRef, Children, type ReactNode } from 'react'
+import { forwardRef, Children, Fragment, type ReactNode } from 'react'
 import { cn, FONT, WEIGHT, TRANSITION } from '@/lib/ui'
 
 // ─── Item ───
@@ -68,10 +68,10 @@ const BreadcrumbRoot = forwardRef<HTMLElement, BreadcrumbProps>(
       <nav ref={ref} aria-label="Breadcrumb" className={className}>
         <ol className="flex items-center">
           {items.map((child, i) => (
-            <li key={i} className="inline-flex items-center">
+            <Fragment key={i}>
               {child}
               {i < items.length - 1 && (
-                <span
+                <li
                   className={cn(
                     FONT.body,
                     'text-[13px] text-[var(--n400)] mx-1.5 select-none',
@@ -79,9 +79,9 @@ const BreadcrumbRoot = forwardRef<HTMLElement, BreadcrumbProps>(
                   aria-hidden
                 >
                   {separator}
-                </span>
+                </li>
               )}
-            </li>
+            </Fragment>
           ))}
         </ol>
       </nav>

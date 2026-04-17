@@ -28,7 +28,7 @@ export default function DocsLandingPage() {
         <p className={cn(FONT.body, 'text-[15px] font-[400] text-[var(--n800)] mt-2 max-w-[480px]')}>
           A zero-dependency design system for React.
           Built for performance analytics with warm neutral tokens,
-          Figma-calibrated proportions, and 60fps chart rendering.
+          carefully calibrated proportions, and 60fps chart rendering.
         </p>
         <p className={cn(FONT.body, 'text-[13px] font-[450] text-[var(--n600)] mt-3 tabular-nums')}>
           {UI_COMPONENTS.length} UI components · {CHART_TYPES.length} chart primitives · {ICON_COUNT} icons
@@ -146,7 +146,7 @@ import { IconHeart } from '@ramtt/icons/line'`}
             ['Single font', 'Satoshi for everything — body, labels, numbers. Weight communicates hierarchy.'],
             ['0.5px borders', 'Hairline borders everywhere. No decorative shadows.'],
             ['Flat and calm', 'No gradients, no shadows, no visual noise. Cards separate by border only.'],
-            ['cursor: default', 'Follows the Figma/Linear pattern. The interface is calm, not clickbaity.'],
+            ['cursor: default', 'The interface is calm, not clickbaity.'],
           ].map(([title, desc]) => (
             <div key={title} className="flex gap-3">
               <div className={cn(FONT.body, 'text-[13px] font-[550] text-[var(--n1150)] min-w-[120px]')}>

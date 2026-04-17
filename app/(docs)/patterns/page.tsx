@@ -113,7 +113,7 @@ export default function PatternsPage() {
       </DocSection>
 
       {/* ─── Focus ring ─── */}
-      <DocSection title="Focus ring" description="Box-shadow technique (Figma's approach). 2px ring in --n1050 on :focus-visible only.">
+      <DocSection title="Focus ring" description="Box-shadow technique. 2px ring in --n1050 on :focus-visible only.">
         <DocPreview>
           <Button variant="outline">Tab to focus me</Button>
         </DocPreview>
@@ -125,7 +125,7 @@ import { FOCUS_WITHIN_RING } from '@/lib/ui'`}</DocCode>
       </DocSection>
 
       {/* ─── Cursor ─── */}
-      <DocSection title="Cursor" description="cursor: default everywhere. Follows the Figma/Linear pattern.">
+      <DocSection title="Cursor" description="cursor: default everywhere.">
         <div className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n800)] space-y-1')}>
           <p><code className="bg-[var(--n200)] px-1 py-0.5 rounded-[4px] text-[12px]">cursor: default</code> — everywhere, including buttons and links</p>
           <p><code className="bg-[var(--n200)] px-1 py-0.5 rounded-[4px] text-[12px]">cursor: text</code> — text inputs only</p>

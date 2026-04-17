@@ -90,7 +90,7 @@ import { FONT, LABEL_STYLE, VALUE_STYLE, MUTED_STYLE } from '@/lib/ui'`}</DocCod
             },
             {
               title: 'cursor: default everywhere',
-              desc: 'Follows the Figma/Linear pattern. Buttons, links, and interactive elements all use default cursor. Only text inputs get cursor: text.',
+              desc: 'Buttons, links, and interactive elements all use default cursor. Only text inputs get cursor: text.',
             },
             {
               title: 'lib/ui.ts is the source of truth',
