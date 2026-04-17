@@ -4,8 +4,102 @@ These rules are non-negotiable. Every component in the system follows them.
 When Claude Code or any developer builds new components, these rules apply.
 
 ## Rule Zero
+
 **NEVER build with hardcoded values and "convert to @ramtt/ui later."**
-Every new component, page, or section MUST use lib/ui.ts constants and @ramtt/ui components from the FIRST LINE. If the system exists, use it. That's why it exists.
+
+Every new component, page, or section MUST use `lib/ui.ts` constants and
+`@ramtt/ui` components from the FIRST LINE. If the system exists, use it.
+That's why it exists.
+
+**This explicitly includes:**
+
+- Never define a `function Something()` inside an `app/**/page.tsx` file
+  that renders Tailwind classes for borders, colors, sizes, or font
+  weights. Components go in `components/ui/`. Full stop.
+- Never hardcode `border-[0.5px]`, `rounded-*`, `text-[Npx]`,
+  `font-medium`, `bg-[#...]`, or similar in a page file. Use the
+  corresponding constant from `lib/ui.ts`.
+- Never copy styling from one component to build a "similar but slightly
+  different" version inline. Extend the existing component or build a
+  new one in `components/ui/`.
+
+**If you find yourself building an inline component in a page file, STOP.**
+You are violating Rule Zero even if you use some `lib/ui.ts` constants.
+Go back to the Component Discovery Protocol (next section) and start over.
+
+## Component Discovery Protocol
+
+Before building any new UI element, follow these steps in order. Skipping
+them is how Rule Zero gets violated by accident.
+
+### Step 1: Search the existing library
+
+```bash
+ls components/ui/
+grep -l "purpose-keyword" components/ui/*.tsx
+```
+
+112 components exist. Common mappings:
+
+| You're thinking of | Use this existing component |
+|--------------------|------------------------------|
+| Rating picker, score selector, 1-10 or 1-5 picker | `RatingInput` |
+| Status pill, tag, colored label | `Badge` |
+| Segmented control, filter row, tab-like group | `ToggleGroup` |
+| Dropdown menu, options list | `Dropdown` or `Select` |
+| Small stat with label and value | `MetricCard` |
+| Key-value row | `DataRow` |
+| Checkbox, radio, switch | `Checkbox`, `Radio`, `Switch` |
+| Expandable section | `Collapsible` or `Accordion` |
+| Floating popup with rich content | `Popover` or `HoverCard` |
+| Command palette, quick-search modal | `CommandPalette` or `QuickSearch` |
+
+Check `app/ui-demo/page.tsx` and
+`app/(docs)/components/[slug]/PreviewLoader.tsx` for canonical usage
+examples of every component.
+
+### Step 2: If something fits — use it
+
+Read the component's file in full. Check its props, its `compact`
+variant if any, its keyboard behavior. Then import and use it.
+
+### Step 3: If nothing fits — decide between extend vs. new
+
+**Extend:** if an existing component is 90% right and needs a new prop,
+variant, or size, extend it. Add the prop with a sensible default that
+preserves existing behavior. Update the component's preview in
+`app/ui-demo/page.tsx` and `PreviewLoader.tsx`. Run `npm run audit`.
+
+**New component in `components/ui/`:** if nothing is close, create a
+new file in `components/ui/`. The new file MUST:
+
+1. Import from `lib/ui.ts` only — no hardcoded values
+2. Use `forwardRef` and `displayName`
+3. Follow every rule in this file (typography, weights, borders,
+   transitions, accessibility, focus)
+4. Add an entry to `components/ui/index.ts` (barrel export)
+5. Add a preview in `app/ui-demo/page.tsx`
+6. Pass `npm run audit`
+7. Have at least one test or a preview loader entry
+
+### Step 4: NEVER build inline in a page file
+
+Components defined inside `app/**/page.tsx` files escape:
+- `npm run audit` (it scans `components/ui/` only)
+- Discoverability (nobody will find it to reuse it)
+- Visual consistency enforcement
+
+If a component is worth building, it's worth putting in the library.
+If it's not worth putting in the library, it's probably duplicating
+something that already exists — go back to Step 1.
+
+### Step 5: Commit message should name the component used
+
+Good: "feat(chart-test): use RatingInput for session scores"
+Bad: "feat(chart-test): add score picker"
+
+Naming the existing component in the commit message forces you to
+confirm you actually searched for it.
 
 ## Imports
 - ALL components import from `lib/ui.ts`
