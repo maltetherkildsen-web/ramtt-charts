@@ -95,6 +95,7 @@ export function ChartZoneBackground({
             height={band.height}
             fill={band.color}
             opacity={opacity}
+            shapeRendering="crispEdges"
           />
           {showLabels && (
             <text

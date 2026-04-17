@@ -87,7 +87,7 @@ export function ChartAxisX({
             y={py}
             textAnchor="middle"
             className="fill-(--n600) text-[10px]"
-            style={{ fontFamily }}
+            style={{ fontFamily, fontVariantNumeric: 'tabular-nums slashed-zero' }}
           >
             {label}
           </text>

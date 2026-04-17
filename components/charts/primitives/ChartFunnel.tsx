@@ -161,6 +161,7 @@ export function ChartFunnel({
               d={seg.d}
               fill={seg.item.color || chartColors[i % chartColors.length]}
               opacity={0.8}
+              shapeRendering="geometricPrecision"
             />
 
             {/* Connecting line to label */}
@@ -171,6 +172,7 @@ export function ChartFunnel({
               y2={labelY}
               stroke="var(--n400)"
               strokeWidth={0.5}
+              shapeRendering="crispEdges"
             />
 
             {/* Label: "Stage — 1,234 (45%)" */}

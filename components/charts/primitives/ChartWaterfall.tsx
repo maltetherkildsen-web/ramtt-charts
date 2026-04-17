@@ -119,6 +119,7 @@ export function ChartWaterfall({
             y2={scaleY(0)}
             stroke="var(--n400)"
             strokeWidth={0.5}
+            shapeRendering="crispEdges"
           />
         )}
 
@@ -140,6 +141,7 @@ export function ChartWaterfall({
               stroke="var(--n400)"
               strokeWidth={0.5}
               strokeDasharray="2 2"
+              shapeRendering="crispEdges"
             />
           )
         })}
@@ -178,6 +180,7 @@ export function ChartWaterfall({
                 fill={barClass ? undefined : fill}
                 opacity={bar.type === 'total' ? 1 : 0.75}
                 className={barClass}
+                shapeRendering={radius > 0 ? 'geometricPrecision' : 'crispEdges'}
                 style={anim.enabled
                   ? {
                       transformOrigin: `${x + barW / 2}px ${baselineY}px`,

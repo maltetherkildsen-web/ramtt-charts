@@ -133,6 +133,7 @@ export function ChartBullet({
               ry={4}
               fill={range.color}
               className={range.color ? undefined : range.className}
+              shapeRendering="geometricPrecision"
             />
           )
         })}
@@ -146,6 +147,7 @@ export function ChartBullet({
           rx={3}
           ry={3}
           className={cn('fill-[var(--n1150)]', valueClassName)}
+          shapeRendering="geometricPrecision"
           style={anim.enabled
             ? {
                 transformOrigin: `0px ${barY + barH / 2}px`,
@@ -166,6 +168,7 @@ export function ChartBullet({
             stroke="var(--n600)"
             strokeWidth={1.5}
             className={targetClassName}
+            shapeRendering="crispEdges"
             style={anim.enabled
               ? { animation: `ramtt-grid-fade 300ms ${anim.easing} ${anim.delay + anim.duration * 0.7}ms both` }
               : undefined

@@ -191,6 +191,7 @@ export function ChartZoneLine({
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        shapeRendering="geometricPrecision"
       />
     </>
   )

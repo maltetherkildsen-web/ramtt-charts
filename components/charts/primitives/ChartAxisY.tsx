@@ -70,7 +70,7 @@ export function ChartAxisY({
             dy="0.32em"
             textAnchor={anchor}
             className="fill-(--n600) text-[9px]"
-            style={{ fontFamily: "var(--font-sans)", fontVariantNumeric: 'tabular-nums' }}
+            style={{ fontFamily: "var(--font-sans)", fontVariantNumeric: 'tabular-nums slashed-zero' }}
           >
             {format(t)}
           </text>

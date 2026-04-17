@@ -165,6 +165,7 @@ export function ChartPyramid({
               ry={2}
               fill={seg.color}
               opacity={0.7}
+              shapeRendering="geometricPrecision"
             />
 
             {/* Connecting line to label */}
@@ -175,6 +176,7 @@ export function ChartPyramid({
               y2={labelY}
               stroke="var(--n400)"
               strokeWidth={0.5}
+              shapeRendering="crispEdges"
             />
 
             {/* Label */}

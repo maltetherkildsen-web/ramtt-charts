@@ -106,7 +106,7 @@ function RangeAnnotation({
   return (
     <g>
       {/* Filled rectangle */}
-      <rect x={x0} y={0} width={w} height={chartHeight} fill={color} opacity={0.08} />
+      <rect x={x0} y={0} width={w} height={chartHeight} fill={color} opacity={0.08} shapeRendering="crispEdges" />
       {/* Label at top center */}
       <LabelPill x={x0 + w / 2} y={6} label={ann.label} />
     </g>
@@ -138,6 +138,7 @@ function LineAnnotation({
         strokeWidth={1}
         strokeOpacity={0.6}
         strokeDasharray={ann.dashed !== false ? '4 3' : undefined}
+        shapeRendering="crispEdges"
       />
       {/* Label at top of line */}
       <LabelPill x={x} y={6} label={ann.label} />
@@ -173,7 +174,7 @@ function PointAnnotation({
   return (
     <g>
       {/* Circle on data point */}
-      <circle cx={cx} cy={cy} r={4} fill={color} stroke="white" strokeWidth={2} />
+      <circle cx={cx} cy={cy} r={4} fill={color} stroke="white" strokeWidth={2} shapeRendering="geometricPrecision" />
       {/* Leader line */}
       <line
         x1={cx}
@@ -183,6 +184,7 @@ function PointAnnotation({
         stroke={color}
         strokeWidth={1}
         strokeOpacity={0.7}
+        shapeRendering="geometricPrecision"
       />
       {/* Label pill */}
       <LabelPill x={cx + dx} y={cy + dy - 8} label={ann.label} />

@@ -221,6 +221,7 @@ export function ChartMMP({
                 y2={yScale(t)}
                 stroke="currentColor"
                 strokeWidth={0.5}
+                shapeRendering="crispEdges"
               />
             ))}
             {xTicks.map((t) => (
@@ -232,6 +233,7 @@ export function ChartMMP({
                 y2={chartH}
                 stroke="currentColor"
                 strokeWidth={0.5}
+                shapeRendering="crispEdges"
               />
             ))}
           </g>
@@ -239,7 +241,7 @@ export function ChartMMP({
 
         {/* Area fill */}
         {areaD && (
-          <path d={areaD} fill={strokeColor} opacity={fillOpacity} />
+          <path d={areaD} fill={strokeColor} opacity={fillOpacity} shapeRendering="geometricPrecision" />
         )}
 
         {/* Line */}
@@ -252,6 +254,7 @@ export function ChartMMP({
             strokeWidth={2}
             strokeLinejoin="round"
             strokeLinecap="round"
+            shapeRendering="geometricPrecision"
           />
         )}
 
@@ -265,6 +268,7 @@ export function ChartMMP({
             fill={strokeColor}
             stroke="var(--n50)"
             strokeWidth={1.5}
+            shapeRendering="geometricPrecision"
           />
         ))}
 

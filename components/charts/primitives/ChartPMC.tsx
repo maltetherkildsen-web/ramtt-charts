@@ -217,6 +217,7 @@ export function ChartPMC({
                 y2={yScale(t)}
                 stroke="currentColor"
                 strokeWidth={0.5}
+                shapeRendering="crispEdges"
               />
             ))}
           </g>
@@ -231,6 +232,7 @@ export function ChartPMC({
           stroke="var(--n500)"
           strokeWidth={0.5}
           strokeDasharray="3 3"
+          shapeRendering="crispEdges"
         />
 
         {/* Daily load bars */}
@@ -248,6 +250,7 @@ export function ChartPMC({
               fill="var(--n400)"
               opacity={0.25}
               rx={0.5}
+              shapeRendering="geometricPrecision"
             />
           )
         })}
@@ -260,6 +263,7 @@ export function ChartPMC({
             stroke={ctlColor}
             strokeWidth={2}
             strokeLinejoin="round"
+            shapeRendering="geometricPrecision"
           />
         )}
 
@@ -271,6 +275,7 @@ export function ChartPMC({
             stroke={atlColor}
             strokeWidth={2}
             strokeLinejoin="round"
+            shapeRendering="geometricPrecision"
           />
         )}
 
@@ -283,6 +288,7 @@ export function ChartPMC({
             strokeWidth={1.5}
             strokeLinejoin="round"
             strokeDasharray="4 3"
+            shapeRendering="geometricPrecision"
           />
         )}
 

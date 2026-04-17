@@ -171,6 +171,7 @@ export function ChartArea({
           fill={`url(#${gradId})`}
           clipPath={`url(#${aboveClipId})`}
           className={cn('stroke-none', className)}
+          shapeRendering="geometricPrecision"
           style={animStyle}
         />
 
@@ -180,6 +181,7 @@ export function ChartArea({
           fill={`url(#${negGradId})`}
           clipPath={`url(#${belowClipId})`}
           className={cn('stroke-none', className)}
+          shapeRendering="geometricPrecision"
           style={animStyle}
         />
 
@@ -192,6 +194,7 @@ export function ChartArea({
           stroke="var(--n600)"
           strokeWidth={1}
           strokeDasharray="4 3"
+          shapeRendering="crispEdges"
         />
       </>
     )
@@ -218,6 +221,7 @@ export function ChartArea({
         d={d}
         fill={`url(#${gradId})`}
         className={cn('stroke-none', className)}
+        shapeRendering="geometricPrecision"
         style={animStyle}
       />
     </>

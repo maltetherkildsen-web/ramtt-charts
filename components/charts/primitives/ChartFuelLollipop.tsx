@@ -159,7 +159,7 @@ export function ChartFuelLollipop({
 
       {/* Layer 1 — Cumulative area fill */}
       {steppedPath.area && (
-        <path d={steppedPath.area} fill={`url(#${gradId})`} className="stroke-none" />
+        <path d={steppedPath.area} fill={`url(#${gradId})`} className="stroke-none" shapeRendering="geometricPrecision" />
       )}
 
       {/* Layer 2 — Cumulative stepped line */}
@@ -172,6 +172,7 @@ export function ChartFuelLollipop({
           strokeWidth={1.5}
           strokeLinejoin="miter"
           vectorEffect="non-scaling-stroke"
+          shapeRendering="geometricPrecision"
         />
       )}
 
@@ -182,6 +183,7 @@ export function ChartFuelLollipop({
           x1={lp.x} y1={chartHeight} x2={lp.x} y2={lp.y}
           stroke={color} strokeWidth={1.5} strokeOpacity={0.35}
           strokeDasharray="2,2"
+          shapeRendering="crispEdges"
         />
       ))}
 
@@ -192,6 +194,7 @@ export function ChartFuelLollipop({
           cx={lp.x} cy={lp.y} r={4.5}
           fill={color} stroke="white" strokeWidth={2}
           filter={`url(#${glowId})`}
+          shapeRendering="geometricPrecision"
         />
       ))}
 

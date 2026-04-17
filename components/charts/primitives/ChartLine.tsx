@@ -182,6 +182,7 @@ export function ChartLine({
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        shapeRendering="geometricPrecision"
         style={progressiveStyle}
       />
       {dots && dots.map((dot) =>

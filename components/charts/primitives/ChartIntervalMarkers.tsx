@@ -81,6 +81,7 @@ export function ChartIntervalMarkers({
               height={rectHeight}
               fill="var(--n400)"
               opacity={opacity}
+              shapeRendering="crispEdges"
             />
 
             {/* Start boundary line */}
@@ -93,6 +94,7 @@ export function ChartIntervalMarkers({
                 stroke="var(--n400)"
                 strokeWidth={0.5}
                 strokeDasharray="3 4"
+                shapeRendering="crispEdges"
               />
             )}
 

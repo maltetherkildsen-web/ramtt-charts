@@ -244,6 +244,7 @@ export function ChartBar({
               ry={radius}
               fill={fill}
               className={fill ? undefined : (isHighlighted ? hlClass : defaultClass)}
+              shapeRendering={radius > 0 ? 'geometricPrecision' : 'crispEdges'}
               style={Object.keys(barAnimStyle).length > 0 ? barAnimStyle : undefined}
             />
             {/* Value labels */}

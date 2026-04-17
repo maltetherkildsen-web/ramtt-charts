@@ -134,6 +134,7 @@ export function ChartScatter({
             strokeWidth={1.5}
             opacity={0.75}
             className={fill ? undefined : defaultClass}
+            shapeRendering="geometricPrecision"
             style={{
               transition: 'opacity 150ms, transform 150ms',
               ...(anim.enabled
