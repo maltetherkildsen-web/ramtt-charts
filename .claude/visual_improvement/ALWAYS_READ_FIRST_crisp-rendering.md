@@ -1,17 +1,18 @@
-# CRISP Rendering Optimization + Framer Motion Animations for RAMTT Charts
+# CRISP Rendering Optimization for RAMTT Charts
 
 ## Overview
-Apply the CRISP-RENDERING-DEEP-DIVE principles to the chart system, and add Framer Motion animations for premium interactions. This is a polish pass that takes the charts from "working" to "premium."
+Apply the CRISP-RENDERING-DEEP-DIVE principles to the chart system. This is a polish pass that takes the charts from "working" to "premium."
+
+> **Framer Motion note:** This project intentionally keeps Framer Motion use minimal — only the panel collapse/expand and fullscreen overlay in `app/chart-test/page.tsx`. See CLAUDE.md. Do NOT add Framer to chart lines, zone badges, crosshair, hover values, or anywhere else. Prior proposals to expand Framer usage were superseded 2026-04-16 after a CSS replacement caused zoom lag and was rolled back.
 
 ## ⚠️ Tailwind Compliance Note
 This project enforces Tailwind-only styling. The `style={{}}` attribute is BANNED for visual styling. However, this prompt uses `style={{}}` in a few specific places for:
 1. **SVG attributes** that have no Tailwind equivalent (`fontVariantNumeric`, `shapeRendering`, `contain`)
 2. **CSS performance hints** that Tailwind doesn't cover (`contentVisibility`, `containIntrinsicSize`)
-3. **Framer Motion `animate` props** (these are motion API, not inline styles)
 
 These are the ONLY acceptable exceptions. All visual styling (colors, spacing, borders, typography, layout) MUST use Tailwind utility classes. If in doubt, use a Tailwind class. Each SVG/performance exception should have a comment: `// SVG attr — no Tailwind equivalent`
 
-## Part 1: CRISP Rendering Applied to Charts
+## CRISP Rendering Applied to Charts
 
 ### 1.1 SVG Text Rendering
 All SVG `<text>` elements in charts (axis labels, interval markers, ref line labels, chart type labels) need proper rendering:
@@ -201,178 +202,15 @@ From CRISP Rule 28 — consistent timing across all chart interactions:
 
 ---
 
-## Part 2: Framer Motion Animations
-
-### 2.1 Install Framer Motion
-
-```bash
-npm install motion
-```
-
-Import in components:
-```tsx
-import { motion, AnimatePresence } from 'motion/react'
-```
-
-### 2.2 Zone Toggle — Line Color Morphing
-
-When the user toggles between OFF / POWER / HR zones, the chart lines should smoothly transition their colors instead of snapping instantly.
-
-**How Perplexity does it:** They use `motion.path` to animate path properties. The path `d` attribute stays the same (data doesn't change), but stroke color and gradient transitions smoothly.
-
-**Implementation:**
-
-For ChartZoneLine (the zone-gradient colored line):
-```tsx
-import { motion } from 'motion/react'
-
-// Instead of <path>, use <motion.path>
-<motion.path
-  d={pathData}
-  stroke={zoneMode === 'off' ? lineColor : 'url(#zone-gradient)'}
-  strokeWidth={1.5}
-  fill="none"
-  initial={false}  // don't animate on mount
-  animate={{
-    strokeOpacity: 1,
-  }}
-  transition={{
-    duration: 0.25,
-    ease: [0.16, 1, 0.3, 1],  // ease-out-expo
-  }}
-/>
-```
-
-For the gradient `<linearGradient>` that defines zone colors — animate the stop colors:
-```tsx
-// Each gradient stop transitions its color
-<motion.stop
-  offset={stop.offset}
-  animate={{
-    stopColor: stop.color,
-  }}
-  transition={{
-    duration: 0.25,
-    ease: [0.16, 1, 0.3, 1],
-  }}
-/>
-```
-
-**The visual effect:** When toggling from OFF to POWER zones, the solid green power line smoothly bleeds into zone colors (green → yellow → orange → red) along its length. It should feel organic, like the colors are "seeping" into the line.
-
-### 2.3 Chart Toggle — Show/Hide Animation
-
-When toggling a chart channel on/off (e.g., unchecking SPEED):
-
-```tsx
-<AnimatePresence mode="sync">
-  {visibleCharts.includes('speed') && (
-    <motion.div
-      key="speed-chart"
-      initial={{ height: 0, opacity: 0 }}
-      animate={{ height: 55, opacity: 1 }}
-      exit={{ height: 0, opacity: 0 }}
-      transition={{
-        duration: 0.2,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-      style={{ overflow: 'hidden' }}
-    >
-      <SpeedChart />
-    </motion.div>
-  )}
-</AnimatePresence>
-```
-
-**The visual effect:** The chart smoothly collapses/expands when toggled. Other charts slide up/down to fill the gap. No jarring jump.
-
-### 2.4 Fullscreen Enter/Exit
-
-```tsx
-<AnimatePresence>
-  {isFullscreen && (
-    <motion.div
-      className="fixed inset-0 z-[9999] bg-[var(--bg)]"
-      initial={{ opacity: 0, scale: 0.98 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.98 }}
-      transition={{
-        duration: 0.3,
-        ease: [0.16, 1, 0.3, 1],
-      }}
-    >
-      <FullscreenContent />
-    </motion.div>
-  )}
-</AnimatePresence>
-```
-
-**The visual effect:** Fullscreen mode fades in with a subtle scale-up from 98% to 100%. Feels like the charts are "expanding" to fill the screen. Exit reverses with a slightly faster timing (200ms).
-
-### 2.5 Hover Data Table — NO Motion on Values
-
-**DO NOT use Framer Motion (useSpring, useMotionValue) on hover data table values.**
-
-The hover values update at 60fps via refs + rAF + direct DOM manipulation (`textContent`). This is the fastest possible path. Adding Framer Motion's spring system on top would:
-1. Mix two update systems (refs vs motion state) — guaranteed bugs
-2. Add per-frame overhead for 6+ spring calculations
-3. Create visual lag between crosshair position and displayed values
-4. Violate our "performance as design constraint" principle
-
-Hover values MUST stay as instant direct DOM updates. The numbers snapping is correct behavior — it matches the crosshair position exactly. Perplexity does smooth number interpolation because they have ONE value updating (price). We have 6+ values updating simultaneously at 60fps. Different constraint, different solution.
-
-**What IS animated:** zone badge color transitions (see 2.6 below) — these are discrete state changes (Z2 → Z5), not continuous tracking.
-
-### 2.6 Zone Badge Color Transition
-
-The zone badges (Z1-Z6) in the hover data table should smoothly transition their background color:
-
-```tsx
-<motion.span
-  className="badge"
-  animate={{
-    backgroundColor: zoneBgColor,
-    color: zoneTextColor,
-  }}
-  transition={{
-    duration: 0.15,
-    ease: 'easeOut',
-  }}
->
-  {zoneLabel}
-</motion.span>
-```
-
-**The visual effect:** As the crosshair moves from a Z2 region to Z5, the badge smoothly transitions from green → red instead of snapping. Subtle but premium.
-
----
-
-## Part 3: Performance Safety
+## Performance Safety
 
 ### Don't over-animate
 - Crosshair position: NEVER animate — it must be instant (rAF, direct DOM)
 - Path `d` attributes on zoom: NEVER animate — too expensive, 5000+ points
 - Y-axis label updates on zoom: NEVER animate — instant swap
 
-### Motion respects user preferences
-```tsx
-// In your motion config
-<motion.div
-  animate={...}
-  transition={{
-    duration: prefersReducedMotion ? 0 : 0.25,
-  }}
-/>
-```
-
-Or globally:
-```tsx
-import { MotionConfig } from 'motion/react'
-
-<MotionConfig reducedMotion="user">
-  <App />
-</MotionConfig>
-```
+### Respect user preferences
+`prefers-reduced-motion` is handled globally in `components/ui/tokens.css` — all CSS animations and transitions are shortened to 0.01ms when the user requests reduced motion. Do not rely on per-component wrappers for this.
 
 ### Test on low-end devices
 All animations should be tested with CPU throttling (6x slowdown in Chrome DevTools). If any animation drops below 30fps on a throttled CPU, remove it or simplify it.
@@ -386,7 +224,6 @@ All animations should be tested with CPU throttling (6x slowdown in Chrome DevTo
 - Do NOT add `will-change` to every element — max 3-4 simultaneously, remove when not animating
 - Do NOT animate layout properties (width, height, top, left) — only transform and opacity
 - Do NOT forget `prefers-reduced-motion` — always respect user preference
-- Do NOT add Framer Motion to elements that update at 60fps via refs — motion state and refs don't mix. Use motion for discrete state transitions (zone toggle, chart toggle, fullscreen), not continuous tracking (crosshair, hover values)
-- Do NOT use `style={{}}` for visual styling — Tailwind classes only. `style` is ONLY acceptable for SVG attributes without Tailwind equivalents and Framer Motion animate props
-- Do NOT use useSpring/useMotionValue on hover data table values — direct DOM manipulation via refs is faster and more reliable for 60fps updates
+- Do NOT use `style={{}}` for visual styling — Tailwind classes only. `style` is ONLY acceptable for SVG attributes without Tailwind equivalents
 - Do NOT leave `will-change` on permanently — add on hover/animation start, remove on leave/end
+- Do NOT add Framer Motion beyond the existing panel wrappers in `app/chart-test/page.tsx` — see CLAUDE.md

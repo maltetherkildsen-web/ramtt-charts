@@ -3,31 +3,25 @@
 
 'use client'
 
-import { useState, useMemo, useCallback, type ComponentType } from 'react'
-import { cn, FONT, WEIGHT, BORDER, RADIUS, TRANSITION, HOVER_SAND } from '@/lib/ui'
+import { useState, useMemo, useEffect, type ComponentType } from 'react'
+import { cn, FONT, BORDER, RADIUS } from '@/lib/ui'
 import { ICON_CATALOG, ICON_CATEGORIES, type IconMeta } from '@/components/icons/catalog'
-import { Input, ToggleGroup, Badge, SectionHeader } from '@/components/ui'
+import { Input, ToggleGroup, Badge } from '@/components/ui'
 import { DocSection } from '@/components/docs/DocSection'
 import { DocCode } from '@/components/docs/DocCode'
 import type { IconProps, IconDuoProps } from '@/components/icons/types'
 
+// Line variant loads eagerly — it's the default view.
+// Solid and duo variants lazy-load only when the user toggles to them.
 import * as LineIcons from '@/components/icons/line'
-import * as SolidIcons from '@/components/icons/solid'
-import * as DuoIcons from '@/components/icons/duo'
 
 type Variant = 'line' | 'solid' | 'duo'
+type IconModule = Record<string, ComponentType<IconProps | IconDuoProps>>
 
-function getIcon(name: string, variant: Variant): ComponentType<IconProps | IconDuoProps> | null {
-  if (variant === 'solid') {
-    const key = `${name}Solid` as keyof typeof SolidIcons
-    return (SolidIcons[key] as ComponentType<IconProps>) ?? null
-  }
-  if (variant === 'duo') {
-    const key = `${name}Duo` as keyof typeof DuoIcons
-    return (DuoIcons[key] as ComponentType<IconDuoProps>) ?? null
-  }
-  const key = name as keyof typeof LineIcons
-  return (LineIcons[key] as ComponentType<IconProps>) ?? null
+function lookupIcon(mod: IconModule | null, name: string, variant: Variant): ComponentType<IconProps | IconDuoProps> | null {
+  if (!mod) return null
+  const key = variant === 'solid' ? `${name}Solid` : variant === 'duo' ? `${name}Duo` : name
+  return mod[key] ?? null
 }
 
 export default function IconsPage() {
@@ -36,6 +30,23 @@ export default function IconsPage() {
   const [size, setSize] = useState(24)
   const [category, setCategory] = useState<string | null>(null)
   const [selected, setSelected] = useState<IconMeta | null>(null)
+  const [solidMod, setSolidMod] = useState<IconModule | null>(null)
+  const [duoMod, setDuoMod] = useState<IconModule | null>(null)
+
+  useEffect(() => {
+    if (variant === 'solid' && !solidMod) {
+      import('@/components/icons/solid').then((m) => setSolidMod(m as unknown as IconModule))
+    }
+    if (variant === 'duo' && !duoMod) {
+      import('@/components/icons/duo').then((m) => setDuoMod(m as unknown as IconModule))
+    }
+  }, [variant, solidMod, duoMod])
+
+  const activeMod: IconModule | null =
+    variant === 'solid' ? solidMod :
+    variant === 'duo' ? duoMod :
+    (LineIcons as unknown as IconModule)
+  const isLoadingVariant = !activeMod
 
   const filtered = useMemo(() => {
     let icons = ICON_CATALOG
@@ -127,7 +138,7 @@ export default function IconsPage() {
       {/* Icon grid */}
       <div className="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-1">
         {filtered.map((icon) => {
-          const Icon = getIcon(icon.name, variant)
+          const Icon = lookupIcon(activeMod, icon.name, variant)
           if (!Icon) return null
           const isSelected = selected?.name === icon.name
           return (
@@ -139,6 +150,8 @@ export default function IconsPage() {
                 'transition-[background-color] duration-150',
                 isSelected ? 'bg-[var(--n400)]' : 'hover:bg-[var(--n200)]',
               )}
+              // CSS perf hint — skip paint/layout for offscreen icons, no Tailwind equivalent
+              style={{ contentVisibility: 'auto', containIntrinsicSize: '0 56px' }}
               title={icon.name.replace('Icon', '')}
             >
               <Icon size={size} color="var(--n1150)" />
@@ -147,9 +160,15 @@ export default function IconsPage() {
         })}
       </div>
 
-      {filtered.length === 0 && (
+      {isLoadingVariant && (
         <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n600)] text-center py-8')}>
-          No icons match "{search}".
+          Loading {variant} variant…
+        </p>
+      )}
+
+      {!isLoadingVariant && filtered.length === 0 && (
+        <p className={cn(FONT.body, 'text-[13px] font-[400] text-[var(--n600)] text-center py-8')}>
+          No icons match &quot;{search}&quot;.
         </p>
       )}
 
@@ -158,7 +177,7 @@ export default function IconsPage() {
         <div className={cn('bg-[var(--n50)]', BORDER.default, RADIUS.lg, 'p-5')}>
           <div className="flex items-start gap-4">
             {(() => {
-              const Icon = getIcon(selected.name, variant)
+              const Icon = lookupIcon(activeMod, selected.name, variant)
               return Icon ? <Icon size={48} color="var(--n1150)" /> : null
             })()}
             <div className="flex-1">

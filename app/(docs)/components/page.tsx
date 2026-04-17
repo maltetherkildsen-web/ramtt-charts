@@ -22,7 +22,13 @@ export default function ComponentsIndexPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {components.map((comp) => (
-          <Link key={comp.slug} href={`/components/${comp.slug}`} className="group">
+          <Link
+            key={comp.slug}
+            href={`/components/${comp.slug}`}
+            className="group"
+            // CSS perf hint — skip paint/layout for offscreen cards, no Tailwind equivalent
+            style={{ contentVisibility: 'auto', containIntrinsicSize: '0 88px' }}
+          >
             <div className={cn(
               'bg-[var(--n50)]',
               'border-[0.5px] border-[var(--n400)]',

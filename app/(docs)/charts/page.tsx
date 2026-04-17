@@ -22,7 +22,13 @@ export default function ChartsIndexPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {charts.map((chart) => (
-          <Link key={chart.slug} href={`/charts/${chart.slug}`} className="group">
+          <Link
+            key={chart.slug}
+            href={`/charts/${chart.slug}`}
+            className="group"
+            // CSS perf hint — skip paint/layout for offscreen cards, no Tailwind equivalent
+            style={{ contentVisibility: 'auto', containIntrinsicSize: '0 88px' }}
+          >
             <div className={cn(
               'bg-[var(--n50)]',
               'border-[0.5px] border-[var(--n400)]',

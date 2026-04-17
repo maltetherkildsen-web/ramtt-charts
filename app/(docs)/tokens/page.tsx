@@ -1,8 +1,6 @@
 // Copyright (c) 2026 RAMTT (Malte Therkildsen)
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
-'use client'
-
 import { cn, FONT, WEIGHT, BORDER, RADIUS } from '@/lib/ui'
 import { DocSection } from '@/components/docs/DocSection'
 import { DocCode } from '@/components/docs/DocCode'

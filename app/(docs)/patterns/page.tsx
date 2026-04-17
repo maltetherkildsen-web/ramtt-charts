@@ -1,18 +1,15 @@
 // Copyright (c) 2026 RAMTT (Malte Therkildsen)
 // Licensed under MIT OR Apache-2.0. See LICENSE-MIT and LICENSE-APACHE.
 
-'use client'
-
-import { useState } from 'react'
-import { cn, FONT, WEIGHT, BORDER, RADIUS, HOVER_SAND, ACTIVE_SAND, ACTIVE_BLACK, WHITE_LIFT, ACTIVE_UNDERLINE, FOCUS_RING, TRANSITION } from '@/lib/ui'
-import { Button, Badge, ToggleGroup, Card } from '@/components/ui'
+import { cn, FONT, BORDER, RADIUS } from '@/lib/ui'
+import { Button, Card } from '@/components/ui'
 import { DocPreview } from '@/components/docs/DocPreview'
 import { DocSection } from '@/components/docs/DocSection'
 import { DocCode } from '@/components/docs/DocCode'
+import { SandFillDemo } from './SandFillDemo'
+import { UnderlineDemo } from './UnderlineDemo'
 
 export default function PatternsPage() {
-  const [toggleVal, setToggleVal] = useState('7d')
-
   return (
     <div className="space-y-10">
       <div>
@@ -36,12 +33,7 @@ export default function PatternsPage() {
             <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n800)] mb-3')}>
               Selected toggles, filters. Background: var(--n400).
             </p>
-            <ToggleGroup
-              options={['7d', '30d', '90d']}
-              value={toggleVal}
-              onChange={(v) => setToggleVal(v as string)}
-              size="sm"
-            />
+            <SandFillDemo />
             <DocCode>{`import { ACTIVE_SAND } from '@/lib/ui'
 // bg-[var(--n400)]`}</DocCode>
           </div>
@@ -54,12 +46,7 @@ export default function PatternsPage() {
             <p className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n800)] mb-3')}>
               Tab navigation. 2px bottom border in --n1150.
             </p>
-            <ToggleGroup
-              variant="underline"
-              options={['Overview', 'Details', 'Settings']}
-              value="Overview"
-              onChange={() => {}}
-            />
+            <UnderlineDemo />
             <DocCode>{`import { ACTIVE_UNDERLINE } from '@/lib/ui'
 // border-b-2 border-[var(--n1150)]`}</DocCode>
           </div>
