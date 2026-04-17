@@ -1878,7 +1878,6 @@ function HoverDataTable({
   }, [start, end])
 
   // Refs
-  const timeLabelRef = useRef<HTMLSpanElement>(null)
   const timeValRef = useRef<HTMLSpanElement>(null)
   const timeSpanRef = useRef<HTMLSpanElement>(null)
   const powerLabelRef = useRef<HTMLSpanElement>(null)
@@ -1907,17 +1906,15 @@ function HoverDataTable({
 
   const showAverages = useCallback(() => {
     const s = rangeStats
-    if (timeLabelRef.current) timeLabelRef.current.textContent = isZoomed ? 'Selection' : 'Duration'
     if (timeValRef.current) timeValRef.current.textContent = isZoomed ? rangeDur.dur : formatTime(power.length)
     if (timeSpanRef.current) timeSpanRef.current.textContent = isZoomed ? rangeDur.span : ''
-    const prefix = isZoomed ? 'Sel' : 'Avg'
-    if (powerLabelRef.current) powerLabelRef.current.textContent = `${prefix} Power`
-    if (hrLabelRef.current) hrLabelRef.current.textContent = `${prefix} Heart Rate`
-    if (cadLabelRef.current) cadLabelRef.current.textContent = `${prefix} Cadence`
-    if (speedLabelRef.current) speedLabelRef.current.textContent = `${prefix} Speed`
-    if (elevLabelRef.current) elevLabelRef.current.textContent = `${prefix} Elevation`
-    if (kjminLabelRef.current) kjminLabelRef.current.textContent = `${prefix} kJ/min`
-    if (torqueLabelRef.current) torqueLabelRef.current.textContent = `${prefix} Torque`
+    if (powerLabelRef.current) powerLabelRef.current.textContent = 'Power'
+    if (hrLabelRef.current) hrLabelRef.current.textContent = 'HR'
+    if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cad'
+    if (speedLabelRef.current) speedLabelRef.current.textContent = 'Speed'
+    if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elev'
+    if (kjminLabelRef.current) kjminLabelRef.current.textContent = 'kJ/min'
+    if (torqueLabelRef.current) torqueLabelRef.current.textContent = 'Torque'
     if (powerValRef.current) { powerValRef.current.textContent = `${s.power}`; powerValRef.current.style.color = 'var(--n1050)' }
     if (hrValRef.current) { hrValRef.current.textContent = `${s.hr}`; hrValRef.current.style.color = 'var(--n1050)' }
     if (cadValRef.current) { cadValRef.current.textContent = `${s.cad}`; cadValRef.current.style.color = 'var(--n1050)' }
@@ -1945,14 +1942,13 @@ function HoverDataTable({
       const fullIdx = sync.zoom.start + visIdx
       if (fullIdx < 0 || fullIdx >= power.length) return
 
-      if (timeLabelRef.current) timeLabelRef.current.textContent = 'Time'
       if (timeValRef.current) timeValRef.current.textContent = formatTime(fullIdx)
       if (timeSpanRef.current) timeSpanRef.current.textContent = ''
       if (powerLabelRef.current) powerLabelRef.current.textContent = 'Power'
-      if (hrLabelRef.current) hrLabelRef.current.textContent = 'Heart Rate'
-      if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cadence'
+      if (hrLabelRef.current) hrLabelRef.current.textContent = 'HR'
+      if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cad'
       if (speedLabelRef.current) speedLabelRef.current.textContent = 'Speed'
-      if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elevation'
+      if (elevLabelRef.current) elevLabelRef.current.textContent = 'Elev'
       if (kjminLabelRef.current) kjminLabelRef.current.textContent = 'kJ/min'
       if (torqueLabelRef.current) torqueLabelRef.current.textContent = 'Torque'
 
@@ -1986,8 +1982,8 @@ function HoverDataTable({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, showAverages])
 
-  const cellCls = 'flex items-center gap-2 py-1.5'
-  const dotCls = 'h-2 w-2 shrink-0 rounded-full'
+  const cellCls = 'flex items-baseline gap-1.5'
+  const dotCls = 'h-2 w-2 shrink-0 rounded-full self-center'
   const labelCls = 'text-[12px] text-[var(--n800)]'
   const valCls = cn('text-[14px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.medium)
   const unitCls = 'text-[10px] text-[var(--n600)]'
@@ -1996,18 +1992,19 @@ function HoverDataTable({
   const vc = visibleCharts
 
   return (
-    <div className="mt-2 mb-1 grid grid-cols-3 gap-x-6 gap-y-0.5 border-t-[0.5px] border-t-[var(--n400)]/50" style={{ paddingLeft: 48, paddingRight: 64 }}>
-      {/* Duration — always visible */}
-      <div className={cellCls}>
-        <span className={`${dotCls} bg-[var(--n1050)]`} />
-        <span ref={timeLabelRef} className={labelCls}>Duration</span>
-        <span ref={timeValRef} className={valCls} />
-        <span ref={timeSpanRef} className="text-[10px] tabular-nums text-[var(--n600)]" />
+    <div
+      className="mt-2 mb-1 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t-[0.5px] border-t-[var(--n400)]/50 pt-2"
+      style={{ paddingLeft: 48 }}
+    >
+      {/* Time — no dot, no label, just numbers; prominent */}
+      <div className="flex items-baseline gap-1.5 pr-3 mr-1">
+        <span ref={timeValRef} className={cn('text-[18px] tabular-nums slashed-zero text-[var(--n1150)]', WEIGHT.medium)} />
+        <span ref={timeSpanRef} className="text-[10px] tabular-nums text-[var(--n600)] whitespace-nowrap" />
       </div>
       {vc.has('power') && (
         <div className={cellCls}>
           <span className={`${dotCls} bg-[#22c55e]`} />
-          <span ref={powerLabelRef} className={labelCls}>Avg Power</span>
+          <span ref={powerLabelRef} className={labelCls}>Power</span>
           <span className="flex items-baseline gap-0.5">
             <span ref={powerValRef} className={valCls}>0</span>
             <span className={unitCls}>W</span>
@@ -2020,7 +2017,7 @@ function HoverDataTable({
       {vc.has('hr') && (
         <div className={cellCls}>
           <span className={`${dotCls} bg-[#ef4444]`} />
-          <span ref={hrLabelRef} className={labelCls}>Avg HR</span>
+          <span ref={hrLabelRef} className={labelCls}>HR</span>
           <span className="flex items-baseline gap-0.5">
             <span ref={hrValRef} className={valCls}>0</span>
             <span className={unitCls}>bpm</span>
@@ -2043,7 +2040,7 @@ function HoverDataTable({
       {vc.has('cadence') && (
         <div className={cellCls}>
           <span className={`${dotCls} bg-[#8b5cf6]`} />
-          <span ref={cadLabelRef} className={labelCls}>Cadence</span>
+          <span ref={cadLabelRef} className={labelCls}>Cad</span>
           <span className="flex items-baseline gap-0.5">
             <span ref={cadValRef} className={valCls}>0</span>
             <span className={unitCls}>rpm</span>
@@ -2065,7 +2062,7 @@ function HoverDataTable({
       {vc.has('elevation') && (
         <div className={cellCls}>
           <span className={`${dotCls} bg-[var(--n600)]`} />
-          <span ref={elevLabelRef} className={labelCls}>Elevation</span>
+          <span ref={elevLabelRef} className={labelCls}>Elev</span>
           <span className="flex items-baseline gap-0.5">
             <span ref={elevValRef} className={valCls}>0</span>
             <span className={unitCls}>m</span>
