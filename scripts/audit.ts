@@ -158,6 +158,13 @@ function checkHardcodedHex(path: string, content: string) {
     // Scoped to hex-color check only — no audit-ignore-everything loophole.
     if (line.includes('audit-ignore-hex')) continue;
 
+    // Data-array / JSX-prop exception: hex literals whose key is `hex` are
+    // data passed to <HexSwatch> or similar display primitives, not styling.
+    // Matches both object-literal form (`hex: '#...'`) and JSX-attribute form
+    // (`hex="#..."`, `hex={'#...'}`). Narrow by design — property name must be
+    // exactly `hex` to qualify.
+    if (/\bhex\s*[:=]\s*\{?\s*['"]#[0-9a-fA-F]{3,8}['"]/.test(line)) continue;
+
     for (const [pattern, suggestion] of HEX_TO_VAR) {
       pattern.lastIndex = 0;
       const matches = line.match(pattern);

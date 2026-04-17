@@ -13,7 +13,7 @@ import {
   PageHeader, Textarea, Checkbox, Gauge,
   Calendar, Pagination, Spinner, Kbd, Alert,
   Separator, Label,
-  ColorDot, StatusIndicator, SegmentedBar, NumberStepper,
+  ColorDot, StatusIndicator, SegmentedBar, NumberStepper, HexSwatch,
   RatingInput,
   Stat, FormField, NotificationBadge,
   DescriptionList, ActionPanel, GridList, MediaObject, ButtonGroup,
@@ -369,6 +369,15 @@ function NumberStepperPreview() {
   )
 }
 
+function HexSwatchPreview() {
+  return (
+    <div className="flex gap-4">
+      <HexSwatch token="--bg" hex="#FAF9F5" label="Canvas" usage="Page background" />
+      <HexSwatch token="--n200" hex="#F2F0EA" label="Hover" usage="Hover states" />
+    </div>
+  )
+}
+
 function RatingInputPreview() {
   const [val, setVal] = useState<number | null>(7)
   return <RatingInput value={val} onChange={setVal} max={10} label="RPE" />
@@ -483,6 +492,7 @@ const PREVIEWS: Record<string, React.ComponentType> = {
   'status-indicator': StatusIndicatorPreview,
   'segmented-bar': SegmentedBarPreview,
   'number-stepper': NumberStepperPreview,
+  'hex-swatch': HexSwatchPreview,
   'rating-input': RatingInputPreview,
   'stat': StatPreview,
   'form-field': FormFieldPreview,

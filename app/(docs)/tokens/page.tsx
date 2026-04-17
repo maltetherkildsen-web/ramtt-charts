@@ -4,6 +4,7 @@
 import { cn, FONT, WEIGHT, BORDER, RADIUS } from '@/lib/ui'
 import { DocSection } from '@/components/docs/DocSection'
 import { DocCode } from '@/components/docs/DocCode'
+import { HexSwatch } from '@/components/ui/HexSwatch'
 
 // ─── Token data ───
 
@@ -65,23 +66,9 @@ export default function TokensPage() {
 
       {/* ─── Neutral scale ─── */}
       <DocSection title="Neutral scale" description="Warm sand-tinted greys. All UI chrome uses this scale.">
-        <div className="space-y-1.5">
+        <div className="grid grid-cols-3 gap-4 md:grid-cols-4">
           {NEUTRALS.map((n) => (
-            <div key={n.token} className="flex items-center gap-3">
-              <div
-                className={cn('w-10 h-10 rounded-[6px]', BORDER.default, 'shrink-0')}
-                style={{ backgroundColor: `var(${n.token})` }}
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-baseline gap-2">
-                  <code className={cn(FONT.body, 'text-[13px] font-[550] text-[var(--n1150)]')}>{n.token}</code>
-                  <span className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n600)] tabular-nums')}>{n.hex}</span>
-                </div>
-                <div className={cn(FONT.body, 'text-[12px] font-[400] text-[var(--n800)]')}>
-                  {n.label} — {n.usage}
-                </div>
-              </div>
-            </div>
+            <HexSwatch key={n.token} token={n.token} hex={n.hex} label={n.label} usage={n.usage} />
           ))}
         </div>
       </DocSection>

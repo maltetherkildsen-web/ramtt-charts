@@ -75,6 +75,7 @@ import {
   StatusIndicator,
   SegmentedBar,
   NumberStepper,
+  HexSwatch,
   RatingInput,
   TimePicker,
   StepFlow,
@@ -2232,6 +2233,19 @@ function NumberStepperDemo() {
           max={500}
           step={1}
         />
+      </div>
+    </DemoSection>
+  )
+}
+
+function HexSwatchDemo() {
+  return (
+    <DemoSection title="Hex Swatch">
+      <div className="grid grid-cols-3 gap-4 md:grid-cols-4">
+        <HexSwatch token="--bg" hex="#FAF9F5" label="Canvas" usage="Page background" />
+        <HexSwatch token="--n200" hex="#F2F0EA" label="Hover" usage="Hover states" />
+        <HexSwatch hex="#6B6760" label="Secondary" />
+        <HexSwatch hex="#131211" />
       </div>
     </DemoSection>
   )
@@ -4765,6 +4779,7 @@ export default function UIDemo() {
             <StatusIndicatorsDemo />
             <SegmentedBarDemo />
             <NumberStepperDemo />
+            <HexSwatchDemo />
             <RatingTimeDemo />
             <StepFlowDemo />
             <WidgetSystemDemo />

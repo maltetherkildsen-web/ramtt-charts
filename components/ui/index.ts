@@ -72,6 +72,8 @@ export { ColorDot } from './ColorDot';
 export { StatusIndicator } from './StatusIndicator';
 export { SegmentedBar } from './SegmentedBar';
 export { NumberStepper } from './NumberStepper';
+export { HexSwatch } from './HexSwatch';
+export type { HexSwatchProps } from './HexSwatch';
 
 // ─── Components (Wave 7B — Input Patterns) ───
 export { RatingInput } from './RatingInput';
