@@ -71,6 +71,7 @@ npx vitest run         # 248 tests, all must pass
 - `components/icons/` — 1717 icon files across 8 variants
 - `lib/ui.ts` — Shared design constants (ALL components import from here)
 - `app/chart-test/` — Session analysis (crown jewel, handle with care)
+- `scripts/audit.ts` — Unified design system audit (runs on every layer)
 
 ## Rules that Claude cannot infer from code
 

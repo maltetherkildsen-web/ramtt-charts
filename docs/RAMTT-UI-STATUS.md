@@ -140,7 +140,7 @@ components/ui/
 ├── RULES.md               ← Non-negotiable system rules
 ├── README.md              ← Quick-reference
 scripts/
-├── audit-ui.ts            ← npm run audit:ui
+├── audit.ts               ← npm run audit (unified — also `--scope ui` / `--scope charts`)
 app/
 ├── ui-demo/page.tsx       ← Showcase af alle 12 komponenter
 ```
