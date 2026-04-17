@@ -6,6 +6,8 @@
 // ─── Components (Wave 1 — Display & Input) ───
 export { Button } from './Button';
 export { Badge } from './Badge';
+export { ComingSoon } from './ComingSoon';
+export type { ComingSoonProps } from './ComingSoon';
 export { ToggleGroup } from './ToggleGroup';
 export { Card } from './Card';
 export { DataRow } from './DataRow';

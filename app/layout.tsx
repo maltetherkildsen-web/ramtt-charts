@@ -5,10 +5,10 @@ import '@/components/ui/tokens.css'
 import './globals.css'
 
 /**
- * Satoshi is the ONLY font loaded.
+ * Satoshi is the ONLY font loaded for UI.
  * --font-sans, --font-label, and --font-mono all resolve to Satoshi
  * (with tabular-nums for numeric contexts).
- * JetBrains Mono and Space Grotesk were removed — Satoshi replaced both.
+ * Cormorant Garamond is loaded separately for editorial/marketing only.
  */
 
 const satoshi = localFont({
@@ -18,8 +18,12 @@ const satoshi = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'RAMTT Charts — Dev',
-  description: 'Custom SVG chart system prototype',
+  title: 'RAMTT — Coming soon',
+  description: 'Training analytics for endurance athletes.',
+  robots: {
+    index: false,
+    follow: false,
+  },
 }
 
 export default function RootLayout({

@@ -4701,20 +4701,20 @@ export default function UIDemo() {
   return (
     <ToastProvider>
       <main className="min-h-screen bg-[var(--bg)]" style={{
-        '--accent': '#4D49FC',
-        '--accent-pressed': '#1a17a8',
-        '--accent-hover': '#3330d4',
-        '--accent-toggle': '#4D49FC',
-        '--accent-text': '#2725a8',
-        '--accent-icon': '#4D49FC',
-        '--accent-icon-light': '#a6a5de',
-        '--accent-icon-lightest': '#cdcce9',
-        '--accent-border': '#d0cfe5',
-        '--accent-selection': '#c3c2e1',
-        '--accent-wash': '#f0f0f5',
-        '--accent-badge': '#f6f6f8',
-        '--accent-soft': '#4D49FC20',
-        '--accent-light': '#4D49FC30',
+        '--accent': '#7888FF',
+        '--accent-pressed': '#282293',
+        '--accent-hover': '#4A53C4',
+        '--accent-toggle': '#7888FF',
+        '--accent-text': '#323882',
+        '--accent-icon': '#7888FF',
+        '--accent-icon-light': '#A1ABDB',
+        '--accent-icon-lightest': '#C7CDE5',
+        '--accent-border': '#D3D7E6',
+        '--accent-selection': '#C8CDDF',
+        '--accent-wash': '#F0F1F7',
+        '--accent-badge': '#F4F5F7',
+        '--accent-soft': '#7888FF20',
+        '--accent-light': '#7888FF30',
       } as React.CSSProperties}>
         <div className={cn(LAYOUT.maxWidth, 'mx-auto', LAYOUT.pagePadding, 'py-12')}>
           {/* Header */}

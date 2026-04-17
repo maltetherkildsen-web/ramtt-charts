@@ -275,7 +275,14 @@ export const ACCENTS: AccentDefinition[] = [
     selection: '#CDE2FB', toggleTrack: '#1A4F8A',
   }),
 
-  // ── Violets & Indigos (3) ──
+  // ── Violets & Indigos (4) ──
+
+  defineAccentExact('ramtt-iris', 'Ramtt Iris', '#7888FF', 'Violets', {
+    primary: '#7888FF', hover: '#5A6DFF', pressed: '#3E52F5',
+    text: '#3E52F5', icon: '#5A6DFF', iconLight: '#B5BEF5', iconLightest: '#D7DBF5',
+    border: '#D7DBF5', wash: '#F0F1FE', badgeBg: '#F6F7FE',
+    selection: '#CDD4F2', toggleTrack: '#7888FF',
+  }),
 
   defineAccentExact('electric-indigo', 'Electric Indigo', '#4D49FC', 'Violets', {
     primary: '#4D49FC', hover: '#3D3AE0', pressed: '#2E2BC4',
