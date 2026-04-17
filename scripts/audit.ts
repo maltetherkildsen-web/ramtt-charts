@@ -104,6 +104,10 @@ const REQUIRED_CHART_EXPORTS = [
   'niceTicks', 'lttb', 'extent', 'extentOf', 'bisectNearest', 'stackSeries',
 ];
 
+// Doc pages legitimately mention utility-class names they document.
+// Only the `font-medium` warning is exempted here — all other rules still fire.
+const DOC_PAGES_PATH_PREFIX = 'app/(docs)/';
+
 const DOMAIN_KEYS = ['nutrition', 'training', 'body'] as const;
 const TOKEN_SUFFIXES = [
   '', '-pressed', '-hover', '-toggle', '-text', '-icon',
@@ -193,10 +197,13 @@ function checkBannedWeights(path: string, content: string) {
       }
     }
   }
-  // font-medium outside lib/ui.ts — warning
-  for (let i = 0; i < lines.length; i++) {
-    if (/\bfont-medium\b/.test(lines[i]) && !lines[i].trim().startsWith('//')) {
-      WARNINGS.push(`${path}:${i + 1}: font-medium → consider using WEIGHT.medium constant`);
+  // font-medium outside lib/ui.ts — warning.
+  // Docs pages legitimately mention utility-class names they document; skip them.
+  if (!path.startsWith(DOC_PAGES_PATH_PREFIX)) {
+    for (let i = 0; i < lines.length; i++) {
+      if (/\bfont-medium\b/.test(lines[i]) && !lines[i].trim().startsWith('//')) {
+        WARNINGS.push(`${path}:${i + 1}: font-medium → consider using WEIGHT.medium constant`);
+      }
     }
   }
 }
