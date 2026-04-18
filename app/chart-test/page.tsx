@@ -760,8 +760,8 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
           {/* ── 1. Header ── */}
           <SessionHeader meta={meta} scores={scores} setScores={setScores} onChangeFile={onChangeFile} />
 
-          {/* ── 1a. Athlete parameters (FTP / CP / Weight) ── */}
-          <AthleteParamsPanel state={athleteParams} onChange={setAthleteParams} />
+          {/* ── 1a. Athlete parameters (FTP / CP / Weight / Threshold pace) ── */}
+          <AthleteParamsPanel state={athleteParams} onChange={setAthleteParams} isRunning={isRunning} />
 
           {/* ── 1b. Session Data Input Panel ── */}
           <SessionDataPanel input={sessionInput} onUpdate={updateSessionInput} />
@@ -777,6 +777,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             choZone={choZone} choGPerHour={choGPerHour} choIntake={sessionInput.choIntake}
             kjDemandZone={kjDemandZone} adjustedKjPerKgH={adjustedKjPerKgH} isDefaultWeight={isDefaultWeight}
             avgTorque={avgTorque} hasTorque={hasTorque}
+            isRunning={isRunning}
           />
 
           {/* ── 3. Chart Toggles ── */}
@@ -1351,6 +1352,7 @@ function MetricsTiers({
   choZone, choGPerHour, choIntake,
   kjDemandZone, adjustedKjPerKgH, isDefaultWeight,
   avgTorque, hasTorque,
+  isRunning,
 }: {
   meta: FitData['meta']; durationStr: string; np: number; distanceKm: number; elevGain: number
   energyKJ: number; decoupling: number | null
@@ -1360,10 +1362,17 @@ function MetricsTiers({
   choZone: { zone: string; name: string } | null; choGPerHour: number; choIntake: number
   kjDemandZone: { zone: string; name: string } | null; adjustedKjPerKgH: number; isDefaultWeight: boolean
   avgTorque: number; hasTorque: boolean
+  isRunning: boolean
 }) {
   const [contextOpen, setContextOpen] = useState(false)
   const vi = np > 0 && meta.avgPower > 0 ? (np / meta.avgPower).toFixed(2) : '—'
   const ef = np > 0 && meta.avgHR > 0 ? (np / meta.avgHR).toFixed(2) : '—'
+
+  // Average pace (running): total duration divided by total distance.
+  // meta.totalTime is seconds, meta.totalDistance is km (parser uses lengthUnit:'km').
+  const avgPaceSecPerKm = isRunning && meta.totalDistance > 0 && meta.totalTime > 0
+    ? meta.totalTime / meta.totalDistance
+    : null
 
   // Fallback: if FIT file lacks total_calories, estimate from mechanical energy.
   // Cycling heuristic: 1 kJ work ≈ 1 kcal metabolic energy at ~24% efficiency.
@@ -1386,27 +1395,30 @@ function MetricsTiers({
       {/* Tier 1 — Key Stats */}
       <div className="flex gap-6 border-y-[0.5px] border-y-[var(--n400)] py-2">
         <KS label="Duration" value={durationStr} />
-        {meta.avgPower > 0 && <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />}
-        {np > 0 && <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />}
+        {!isRunning && meta.avgPower > 0 && <KS label="Avg Power" value={`${meta.avgPower}`} unit="W" sub={`Max ${meta.maxPower}W`} />}
+        {!isRunning && np > 0 && <KS label="Balanced Power" value={`${np}`} unit="W" sub={`VI ${vi}`} />}
         {meta.avgHR > 0 && <KS label="Avg HR" value={`${meta.avgHR}`} unit="bpm" sub={`Max ${meta.maxHR}`} />}
         <KS label="Distance" value={distanceKm > 0 ? `${distanceKm}` : '—'} unit={distanceKm > 0 ? 'km' : undefined} />
+        {isRunning && avgPaceSecPerKm !== null && <KS label="Avg Pace" value={formatPace(avgPaceSecPerKm)} unit="/km" />}
         {totalAscent > 0 && <KS label="Ascent" value={`${totalAscent}`} unit="m" sub={`↓ ${totalDescent}m`} />}
-        {energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" sub={`${avgKjPerMin} kJ/min`} />}
+        {!isRunning && energyKJ > 0 && <KS label="Energy" value={`${energyKJ}`} unit="kJ" sub={`${avgKjPerMin} kJ/min`} />}
         {effectiveCalories > 0 && <KS label="Calories" value={`${effectiveCalories}`} unit="kcal" sub={totalCalories === 0 ? 'est.' : undefined} />}
-        {hasTorque && avgTorque > 0 && <KS label="Avg Torque" value={`${avgTorque}`} unit="Nm" />}
+        {!isRunning && hasTorque && avgTorque > 0 && <KS label="Avg Torque" value={`${avgTorque}`} unit="Nm" />}
         <KS label="R-Score" value="—" unit="rS" sub="PL —" />
       </div>
 
       {/* Tier 2 — Fueling (dot-grouped) + Derived Metrics */}
       <div className="flex gap-6 border-b-[0.5px] border-b-[var(--n400)] bg-[var(--n50)] py-2">
-        <KS
+        {!isRunning && (
+          <KS
 
-          label="kJ demand"
-          value={kjDemandZone ? adjustedKjPerKgH.toFixed(1) : '—'}
-          unit={kjDemandZone ? 'kJ/kg/h' : undefined}
-          sub={kjDemandZone ? `${kjDemandZone.name}${isDefaultWeight ? ' · default weight' : ''}` : undefined}
-          badge={kjDemandZone ? { label: kjDemandZone.zone, color: ZONE_COLORS[kjDemandZone.zone] ?? '#94a3b8' } : undefined}
-        />
+            label="kJ demand"
+            value={kjDemandZone ? adjustedKjPerKgH.toFixed(1) : '—'}
+            unit={kjDemandZone ? 'kJ/kg/h' : undefined}
+            sub={kjDemandZone ? `${kjDemandZone.name}${isDefaultWeight ? ' · default weight' : ''}` : undefined}
+            badge={kjDemandZone ? { label: kjDemandZone.zone, color: ZONE_COLORS[kjDemandZone.zone] ?? '#94a3b8' } : undefined}
+          />
+        )}
         <KS
 
           label="CHO zone"
@@ -1440,8 +1452,10 @@ function MetricsTiers({
             sub={minTemperature !== maxTemperature ? `${minTemperature}–${maxTemperature}°C range` : undefined}
           />
         )}
-        {/* Decoupling */}
-        <KS label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Eff ${ef}`} />
+        {/* Decoupling — NP-based, meaningless for running without power */}
+        {!isRunning && (
+          <KS label="Decoupling" value={decoupling !== null ? `${decoupling}` : '—'} unit="%" sub={`Eff ${ef}`} />
+        )}
         {/* Durability */}
         <KS label="Durability" value="—" unit="% decay" sub="—" />
       </div>
