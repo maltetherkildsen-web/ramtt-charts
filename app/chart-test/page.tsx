@@ -64,19 +64,61 @@ const HR_ZONES: ZoneDefinition[] = [
   { min: 1.00, max: Infinity, color: '#dc2626', label: 'Z5+' },
 ]
 
-type ZoneMode = 'off' | 'power' | 'hr'
-const ZONE_MODES: ZoneMode[] = ['off', 'power', 'hr']
-
-
-type ChartKey = 'power' | 'hr' | 'speed' | 'cadence' | 'elevation' | 'kjmin' | 'torque'
-const ALL_CHARTS: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation', 'torque']
-const CHART_LABELS: Record<ChartKey, string> = {
-  power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', elevation: 'Elevation', torque: 'Torque',
+type ZoneMode = 'off' | 'power' | 'hr' | 'pace'
+const ZONE_MODES_CYCLING: ZoneMode[] = ['off', 'power', 'hr']
+const ZONE_MODES_RUNNING: ZoneMode[] = ['off', 'pace', 'hr']
+function zoneModesFor(isRunning: boolean): ZoneMode[] {
+  return isRunning ? ZONE_MODES_RUNNING : ZONE_MODES_CYCLING
 }
-const DEFAULT_VISIBLE: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
+
+
+type ChartKey = 'power' | 'hr' | 'speed' | 'pace' | 'cadence' | 'elevation' | 'kjmin' | 'torque'
+const ALL_CHARTS_CYCLING: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence', 'speed', 'elevation', 'torque']
+const ALL_CHARTS_RUNNING: ChartKey[] = ['pace', 'hr', 'cadence', 'elevation']
+function chartOrderFor(isRunning: boolean): ChartKey[] {
+  return isRunning ? ALL_CHARTS_RUNNING : ALL_CHARTS_CYCLING
+}
+const CHART_LABELS: Record<ChartKey, string> = {
+  power: 'Power', hr: 'HR', kjmin: 'kJ/min', cadence: 'Cadence', speed: 'Speed', pace: 'Pace', elevation: 'Elevation', torque: 'Torque',
+}
+const DEFAULT_VISIBLE_CYCLING: ChartKey[] = ['power', 'hr', 'kjmin', 'cadence']
+const DEFAULT_VISIBLE_RUNNING: ChartKey[] = ['pace', 'hr', 'cadence', 'elevation']
+function defaultVisibleFor(isRunning: boolean): ChartKey[] {
+  return isRunning ? DEFAULT_VISIBLE_RUNNING : DEFAULT_VISIBLE_CYCLING
+}
 
 const CHART_HEIGHTS: Record<ChartKey, number> = {
-  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, elevation: 60, torque: 80,
+  power: 160, hr: 100, kjmin: 75, cadence: 80, speed: 60, pace: 100, elevation: 60, torque: 80,
+}
+
+// ─── Pace helpers ───
+
+// Jack Daniels-style pace zones keyed on RATIO = thresholdPaceSecPerKm / paceSecPerKm.
+// A faster pace (lower seconds) yields a HIGHER ratio — parallels the POWER_ZONES
+// pattern where higher = harder. Zones must stay ascending by `min` for getZoneColor
+// (which scans top-down picking the last zone whose min ≤ ratio).
+const PACE_ZONES: ZoneDefinition[] = [
+  { min: 0,    max: 0.85, color: '#94a3b8', label: 'Z1' }, // Easy (much slower than threshold)
+  { min: 0.85, max: 0.95, color: '#22c55e', label: 'Z2' }, // Marathon
+  { min: 0.95, max: 1.05, color: '#eab308', label: 'Z3' }, // Threshold
+  { min: 1.05, max: 1.15, color: '#f97316', label: 'Z4' }, // VO2
+  { min: 1.15, max: Infinity, color: '#ef4444', label: 'Z5' }, // Rep / interval
+]
+
+// Walking pace floor — stopped runners would spike to Infinity; 1800 sec/km = 30:00/km
+// is practically "stopped" and sits safely off-domain for typical pace charts.
+const PACE_FLOOR_SEC_PER_KM = 1800
+const PACE_MIN_SPEED_KMH = 0.5
+
+function speedKmhToPaceSecPerKm(s: number): number {
+  return s > PACE_MIN_SPEED_KMH ? 3600 / s : PACE_FLOOR_SEC_PER_KM
+}
+
+function formatPace(secPerKm: number): string {
+  if (!Number.isFinite(secPerKm) || secPerKm <= 0) return '—'
+  const m = Math.floor(secPerKm / 60)
+  const s = Math.round(secPerKm % 60)
+  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 // ─── Time formatting ───
@@ -522,11 +564,24 @@ function UploadZone({ onFile, isParsing, error }: {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: () => void }) {
-  const { meta, power, heartRate, cadence, speed, altitude } = data
+  const { meta, power, heartRate, cadence, speed, altitude, isRunning } = data
   const totalPoints = power.length
 
+  // Display cadence — Garmin stores running cadence as per-leg rpm (~80).
+  // Double for runs so the chart shows the natural spm value (~160).
+  const displayCadence = useMemo(
+    () => isRunning ? cadence.map(c => c * 2) : cadence,
+    [cadence, isRunning],
+  )
+
+  // Per-sample pace stream in sec/km (undefined in bike flow — never read there).
+  const paceSecPerKm = useMemo(
+    () => isRunning ? speed.map(speedKmhToPaceSecPerKm) : [],
+    [speed, isRunning],
+  )
+
   const [zoneMode, setZoneMode] = useState<ZoneMode>('off')
-  const [visibleCharts, setVisibleCharts] = useState<Set<ChartKey>>(new Set(DEFAULT_VISIBLE))
+  const [visibleCharts, setVisibleCharts] = useState<Set<ChartKey>>(() => new Set(defaultVisibleFor(isRunning)))
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showPeaks, setShowPeaks] = useState(false)
   const [activePeak, setActivePeak] = useState<PeakPowerResult | null>(null)
@@ -641,17 +696,36 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   const hasHR = heartRate.some(v => v > 0)
   const hasTorque = hasPower && cadence.some(v => v > 0)
 
-  // Auto-hide charts without data
+  // Auto-hide charts without data. For running files, strip every cycling-only
+  // channel regardless of stray samples some watches emit (phantom power, etc.).
   useEffect(() => {
     setVisibleCharts(prev => {
       const next = new Set(prev)
+      if (isRunning) {
+        next.delete('power'); next.delete('kjmin'); next.delete('torque'); next.delete('speed')
+        if (!next.has('pace')) next.add('pace')
+        if (next.has('hr') || hasHR) next.add('hr')
+        if (!hasHR) next.delete('hr')
+        if (next.size === 0) next.add('pace')
+        return next
+      }
+      // Cycling flow — unchanged
+      next.delete('pace')
       if (!hasPower) { next.delete('power'); next.delete('kjmin') }
       if (!hasHR) next.delete('hr')
       if (!hasTorque) next.delete('torque')
       if (next.size === 0) next.add('speed')
       return next
     })
-  }, [hasPower, hasHR, hasTorque])
+  }, [hasPower, hasHR, hasTorque, isRunning])
+
+  // Reset zoneMode when sport changes — 'power' is invalid for running, 'pace' for cycling.
+  useEffect(() => {
+    setZoneMode(prev => {
+      const allowed = zoneModesFor(isRunning)
+      return allowed.includes(prev) ? prev : 'off'
+    })
+  }, [isRunning])
 
   // Average kJ/min for display
   const avgKjPerMin = useMemo(() => {
@@ -704,6 +778,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             setShowPeaks={setShowPeaks}
             onFullscreen={() => setIsFullscreen(true)}
             hiddenCharts={hasTorque ? undefined : new Set<ChartKey>(['torque'])}
+            isRunning={isRunning}
           />
 
           {/* ── 3b. Peak Powers Strip ── */}
@@ -720,17 +795,20 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
           <SyncedCharts
             power={power}
             heartRate={heartRate}
-            cadence={cadence}
+            cadence={displayCadence}
             speed={speed}
+            paceSecPerKm={paceSecPerKm}
             altitude={altitude}
             kjPerMin={kjPerMin}
             torque={torque}
             ftp={athleteParams.ftp.value}
             cp={athleteParams.cp.value}
+            thresholdPaceSecPerKm={athleteParams.thresholdPaceSecPerKm.value}
             maxHR={meta.maxHR}
             meta={meta}
             zoneMode={zoneMode}
             visibleCharts={visibleCharts}
+            isRunning={isRunning}
             activePeak={activePeak}
             onClearPeak={() => setActivePeak(null)}
           />
@@ -756,12 +834,16 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
           >
             <FullscreenOverlay
               meta={meta}
-              power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
+              power={power} heartRate={heartRate} cadence={displayCadence} speed={speed} altitude={altitude}
+              paceSecPerKm={paceSecPerKm}
               kjPerMin={kjPerMin} torque={torque}
-              ftp={athleteParams.ftp.value} cp={athleteParams.cp.value} maxHR={meta.maxHR}
+              ftp={athleteParams.ftp.value} cp={athleteParams.cp.value}
+              thresholdPaceSecPerKm={athleteParams.thresholdPaceSecPerKm.value}
+              maxHR={meta.maxHR}
               zoneMode={zoneMode} setZoneMode={setZoneMode}
               visibleCharts={visibleCharts} onToggle={toggleChart}
               showPeaks={showPeaks} setShowPeaks={setShowPeaks}
+              isRunning={isRunning}
               activePeak={activePeak} onActivePeakChange={setActivePeak}
               onClose={() => setIsFullscreen(false)}
             />
@@ -778,16 +860,20 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
 
 
 function FullscreenOverlay({
-  meta, power, heartRate, cadence, speed, altitude, kjPerMin, torque,
-  ftp, cp, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, activePeak, onActivePeakChange, onClose,
+  meta, power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque,
+  ftp, cp, thresholdPaceSecPerKm, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, isRunning, activePeak, onActivePeakChange, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
+  paceSecPerKm: number[]
   kjPerMin: number[]; torque: number[]
-  ftp: number | undefined; cp: number | undefined; maxHR: number
+  ftp: number | undefined; cp: number | undefined
+  thresholdPaceSecPerKm: number | undefined
+  maxHR: number
   zoneMode: ZoneMode; setZoneMode: (m: ZoneMode) => void
   visibleCharts: Set<ChartKey>; onToggle: (k: ChartKey) => void
   showPeaks: boolean; setShowPeaks: (v: boolean) => void
+  isRunning: boolean
   activePeak?: PeakPowerResult | null; onActivePeakChange: (p: PeakPowerResult | null) => void
   onClose: () => void
 }) {
@@ -804,7 +890,8 @@ function FullscreenOverlay({
   const peaksBar = showPeaks ? 28 : 0
   const xAxisBar = 24 // shared x-axis row below the chart stack
   const sidebarW = 176
-  const ordered = ALL_CHARTS.filter((k) => visibleCharts.has(k))
+  const sportCharts = chartOrderFor(isRunning)
+  const ordered = sportCharts.filter((k) => visibleCharts.has(k))
   const normalTotal = ordered.reduce((s, k) => s + CHART_HEIGHTS[k], 0)
   const available = Math.max(0, winH - topBar - peaksBar - xAxisBar)
   const scale = available / normalTotal
@@ -823,7 +910,7 @@ function FullscreenOverlay({
 
         {/* Chart visibility toggles */}
         <div className="ml-3 flex items-center gap-1">
-          {ALL_CHARTS.filter(k => k !== 'torque' || torque.some(v => v > 0)).map((key) => (
+          {sportCharts.filter(k => k !== 'torque' || torque.some(v => v > 0)).map((key) => (
             <button
               key={key}
               onClick={() => onToggle(key)}
@@ -864,17 +951,17 @@ function FullscreenOverlay({
         {/* Zone toggle */}
         <span className={cn("ml-1 text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Zones</span>
         <div className="flex -space-x-px">
-          {ZONE_MODES.map((mode, i) => (
+          {zoneModesFor(isRunning).map((mode, i, arr) => (
             <button
               key={mode}
               onClick={() => setZoneMode(mode)}
               className={cn(
                 "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
-                i === 0 && 'rounded-l-[5px]', i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
+                i === 0 && 'rounded-l-[5px]', i === arr.length - 1 && 'rounded-r-[5px]',
                 zoneMode === mode ? cn(ACTIVE_SAND, "text-[var(--n1150)]") : cn("text-[var(--n600)]", HOVER_SAND)
               )}
             >
-              {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
+              {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : mode === 'pace' ? 'Pace' : 'HR'}
             </button>
           ))}
         </div>
@@ -906,30 +993,33 @@ function FullscreenOverlay({
         {/* Charts fill main area */}
         <div className="flex-1 overflow-hidden px-2">
           <SyncedCharts
-            power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude}
+            power={power} heartRate={heartRate} cadence={cadence} speed={speed} paceSecPerKm={paceSecPerKm} altitude={altitude}
             kjPerMin={kjPerMin} torque={torque}
-            ftp={ftp} cp={cp} maxHR={maxHR} meta={meta}
+            ftp={ftp} cp={cp} thresholdPaceSecPerKm={thresholdPaceSecPerKm} maxHR={maxHR} meta={meta}
             zoneMode={zoneMode} visibleCharts={visibleCharts}
             heightOverrides={heights}
             decimationFactor={0.2}
             hideExtras
+            isRunning={isRunning}
             activePeak={activePeak}
             onClearPeak={() => onActivePeakChange(null)}
           />
         </div>
 
         {/* Data sidebar — live hover values */}
-        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta} visibleCharts={visibleCharts} />
+        <FullscreenDataSidebar power={power} heartRate={heartRate} cadence={cadence} speed={speed} paceSecPerKm={paceSecPerKm} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta} visibleCharts={visibleCharts} isRunning={isRunning} />
       </div>
     </div>
   )
 }
 
 function FullscreenDataSidebar({
-  power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, visibleCharts,
+  power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, meta, visibleCharts, isRunning,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
+  paceSecPerKm: number[]
   kjPerMin: number[]; torque: number[]; meta: FitData['meta']; visibleCharts: Set<ChartKey>
+  isRunning: boolean
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -1392,7 +1482,7 @@ function KS({ label, value, unit, sub, badge, progress, progressColor, dot }: {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function ChartToggles({
-  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, onFullscreen, hiddenCharts,
+  visibleCharts, onToggle, zoneMode, setZoneMode, showPeaks, setShowPeaks, onFullscreen, hiddenCharts, isRunning,
 }: {
   visibleCharts: Set<ChartKey>
   onToggle: (key: ChartKey) => void
@@ -1402,11 +1492,14 @@ function ChartToggles({
   setShowPeaks: (v: boolean) => void
   onFullscreen?: () => void
   hiddenCharts?: Set<ChartKey>
+  isRunning: boolean
 }) {
+  const zoneModes = zoneModesFor(isRunning)
+  const sportCharts = chartOrderFor(isRunning)
   return (
     <div className="flex items-center gap-2 py-2">
       {/* Chart visibility toggles */}
-      {ALL_CHARTS.filter(k => !hiddenCharts?.has(k)).map((key) => (
+      {sportCharts.filter(k => !hiddenCharts?.has(k)).map((key) => (
         <button
           key={key}
           onClick={() => onToggle(key)}
@@ -1465,20 +1558,20 @@ function ChartToggles({
       {/* Zone toggle */}
       <span className={cn("ml-2 text-[10px] text-[var(--n600)]", WEIGHT.strong)}>Zones</span>
       <div className="flex -space-x-px">
-        {ZONE_MODES.map((mode, i) => (
+        {zoneModes.map((mode, i) => (
           <button
             key={mode}
             onClick={() => setZoneMode(mode)}
             className={cn(
               "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
               i === 0 && 'rounded-l-[5px]',
-              i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
+              i === zoneModes.length - 1 && 'rounded-r-[5px]',
               zoneMode === mode
                 ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
                 : cn("text-[var(--n600)]", HOVER_SAND)
             )}
           >
-            {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : 'HR'}
+            {mode === 'off' ? 'Off' : mode === 'power' ? 'Power' : mode === 'pace' ? 'Pace' : 'HR'}
           </button>
         ))}
       </div>
@@ -1550,15 +1643,19 @@ function PeakPowersStrip({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function SyncedCharts({
-  power, heartRate, cadence, speed, altitude, kjPerMin, torque, ftp, cp, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, activePeak, onClearPeak,
+  power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, ftp, cp, thresholdPaceSecPerKm, maxHR, meta, zoneMode, visibleCharts, heightOverrides, hideExtras, decimationFactor, isRunning, activePeak, onClearPeak,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
+  paceSecPerKm: number[]
   kjPerMin: number[]; torque: number[]
-  ftp: number | undefined; cp: number | undefined; maxHR: number; meta: FitData['meta']
+  ftp: number | undefined; cp: number | undefined
+  thresholdPaceSecPerKm: number | undefined
+  maxHR: number; meta: FitData['meta']
   zoneMode: ZoneMode; visibleCharts: Set<ChartKey>
   heightOverrides?: Partial<Record<ChartKey, number>>
   hideExtras?: boolean
   decimationFactor?: number
+  isRunning: boolean
   activePeak?: PeakPowerResult | null
   onClearPeak?: () => void
 }) {
@@ -1596,6 +1693,30 @@ function SyncedCharts({
 
   const visKjMin = useMemo(() => kjPerMin.slice(start, end + 1), [kjPerMin, start, end])
   const visTorque = useMemo(() => torque.slice(start, end + 1), [torque, start, end])
+  const visPace = useMemo(() => {
+    if (!isRunning) return []
+    const raw = paceSecPerKm.slice(start, end + 1)
+    // Smooth pace ~ same window as HR — GPS noise makes raw sec/km jittery.
+    return rollingAverage(raw, Math.max(smoothWindow, 5))
+  }, [paceSecPerKm, start, end, smoothWindow, isRunning])
+
+  // Pace y-domain: inverted ([slow, fast]) so faster (lower sec/km) lands at the top.
+  // Clamp outliers via percentile so the 1800-floor (stopped runner) doesn't blow the axis.
+  const paceYDomain = useMemo(() => {
+    if (visPace.length === 0) return [900, 180] as const
+    // Sample-based extent ignoring the stopped-runner floor
+    let min = Infinity, max = -Infinity
+    for (let i = 0; i < visPace.length; i++) {
+      const v = visPace[i]
+      if (v >= PACE_FLOOR_SEC_PER_KM) continue
+      if (v < min) min = v
+      if (v > max) max = v
+    }
+    if (!Number.isFinite(min) || !Number.isFinite(max)) return [900, 180] as const
+    const pad = Math.max((max - min) * 0.1, 15)
+    // [slowest, fastest] → passed as yDomain → scaleLinear inverts naturally
+    return [max + pad, Math.max(60, min - pad)] as const
+  }, [visPace])
 
   const sessionDuration = power.length
   const formatX = useCallback(
@@ -1612,7 +1733,7 @@ function SyncedCharts({
   const chartPad = { top: 2, right: 64 }
 
   const h = (key: ChartKey) => heightOverrides?.[key] ?? CHART_HEIGHTS[key]
-  const orderedVisible = ALL_CHARTS.filter((k) => visibleCharts.has(k))
+  const orderedVisible = chartOrderFor(isRunning).filter((k) => visibleCharts.has(k))
   const lastChartKey = orderedVisible[orderedVisible.length - 1]
 
   return (
@@ -1626,6 +1747,36 @@ function SyncedCharts({
       {/* Brush overlay wrapper — scoped to chart area only */}
       <div className="relative">
       <BrushOverlay />
+
+      {/* Pace — running only. Inverted yDomain so fast pace lands at top. */}
+      <AnimatePresence initial={false}>
+      {isRunning && visibleCharts.has('pace') && (
+        <motion.div key="pace" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
+        <ChartRoot
+          data={visPace}
+          height={h('pace')}
+          decimationFactor={decimationFactor}
+          padding={{ ...chartPad, bottom: 4 }}
+          yDomain={paceYDomain}
+        >
+          <ChartAxisY tickCount={3} format={formatPace} />
+          {thresholdPaceSecPerKm !== undefined && (
+            <ChartRefLine y={thresholdPaceSecPerKm} label={`Thr ${formatPace(thresholdPaceSecPerKm)}`} />
+          )}
+          <ChartArea gradientColor="#3b82f6" opacityFrom={0.10} opacityTo={0.005} />
+          {zoneMode === 'pace' && thresholdPaceSecPerKm !== undefined ? (
+            <ChartZoneLine threshold={thresholdPaceSecPerKm} zones={PACE_ZONES} />
+          ) : (
+            <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
+          )}
+          <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#3b82f6" />
+          {!hideExtras && <ChartAxisValue tickCount={3} format={formatPace} />}
+          <ChartZoomHandler />
+          <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Pace</text>
+        </ChartRoot>
+        </motion.div>
+      )}
+      </AnimatePresence>
 
       {/* Power — 110px */}
       <AnimatePresence initial={false}>
