@@ -60,8 +60,20 @@ They escape the audit, drift from the system, and create silent duplication.
 npm run dev            # Dev server, port 5000
 npm run build          # TypeScript check — run after changes
 npm run audit          # IMPORTANT: must pass before any commit
+npm run ship           # audit + build (the pre-flight duo)
 npx vitest run         # 248 tests, all must pass
 ```
+
+## Shipping — the /ship workflow
+
+`/ship <commit message>` is the canonical way to commit + push. It runs
+audit → build → `git status` review → commit → push, stopping on the
+first failure.
+
+A Husky pre-commit hook re-runs `npm run audit` as a hard safety net.
+Commits fail physically if audit fails. Do not bypass with `--no-verify`.
+
+See `HUSKE.md` for the full operator checklist.
 
 ## Structure
 

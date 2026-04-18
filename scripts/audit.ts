@@ -264,6 +264,94 @@ function runDesignChecks(path: string, content: string) {
   checkTracking(path, content);
   checkRoundedTailwind(path, content);
   checkFontFamilyInline(path, content);
+  checkNoExternalIconLibs(path, content);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RULE ZERO — Inline components in page files
+// Narrow by design: only flags inline function/const components whose body
+// contains HARDCODED styling patterns that Rule Zero forbids. Legitimate
+// page-local helpers (DemoSection, Row, Cell) that don't style directly
+// pass through without noise.
+// ═══════════════════════════════════════════════════════════════
+
+// Next.js reserved names + established page-local wrappers.
+const INLINE_ALLOWLIST = new Set([
+  'Page', 'Layout', 'Loading', 'Error', 'NotFound',
+  'generateMetadata', 'generateStaticParams', 'Template', 'Head',
+  'DemoSection', 'PreviewLoader',
+]);
+
+// Path prefixes where Rule Zero inline-component checks are suppressed.
+// These are explicit preview/playground surfaces — their whole job is to
+// display components inline for demonstration. New *product* pages must NOT
+// be added here.
+const RULE_ZERO_PATH_EXEMPT_PREFIXES = [
+  'app/ui-demo/',
+  'app/demo/',
+  'app/(docs)/',
+  'app/color-guide/',
+  'app/color-lab/',
+  'app/accent-demo/',
+  'app/icon-catalog/',
+  'app/icon-demo/',
+];
+
+// Grandfathered product pages — inline violations here are reported as
+// WARNINGS (not errors) so commits aren't blocked while we refactor.
+// NEW inline components added to these files still show up, just without
+// blocking the commit. Goal: drain this list over time.
+const RULE_ZERO_GRANDFATHERED_PATHS = new Set([
+  'app/chart-test/page.tsx',
+]);
+
+// The forbidden-inside-page Tailwind patterns from RULES.md Rule Zero.
+const RULE_ZERO_PATTERNS: RegExp[] = [
+  /\bborder-\[[^\]]+\]/,             // border-[0.5px], border-[#...]
+  /\brounded-\[[^\]]+\]/,            // rounded-[12px]
+  /\bbg-\[#[0-9a-fA-F]+/,            // bg-[#...]
+  /\btext-\[\d+px\]/,                // text-[13px]
+  /\bfont-medium\b/,                 // font-medium outside lib/ui.ts
+  /\bfont-semibold\b/,
+  /\bfont-bold\b/,
+];
+
+function checkRuleZeroInlineComponents(path: string, content: string) {
+  // Only page files under app/**/page.tsx and app/**/layout.tsx are page files.
+  // Other files under app/ (e.g. app/(docs)/components/[slug]/PreviewLoader.tsx)
+  // are legitimate component hosts.
+  if (!/\/(page|layout)\.tsx$/.test(path)) return;
+
+  // Path-based suppression for playgrounds/demos/docs.
+  if (RULE_ZERO_PATH_EXEMPT_PREFIXES.some(p => path.startsWith(p))) return;
+
+  const isGrandfathered = RULE_ZERO_GRANDFATHERED_PATHS.has(path);
+
+  const lines = content.split('\n');
+  // Regex candidates for a component declaration (uppercase identifier).
+  const decl = /^\s*(?:export\s+(?:default\s+)?)?(?:function|const)\s+([A-Z][A-Za-z0-9]+)\b/;
+
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(decl);
+    if (!m) continue;
+    const name = m[1];
+    if (INLINE_ALLOWLIST.has(name)) continue;
+
+    // Grab up to 60 following lines as the component body candidate.
+    const body = lines.slice(i, Math.min(i + 60, lines.length)).join('\n');
+    // Must look like JSX (contains a JSX tag) to be a component.
+    if (!/<[A-Za-z]/.test(body)) continue;
+    // Only flag if body hits a Rule Zero forbidden pattern.
+    const hit = RULE_ZERO_PATTERNS.find(p => p.test(body));
+    if (!hit) continue;
+
+    const msg = `${path}:${i + 1}: Rule Zero violation — inline component <${name}> uses hardcoded styling (${hit.source}). Move to components/ui/ or components/charts/, or refactor to use lib/ui.ts + @ramtt/ui primitives.`;
+    if (isGrandfathered) {
+      WARNINGS.push(msg + ' [grandfathered — does not block commit]');
+    } else {
+      ERRORS.push(msg);
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -423,6 +511,45 @@ function checkNoExternalChartLibs(path: string, content: string) {
   }
 }
 
+// Runs on every scanned file. Icon libraries can be imported anywhere
+// (pages, components, utils) so this is a design-check, not a chart-specific
+// one. @ramtt/icons is the only icon source — see components/ui/RULES.md.
+const BANNED_ICON_LIBS = [
+  'lucide-react',
+  'lucide',
+  '@heroicons/react',
+  'react-icons',
+  '@iconify/react',
+  '@iconify-icon/react',
+  '@tabler/icons-react',
+  'react-feather',
+  'phosphor-react',
+  '@phosphor-icons/react',
+  'react-bootstrap-icons',
+  '@fortawesome/react-fontawesome',
+  '@fortawesome/fontawesome-svg-core',
+  'remixicon-react',
+  '@remixicon/react',
+  'react-ionicons',
+];
+
+function checkNoExternalIconLibs(path: string, content: string) {
+  const lines = content.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!line.includes('import') && !line.includes('require')) continue;
+    if (line.trimStart().startsWith('//')) continue;
+    for (const lib of BANNED_ICON_LIBS) {
+      if (line.includes(`'${lib}'`) || line.includes(`"${lib}"`) ||
+          line.includes(`'${lib}/`) || line.includes(`"${lib}/`)) {
+        ERRORS.push(
+          `${path}:${i + 1}: External icon library "${lib}" — use @ramtt/icons (components/icons/) only`
+        );
+      }
+    }
+  }
+}
+
 function runChartPrimitiveChecks(path: string, content: string) {
   // Mirrors legacy audit-charts.ts chart primitive loop exactly.
   checkChartClassName(path, content);
@@ -558,6 +685,7 @@ if (runUI) {
     const content = readFileSync(fullPath, 'utf-8');
     const relPath = relative(ROOT, fullPath);
     runDesignChecks(relPath, content);
+    checkRuleZeroInlineComponents(relPath, content);
   }
 } else {
   console.log('Phase 2: App pages (skipped)');
@@ -658,6 +786,29 @@ if (runUI) {
   checkDomainTokens();
 } else {
   console.log('Phase 8: tokens.css (skipped)');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GRANDFATHERED WIP FILES — final pass
+// Files that are actively being built and contain many violations.
+// All their errors are downgraded to warnings so they don't block commits
+// while refactoring. Drain this list by fixing violations, then removing
+// the entry. New rule-zero violations in new files still block as normal.
+// ═══════════════════════════════════════════════════════════════
+
+const GRANDFATHERED_WIP_FILES = new Set<string>([
+  'app/hue-register/page.tsx',
+]);
+
+for (let i = ERRORS.length - 1; i >= 0; i--) {
+  const err = ERRORS[i];
+  for (const gf of GRANDFATHERED_WIP_FILES) {
+    if (err.startsWith(gf + ':') || err.startsWith(gf + ' ')) {
+      WARNINGS.push(err + ' [grandfathered WIP — does not block commit]');
+      ERRORS.splice(i, 1);
+      break;
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════

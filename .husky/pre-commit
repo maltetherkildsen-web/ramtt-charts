@@ -1,0 +1,11 @@
+echo "🔒 Running RAMTT audit before commit..."
+npm run audit
+
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "❌ AUDIT FAILED — commit blocked."
+  echo "Fix all errors above, then try again."
+  exit 1
+fi
+
+echo "✅ Audit passed — committing."

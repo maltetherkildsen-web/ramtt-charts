@@ -34,6 +34,18 @@ them is how Rule Zero gets violated by accident.
 
 ### Step 1: Search the existing library
 
+**Fastest path — read the inventory first:**
+
+```
+docs/REPO-OVERVIEW.md
+```
+
+One file, all 112 UI components + 43 chart primitives + math utilities with
+short descriptions. If the overview is stale, ask the user to say
+"opdater overblikket" and it will be regenerated.
+
+**Then narrow by grep if needed:**
+
 ```bash
 ls components/ui/
 grep -l "purpose-keyword" components/ui/*.tsx
