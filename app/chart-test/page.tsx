@@ -1061,22 +1061,28 @@ function FullscreenDataSidebar({
 
   const rangeAvg = useMemo(() => {
     const len = end - start + 1
-    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0, kj: 0, tq: 0, maxPw: 0, maxHr: 0 }
-    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0, kj = 0, tq = 0, tqCount = 0
+    if (len <= 0) return { pw: 0, hr: 0, cad: 0, spd: 0, elv: 0, kj: 0, tq: 0, pace: 0, maxPw: 0, maxHr: 0 }
+    let pw = 0, hr = 0, cd = 0, sp = 0, el = 0, kj = 0, tq = 0, tqCount = 0, pace = 0, paceCount = 0
     let mxPw = -Infinity, mxHr = -Infinity
     for (let i = start; i <= end; i++) {
       pw += power[i]; hr += heartRate[i]; cd += cadence[i]; sp += speed[i]; el += altitude[i]; kj += kjPerMin[i]
       if (torque[i] > 0) { tq += torque[i]; tqCount++ }
       if (power[i] > mxPw) mxPw = power[i]
       if (heartRate[i] > mxHr) mxHr = heartRate[i]
+      // Pace average over running ranges — exclude the 1800-floor (stopped).
+      if (isRunning) {
+        const p = paceSecPerKm[i]
+        if (Number.isFinite(p) && p > 0 && p < PACE_FLOOR_SEC_PER_KM) { pace += p; paceCount++ }
+      }
     }
     return {
       pw: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len),
       spd: +(sp / len).toFixed(1), elv: Math.round(el / len), kj: +(kj / len).toFixed(1),
       tq: tqCount > 0 ? +(tq / tqCount).toFixed(1) : 0,
+      pace: paceCount > 0 ? pace / paceCount : 0,
       maxPw: Math.round(mxPw), maxHr: Math.round(mxHr),
     }
-  }, [power, heartRate, cadence, speed, altitude, kjPerMin, torque, start, end])
+  }, [power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, start, end, isRunning])
 
   const timeRef = useRef<HTMLSpanElement>(null)
   const pwRef = useRef<HTMLSpanElement>(null)
@@ -1086,6 +1092,7 @@ function FullscreenDataSidebar({
   const kjRef = useRef<HTMLSpanElement>(null)
   const cadRef = useRef<HTMLSpanElement>(null)
   const spdRef = useRef<HTMLSpanElement>(null)
+  const paceRef = useRef<HTMLSpanElement>(null)
   const elvRef = useRef<HTMLSpanElement>(null)
   const tqRef = useRef<HTMLSpanElement>(null)
   const modeRef = useRef<HTMLSpanElement>(null)
@@ -1102,6 +1109,7 @@ function FullscreenDataSidebar({
     if (kjRef.current) kjRef.current.textContent = `${a.kj}`
     if (cadRef.current) cadRef.current.textContent = `${a.cad}`
     if (spdRef.current) spdRef.current.textContent = `${a.spd}`
+    if (paceRef.current) paceRef.current.textContent = a.pace > 0 ? formatPace(a.pace) : '—'
     if (elvRef.current) elvRef.current.textContent = `${a.elv}`
     if (tqRef.current) tqRef.current.textContent = `${a.tq}`
     if (modeRef.current) modeRef.current.textContent = isZoomed ? 'selection' : 'session avg'
@@ -1124,11 +1132,12 @@ function FullscreenDataSidebar({
       if (kjRef.current) kjRef.current.textContent = kjPerMin[idx].toFixed(1)
       if (cadRef.current) cadRef.current.textContent = `${cadence[idx]}`
       if (spdRef.current) spdRef.current.textContent = speed[idx].toFixed(1)
+      if (paceRef.current && isRunning) paceRef.current.textContent = formatPace(paceSecPerKm[idx])
       if (elvRef.current) elvRef.current.textContent = `${Math.round(altitude[idx])}`
       if (tqRef.current) tqRef.current.textContent = torque[idx].toFixed(1)
       if (modeRef.current) modeRef.current.textContent = ''
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAvg])
+  }, [sync, power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, meta, showAvg, isRunning])
 
   // Fullscreen sidebar — 4-col grid:
   //   [dot 8px] [label 44px] [value+max stack, right-aligned] [unit auto]
@@ -1188,10 +1197,18 @@ function FullscreenDataSidebar({
             <span className={`${dotCls} bg-[#8b5cf6]`} />
             <span className={labelCls}>Cad</span>
             <span ref={cadRef} className={valCls}>0</span>
-            <span className={unitCls}>rpm</span>
+            <span className={unitCls}>{isRunning ? 'spm' : 'rpm'}</span>
           </>
         )}
-        {visibleCharts.has('speed') && (
+        {isRunning && visibleCharts.has('pace') && (
+          <>
+            <span className={`${dotCls} bg-[#3b82f6]`} />
+            <span className={labelCls}>Pace</span>
+            <span ref={paceRef} className={valCls}>—</span>
+            <span className={unitCls}>/km</span>
+          </>
+        )}
+        {!isRunning && visibleCharts.has('speed') && (
           <>
             <span className={`${dotCls} bg-[#3b82f6]`} />
             <span className={labelCls}>Speed</span>
@@ -2007,9 +2024,10 @@ function SyncedCharts({
       {/* Hover data table — hidden in fullscreen (sidebar shows data instead) */}
       {!hideExtras && (
         <HoverDataTable
-          power={power} heartRate={heartRate} cadence={cadence} speed={speed} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta}
+          power={power} heartRate={heartRate} cadence={cadence} speed={speed} paceSecPerKm={paceSecPerKm} altitude={altitude} kjPerMin={kjPerMin} torque={torque} meta={meta}
           ftp={ftp}
           visibleCharts={visibleCharts}
+          isRunning={isRunning}
         />
       )}
 
@@ -2036,11 +2054,13 @@ function SyncedCharts({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 function HoverDataTable({
-  power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, visibleCharts,
+  power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, meta, ftp, visibleCharts, isRunning,
 }: {
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
+  paceSecPerKm: number[]
   kjPerMin: number[]; torque: number[]; meta: FitData['meta']; ftp: number | undefined
   visibleCharts: Set<ChartKey>
+  isRunning: boolean
 }) {
   const sync = useChartSync()
   const { start, end } = sync?.zoom ?? { start: 0, end: power.length - 1 }
@@ -2048,8 +2068,8 @@ function HoverDataTable({
 
   const rangeStats = useMemo(() => {
     const len = end - start + 1
-    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, elev: 0, kjmin: 0, torque: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
-    let pw = 0, hr = 0, cd = 0, spd = 0, elv = 0, kj = 0, tq = 0, tqCount = 0
+    if (len <= 0) return { power: 0, hr: 0, cad: 0, speed: 0, pace: 0, elev: 0, kjmin: 0, torque: 0, maxPower: 0, maxHR: 0, maxCad: 0, maxSpeed: 0, maxElev: 0 }
+    let pw = 0, hr = 0, cd = 0, spd = 0, elv = 0, kj = 0, tq = 0, tqCount = 0, pace = 0, paceCount = 0
     let mxPw = -Infinity, mxHr = -Infinity, mxCd = -Infinity, mxSpd = -Infinity, mxElv = -Infinity
     for (let i = start; i <= end; i++) {
       pw += power[i]; hr += heartRate[i]; cd += cadence[i]; spd += speed[i]; elv += altitude[i]; kj += kjPerMin[i]
@@ -2059,15 +2079,20 @@ function HoverDataTable({
       if (cadence[i] > mxCd) mxCd = cadence[i]
       if (speed[i] > mxSpd) mxSpd = speed[i]
       if (altitude[i] > mxElv) mxElv = altitude[i]
+      if (isRunning) {
+        const p = paceSecPerKm[i]
+        if (Number.isFinite(p) && p > 0 && p < PACE_FLOOR_SEC_PER_KM) { pace += p; paceCount++ }
+      }
     }
     return {
       power: Math.round(pw / len), hr: Math.round(hr / len), cad: Math.round(cd / len),
       speed: +(spd / len).toFixed(1), elev: Math.round(elv / len), kjmin: +(kj / len).toFixed(1),
       torque: tqCount > 0 ? +(tq / tqCount).toFixed(1) : 0,
+      pace: paceCount > 0 ? pace / paceCount : 0,
       maxPower: Math.round(mxPw), maxHR: Math.round(mxHr), maxCad: Math.round(mxCd),
       maxSpeed: +mxSpd.toFixed(1), maxElev: Math.round(mxElv),
     }
-  }, [power, heartRate, cadence, speed, altitude, kjPerMin, torque, start, end])
+  }, [power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, start, end, isRunning])
 
   const rangeDur = useMemo(() => {
     const secs = end - start
@@ -2094,6 +2119,7 @@ function HoverDataTable({
   const speedLabelRef = useRef<HTMLSpanElement>(null)
   const speedValRef = useRef<HTMLSpanElement>(null)
   const speedDeltaRef = useRef<HTMLSpanElement>(null)
+  const paceValRef = useRef<HTMLSpanElement>(null)
   const elevLabelRef = useRef<HTMLSpanElement>(null)
   const elevValRef = useRef<HTMLSpanElement>(null)
   const elevDeltaRef = useRef<HTMLSpanElement>(null)
@@ -2119,6 +2145,7 @@ function HoverDataTable({
     if (elevValRef.current) { elevValRef.current.textContent = `${s.elev}`; elevValRef.current.style.color = 'var(--n1050)' }
     if (kjminValRef.current) { kjminValRef.current.textContent = `${s.kjmin}`; kjminValRef.current.style.color = 'var(--n1050)' }
     if (torqueValRef.current) { torqueValRef.current.textContent = `${s.torque}`; torqueValRef.current.style.color = 'var(--n1050)' }
+    if (paceValRef.current) { paceValRef.current.textContent = s.pace > 0 ? formatPace(s.pace) : '—'; paceValRef.current.style.color = 'var(--n1050)' }
     if (powerDeltaRef.current) powerDeltaRef.current.textContent = ''
     if (hrDeltaRef.current) hrDeltaRef.current.textContent = ''
     if (cadDeltaRef.current) cadDeltaRef.current.textContent = ''
@@ -2153,6 +2180,7 @@ function HoverDataTable({
       if (hrValRef.current) { hrValRef.current.textContent = `${hr}`; hrValRef.current.style.color = 'var(--n1150)' }
       if (cadValRef.current) { cadValRef.current.textContent = `${cad}`; cadValRef.current.style.color = 'var(--n1150)' }
       if (speedValRef.current) { speedValRef.current.textContent = spd.toFixed(1); speedValRef.current.style.color = 'var(--n1150)' }
+      if (paceValRef.current && isRunning) { paceValRef.current.textContent = formatPace(paceSecPerKm[fullIdx]); paceValRef.current.style.color = 'var(--n1150)' }
       if (elevValRef.current) { elevValRef.current.textContent = `${Math.round(elev)}`; elevValRef.current.style.color = 'var(--n1150)' }
       if (kjminValRef.current) { kjminValRef.current.textContent = kjPerMin[fullIdx].toFixed(1); kjminValRef.current.style.color = 'var(--n1150)' }
       if (torqueValRef.current) { torqueValRef.current.textContent = torque[fullIdx].toFixed(1); torqueValRef.current.style.color = 'var(--n1150)' }
@@ -2176,7 +2204,7 @@ function HoverDataTable({
         hrZoneRef.current.textContent = z.label; hrZoneRef.current.style.color = z.color; hrZoneRef.current.style.backgroundColor = `${z.color}1F`
       }
     })
-  }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, showAverages])
+  }, [sync, power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque, meta, ftp, showAverages, isRunning])
 
   // Under-charts live stats — 5-column grid:
   //   [dot 8px] [label auto] [value right-aligned, min 36px] [unit+zone auto] [max 1fr]
@@ -2244,13 +2272,24 @@ function HoverDataTable({
               <span ref={cadLabelRef} className={labelCls}>Cad</span>
               <span ref={cadValRef} className={valCls}>0</span>
               <div className={unitWrap}>
-                <span className={unitCls}>rpm</span>
+                <span className={unitCls}>{isRunning ? 'spm' : 'rpm'}</span>
                 <span ref={cadDeltaRef} className="hidden" />
               </div>
               <span />
             </>
           )}
-          {vc.has('speed') && (
+          {isRunning && vc.has('pace') && (
+            <>
+              <span className={`${dotCls} bg-[#3b82f6]`} />
+              <span className={labelCls}>Pace</span>
+              <span ref={paceValRef} className={valCls}>—</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>/km</span>
+              </div>
+              <span />
+            </>
+          )}
+          {!isRunning && vc.has('speed') && (
             <>
               <span className={`${dotCls} bg-[#3b82f6]`} />
               <span ref={speedLabelRef} className={labelCls}>Speed</span>
