@@ -970,9 +970,9 @@ function FullscreenDataSidebar({
       ? formatTime(end - start)
       : formatDuration(meta.totalTime)
     if (pwRef.current) pwRef.current.textContent = `${a.pw}`
-    if (pwMaxRef.current) pwMaxRef.current.textContent = a.maxPw > 0 ? `max ${a.maxPw}W` : ''
+    if (pwMaxRef.current) pwMaxRef.current.textContent = a.maxPw > 0 ? `max ${a.maxPw} W` : ''
     if (hrRef.current) hrRef.current.textContent = `${a.hr}`
-    if (hrMaxRef.current) hrMaxRef.current.textContent = a.maxHr > 0 ? `max ${a.maxHr}` : ''
+    if (hrMaxRef.current) hrMaxRef.current.textContent = a.maxHr > 0 ? `max ${a.maxHr} bpm` : ''
     if (kjRef.current) kjRef.current.textContent = `${a.kj}`
     if (cadRef.current) cadRef.current.textContent = `${a.cad}`
     if (spdRef.current) spdRef.current.textContent = `${a.spd}`
@@ -1004,107 +1004,89 @@ function FullscreenDataSidebar({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAvg])
 
-  const row = 'flex items-baseline justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5'
+  // Fullscreen sidebar — RAMTT WEIGHT hierarchy per brief 2026-04-18:
+  //   strong (550) → time + values
+  //   book   (450) → labels, units, mode
+  //   normal (400) → max sublabel
+  const valCls = cn('text-[15px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.strong)
+  const unitCls = cn('text-[11px] text-[var(--n800)]', WEIGHT.book)
+  const chLabelCls = cn('ml-1 text-[11px] text-[var(--n600)]', WEIGHT.book)
+  const maxCls = cn('pl-[14px] text-[11px] tabular-nums text-[var(--n600)] whitespace-nowrap', WEIGHT.normal)
+  const dotCls = 'h-2 w-2 shrink-0 rounded-full self-center'
+  const rowTop = 'flex items-baseline gap-1.5'
 
   return (
     <div className="flex w-44 shrink-0 flex-col border-l-[0.5px] border-l-[var(--n400)] bg-[var(--n50)] px-3 py-2 tabular-nums">
-      {/* Time / mode */}
-      <div className="mb-2 border-b-[0.5px] border-b-[var(--n400)] pb-2">
-        <span ref={timeRef} className={cn("block text-[20px]", WEIGHT.medium, "text-[var(--n1050)]")}>0:00</span>
-        <span ref={modeRef} className={cn("text-[10px]", WEIGHT.book, "text-[var(--n600)]")}>Session avg</span>
+      {/* Time + mode sublabel */}
+      <div className="mb-3">
+        <span ref={timeRef} className={cn("block text-[22px] leading-none tabular-nums slashed-zero text-[var(--n1050)]", WEIGHT.strong)}>0:00</span>
+        <span ref={modeRef} className={cn("mt-0.5 block text-[11px] text-[var(--n600)]", WEIGHT.book)}>Session avg</span>
       </div>
 
-      {/* Metrics — only show those with active charts */}
-      {visibleCharts.has('power') && (
-        <div className="flex items-start justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5">
-          <div className="flex items-center gap-1.5 pt-0.5">
-            <span className="h-2 w-2 rounded-full bg-[#22c55e]" />
-            <span className="text-[11px] text-[var(--n600)]">Power</span>
-          </div>
-          <div className="flex flex-col items-end">
-            <div className="flex items-baseline gap-1">
-              <span ref={pwRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-              <span className="text-[10px] text-[var(--n600)]">W</span>
+      {/* Channel entries */}
+      <div className="flex flex-col gap-2.5">
+        {visibleCharts.has('power') && (
+          <div className="flex flex-col gap-px">
+            <div className={rowTop}>
+              <span className={`${dotCls} bg-[#22c55e]`} />
+              <span ref={pwRef} className={valCls}>0</span>
+              <span className={unitCls}>W</span>
+              <span className={chLabelCls}>Power</span>
             </div>
-            <span ref={pwMaxRef} className="text-[9px] tabular-nums text-[var(--n600)]" />
+            <span ref={pwMaxRef} className={maxCls} />
           </div>
-        </div>
-      )}
-      {visibleCharts.has('hr') && (
-        <div className="flex items-start justify-between border-b-[0.5px] border-b-[var(--n400)]/40 py-1.5">
-          <div className="flex items-center gap-1.5 pt-0.5">
-            <span className="h-2 w-2 rounded-full bg-[#ef4444]" />
-            <span className="text-[11px] text-[var(--n600)]">HR</span>
-          </div>
-          <div className="flex flex-col items-end">
-            <div className="flex items-baseline gap-1">
-              <span ref={hrRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-              <span className="text-[10px] text-[var(--n600)]">bpm</span>
+        )}
+        {visibleCharts.has('hr') && (
+          <div className="flex flex-col gap-px">
+            <div className={rowTop}>
+              <span className={`${dotCls} bg-[#ef4444]`} />
+              <span ref={hrRef} className={valCls}>0</span>
+              <span className={unitCls}>bpm</span>
+              <span className={chLabelCls}>HR</span>
             </div>
-            <span ref={hrMaxRef} className="text-[9px] tabular-nums text-[var(--n600)]" />
+            <span ref={hrMaxRef} className={maxCls} />
           </div>
-        </div>
-      )}
-      {visibleCharts.has('kjmin') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#f59e0b]" />
-            <span className="text-[11px] text-[var(--n600)]">kJ/min</span>
+        )}
+        {visibleCharts.has('kjmin') && (
+          <div className={rowTop}>
+            <span className={`${dotCls} bg-[#f59e0b]`} />
+            <span ref={kjRef} className={valCls}>0</span>
+            <span className={unitCls}>kJ/min</span>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={kjRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">kJ/min</span>
+        )}
+        {visibleCharts.has('cadence') && (
+          <div className={rowTop}>
+            <span className={`${dotCls} bg-[#8b5cf6]`} />
+            <span ref={cadRef} className={valCls}>0</span>
+            <span className={unitCls}>rpm</span>
+            <span className={chLabelCls}>Cad</span>
           </div>
-        </div>
-      )}
-      {visibleCharts.has('cadence') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#8b5cf6]" />
-            <span className="text-[11px] text-[var(--n600)]">Cad</span>
+        )}
+        {visibleCharts.has('speed') && (
+          <div className={rowTop}>
+            <span className={`${dotCls} bg-[#3b82f6]`} />
+            <span ref={spdRef} className={valCls}>0</span>
+            <span className={unitCls}>km/h</span>
+            <span className={chLabelCls}>Speed</span>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={cadRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">rpm</span>
+        )}
+        {visibleCharts.has('elevation') && (
+          <div className={rowTop}>
+            <span className={`${dotCls} bg-[var(--n600)]`} />
+            <span ref={elvRef} className={valCls}>0</span>
+            <span className={unitCls}>m</span>
+            <span className={chLabelCls}>Elev</span>
           </div>
-        </div>
-      )}
-      {visibleCharts.has('speed') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#3b82f6]" />
-            <span className="text-[11px] text-[var(--n600)]">Speed</span>
+        )}
+        {visibleCharts.has('torque') && (
+          <div className={rowTop}>
+            <span className={`${dotCls} bg-[#b45309]`} />
+            <span ref={tqRef} className={valCls}>0</span>
+            <span className={unitCls}>Nm</span>
+            <span className={chLabelCls}>Torque</span>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={spdRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">km/h</span>
-          </div>
-        </div>
-      )}
-      {visibleCharts.has('elevation') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[var(--n600)]" />
-            <span className="text-[11px] text-[var(--n600)]">Elev</span>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={elvRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">m</span>
-          </div>
-        </div>
-      )}
-      {visibleCharts.has('torque') && (
-        <div className={row}>
-          <div className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-[#b45309]" />
-            <span className="text-[11px] text-[var(--n600)]">Torque</span>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span ref={tqRef} className={cn("text-[16px]", WEIGHT.medium, "text-[var(--n1050)]")}>0</span>
-            <span className="text-[10px] text-[var(--n600)]">Nm</span>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="mt-auto pt-2 text-center text-[9px] text-[var(--n600)]">F / Esc to exit</div>
     </div>
@@ -1879,7 +1861,6 @@ function HoverDataTable({
 
   // Refs
   const timeValRef = useRef<HTMLSpanElement>(null)
-  const timeSpanRef = useRef<HTMLSpanElement>(null)
   const powerLabelRef = useRef<HTMLSpanElement>(null)
   const powerValRef = useRef<HTMLSpanElement>(null)
   const powerDeltaRef = useRef<HTMLSpanElement>(null)
@@ -1907,7 +1888,6 @@ function HoverDataTable({
   const showAverages = useCallback(() => {
     const s = rangeStats
     if (timeValRef.current) timeValRef.current.textContent = isZoomed ? rangeDur.dur : formatTime(power.length)
-    if (timeSpanRef.current) timeSpanRef.current.textContent = isZoomed ? rangeDur.span : ''
     if (powerLabelRef.current) powerLabelRef.current.textContent = 'Power'
     if (hrLabelRef.current) hrLabelRef.current.textContent = 'HR'
     if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cad'
@@ -1929,7 +1909,7 @@ function HoverDataTable({
     if (elevDeltaRef.current) elevDeltaRef.current.textContent = ''
     if (powerZoneRef.current) { powerZoneRef.current.textContent = ''; powerZoneRef.current.style.backgroundColor = '' }
     if (hrZoneRef.current) { hrZoneRef.current.textContent = ''; hrZoneRef.current.style.backgroundColor = '' }
-    if (powerMaxRef.current) powerMaxRef.current.textContent = s.maxPower > 0 ? `max ${s.maxPower}W` : ''
+    if (powerMaxRef.current) powerMaxRef.current.textContent = s.maxPower > 0 ? `max ${s.maxPower}` : ''
     if (hrMaxRef.current) hrMaxRef.current.textContent = s.maxHR > 0 ? `max ${s.maxHR}` : ''
   }, [meta, rangeStats, isZoomed, rangeDur, power.length])
 
@@ -1943,7 +1923,6 @@ function HoverDataTable({
       if (fullIdx < 0 || fullIdx >= power.length) return
 
       if (timeValRef.current) timeValRef.current.textContent = formatTime(fullIdx)
-      if (timeSpanRef.current) timeSpanRef.current.textContent = ''
       if (powerLabelRef.current) powerLabelRef.current.textContent = 'Power'
       if (hrLabelRef.current) hrLabelRef.current.textContent = 'HR'
       if (cadLabelRef.current) cadLabelRef.current.textContent = 'Cad'
@@ -1982,104 +1961,131 @@ function HoverDataTable({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, showAverages])
 
-  const cellCls = 'flex items-baseline gap-1.5'
-  const dotCls = 'h-2 w-2 shrink-0 rounded-full self-center'
-  const labelCls = 'text-[12px] text-[var(--n800)]'
-  const valCls = cn('text-[14px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.medium)
-  const unitCls = 'text-[10px] text-[var(--n600)]'
-  const zoneCls = cn('rounded px-2 py-0.5 text-[10px] tabular-nums', WEIGHT.medium)
+  // Under-charts live stats — 4-column grid:
+  //   col 1: dot + label       (auto, left-aligned)
+  //   col 2: numeric value     (auto, right-aligned → numbers stack lodret ved højre kant)
+  //   col 3: unit (+ zone)     (auto, left-aligned)
+  //   col 4: max               (auto, right-aligned, kun Power + HR)
+  const labelWrap = 'flex items-center gap-1.5'
+  const unitWrap = 'flex items-baseline gap-1.5 justify-self-start'
+  const dotCls = 'h-2 w-2 shrink-0 rounded-full'
+  const labelCls = cn('text-[12px] text-[var(--n600)]', WEIGHT.book)
+  const valCls = cn('text-[14px] tabular-nums slashed-zero text-[var(--n1050)] justify-self-end', WEIGHT.strong)
+  const unitCls = cn('text-[12px] text-[var(--n800)]', WEIGHT.book)
+  const maxCls = cn('text-[10px] tabular-nums text-[var(--n600)]/70 whitespace-nowrap justify-self-end', WEIGHT.normal)
+  const zoneCls = cn('rounded-[4px] px-1.5 py-[1px] text-[11px] tabular-nums', WEIGHT.medium)
 
   const vc = visibleCharts
 
   return (
-    <div
-      className="mt-2 mb-1 flex flex-wrap items-center gap-x-5 gap-y-1.5 border-t-[0.5px] border-t-[var(--n400)]/50 pt-2"
-      style={{ paddingLeft: 48 }}
-    >
-      {/* Time — no dot, no label, just numbers; prominent */}
-      <div className="flex items-baseline gap-1.5 pr-3 mr-1">
-        <span ref={timeValRef} className={cn('text-[18px] tabular-nums slashed-zero text-[var(--n1150)]', WEIGHT.medium)} />
-        <span ref={timeSpanRef} className="text-[10px] tabular-nums text-[var(--n600)] whitespace-nowrap" />
+    <div className="mt-2 mb-1 border-t-[0.5px] border-t-[var(--n400)]/50" style={{ paddingLeft: 32 }}>
+      <div className="inline-block px-4 py-3 tabular-nums">
+        {/* Time — hover = cursor position; released = duration */}
+        <div className="mb-1">
+          <span ref={timeValRef} className={cn('block text-[20px] leading-none tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.strong)} />
+        </div>
+
+        <div className="grid grid-cols-[auto_auto_auto_auto] items-baseline gap-x-2 gap-y-[3px]">
+          {vc.has('power') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[#22c55e]`} />
+                <span ref={powerLabelRef} className={labelCls}>Power</span>
+              </div>
+              <span ref={powerValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>W</span>
+                <span ref={powerZoneRef} className={zoneCls} />
+                <span ref={powerDeltaRef} className="hidden" />
+              </div>
+              <span ref={powerMaxRef} className={maxCls} />
+            </>
+          )}
+          {vc.has('hr') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[#ef4444]`} />
+                <span ref={hrLabelRef} className={labelCls}>HR</span>
+              </div>
+              <span ref={hrValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>bpm</span>
+                <span ref={hrZoneRef} className={zoneCls} />
+                <span ref={hrDeltaRef} className="hidden" />
+              </div>
+              <span ref={hrMaxRef} className={maxCls} />
+            </>
+          )}
+          {vc.has('kjmin') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[#f59e0b]`} />
+                <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
+              </div>
+              <span ref={kjminValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>kJ/min</span>
+              </div>
+              <span />
+            </>
+          )}
+          {vc.has('cadence') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[#8b5cf6]`} />
+                <span ref={cadLabelRef} className={labelCls}>Cad</span>
+              </div>
+              <span ref={cadValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>rpm</span>
+                <span ref={cadDeltaRef} className="hidden" />
+              </div>
+              <span />
+            </>
+          )}
+          {vc.has('speed') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[#3b82f6]`} />
+                <span ref={speedLabelRef} className={labelCls}>Speed</span>
+              </div>
+              <span ref={speedValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>km/h</span>
+                <span ref={speedDeltaRef} className="hidden" />
+              </div>
+              <span />
+            </>
+          )}
+          {vc.has('elevation') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[var(--n600)]`} />
+                <span ref={elevLabelRef} className={labelCls}>Elev</span>
+              </div>
+              <span ref={elevValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>m</span>
+                <span ref={elevDeltaRef} className="hidden" />
+              </div>
+              <span />
+            </>
+          )}
+          {vc.has('torque') && (
+            <>
+              <div className={labelWrap}>
+                <span className={`${dotCls} bg-[#b45309]`} />
+                <span ref={torqueLabelRef} className={labelCls}>Torque</span>
+              </div>
+              <span ref={torqueValRef} className={valCls}>0</span>
+              <div className={unitWrap}>
+                <span className={unitCls}>Nm</span>
+              </div>
+              <span />
+            </>
+          )}
+        </div>
       </div>
-      {vc.has('power') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[#22c55e]`} />
-          <span ref={powerLabelRef} className={labelCls}>Power</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={powerValRef} className={valCls}>0</span>
-            <span className={unitCls}>W</span>
-          </span>
-          <span ref={powerMaxRef} className="text-[10px] tabular-nums text-[var(--n600)]" />
-          <span ref={powerZoneRef} className={zoneCls} />
-          <span ref={powerDeltaRef} className="hidden" />
-        </div>
-      )}
-      {vc.has('hr') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[#ef4444]`} />
-          <span ref={hrLabelRef} className={labelCls}>HR</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={hrValRef} className={valCls}>0</span>
-            <span className={unitCls}>bpm</span>
-          </span>
-          <span ref={hrMaxRef} className="text-[10px] tabular-nums text-[var(--n600)]" />
-          <span ref={hrZoneRef} className={zoneCls} />
-          <span ref={hrDeltaRef} className="hidden" />
-        </div>
-      )}
-      {vc.has('kjmin') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[#f59e0b]`} />
-          <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={kjminValRef} className={valCls}>0</span>
-            <span className={unitCls}>kJ/min</span>
-          </span>
-        </div>
-      )}
-      {vc.has('cadence') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[#8b5cf6]`} />
-          <span ref={cadLabelRef} className={labelCls}>Cad</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={cadValRef} className={valCls}>0</span>
-            <span className={unitCls}>rpm</span>
-          </span>
-          <span ref={cadDeltaRef} className="hidden" />
-        </div>
-      )}
-      {vc.has('speed') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[#3b82f6]`} />
-          <span ref={speedLabelRef} className={labelCls}>Speed</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={speedValRef} className={valCls}>0</span>
-            <span className={unitCls}>km/h</span>
-          </span>
-          <span ref={speedDeltaRef} className="hidden" />
-        </div>
-      )}
-      {vc.has('elevation') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[var(--n600)]`} />
-          <span ref={elevLabelRef} className={labelCls}>Elev</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={elevValRef} className={valCls}>0</span>
-            <span className={unitCls}>m</span>
-          </span>
-          <span ref={elevDeltaRef} className="hidden" />
-        </div>
-      )}
-      {vc.has('torque') && (
-        <div className={cellCls}>
-          <span className={`${dotCls} bg-[#b45309]`} />
-          <span ref={torqueLabelRef} className={labelCls}>Torque</span>
-          <span className="flex items-baseline gap-0.5">
-            <span ref={torqueValRef} className={valCls}>0</span>
-            <span className={unitCls}>Nm</span>
-          </span>
-        </div>
-      )}
     </div>
   )
 }
