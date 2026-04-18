@@ -108,6 +108,45 @@ Hvis et inline-komponent slipper gennem warnings (grandfathered), så sig:
 
 ---
 
+## Grandfather-listen — hvad, hvornår, hvordan
+
+**Hvad det er:**
+En "parkerings-zone" i `scripts/audit.ts` hvor vi markerer filer der
+midlertidigt er tilladt at bryde regler. Alle errors i grandfathered filer
+bliver downgraded til warnings — så commits kan gå igennem, men violations
+er stadig synlige i audit-output.
+
+**Hvornår bruger vi det:**
+- Når en fil er **work-in-progress** og vi aktivt bygger den
+- Når vi laver **infrastruktur-ændringer** der ikke må blokeres af
+  eksisterende design-gæld
+- Når vi **systematisk skal refaktorere** en stor fil (som chart-test)
+  men ikke kan nå det lige nu
+
+**Hvornår bruger vi det IKKE:**
+- Som et permanent fix (det er midlertidigt pr. definition)
+- For nye filer (nye violations skal stoppes ved kilden)
+- For at undgå at lære reglerne (det modarbejder hele systemet)
+
+**Hvordan tilføjer Claude noget til listen:**
+I `scripts/audit.ts` er der to grandfather-mekanismer:
+1. `RULE_ZERO_GRANDFATHERED_PATHS` — kun Rule Zero inline-komponenter
+   bliver warnings
+2. `GRANDFATHERED_WIP_FILES` — ALLE errors bliver warnings (bredere, til WIP)
+
+**Nuværende grandfathered filer (per 2026-04-18):**
+- `app/chart-test/page.tsx` — Rule Zero only (9 kendte inline komponenter)
+- `app/hue-register/page.tsx` — WIP (19 violations, blandet)
+
+**Sådan fjerner vi filer fra listen:**
+Når vi er færdige med at refaktorere en fil, siger du:
+> "Ryd op i <filnavn> og fjern den fra grandfathered-listen."
+
+Så fixer Claude alle violations og sletter path-entryen fra audit.ts.
+Audit skærpes igen for den fil. Målet er at tømme listen over tid.
+
+---
+
 ## DEFAULT-SÆTNINGER du kan copy-paste til Claude
 
 ### Ved nyt komponent/page
