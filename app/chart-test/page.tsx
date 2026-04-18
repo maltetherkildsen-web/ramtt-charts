@@ -50,8 +50,10 @@ import {
   makeAthleteParamsState,
   type AthleteParamsState,
 } from '@/components/chart-test/AthleteParamsPanel'
+import { BestSplitsStrip } from '@/components/chart-test/BestSplitsStrip'
 import { IconChevronRight } from '@/components/icons/light/IconChevronRight'
 import { ChartShortcutsHint } from '@/components/chart-test/ChartShortcutsHint'
+import { computeBestSplits, type SplitResult } from '@/lib/charts/utils/splits'
 
 // ─── Constants ───
 
@@ -585,6 +587,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showPeaks, setShowPeaks] = useState(false)
   const [activePeak, setActivePeak] = useState<PeakPowerResult | null>(null)
+  const [activeSplit, setActiveSplit] = useState<SplitResult | null>(null)
 
   // Session scores — interactive
   const [scores, setScores] = useState<{ effort: number | null; sessionFeel: number | null; legs: number | null }>({ effort: null, sessionFeel: null, legs: null })
@@ -610,6 +613,14 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   }, [data])
 
   const peaks = useMemo(() => computeAllPeaks(power), [power])
+
+  // Best splits for running files. Timestamps are just sample indices
+  // (parser emits 1 Hz records), so elapsed seconds = index difference.
+  const splits = useMemo(() => {
+    if (!isRunning) return []
+    const timestamps = Array.from({ length: data.distance.length }, (_, i) => i)
+    return computeBestSplits(data.distance, timestamps)
+  }, [isRunning, data.distance])
 
   // Fullscreen keyboard shortcut: F to toggle, Escape to exit
   useEffect(() => {
@@ -781,14 +792,23 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
             isRunning={isRunning}
           />
 
-          {/* ── 3b. Peak Powers Strip ── */}
+          {/* ── 3b. Peak Powers (cycling) / Best Splits (running) Strip ── */}
           {showPeaks && (
-            <PeakPowersStrip
-              peaks={peaks}
-              activePeak={activePeak}
-              onActivePeakChange={setActivePeak}
-              totalPoints={totalPoints}
-            />
+            isRunning ? (
+              <BestSplitsStrip
+                splits={splits}
+                activeSplit={activeSplit}
+                onActiveSplitChange={setActiveSplit}
+                totalPoints={totalPoints}
+              />
+            ) : (
+              <PeakPowersStrip
+                peaks={peaks}
+                activePeak={activePeak}
+                onActivePeakChange={setActivePeak}
+                totalPoints={totalPoints}
+              />
+            )
           )}
 
           {/* ── 4–7. Chart Stack + Table + Scrubber ── */}
@@ -845,6 +865,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
               showPeaks={showPeaks} setShowPeaks={setShowPeaks}
               isRunning={isRunning}
               activePeak={activePeak} onActivePeakChange={setActivePeak}
+              splits={splits} activeSplit={activeSplit} onActiveSplitChange={setActiveSplit}
               onClose={() => setIsFullscreen(false)}
             />
           </motion.div>
@@ -861,7 +882,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
 
 function FullscreenOverlay({
   meta, power, heartRate, cadence, speed, paceSecPerKm, altitude, kjPerMin, torque,
-  ftp, cp, thresholdPaceSecPerKm, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, isRunning, activePeak, onActivePeakChange, onClose,
+  ftp, cp, thresholdPaceSecPerKm, maxHR, zoneMode, setZoneMode, visibleCharts, onToggle, showPeaks, setShowPeaks, isRunning, activePeak, onActivePeakChange, splits, activeSplit, onActiveSplitChange, onClose,
 }: {
   meta: FitData['meta']
   power: number[]; heartRate: number[]; cadence: number[]; speed: number[]; altitude: number[]
@@ -875,6 +896,9 @@ function FullscreenOverlay({
   showPeaks: boolean; setShowPeaks: (v: boolean) => void
   isRunning: boolean
   activePeak?: PeakPowerResult | null; onActivePeakChange: (p: PeakPowerResult | null) => void
+  splits: SplitResult[]
+  activeSplit: SplitResult | null
+  onActiveSplitChange: (s: SplitResult | null) => void
   onClose: () => void
 }) {
   const [winH, setWinH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900)
@@ -976,15 +1000,24 @@ function FullscreenOverlay({
         </button>
       </div>
 
-      {/* Peak powers strip */}
+      {/* Peak powers strip (cycling) / best splits (running) */}
       {showPeaks && (
         <div className="shrink-0 px-4 pt-1">
-          <PeakPowersStrip
-            peaks={computeAllPeaks(power)}
-            activePeak={activePeak ?? null}
-            onActivePeakChange={onActivePeakChange}
-            totalPoints={power.length}
-          />
+          {isRunning ? (
+            <BestSplitsStrip
+              splits={splits}
+              activeSplit={activeSplit}
+              onActiveSplitChange={onActiveSplitChange}
+              totalPoints={power.length}
+            />
+          ) : (
+            <PeakPowersStrip
+              peaks={computeAllPeaks(power)}
+              activePeak={activePeak ?? null}
+              onActivePeakChange={onActivePeakChange}
+              totalPoints={power.length}
+            />
+          )}
         </div>
       )}
 
