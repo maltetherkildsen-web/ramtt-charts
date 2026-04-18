@@ -36,19 +36,24 @@ export interface FitData {
     maxTemperature: number    // °C
     minTemperature: number    // °C
   }
+  /** True when the FIT session.sport indicates running (road/trail/treadmill). */
+  isRunning: boolean
   athleteParams: FitAthleteParams
   power: number[]
   heartRate: number[]
   cadence: number[]
   speed: number[]
   altitude: number[]
+  /** Cumulative distance in km per record. May contain nulls when the device dropped samples. */
+  distance: (number | null)[]
   intervals: { startIndex: number; endIndex: number; avgPower?: number; maxPower?: number }[]
 }
 
 export interface FitAthleteParams {
-  ftp: number | undefined       // watts
-  cp: number | undefined        // watts (rarely in FIT)
-  weightKg: number | undefined  // kilograms
+  ftp: number | undefined                    // watts
+  cp: number | undefined                     // watts (rarely in FIT)
+  weightKg: number | undefined               // kilograms
+  thresholdPaceSecPerKm: number | undefined  // seconds per km — running threshold
 }
 
 // Treat 0 / non-positive / non-finite as missing — Garmin writes 0 for "no value".
@@ -109,6 +114,7 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
   const cadence: number[] = []
   const speed: number[] = []
   const altitude: number[] = []
+  const distance: (number | null)[] = []
 
   for (const r of allRecords) {
     power.push(r.power ?? 0)
@@ -118,6 +124,9 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     // lengthUnit:'km' converts altitude to km — multiply by 1000 to get meters
     const rawAlt = r.enhanced_altitude ?? r.altitude ?? 0
     altitude.push(rawAlt * 1000)
+    // Cumulative distance in km (lengthUnit:'km'). Preserve null when device dropped the sample.
+    const rawDist = r.distance
+    distance.push(typeof rawDist === 'number' && Number.isFinite(rawDist) ? rawDist : null)
   }
 
   // Extract per-record temperature for min calculation
@@ -158,14 +167,20 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
   const rawSubSport = (session.sub_sport ?? null) as string | null
   const subSport = rawSubSport && rawSubSport !== 'generic' ? humanize(rawSubSport) : null
 
+  // isRunning — check both raw sport and sub_sport. Matches running, trail_running, treadmill_running.
+  const sportHaystack = `${rawSport} ${rawSubSport ?? ''}`.toLowerCase()
+  const isRunning = /\brun(ning)?\b/.test(sportHaystack)
+
   // Duration
   const totalTime = (session.total_timer_time ?? session.total_elapsed_time ?? n) as number
 
   // Athlete parameters — FTP preferred from zones_target, fallback user_profile, fallback session.
   // Weight from user_profile (fit-file-parser already applies scale:10 → kg).
   // CP has no dedicated FIT field — left undefined unless a future source populates it.
+  // Threshold pace from session.threshold_speed (km/h per speedUnit:'km/h'). 3600/speed → sec/km.
   const zonesTarget = parsed.zones_target as AnyRecord | undefined
   const userProfile = parsed.user_profile as AnyRecord | undefined
+  const thresholdSpeedKmh = validPositive(session.threshold_speed)
   const athleteParams: FitAthleteParams = {
     ftp:
       validPositive(zonesTarget?.functional_threshold_power) ??
@@ -173,6 +188,7 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
       validPositive(session.threshold_power),
     cp: undefined,
     weightKg: validPositive(userProfile?.weight),
+    thresholdPaceSecPerKm: thresholdSpeedKmh !== undefined ? 3600 / thresholdSpeedKmh : undefined,
   }
 
   // Legacy meta.ftp — keep for backward compat, 0 when missing.
@@ -242,5 +258,5 @@ export async function parseFitFile(buffer: ArrayBuffer): Promise<FitData> {
     }
   })
 
-  return { meta, athleteParams, power, heartRate, cadence, speed, altitude, intervals }
+  return { meta, isRunning, athleteParams, power, heartRate, cadence, speed, altitude, distance, intervals }
 }
