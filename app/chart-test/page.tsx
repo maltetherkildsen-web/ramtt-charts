@@ -530,7 +530,7 @@ function SessionAnalysis({ data, onChangeFile }: { data: FitData; onChangeFile: 
   const [activePeak, setActivePeak] = useState<PeakPowerResult | null>(null)
 
   // Session scores — interactive
-  const [scores, setScores] = useState<{ effort: number | null; quality: number | null; legs: number | null }>({ effort: null, quality: null, legs: null })
+  const [scores, setScores] = useState<{ effort: number | null; sessionFeel: number | null; legs: number | null }>({ effort: null, sessionFeel: null, legs: null })
 
   // Session input (CHO, sport) — sport persisted in localStorage
   const [sessionInput, setSessionInput] = useState<SessionInput>(DEFAULT_SESSION_INPUT)
@@ -970,9 +970,9 @@ function FullscreenDataSidebar({
       ? formatTime(end - start)
       : formatDuration(meta.totalTime)
     if (pwRef.current) pwRef.current.textContent = `${a.pw}`
-    if (pwMaxRef.current) pwMaxRef.current.textContent = a.maxPw > 0 ? `max ${a.maxPw} W` : ''
+    if (pwMaxRef.current) pwMaxRef.current.textContent = a.maxPw > 0 ? `max ${a.maxPw}` : ''
     if (hrRef.current) hrRef.current.textContent = `${a.hr}`
-    if (hrMaxRef.current) hrMaxRef.current.textContent = a.maxHr > 0 ? `max ${a.maxHr} bpm` : ''
+    if (hrMaxRef.current) hrMaxRef.current.textContent = a.maxHr > 0 ? `max ${a.maxHr}` : ''
     if (kjRef.current) kjRef.current.textContent = `${a.kj}`
     if (cadRef.current) cadRef.current.textContent = `${a.cad}`
     if (spdRef.current) spdRef.current.textContent = `${a.spd}`
@@ -1004,87 +1004,90 @@ function FullscreenDataSidebar({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAvg])
 
-  // Fullscreen sidebar — RAMTT WEIGHT hierarchy per brief 2026-04-18:
-  //   strong (550) → time + values
-  //   book   (450) → labels, units, mode
-  //   normal (400) → max sublabel
-  const valCls = cn('text-[15px] tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.strong)
-  const unitCls = cn('text-[11px] text-[var(--n800)]', WEIGHT.book)
-  const chLabelCls = cn('ml-1 text-[11px] text-[var(--n600)]', WEIGHT.book)
-  const maxCls = cn('pl-[14px] text-[11px] tabular-nums text-[var(--n600)] whitespace-nowrap', WEIGHT.normal)
+  // Fullscreen sidebar — 5-column grid, alignment-preserving:
+  //   [dot 8px] [label auto] [value right-aligned] [unit auto] [max 1fr]
+  //   Values right-align at col-3 right edge; units start at same x across rows.
   const dotCls = 'h-2 w-2 shrink-0 rounded-full self-center'
-  const rowTop = 'flex items-baseline gap-1.5'
+  const labelCls = cn('text-[12px] text-[var(--n800)] whitespace-nowrap', WEIGHT.book)
+  const valCls = cn('text-[15px] tabular-nums slashed-zero text-[var(--n1050)] text-right', WEIGHT.strong)
+  const unitCls = cn('text-[11px] text-[var(--n800)] whitespace-nowrap', WEIGHT.book)
+  const maxCls = cn('text-[11px] tabular-nums text-[var(--n600)] whitespace-nowrap', WEIGHT.normal)
 
   return (
-    <div className="flex w-44 shrink-0 flex-col border-l-[0.5px] border-l-[var(--n400)] bg-[var(--n50)] px-3 py-2 tabular-nums">
+    <div className="flex w-44 shrink-0 flex-col border-l-[0.5px] border-l-[var(--n400)] bg-[var(--n50)] px-3 py-2">
       {/* Time + mode sublabel */}
       <div className="mb-3">
         <span ref={timeRef} className={cn("block text-[22px] leading-none tabular-nums slashed-zero text-[var(--n1050)]", WEIGHT.strong)}>0:00</span>
         <span ref={modeRef} className={cn("mt-0.5 block text-[11px] text-[var(--n600)]", WEIGHT.book)}>Session avg</span>
       </div>
 
-      {/* Channel entries */}
-      <div className="flex flex-col gap-2.5">
+      {/* Channel entries — 5-col grid keeps dots, labels, values, units and max all column-aligned */}
+      <div
+        className="grid items-baseline"
+        style={{ gridTemplateColumns: '8px auto minmax(36px,max-content) auto 1fr', columnGap: 8, rowGap: 10 }}
+      >
         {visibleCharts.has('power') && (
-          <div className="flex flex-col gap-px">
-            <div className={rowTop}>
-              <span className={`${dotCls} bg-[#22c55e]`} />
-              <span ref={pwRef} className={valCls}>0</span>
-              <span className={unitCls}>W</span>
-              <span className={chLabelCls}>Power</span>
-            </div>
+          <>
+            <span className={`${dotCls} bg-[#22c55e]`} />
+            <span className={labelCls}>Power</span>
+            <span ref={pwRef} className={valCls}>0</span>
+            <span className={unitCls}>W</span>
             <span ref={pwMaxRef} className={maxCls} />
-          </div>
+          </>
         )}
         {visibleCharts.has('hr') && (
-          <div className="flex flex-col gap-px">
-            <div className={rowTop}>
-              <span className={`${dotCls} bg-[#ef4444]`} />
-              <span ref={hrRef} className={valCls}>0</span>
-              <span className={unitCls}>bpm</span>
-              <span className={chLabelCls}>HR</span>
-            </div>
+          <>
+            <span className={`${dotCls} bg-[#ef4444]`} />
+            <span className={labelCls}>HR</span>
+            <span ref={hrRef} className={valCls}>0</span>
+            <span className={unitCls}>bpm</span>
             <span ref={hrMaxRef} className={maxCls} />
-          </div>
+          </>
         )}
         {visibleCharts.has('kjmin') && (
-          <div className={rowTop}>
+          <>
             <span className={`${dotCls} bg-[#f59e0b]`} />
+            <span className={labelCls}>kJ/min</span>
             <span ref={kjRef} className={valCls}>0</span>
             <span className={unitCls}>kJ/min</span>
-          </div>
+            <span />
+          </>
         )}
         {visibleCharts.has('cadence') && (
-          <div className={rowTop}>
+          <>
             <span className={`${dotCls} bg-[#8b5cf6]`} />
+            <span className={labelCls}>Cad</span>
             <span ref={cadRef} className={valCls}>0</span>
             <span className={unitCls}>rpm</span>
-            <span className={chLabelCls}>Cad</span>
-          </div>
+            <span />
+          </>
         )}
         {visibleCharts.has('speed') && (
-          <div className={rowTop}>
+          <>
             <span className={`${dotCls} bg-[#3b82f6]`} />
+            <span className={labelCls}>Speed</span>
             <span ref={spdRef} className={valCls}>0</span>
             <span className={unitCls}>km/h</span>
-            <span className={chLabelCls}>Speed</span>
-          </div>
+            <span />
+          </>
         )}
         {visibleCharts.has('elevation') && (
-          <div className={rowTop}>
+          <>
             <span className={`${dotCls} bg-[var(--n600)]`} />
+            <span className={labelCls}>Elev</span>
             <span ref={elvRef} className={valCls}>0</span>
             <span className={unitCls}>m</span>
-            <span className={chLabelCls}>Elev</span>
-          </div>
+            <span />
+          </>
         )}
         {visibleCharts.has('torque') && (
-          <div className={rowTop}>
+          <>
             <span className={`${dotCls} bg-[#b45309]`} />
+            <span className={labelCls}>Torque</span>
             <span ref={tqRef} className={valCls}>0</span>
             <span className={unitCls}>Nm</span>
-            <span className={chLabelCls}>Torque</span>
-          </div>
+            <span />
+          </>
         )}
       </div>
 
@@ -1099,8 +1102,8 @@ function FullscreenDataSidebar({
 
 function SessionHeader({ meta, scores, setScores, onChangeFile }: {
   meta: FitData['meta']
-  scores: { effort: number | null; quality: number | null; legs: number | null }
-  setScores: React.Dispatch<React.SetStateAction<{ effort: number | null; quality: number | null; legs: number | null }>>
+  scores: { effort: number | null; sessionFeel: number | null; legs: number | null }
+  setScores: React.Dispatch<React.SetStateAction<{ effort: number | null; sessionFeel: number | null; legs: number | null }>>
   onChangeFile: () => void
 }) {
   const dateStr = (() => {
@@ -1130,10 +1133,10 @@ function SessionHeader({ meta, scores, setScores, onChangeFile }: {
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n600)]')}>Quality</span>
+          <span className={cn(FONT.body, 'text-[11px]', WEIGHT.book, 'text-[var(--n600)]')}>Session feel</span>
           <RatingInput
-            value={scores.quality}
-            onChange={(v) => setScores(p => ({ ...p, quality: v }))}
+            value={scores.sessionFeel}
+            onChange={(v) => setScores(p => ({ ...p, sessionFeel: v }))}
             max={10}
             compact
           />
@@ -1961,37 +1964,35 @@ function HoverDataTable({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, ftp, showAverages])
 
-  // Under-charts live stats — 4-column grid:
-  //   col 1: dot + label       (auto, left-aligned)
-  //   col 2: numeric value     (auto, right-aligned → numbers stack lodret ved højre kant)
-  //   col 3: unit (+ zone)     (auto, left-aligned)
-  //   col 4: max               (auto, right-aligned, kun Power + HR)
-  const labelWrap = 'flex items-center gap-1.5'
-  const unitWrap = 'flex items-baseline gap-1.5 justify-self-start'
-  const dotCls = 'h-2 w-2 shrink-0 rounded-full'
-  const labelCls = cn('text-[12px] text-[var(--n600)]', WEIGHT.book)
-  const valCls = cn('text-[14px] tabular-nums slashed-zero text-[var(--n1050)] justify-self-end', WEIGHT.strong)
+  // Under-charts live stats — 5-column grid:
+  //   [dot 8px] [label auto] [value right-aligned, min 36px] [unit+zone auto] [max 1fr]
+  //   Dots, labels, values, units all share identical x across rows.
+  const dotCls = 'h-2 w-2 shrink-0 rounded-full self-center'
+  const labelCls = cn('text-[12px] text-[var(--n600)] whitespace-nowrap', WEIGHT.book)
+  const valCls = cn('text-[14px] tabular-nums slashed-zero text-[var(--n1050)] text-right', WEIGHT.strong)
+  const unitWrap = 'flex items-baseline gap-1.5 whitespace-nowrap'
   const unitCls = cn('text-[12px] text-[var(--n800)]', WEIGHT.book)
-  const maxCls = cn('text-[10px] tabular-nums text-[var(--n600)]/70 whitespace-nowrap justify-self-end', WEIGHT.normal)
+  const maxCls = cn('text-[10px] tabular-nums text-[var(--n600)]/70 whitespace-nowrap', WEIGHT.normal)
   const zoneCls = cn('rounded-[4px] px-1.5 py-[1px] text-[11px] tabular-nums', WEIGHT.medium)
 
   const vc = visibleCharts
 
   return (
     <div className="mt-2 mb-1 border-t-[0.5px] border-t-[var(--n400)]/50" style={{ paddingLeft: 32 }}>
-      <div className="inline-block px-4 py-3 tabular-nums">
+      <div className="inline-block px-4 py-3">
         {/* Time — hover = cursor position; released = duration */}
         <div className="mb-1">
           <span ref={timeValRef} className={cn('block text-[20px] leading-none tabular-nums slashed-zero text-[var(--n1050)]', WEIGHT.strong)} />
         </div>
 
-        <div className="grid grid-cols-[auto_auto_auto_auto] items-baseline gap-x-2 gap-y-[3px]">
+        <div
+          className="grid items-baseline"
+          style={{ gridTemplateColumns: '8px auto minmax(36px,max-content) auto 1fr', columnGap: 8, rowGap: 3 }}
+        >
           {vc.has('power') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[#22c55e]`} />
-                <span ref={powerLabelRef} className={labelCls}>Power</span>
-              </div>
+              <span className={`${dotCls} bg-[#22c55e]`} />
+              <span ref={powerLabelRef} className={labelCls}>Power</span>
               <span ref={powerValRef} className={valCls}>0</span>
               <div className={unitWrap}>
                 <span className={unitCls}>W</span>
@@ -2003,10 +2004,8 @@ function HoverDataTable({
           )}
           {vc.has('hr') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[#ef4444]`} />
-                <span ref={hrLabelRef} className={labelCls}>HR</span>
-              </div>
+              <span className={`${dotCls} bg-[#ef4444]`} />
+              <span ref={hrLabelRef} className={labelCls}>HR</span>
               <span ref={hrValRef} className={valCls}>0</span>
               <div className={unitWrap}>
                 <span className={unitCls}>bpm</span>
@@ -2018,23 +2017,17 @@ function HoverDataTable({
           )}
           {vc.has('kjmin') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[#f59e0b]`} />
-                <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
-              </div>
+              <span className={`${dotCls} bg-[#f59e0b]`} />
+              <span ref={kjminLabelRef} className={labelCls}>kJ/min</span>
               <span ref={kjminValRef} className={valCls}>0</span>
-              <div className={unitWrap}>
-                <span className={unitCls}>kJ/min</span>
-              </div>
+              <span className={unitCls}>kJ/min</span>
               <span />
             </>
           )}
           {vc.has('cadence') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[#8b5cf6]`} />
-                <span ref={cadLabelRef} className={labelCls}>Cad</span>
-              </div>
+              <span className={`${dotCls} bg-[#8b5cf6]`} />
+              <span ref={cadLabelRef} className={labelCls}>Cad</span>
               <span ref={cadValRef} className={valCls}>0</span>
               <div className={unitWrap}>
                 <span className={unitCls}>rpm</span>
@@ -2045,10 +2038,8 @@ function HoverDataTable({
           )}
           {vc.has('speed') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[#3b82f6]`} />
-                <span ref={speedLabelRef} className={labelCls}>Speed</span>
-              </div>
+              <span className={`${dotCls} bg-[#3b82f6]`} />
+              <span ref={speedLabelRef} className={labelCls}>Speed</span>
               <span ref={speedValRef} className={valCls}>0</span>
               <div className={unitWrap}>
                 <span className={unitCls}>km/h</span>
@@ -2059,10 +2050,8 @@ function HoverDataTable({
           )}
           {vc.has('elevation') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[var(--n600)]`} />
-                <span ref={elevLabelRef} className={labelCls}>Elev</span>
-              </div>
+              <span className={`${dotCls} bg-[var(--n600)]`} />
+              <span ref={elevLabelRef} className={labelCls}>Elev</span>
               <span ref={elevValRef} className={valCls}>0</span>
               <div className={unitWrap}>
                 <span className={unitCls}>m</span>
@@ -2073,14 +2062,10 @@ function HoverDataTable({
           )}
           {vc.has('torque') && (
             <>
-              <div className={labelWrap}>
-                <span className={`${dotCls} bg-[#b45309]`} />
-                <span ref={torqueLabelRef} className={labelCls}>Torque</span>
-              </div>
+              <span className={`${dotCls} bg-[#b45309]`} />
+              <span ref={torqueLabelRef} className={labelCls}>Torque</span>
               <span ref={torqueValRef} className={valCls}>0</span>
-              <div className={unitWrap}>
-                <span className={unitCls}>Nm</span>
-              </div>
+              <span className={unitCls}>Nm</span>
               <span />
             </>
           )}

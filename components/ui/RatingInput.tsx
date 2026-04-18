@@ -80,47 +80,60 @@ const RatingInput = forwardRef<HTMLDivElement, RatingInputProps>(
           </div>
         )}
 
-        {/* Segment row */}
-        <div
-          role="radiogroup"
-          aria-label={label || 'Rating'}
-          className="flex items-center"
-          style={{ gap: 3 }}
-          onMouseLeave={() => setHoverIndex(null)}
-        >
-          {Array.from({ length: max }, (_, i) => {
-            const isSelected = value !== null && i < value
-            const isHovered = hoverIndex !== null && i <= hoverIndex
-            const isCurrent = value !== null && i === value - 1
+        {/* Segment row + numeral */}
+        <div className="flex items-center" onMouseLeave={() => setHoverIndex(null)}>
+          <div
+            role="radiogroup"
+            aria-label={label || 'Rating'}
+            className="flex items-center"
+            style={{ gap: 3 }}
+          >
+            {Array.from({ length: max }, (_, i) => {
+              const isSelected = value !== null && i < value
+              const isHovered = hoverIndex !== null && i <= hoverIndex
+              const isCurrent = value !== null && i === value - 1
 
-            return (
-              <button
-                key={i}
-                ref={(el) => { itemRefs.current[i] = el }}
-                type="button"
-                role="radio"
-                aria-checked={isCurrent}
-                aria-label={labels?.[i] ? `${i + 1}: ${labels[i]}` : String(i + 1)}
-                tabIndex={i === focusableIndex ? 0 : -1}
-                onClick={() => onChange(i + 1)}
-                onMouseEnter={() => setHoverIndex(i)}
-                onKeyDown={(e) => handleKeyDown(e, i)}
-                className={cn(
-                  'inline-flex items-center justify-center shrink-0',
-                  'rounded-[4px]',
-                  'transition-[background-color] duration-100',
-                  FOCUS_RING,
-                  // Colors
-                  isSelected || isHovered
-                    ? 'bg-[var(--accent)] border-[0.5px] border-[var(--accent)]'
-                    : 'bg-[var(--n200)] border-[0.5px] border-[var(--n400)]',
-                  // Hover preview on unselected
-                  !isSelected && !isHovered && 'hover:bg-[var(--accent-soft)]',
-                )}
-                style={{ width: segSize, height: segSize }}
-              />
-            )
-          })}
+              return (
+                <button
+                  key={i}
+                  ref={(el) => { itemRefs.current[i] = el }}
+                  type="button"
+                  role="radio"
+                  aria-checked={isCurrent}
+                  aria-label={labels?.[i] ? `${i + 1}: ${labels[i]}` : String(i + 1)}
+                  tabIndex={i === focusableIndex ? 0 : -1}
+                  onClick={() => onChange(i + 1)}
+                  onMouseEnter={() => setHoverIndex(i)}
+                  onKeyDown={(e) => handleKeyDown(e, i)}
+                  className={cn(
+                    'inline-flex items-center justify-center shrink-0',
+                    'rounded-[4px]',
+                    'transition-[background-color] duration-100',
+                    FOCUS_RING,
+                    // Colors
+                    isSelected || isHovered
+                      ? 'bg-[var(--accent)] border-[0.5px] border-[var(--accent)]'
+                      : 'bg-[var(--n200)] border-[0.5px] border-[var(--n400)]',
+                    // Hover preview on unselected
+                    !isSelected && !isHovered && 'hover:bg-[var(--accent-soft)]',
+                  )}
+                  style={{ width: segSize, height: segSize }}
+                />
+              )
+            })}
+          </div>
+          <span
+            aria-hidden="true"
+            className={cn(
+              FONT.body,
+              'text-[12px] tabular-nums ml-1.5 text-right',
+              WEIGHT.medium,
+              displayValue !== null ? 'text-[var(--n1150)]' : 'text-[var(--n600)]',
+            )}
+            style={{ minWidth: 14 }}
+          >
+            {displayValue ?? '—'}
+          </span>
         </div>
 
         {/* Null state placeholder */}

@@ -285,7 +285,7 @@ export const STEP_DOT_COMPLETED = 'bg-[var(--n1150)]'
 export const STEP_DOT_UPCOMING = 'bg-[var(--n400)]'
 
 // ─── RatingInput ───
-export const RATING_SEGMENT_SIZE = { default: 20, compact: 16 } as const
+export const RATING_SEGMENT_SIZE = { default: 20, compact: 12 } as const
 
 // ─── WidgetCard ───
 export const WIDGET_ICON_SIZE = 14
