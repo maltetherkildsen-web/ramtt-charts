@@ -31,6 +31,7 @@ import { ChartAxisY } from '@/components/charts/primitives/ChartAxisY'
 import { ChartAxisX } from '@/components/charts/primitives/ChartAxisX'
 import { ChartRefLine } from '@/components/charts/primitives/ChartRefLine'
 import { ChartZoneLine, POWER_ZONES } from '@/components/charts/primitives/ChartZoneLine'
+import { ChartAxisValue } from '@/components/charts/primitives/ChartAxisValue'
 import { ChartSyncProvider, useChartSync } from '@/components/charts/primitives/ChartSyncProvider'
 import { ChartZoomHandler } from '@/components/charts/primitives/ChartZoomHandler'
 import { ChartScrubber } from '@/components/charts/primitives/ChartScrubber'
@@ -50,6 +51,7 @@ import {
   type AthleteParamsState,
 } from '@/components/chart-test/AthleteParamsPanel'
 import { IconChevronRight } from '@/components/icons/light/IconChevronRight'
+import { ChartShortcutsHint } from '@/components/chart-test/ChartShortcutsHint'
 
 // ─── Constants ───
 
@@ -826,7 +828,7 @@ function FullscreenOverlay({
               key={key}
               onClick={() => onToggle(key)}
               className={cn(
-                "rounded-[4px] border border-[var(--n400)] px-2 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
+                "rounded-[4px] border border-[var(--n400)] px-2 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
                 visibleCharts.has(key)
                   ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
                   : cn("text-[var(--n600)]", HOVER_SAND)
@@ -847,7 +849,7 @@ function FullscreenOverlay({
               key={mode}
               onClick={() => setShowPeaks(mode === 'on')}
               className={cn(
-                "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
+                "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
                 i === 0 && 'rounded-l-[5px]', i === 1 && 'rounded-r-[5px]',
                 (mode === 'on') === showPeaks
                   ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
@@ -867,7 +869,7 @@ function FullscreenOverlay({
               key={mode}
               onClick={() => setZoneMode(mode)}
               className={cn(
-                "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors,
+                "border border-[var(--n400)] px-2.5 py-0.5 text-[10px]", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
                 i === 0 && 'rounded-l-[5px]', i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
                 zoneMode === mode ? cn(ACTIVE_SAND, "text-[var(--n1150)]") : cn("text-[var(--n600)]", HOVER_SAND)
               )}
@@ -879,7 +881,7 @@ function FullscreenOverlay({
 
         <button
           onClick={onClose}
-          className={cn("ml-2 rounded p-1 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND, "hover:text-[var(--n1050)]")}
+          className={cn("ml-2 rounded p-1 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND, FOCUS_RING, "hover:text-[var(--n1050)]")}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
             <path d="M4 4l8 8M12 4l-8 8" />
@@ -1004,14 +1006,15 @@ function FullscreenDataSidebar({
     })
   }, [sync, power, heartRate, cadence, speed, altitude, kjPerMin, torque, meta, showAvg])
 
-  // Fullscreen sidebar — 5-column grid, alignment-preserving:
-  //   [dot 8px] [label auto] [value right-aligned] [unit auto] [max 1fr]
-  //   Values right-align at col-3 right edge; units start at same x across rows.
+  // Fullscreen sidebar — 4-col grid:
+  //   [dot 8px] [label 44px] [value+max stack, right-aligned] [unit auto]
+  //   Main value baseline drives row baseline; max sits below as tiny muted caption.
   const dotCls = 'h-2 w-2 shrink-0 rounded-full self-center'
   const labelCls = cn('text-[12px] text-[var(--n800)] whitespace-nowrap', WEIGHT.book)
   const valCls = cn('text-[15px] tabular-nums slashed-zero text-[var(--n1050)] text-right', WEIGHT.strong)
   const unitCls = cn('text-[11px] text-[var(--n800)] whitespace-nowrap', WEIGHT.book)
-  const maxCls = cn('text-[11px] tabular-nums text-[var(--n600)] whitespace-nowrap', WEIGHT.normal)
+  const maxCls = cn('text-[9px] tabular-nums text-[var(--n500)] whitespace-nowrap leading-none mt-0.5', WEIGHT.normal)
+  const valStack = 'flex flex-col items-end leading-none'
 
   return (
     <div className="flex w-44 shrink-0 flex-col border-l-[0.5px] border-l-[var(--n400)] bg-[var(--n50)] px-3 py-2">
@@ -1021,27 +1024,31 @@ function FullscreenDataSidebar({
         <span ref={modeRef} className={cn("mt-0.5 block text-[11px] text-[var(--n600)]", WEIGHT.book)}>Session avg</span>
       </div>
 
-      {/* Channel entries — 5-col grid keeps dots, labels, values, units and max all column-aligned */}
+      {/* Channel entries — 4-col grid keeps dots, labels, values, units aligned; max stacks under value */}
       <div
         className="grid items-baseline"
-        style={{ gridTemplateColumns: '8px auto minmax(36px,max-content) auto 1fr', columnGap: 8, rowGap: 10 }}
+        style={{ gridTemplateColumns: '8px 44px 42px auto', columnGap: 6, rowGap: 10 }}
       >
         {visibleCharts.has('power') && (
           <>
             <span className={`${dotCls} bg-[#22c55e]`} />
             <span className={labelCls}>Power</span>
-            <span ref={pwRef} className={valCls}>0</span>
+            <div className={valStack}>
+              <span ref={pwRef} className={valCls}>0</span>
+              <span ref={pwMaxRef} className={maxCls} />
+            </div>
             <span className={unitCls}>W</span>
-            <span ref={pwMaxRef} className={maxCls} />
           </>
         )}
         {visibleCharts.has('hr') && (
           <>
             <span className={`${dotCls} bg-[#ef4444]`} />
             <span className={labelCls}>HR</span>
-            <span ref={hrRef} className={valCls}>0</span>
+            <div className={valStack}>
+              <span ref={hrRef} className={valCls}>0</span>
+              <span ref={hrMaxRef} className={maxCls} />
+            </div>
             <span className={unitCls}>bpm</span>
-            <span ref={hrMaxRef} className={maxCls} />
           </>
         )}
         {visibleCharts.has('kjmin') && (
@@ -1050,7 +1057,6 @@ function FullscreenDataSidebar({
             <span className={labelCls}>kJ/min</span>
             <span ref={kjRef} className={valCls}>0</span>
             <span className={unitCls}>kJ/min</span>
-            <span />
           </>
         )}
         {visibleCharts.has('cadence') && (
@@ -1059,7 +1065,6 @@ function FullscreenDataSidebar({
             <span className={labelCls}>Cad</span>
             <span ref={cadRef} className={valCls}>0</span>
             <span className={unitCls}>rpm</span>
-            <span />
           </>
         )}
         {visibleCharts.has('speed') && (
@@ -1068,7 +1073,6 @@ function FullscreenDataSidebar({
             <span className={labelCls}>Speed</span>
             <span ref={spdRef} className={valCls}>0</span>
             <span className={unitCls}>km/h</span>
-            <span />
           </>
         )}
         {visibleCharts.has('elevation') && (
@@ -1077,7 +1081,6 @@ function FullscreenDataSidebar({
             <span className={labelCls}>Elev</span>
             <span ref={elvRef} className={valCls}>0</span>
             <span className={unitCls}>m</span>
-            <span />
           </>
         )}
         {visibleCharts.has('torque') && (
@@ -1086,12 +1089,14 @@ function FullscreenDataSidebar({
             <span className={labelCls}>Torque</span>
             <span ref={tqRef} className={valCls}>0</span>
             <span className={unitCls}>Nm</span>
-            <span />
           </>
         )}
       </div>
 
-      <div className="mt-auto pt-2 text-center text-[9px] text-[var(--n600)]">F / Esc to exit</div>
+      <div className="mt-auto flex items-center justify-between pt-2">
+        <span className="text-[9px] text-[var(--n600)]">F / Esc to exit</span>
+        <ChartShortcutsHint compact side="top" align="end" />
+      </div>
     </div>
   )
 }
@@ -1152,7 +1157,7 @@ function SessionHeader({ meta, scores, setScores, onChangeFile }: {
         </div>
         <button
           onClick={onChangeFile}
-          className={cn("text-[12px] text-[var(--n600)]", WEIGHT.book, TRANSITION.colors, "hover:text-[var(--n1050)]")}
+          className={cn("rounded-[4px] px-1 text-[12px] text-[var(--n600)]", WEIGHT.book, TRANSITION.colors, FOCUS_RING, "hover:text-[var(--n1050)]")}
         >
           ↻ Change file
         </button>
@@ -1175,7 +1180,7 @@ function SessionDataPanel({ input, onUpdate }: {
     <div className={cn("border-b-[0.5px] border-b-[var(--n400)]")}>
       <button
         onClick={() => setOpen(p => !p)}
-        className={cn("flex w-full items-center gap-1.5 py-2", LABEL_STYLE, TRANSITION.colors, "hover:text-[var(--n800)]")}
+        className={cn("flex w-full items-center gap-1.5 rounded-[4px] py-2", LABEL_STYLE, TRANSITION.colors, FOCUS_RING, "hover:text-[var(--n800)]")}
       >
         <IconChevronRight className={cn(TRANSITION.transform, open && 'rotate-90')} size={16} />
         CHO & Sport
@@ -1322,7 +1327,7 @@ function MetricsTiers({
       <div className="border-b-[0.5px] border-b-[var(--n400)]">
         <button
           onClick={() => setContextOpen(!contextOpen)}
-          className={cn("flex w-full items-center gap-1.5 py-1.5 text-[11px] text-[var(--n600)]", WEIGHT.strong, TRANSITION.colors, "hover:text-[var(--n800)]")}
+          className={cn("flex w-full items-center gap-1.5 rounded-[4px] py-1.5 text-[11px] text-[var(--n600)]", WEIGHT.strong, TRANSITION.colors, FOCUS_RING, "hover:text-[var(--n800)]")}
         >
           <span className={cn("text-[9px] transition-transform duration-150", contextOpen && 'rotate-90')}>
             ▶
@@ -1406,7 +1411,7 @@ function ChartToggles({
           key={key}
           onClick={() => onToggle(key)}
           className={cn(
-            RADIUS.md, "border border-[var(--n400)] px-3.5 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+            RADIUS.md, "border border-[var(--n400)] px-3.5 py-1 text-xs", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
             visibleCharts.has(key)
               ? cn(ACTIVE_SAND, "text-[var(--n1150)]")
               : cn("text-[var(--n600)]", HOVER_SAND)
@@ -1420,7 +1425,7 @@ function ChartToggles({
       {onFullscreen && (
         <button
           onClick={onFullscreen}
-          className={cn(RADIUS.md, "border border-[var(--n400)] p-1.5 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND)}
+          className={cn(RADIUS.md, "border border-[var(--n400)] p-1.5 text-[var(--n600)]", TRANSITION.colors, HOVER_SAND, FOCUS_RING)}
           title="Fullscreen (F)"
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -1428,6 +1433,10 @@ function ChartToggles({
           </svg>
         </button>
       )}
+
+      {/* Keyboard shortcuts hint */}
+      <ChartShortcutsHint side="bottom" align="end" />
+
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -1440,7 +1449,7 @@ function ChartToggles({
             key={mode}
             onClick={() => setShowPeaks(mode === 'on')}
             className={cn(
-              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
               i === 0 && 'rounded-l-[5px]',
               i === 1 && 'rounded-r-[5px]',
               (mode === 'on') === showPeaks
@@ -1461,7 +1470,7 @@ function ChartToggles({
             key={mode}
             onClick={() => setZoneMode(mode)}
             className={cn(
-              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors,
+              "border border-[var(--n400)] px-3 py-1 text-xs", WEIGHT.medium, TRANSITION.colors, FOCUS_RING,
               i === 0 && 'rounded-l-[5px]',
               i === ZONE_MODES.length - 1 && 'rounded-r-[5px]',
               zoneMode === mode
@@ -1519,7 +1528,7 @@ function PeakPowersStrip({
           onClick={() => handleClick(peak)}
           className={cn(
             "flex items-baseline gap-1 rounded-[3px] px-1 py-0.5",
-            TRANSITION.colors,
+            TRANSITION.colors, FOCUS_RING,
             activePeak?.label === peak.label
               ? cn(ACTIVE_SAND, "text-(--n1150)")
               : "hover:bg-(--n200)"
@@ -1639,6 +1648,7 @@ function SyncedCharts({
             <ChartLine />
           )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} />
+          {!hideExtras && <ChartAxisValue tickCount={3} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Power</text>
         </ChartRoot>
@@ -1664,6 +1674,7 @@ function SyncedCharts({
             <ChartLine className="fill-none stroke-red-500 stroke-[1.5]" />
           )}
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#ef4444" />
+          {!hideExtras && <ChartAxisValue tickCount={3} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>HR</text>
         </ChartRoot>
@@ -1685,6 +1696,7 @@ function SyncedCharts({
           <ChartArea gradientColor="#f59e0b" opacityFrom={0.10} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-amber-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#f59e0b" />
+          {!hideExtras && <ChartAxisValue tickCount={2} format={(v) => v.toFixed(1)} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>kJ/min</text>
         </ChartRoot>
@@ -1706,6 +1718,7 @@ function SyncedCharts({
           <ChartArea gradientColor="#a855f7" opacityFrom={0.08} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-purple-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#a855f7" />
+          {!hideExtras && <ChartAxisValue tickCount={2} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Cadence</text>
         </ChartRoot>
@@ -1727,6 +1740,7 @@ function SyncedCharts({
           <ChartArea gradientColor="#3b82f6" opacityFrom={0.08} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-blue-500 stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#3b82f6" />
+          {!hideExtras && <ChartAxisValue tickCount={2} format={(v) => v.toFixed(1)} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Speed</text>
         </ChartRoot>
@@ -1749,6 +1763,7 @@ function SyncedCharts({
           <ChartArea gradientColor="#78716c" opacityFrom={0.15} opacityTo={0.03} />
           <ChartLine className="fill-none stroke-stone-400 stroke-[1]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#78716c" dotRadius={2} />
+          {!hideExtras && <ChartAxisValue tickCount={3} format={(v) => `${Math.round(v)}m`} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Elevation</text>
         </ChartRoot>
@@ -1770,6 +1785,7 @@ function SyncedCharts({
           <ChartArea gradientColor="#b45309" opacityFrom={0.10} opacityTo={0.005} />
           <ChartLine className="fill-none stroke-[#b45309] stroke-[1.5]" />
           <ChartCrosshair lineColor="#52525b" lineWidth={0.75} dotColor="#b45309" />
+          {!hideExtras && <ChartAxisValue tickCount={2} format={(v) => v.toFixed(1)} />}
           <ChartZoomHandler />
           <text x={4} y={12} className="fill-[var(--n600)] text-[9px] font-[550]" style={{ fontFamily: "var(--font-sans)" }}>Nm</text>
         </ChartRoot>
@@ -1807,7 +1823,7 @@ function SyncedCharts({
           </span>
           <button
             onClick={() => sync.setZoom({ start: 0, end: power.length - 1 })}
-            className={cn("rounded px-2 py-0.5 text-[9px] text-[var(--n800)]", WEIGHT.strong, TRANSITION.colors, HOVER_SAND, "hover:text-[var(--n1050)]")}
+            className={cn("rounded px-2 py-0.5 text-[9px] text-[var(--n800)]", WEIGHT.strong, TRANSITION.colors, HOVER_SAND, FOCUS_RING, "hover:text-[var(--n1050)]")}
           >
             Reset zoom
           </button>
@@ -1987,7 +2003,7 @@ function HoverDataTable({
 
         <div
           className="grid items-baseline"
-          style={{ gridTemplateColumns: '8px auto minmax(36px,max-content) auto 1fr', columnGap: 8, rowGap: 3 }}
+          style={{ gridTemplateColumns: '8px 44px 42px 56px auto', columnGap: 8, rowGap: 3 }}
         >
           {vc.has('power') && (
             <>
@@ -2092,7 +2108,7 @@ function TabBar() {
             key={tab}
             onClick={() => setActive(i)}
             className={cn(
-              "pb-2 text-[13px]", WEIGHT.strong, TRANSITION.colors,
+              "rounded-[4px] px-1 pb-2 text-[13px]", WEIGHT.strong, TRANSITION.colors, FOCUS_RING,
               active === i
                 ? cn("border-b-2 border-[var(--n1050)] text-[var(--n1050)]", WEIGHT.medium)
                 : "text-[var(--n600)] hover:text-[var(--n800)]"
